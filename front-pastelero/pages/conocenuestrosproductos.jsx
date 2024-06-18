@@ -1,13 +1,12 @@
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 
-export default function Home() {
+export default function Conocenuestrosproductos() {
   return (
     <main>
       <NavbarAdmin />
-      <h1 className="text-white">Hola Pasteleros</h1>
       <Link href="/conocenuestrosproductos">
-        <button className="btnIntroductionLogIn">Conoce nuestro productos</button>
+        <button className="btnIntroductionLogIn">productos</button>
       </Link>
     </main>
   );

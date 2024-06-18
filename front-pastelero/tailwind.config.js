@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -7,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: '#FFC3C9',  // Agregamos el color rosa con el nombre 'primary'
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
