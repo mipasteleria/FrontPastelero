@@ -9,8 +9,8 @@ export default function Home() {
       <Link href="/conocenuestrosproductos">
         <button className="btnIntroductionLogIn">Conoce nuestro productos</button>
       </Link>
-      <Link href="/conocenuestrosproductos">
-        <button className="btnIntroductionLogIn">Conoce nuestro productos</button>
+      <Link href="/dashboard">
+        <button className="btnIntroductionLogIn">Dashboard</button>
       </Link>
     </main>
   );

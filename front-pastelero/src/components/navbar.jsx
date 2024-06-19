@@ -2,6 +2,7 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+
 const NavbarAdmin = () => {
   return (
     <nav className={`bg-primary h-16 ${sofia.className}`}>
