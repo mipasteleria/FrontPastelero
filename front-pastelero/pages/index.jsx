@@ -1,9 +1,22 @@
 import Image from "next/image";
 import WebFooter from "@/src/components/WebFooter";
+import Link from "next/link";
+import NavbarAdmin from "@/src/components/navbar";
 
 export default function Home() {
   return (
-    <main classname="landingMain">
+    <main>
+      <NavbarAdmin />
+      <Link href="/conocenuestrosproductos">
+        <button className="btnIntroductionLogIn">
+          Conoce nuestro productos
+        </button>
+      </Link>
+      <Link href="/conocenuestrosproductos">
+        <button className="btnIntroductionLogIn">
+          Conoce nuestro productos
+        </button>
+      </Link>
       <div className="landingContainer bg-[#FFF3F5] text-[#540027]">
         <div className="landingTop flex justify-center align-middle pt-10 gap-10">
           <div className="landingTopVideo basis-1/2 justify-center align-middle bg-black"></div>
