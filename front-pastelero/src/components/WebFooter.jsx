@@ -1,7 +1,7 @@
 export default function WebFooter() {
   return (
     <footer>
-      <div className="bg-[#FFC3C9]">
+      <div className="bg-primary">
         <div className="flex text-center">
           <p>
             Siguenos en redes sociales y asi estaras <br />

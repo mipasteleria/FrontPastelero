@@ -17,7 +17,7 @@ export default function Home() {
           Conoce nuestro productos
         </button>
       </Link>
-      <div className="landingContainer bg-[#FFF3F5] text-[#540027]">
+      <div className="bg-[#EA546C] text-[#540027]">
         <div className="landingTop flex justify-center align-middle pt-10 gap-10">
           <div className="landingTopVideo basis-1/2 justify-center align-middle bg-black"></div>
           <div className="landingTopText basis-1/2 flex-col max-w-[533px]">
@@ -59,14 +59,7 @@ export default function Home() {
               </div>
             </div>
             <div className="pastelesContainer">
-              <div className="pastelesImg h-[190px] w-[190px] rounded-full overflow-hidden ">
-                <Image
-                  src="/yoda.jpg"
-                  width={190}
-                  height={190}
-                  alt="Picture of 3d yoda cake"
-                />
-              </div>
+              <div className="pastelesImg h-[190px] w-[190px] rounded-full overflow-hidden "></div>
               <div className="pastelesDescription text-center pt-3 text-lg">
                 Pasteles 3D
               </div>
