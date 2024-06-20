@@ -14,6 +14,7 @@ module.exports = {
         secondary: "#D6A7BC",
         text: "#540027",
         accent: "#FF6F7D",
+        background: "FFF3F5",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
