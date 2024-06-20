@@ -16,10 +16,10 @@ export default function Home() {
         <button className="btnIntroductionLogIn">Dashboard</button>
       </Link>
       <div className="bg-background text-text">
-        <div className="landingTop flex gap-[20px] my-[100px] mx-[200px] px-[200px]">
+        <div className="landingTop flex gap-[40px] my-[100px] mx-[200px] px-[200px]">
           <div className="landingTopVideo basis-1/2">
             <Image
-              className="rounded-xl "
+              className="rounded-xl h-[400px]"
               src="/img/videolanding.png"
               width={800}
               height={800}
@@ -121,9 +121,11 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center text-lg">
-              <button>
-                <p>Leer más...</p>
-              </button>
+              <Link href="/conocenos">
+                <button>
+                  <p>Leer más...</p>
+                </button>
+              </Link>
             </div>
           </div>
           <div className="landingBottomImg basis-1/2 flex justify-center pl-[200px]">
