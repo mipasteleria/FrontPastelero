@@ -12,10 +12,8 @@ export default function Home() {
           Conoce nuestro productos
         </button>
       </Link>
-      <Link href="/conocenuestrosproductos">
-        <button className="btnIntroductionLogIn">
-          Conoce nuestro productos
-        </button>
+      <Link href="/dashboard">
+        <button className="btnIntroductionLogIn">Dashboard</button>
       </Link>
       <div className="bg-[#EA546C] text-[#540027]">
         <div className="landingTop flex justify-center align-middle pt-10 gap-10">
