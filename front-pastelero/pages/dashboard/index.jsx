@@ -2,6 +2,7 @@ import Link from "next/link";
 import NavbarDashboard from "@/src/components/navbardashboard";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
+import FooterDashboard from "@/src/components/footeradmin";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -31,6 +32,7 @@ export default function Conocenuestrosproductos() {
                 <button className="text-2xl md:text-xl bg-primary p-3.5 rounded-lg m-4 w-72 drop-shadow-xl">Solicitudes de cotización</button>
             </Link>         
           </div>
+          <FooterDashboard/>
         </main>
       </div>
       
