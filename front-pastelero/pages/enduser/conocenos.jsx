@@ -1,5 +1,6 @@
 import Image from "next/image";
 import NavbarAdmin from "@/src/components/navbar";
+import WebFooter from "@/src/components/WebFooter";
 
 export default function Conocenos() {
   return (
@@ -46,6 +47,7 @@ export default function Conocenos() {
           </div>
         </div>
       </div>
+      <WebFooter />
     </div>
   );
 }
