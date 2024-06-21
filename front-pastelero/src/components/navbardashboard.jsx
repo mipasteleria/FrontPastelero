@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
@@ -8,7 +10,15 @@ const NavbarDashboard = () => {
     <nav className={`bg-primary h-16 ${sofia.className} shadow-md z-50 sticky top-0`}>
       <div className="w-full flex flex-wrap items-center justify-between mx-auto">
         <div className="flex">
-          <img className="mx-2" src="logo.JPG" alt="" width={64} height={64} />
+        <Link href="/">
+        <Image 
+              className="mx-2 "
+              src="/img/logo.JPG"
+              width={64}
+              height={64}
+              alt="video que no es video"
+            /> 
+           </Link>
           <div>
             <div className="text-white px-2">
               Pastelería
@@ -31,7 +41,7 @@ const NavbarDashboard = () => {
             </div>
             <ul className="py-2" aria-labelledby="user-menu-button">
               <li>
-                <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
+                <a href="/pages/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
               </li>
               <li>
                 <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Settings</a>
