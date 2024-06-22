@@ -2,6 +2,7 @@ import Link from "next/link";
 import NavbarDashboard from "@/src/components/navbardashboard";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
+import FooterDashboard from "@/src/components/footeradmin";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -84,7 +85,7 @@ export default function Conocenuestrosproductos() {
                     </div>
                     <button
                       type="submit"
-                      className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-20 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
                       Agregar
                     </button>
@@ -212,14 +213,82 @@ export default function Conocenuestrosproductos() {
           </div>
 
           <div className="flex flex-col mt-4 gap-4 ml-4">
-                <button className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 md:mb-0 md:mr-2 w-64">
+                <button className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 md:mb-0 md:mr-2 w-56">
                     Eliminar Producto
                 </button>
-                <button className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-64">
+                <button className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-56">
                     Cancelar
                 </button>
             </div>  
           </div>
+          <div className="m-4 gap-4 grid md:grid-cols-2">
+          <div>
+                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
+                      Mano de obra en horas
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="0.0"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
+                      Porcentaje de ganancia esperada
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="0.0"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
+                      Porciones
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="0.0"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
+                      Gastos fijos en horas
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="0.0"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
+                      Porcentaje de impuestos (IEPS)
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="0.0"
+                      required
+                    />
+                  </div>
+          </div>
+          <Link className="flex justify-end mb-20" href="/dashboard/costeorecetas">
+            <button type="submit" className="text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+                Guardar Receta
+            </button>
+          </Link>
+          <FooterDashboard/>
         </main>
       </div>
     </div>

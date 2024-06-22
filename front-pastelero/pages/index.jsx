@@ -7,11 +7,6 @@ export default function Home() {
   return (
     <main>
       <NavbarAdmin />
-      <Link href="/conocenuestrosproductos">
-        <button className="btnIntroductionLogIn">
-          Conoce nuestro productos
-        </button>
-      </Link>
       <Link href="/dashboard">
         <button className="btnIntroductionLogIn">Dashboard</button>
       </Link>
@@ -50,9 +45,11 @@ export default function Home() {
           </div>
         </div>
         <div className="landingMiddle md:my-[100px]">
-          <h2 className="text-center text-2xl mt-[50px] mb-[20px] md:text-4xl ">
-            Conoce Nuestros Productos
-          </h2>
+          <Link href="/enduser/conocenuestrosproductos">
+            <h2 className="text-center text-2xl mt-[50px] mb-[20px] md:text-4xl ">
+              Conoce Nuestros Productos
+            </h2>
+          </Link>
           <div className="MiddleProductsContainer flex flex-col items-center md:flex-row gap-[20px] md:gap-[100px] md:mt-10 md:justify-center">
             <div className="saboresContainer">
               <div className="saboresImg w-[190px] h-[190px] rounded-full overflow-hidden">
