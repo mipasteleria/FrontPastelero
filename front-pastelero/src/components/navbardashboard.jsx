@@ -11,12 +11,12 @@ const NavbarDashboard = () => {
       <div className="w-full flex flex-wrap items-center justify-between mx-auto">
         <div className="flex">
         <Link href="/">
-        <Image 
+            <Image 
               className="mx-2 "
               src="/img/logo.JPG"
               width={64}
               height={64}
-              alt="video que no es video"
+              alt=""
             /> 
            </Link>
           <div>
