@@ -10,6 +10,11 @@ const NavbarAdmin = () => {
     <nav className={`bg-primary h-16 ${sofia.className} text-text`}>
       <div className="flex flex-row justify-between items-center">
       <div className="flex">
+          <div>
+          <svg class="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h14"/>
+          </svg>
+          </div>
           <Link href="/">
             <Image 
                 className="mx-2"
@@ -30,7 +35,7 @@ const NavbarAdmin = () => {
         </div>
         <div className="flex items-center gap-4">
           <div className="flex">
-            <Link href="/conocenuestrosproductos">
+            <Link href="/enduser/conocenuestrosproductos">
               <div className={`${poppins.className} m-4 hidden md:flex`}>
                 Productos
               </div>
@@ -45,7 +50,7 @@ const NavbarAdmin = () => {
                 Log In
               </div>
             </Link>
-            <Link href="/login">
+            <Link href="/enduser/solicitarcotizacion">
               <div className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2`}>
                 ¡Cotizar ahora!
               </div>
