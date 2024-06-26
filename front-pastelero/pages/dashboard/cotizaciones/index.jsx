@@ -11,9 +11,9 @@ export default function Conocenuestrosproductos() {
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
-      <div className="">
+      <div className="flex w-3/4">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow sm:pl-52`}>     
+        <main className={`text-text ${poppins.className} flex flex-row `}>     
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis cotizaciones</h1>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
           <div className="overflow-x-auto w-full">
@@ -58,7 +58,7 @@ export default function Conocenuestrosproductos() {
                             NUEVA
                         </td>
                         <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
-                        <Link className="" href="/dashboard/cotizaciones/verdetallesolicitud">
+                        <Link className="" href="/dashboard/cotizaciones/cotizacionmanual/verdetallesolicitud">
                           <svg class="w-6 h-6 text-accent dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="1" height="1" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-width="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
                             <path stroke="currentColor" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
