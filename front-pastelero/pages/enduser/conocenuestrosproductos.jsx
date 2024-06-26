@@ -7,8 +7,9 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Conocenuestrosproductos() {
   return (
-    <main className={`text-text ${poppins.className}`}>
+    <div>
       <NavbarAdmin />
+      <main className={`text-text ${poppins.className}`}>
       <h1 className={`text-4xl p-6 ${sofia.className}`}>Conoce nuestros productos</h1>
       <div className="p-4" id="accordion-open" data-accordion="open">
         <h2 id="accordion-open-heading-1">
@@ -72,8 +73,8 @@ export default function Conocenuestrosproductos() {
             </ul>
           </div>
         </div>
-
       </div>
     </main>
+    </div>
   );
 }
