@@ -11,9 +11,9 @@ export default function Conocenuestrosproductos() {
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
-      <div className="">
+      <div className="flex">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow sm:pl-52`}>     
+        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>     
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Nueva Receta</h1>
           <form className="m-4" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-wrap">

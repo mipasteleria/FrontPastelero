@@ -11,9 +11,9 @@ export default function Conocenuestrosproductos() {
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
-      <div className="flex w-3/4">
+      <div className="flexflex w-3/4">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex flex-row `}>     
+        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>     
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis cotizaciones</h1>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
           <div className="overflow-x-auto w-full">
@@ -246,12 +246,12 @@ export default function Conocenuestrosproductos() {
             </ul>
             </nav>
           <Link className="flex justify-end" href="/dashboard/cotizaciones/cotizacionmanual">
-            <button type="submit" className="text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-8 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+            <button type="submit" className="text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-8 py-2.5 text-center ml-2 m-4">
               Crear Cotización Manual
             </button>
           </Link>
           <Link className="flex justify-end" href="/dashboard/cotizaciones/cotizacionmanual">
-            <button type="submit" className="text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+            <button type="submit" className="text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 m-4">
               Aprobar y Enviar
             </button>
           </Link>
