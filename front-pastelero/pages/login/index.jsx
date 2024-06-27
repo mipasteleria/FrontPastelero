@@ -27,6 +27,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <h1 className="text-text text-2xl">Ingresar</h1>
       <form className="w-11/12 md:w-10/12 lg:w-6/12 my-10 md:my-10 bg-rose-100 border border-accent p-6 rounded-xl shadow-xl">
         <div className="mb-5">
           <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
@@ -45,7 +46,6 @@ export default function Login() {
         <Link href="/dashboard">
             <button type="submit" className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Submit</button>
         </Link>
-        
       </form>
     </main>
   );

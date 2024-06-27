@@ -10,8 +10,8 @@ const NavbarAdmin = () => {
     <nav className={`bg-primary h-16 ${sofia.className} text-text`}>
       <div className="flex flex-row justify-between items-center">
       <div className="flex">
-          <div>
-          <svg class="w-8 h-8 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <div className="block md:hidden">
+          <svg class="w-8 h-8 text-white m-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M5 7h14M5 12h14M5 17h14"/>
           </svg>
           </div>
@@ -35,13 +35,18 @@ const NavbarAdmin = () => {
         </div>
         <div className="flex items-center gap-4">
           <div className="flex">
+            <Link href="/registrarse">
+              <div className={`${poppins.className} m-4 hidden md:flex`}>
+                Registrarse
+              </div>
+            </Link>
             <Link href="/enduser/conocenuestrosproductos">
               <div className={`${poppins.className} m-4 hidden md:flex`}>
                 Productos
               </div>
             </Link>
             <Link href="/galeria">
-              <div className={`${poppins.className} m-4 hidden md:flex`}>
+              <div className={`${poppins.className} m-4 hidden lg:flex`}>
                 Galeria
               </div>
             </Link>
