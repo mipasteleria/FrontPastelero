@@ -160,9 +160,6 @@ Schedule appointment
         </div>
     </div>
 </div>
-
-
-
     </main>
     </div>
   );
