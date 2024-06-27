@@ -7,7 +7,7 @@ import Asideadmin from "@/src/components/asideadmin";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-export default function Conocenuestrosproductos() {
+export default function verdetallesolicitud() {
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
       <NavbarDashboard />
