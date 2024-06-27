@@ -6,8 +6,8 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const Asideadmin = () => {
   return (
-    <aside id="default-sidebar" class="flex min-h-screen top-16 left-0 w-1/4 transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
-        <div className="flex flex-col min-h-screen px-3 py-4 overflow-y-auto bg-primary">
+    <aside id="default-sidebar" class="flex top-16 left-0 w-1/4 h-grow transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
+        <div class="h-full px-3 py-4 overflow-y-auto bg-primary dark:bg-gray-100">
             <ul class="space-y-2 font-medium">
             <Link href="/dashboard">
                 <li>

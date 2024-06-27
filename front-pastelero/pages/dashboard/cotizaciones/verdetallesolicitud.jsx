@@ -1,4 +1,3 @@
-
 import Image from "next/image";
 import Link from "next/link";
 import NavbarDashboard from "@/src/components/navbardashboard";
@@ -10,168 +9,165 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Conocenuestrosproductos() {
   return (
-    <div className={`text-text ${poppins.className}`}>
+    <div className={`text-text min-h-screen ${poppins.className}`}>
       <NavbarDashboard />
-      <div className="flex flex-row w-3/4">
-        <Asideadmin />
-        <main className="flex-grow">
-        <h1 className={`text-4xl p-4 ${sofia.className}`}>Ver detalle de Solicitud de cotizacion</h1>
-        <form className="m-4" onSubmit={(e) => e.preventDefault()}>
+      <div className="flex flex-row">
+        <Asideadmin className="w-1/4" />
+        <main className="w-3/4 p-4">
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>Ver detalle de Solicitud de cotización</h1>
+          <form className="m-4" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 pr-2">
                 <div className="mb-6">
-                <h3 className={`text-xl p-2 ${poppins.className}`}>Diseño Solicitado o Imagenes de inspiracion</h3>
-                <Image 
-                  className="mx-2 "
-                  src="/img/logo.JPG"
-                  width={164}
-                  height={164}
-                  alt="imagen"
-                /> 
+                  <h3 className={`text-xl p-2 ${poppins.className}`}>Diseño Solicitado o Imágenes de inspiración</h3>
+                  <Image 
+                    className="mx-2"
+                    src="/img/logo.JPG"
+                    width={164}
+                    height={164}
+                    alt="imagen"
+                  /> 
                 </div>
-
               </div>
               
               <div className="w-full md:w-1/2 pl-2">
                 <div className="grid gap-6 mb-6">
                   <div className="flex items-center mb-4">
-                    <label htmlFor="ingredient" className="block mb-2 text-sm font-medium dark:text-white">
-                      Numero de orden
+                    <label htmlFor="noOrden" className="block w-1/4 text-sm font-medium dark:text-white">
+                      Número de orden
                     </label>
                     <input
                       type="text"
                       id="noOrden"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                       placeholder="123456"
                       required
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Fecha de expedicion
+                    <label htmlFor="FecExp" className="block w-1/4 text-sm font-medium dark:text-white">
+                      Fecha de expedición
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       id="FecExp"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                       placeholder="MM/DD/YYYY hh:mm:aa"
                       required
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
+                    <label htmlFor="NomCli" className="block w-1/4 text-sm font-medium dark:text-white">
                       En atención a
                     </label>
                     <input
-                      type="NomCli"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      type="text"
+                      id="NomCli"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                       placeholder="Cliente"
                       required
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
+                    <label htmlFor="FecEnt" className="block w-1/4 text-sm font-medium dark:text-white">
                       Fecha y hora de entrega
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       id="FecEnt"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                       placeholder="MM/DD/YYYY hh:mm:aa"
                       required
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Lugar de Entrega
+                    <label htmlFor="LugEnt" className="block w-1/4 text-sm font-medium dark:text-white">
+                      Lugar de entrega
                     </label>
                     <input
-                      type="LugEnt"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="Calle, numero y colonia"
+                      type="text"
+                      id="LugEnt"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="Calle, número y colonia"
                       required
                     />
                   </div>
                   
-                  <h3 className={`text-xl p-2 bg-gray-200 rounded-lg flex items-center justify-center ${poppins.className}`}>Detalles del pedido</h3>
+                  <h3 className={`text-xl p-2 bg-highlightText rounded-lg flex items-center justify-center ${poppins.className}`}>
+                    Detalles del pedido
+                  </h3>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="quantity" className="text-sm font-medium dark:text-white mr-2">
-                      Numero de porciones
+                    <label htmlFor="quantity" className="w-1/4 text-sm font-medium dark:text-white">
+                      Número de porciones
                     </label>
                     <input
                       type="text"
                       id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                       placeholder="0.0"
                       required
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="SabBiz" className="text-sm font-medium dark:text-white mr-2">
-                      Sabor de Bizcocho
+                    <label htmlFor="SabBiz" className="w-1/4 text-sm font-medium dark:text-white">
+                      Sabor de bizcocho
                     </label>
                     <input
                       type="text"
                       id="SabBiz"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                       placeholder="Sabor"
                       required
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="SabRell" className="text-sm font-medium dark:text-white mr-2">
+                    <label htmlFor="SabRell" className="w-1/4 text-sm font-medium dark:text-white">
                       Relleno
                     </label>
                     <input
                       type="text"
                       id="SabRell"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="Sabor Relleno"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="Sabor relleno"
                       required
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="SabCob" className="text-sm font-medium dark:text-white mr-2">
+                    <label htmlFor="SabCob" className="w-1/4 text-sm font-medium dark:text-white">
                       Cobertura
                     </label>
                     <input
                       type="text"
                       id="SabCob"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="Sabor Cobertura"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="Sabor cobertura"
                       required
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="Forr" className="text-sm font-medium dark:text-white mr-2">
+                    <label htmlFor="Forr" className="w-1/4 text-sm font-medium dark:text-white">
                       Forrado
                     </label>
                     <input
                       type="text"
                       id="Forr"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                       placeholder="Forrado"
                       required
                     />
                   </div>                  
                   <div className="flex items-center mb-4">
-
+                  <Link className="" href="/dashboard/costeorecetas/generarcotizacion">
                     <button
                       type="submit"
-                      className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
-                      Generar Cotizacion
+                      Generar Cotización
                     </button>
+                    </Link>
                   </div>
-                </div>
-              </div>
-            </div>
-          </form>
-        </main>
-      </div>
-      
-    </div>
-  );
-}
+               </div>
+               </div>
+               </div>
+               </form>
+               </main></div></div>)}

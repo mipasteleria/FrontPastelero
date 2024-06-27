@@ -11,7 +11,7 @@ export default function Conocenuestrosproductos() {
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
-      <div className="flex">
+      <div className="flexflex w-3/4">
         <Asideadmin />
         <main className={`text-text ${poppins.className} flex-grow w-3/4`}>     
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis cotizaciones</h1>
@@ -58,7 +58,7 @@ export default function Conocenuestrosproductos() {
                             NUEVA
                         </td>
                         <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
-                        <Link className="" href="/dashboard/cotizaciones/verdetallesolicitud">
+                        <Link className="" href="/dashboard/cotizaciones/cotizacionmanual/verdetallesolicitud">
                           <svg class="w-6 h-6 text-accent dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="1" height="1" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-width="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
                             <path stroke="currentColor" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
