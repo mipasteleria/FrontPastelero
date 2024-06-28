@@ -1,0 +1,71 @@
+/* calendar-custom.css */
+
+.custom-calendar {
+  width: 100%;
+  max-width: 350px;
+  background-color: #fff1f2; /* bg-rose-50 */
+  border: 1px solid #D6A7BC; /* border-secondary */
+  border-radius: 0.375rem; /* rounded-md */
+  padding: 0.5rem; /* p-2 */
+  color: #540027; /* text-primary */
+}
+
+.custom-calendar .react-calendar__navigation {
+  background-color: #FFC3C9; /* primary */
+  color: #540027; /* text-white */
+}
+
+.custom-calendar .react-calendar__month-view__weekdays {
+  background-color: #FFC3C9; /* primary */
+  color: #540027; /* text-white */
+}
+
+.custom-calendar .react-calendar__tile {
+  color: #540027; /* text-primary */
+  border-radius: 50%; /* Forma circular */
+}
+
+.custom-calendar .react-calendar__tile--active {
+  background-color: #FFC3C9; /* primary */
+  color: #540027; /* text-primary */
+}
+
+.custom-calendar .react-calendar__tile--now {
+  background-color: #540027; /* primary */
+  color: white; /* text-white */
+}
+
+.custom-calendar .react-calendar__tile:hover {
+  background-color: #FF6F7D; /* primary */
+  color: white; /* text-white */
+}
+
+/* calendar-custom.css */
+
+.custom-calendar {
+  width: 100%;
+  max-width: 350px;
+  background-color: #fff1f2; /* Fondo */
+  border: 1px solid #D6A7BC; /* Borde */
+  border-radius: 0.375rem; /* Bordes redondeados */
+  padding: 0.5rem; /* Espaciado */
+  color: #540027; /* Color de texto */
+}
+
+.custom-calendar .react-calendar__navigation {
+  background-color: #FFC3C9; /* Color de fondo del encabezado */
+  color: #540027; /* Color de texto del encabezado */
+  border-top-left-radius: 0.375rem; /* Redondeado en la esquina superior izquierda */
+  border-top-right-radius: 0.375rem; /* Redondeado en la esquina superior derecha */
+}
+
+.custom-calendar .react-calendar__month-view__weekdays {
+  background-color: #FFC3C9; /* Color de fondo de los días de la semana */
+  color: #540027; /* Color de texto de los días de la semana */
+  border-bottom-left-radius: 0.375rem; /* Redondeado en la esquina inferior izquierda */
+  border-bottom-right-radius: 0.375rem; /* Redondeado en la esquina inferior derecha */
+}
+
+.custom-calendar .react-calendar__month-view__weekdays .react-calendar__weekday abbr {
+  text-decoration: none; /* Quita el subrayado debajo de los días de la semana */
+}
