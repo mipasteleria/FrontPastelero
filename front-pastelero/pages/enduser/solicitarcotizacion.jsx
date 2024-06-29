@@ -2,11 +2,12 @@ import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import DatePicker from "@/src/components/calendario";
+import WebFooter from "@/src/components/WebFooter";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-export default function Conocenuestrosproductos() {
+export default function SolicitarCotizacion() {
   return (
     <div>
       <NavbarAdmin />
@@ -277,21 +278,76 @@ export default function Conocenuestrosproductos() {
         <div class="bg-primary text-xs font-medium text-text text-center p-0.5 leading-none rounded-full"> 45%</div>
       </div>
       <div className="flex flex-col md:flex-row m-6">
-        <p className="w-1/2">¿Podrías informarnos si tienes un presupuesto específico para este pedido? Nos sería de gran ayuda conocer la cantidad que tienes en mente.</p>
-        <div className="m-4 w-1/2">
-                <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
-                Presupuesto deseado
-                </label>
-                <input
-                type="text"
-                id="recipe_name"
-                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                placeholder="0.0"
-                required
-                />
-            </div>
+        <p className="md:w-1/2">¿Podrías informarnos si tienes un presupuesto específico para este pedido? Nos sería de gran ayuda conocer la cantidad que tienes en mente.</p>
+        <div className="m-4 md:w-1/2">
+            <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+              Presupuesto deseado
+            </label>
+            <input
+            type="text"
+            id="recipe_name"
+            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+            placeholder="0.0"
+            required
+            />
+        </div>
       </div>
+      <div className="flex flex-col mb-4">
+      <h2 className={`text-3xl m-4 ${sofia.className}`}>Información de contacto</h2>
+      <div className="bg-rose-50 m-4 rounded-lg">
+      <div className="flex flex-col md:flex-row mb-6">
+          <div className="m-4 md:w-1/2">
+              <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                Nombre
+              </label>
+              <input
+              type="text"
+              id="recipe_name"
+              className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+              placeholder="Juan de Dios"
+              required
+              />
+          </div>
+          <div className="m-4 md:w-1/2">
+              <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                Número de celular
+              </label>
+              <input
+              type="text"
+              id="recipe_name"
+              className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+              placeholder="9613202460"
+              required
+              />
+          </div>
+        </div>
+        <div className="m-4 md:w-1/2">
+            <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+              Preguntas o comentarios
+            </label>
+            <textarea
+            id="description"
+            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+            placeholder=""
+            required
+            rows="6"
+            style={{ resize: 'none' }}
+            />
+        </div>
+      </div>
+      </div>
+            <div className="flex justify-end m-4 mb-8 gap-4 ml-4">
+                <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 md:mb-0 md:mr-2 w-56">
+                    Cancelar
+                </button>
+                <Link href="/enduser/detallecotizacion">
+                  <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-56">
+                      Guardar
+                  </button>
+                </Link>
+            </div>  
     </main>
+    <WebFooter/>
     </div>
   );
 }
