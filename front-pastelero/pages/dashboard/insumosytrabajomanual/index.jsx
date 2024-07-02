@@ -12,7 +12,7 @@ export default function Conocenuestrosproductos() {
       <NavbarDashboard />
       <div className="flex flex-row">
         <Asideadmin />
-        <main className="flex-grow sm:fixed sm:left-56">
+        <main className="flex-grow w-3/4sm:fixed sm:left-56">
         <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis insumos y Trabajo manual</h1>
 
         </main>

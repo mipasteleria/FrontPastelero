@@ -11,12 +11,12 @@ const NavbarDashboard = () => {
       <div className="w-full flex flex-wrap items-center justify-between mx-auto">
         <div className="flex">
         <Link href="/">
-        <Image 
+            <Image 
               className="mx-2 "
               src="/img/logo.JPG"
               width={64}
               height={64}
-              alt="video que no es video"
+              alt=""
             /> 
            </Link>
           <div>
@@ -31,7 +31,7 @@ const NavbarDashboard = () => {
         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
           <button type="button" className="flex text-sm rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-900" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
             <span className="sr-only">Open user menu</span>
-            <img className="w-8 h-8 rounded-full md:mx-4" src="userphoto.jpg" alt="user photo" />
+            <img className="w-8 h-8 rounded-full md:mx-4" src="/img/userphoto.jpg" alt="user photo" />
           </button>
 
           <div className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
