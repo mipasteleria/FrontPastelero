@@ -336,12 +336,12 @@ export default function SolicitarCotizacion() {
         </div>
       </div>
       </div>
-            <div className="flex justify-end m-4 mb-8 gap-4 ml-4">
-                <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 md:mb-0 md:mr-2 w-56">
+            <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
+                <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 mb-2 md:mb-0 md:mr-2 w-56">
                     Cancelar
                 </button>
                 <Link href="/enduser/detallecotizacion">
-                  <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-56">
+                  <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 w-56">
                       Guardar
                   </button>
                 </Link>

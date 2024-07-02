@@ -80,16 +80,16 @@ export default function DetalleCotizacion() {
                 </label>
                 </div>
             </div>
-            <div className="flex justify-end m-4 mb-8 gap-4">
-            <Link href="/enduser/detallecotizacion">
-                  <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-4 py-2.5 w-32">
-                      Pagar
-                  </button>
+            <div className="flex flex-col items-center md:flex-row md:justify-end m-4 mb-8 gap-4">
+                <Link href="/enduser/detallecotizacion">
+                    <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-4 py-2.5 w-52">
+                        Cancelar
+                    </button>
                 </Link>
                 <Link href="/enduser/carrito">
-                  <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-4 py-2.5 w-32">
-                      Seguir comprando
-                  </button>
+                    <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-4 py-2.5 w-52">
+                        Agregar al carrito
+                    </button>
                 </Link>
             </div>  
         </div>

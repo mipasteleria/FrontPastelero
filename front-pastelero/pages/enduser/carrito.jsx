@@ -36,12 +36,12 @@ export default function Carrito() {
         duda o aclaración, te recordamos que el horario de atención es de Lunes a Viernes de 9am a 6pm.</p>
         <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
             <Link href="/enduser/detallecotizacion">
-                <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-40 md:w-56">
+                <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
                 Pagar
                 </button>
             </Link>
             <Link href="/enduser/carrito">
-                <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-40 md:w-56">
+                <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
                 Seguir comprando
                 </button>
             </Link>
