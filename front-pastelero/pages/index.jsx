@@ -2,115 +2,123 @@ import Image from "next/image";
 import WebFooter from "@/src/components/WebFooter";
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+
+const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
+const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Home() {
   return (
-    <main>
-      <NavbarAdmin />
-      <Link href="/conocenuestrosproductos">
-        <button className="btnIntroductionLogIn">
-          Conoce nuestro productos
-        </button>
-      </Link>
-      <Link href="/dashboard">
-        <button className="btnIntroductionLogIn">Dashboard</button>
-      </Link>
-      <div className="bg-background text-text">
-        <div className="landingTop flex gap-[20px] my-[100px] mx-[200px] px-[200px]">
-          <div className="landingTopVideo basis-1/2">
-            <Image
-              className="rounded-xl "
-              src="/img/videolanding.png"
-              width={800}
-              height={800}
-              alt="video que no es video"
-            />
-          </div>
-          <div className="landingTopText basis-1/2 flex flex-col justify-center gap-10">
-            <div>
-              <h1 className="text-center text-4xl">Horneando Recuerdos</h1>
-            </div>
-            <div>
-              <p className="text-center text-lg">
-                ¿Cuántos de tus recuerdos más preciados incluyen un delicioso
-                pastel? En nuestra pastelería, ofrecemos calidad y
-                personalización en cada pastel. Visita nuestra galería para
-                admirar nuestros diseños y descubrir la calidad que nos
-                distingue. ¡Convierte tus momentos especiales en experiencias
-                inolvidables!
-              </p>
-            </div>
-            <div className="flex justify-center">
-              <button className="bg-primary text-xl py-5 px-40 rounded-md">
-                ¡COTIZA HOY MISMO!
-              </button>
-            </div>
-          </div>
+<main>
+  <NavbarAdmin />
+  <main className={`text-text ${poppins.className}`}>
+    <div className="m-8 flex flex-col items-center lg:flex-row justify-between">
+      <div className="flex justify-center md:w-1/2">
+        <div className="flex justify-center w-full aspect-w-4 aspect-h-3 md:rounded-xl overflow-hidden">
+          <iframe
+            className="w-80 h-56 sm:w-80 md:w-full lg:h-96 rounded-xl"
+            src="https://www.youtube.com/embed/ib1V_Z9sjHQ"
+            title="Video de pasteles"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
         </div>
-        <div className="landingMiddle my-[100px]">
-          <h2 className="text-center text-4xl ">Conoce Nuestros Productos</h2>
-          <div className="MiddleProductsContainer flex gap-[100px] mt-10 justify-center">
-            <div className="saboresContainer">
-              <div className="saboresImg w-[190px] h-[190px] rounded-full overflow-hidden">
+      </div>
+      <div className="md:basis-1/2 md:flex md:flex-col md:gap-6 m-6">
+        <div className="">
+          <h1 className={`text-center text-4xl ${sofia.className}`}>
+            Horneando Recuerdos
+          </h1>
+        </div>
+        <div>
+          <p className="text-center text-lg my-6">
+            ¿Cuántos de tus recuerdos más preciados incluyen un delicioso pastel? En nuestra pastelería, ofrecemos calidad y personalización en cada pastel. Visita nuestra galería para admirar nuestros diseños y descubrir la calidad que nos distingue. <br /> ¡Convierte tus momentos especiales en experiencias inolvidables!
+          </p>
+        </div>
+        <div className="flex flex-col gap-4 justify-center items-center m-6">
+          <Link href="/enduser/solicitarcotizacion">
+            <button className="bg-primary font-bold p-6 px-8 rounded-md">
+              ¡COTIZA HOY MISMO!
+            </button>
+          </Link>
+          <Link href="/enduser/preguntasfrecuentes">
+            <button className={`bg-primary font-bold p-6 px-8 rounded-md text-xl text-white ${sofia.className}`}>
+              Preguntas frecuentes
+            </button>
+          </Link>
+        </div>
+      </div>
+      </div>
+        <div className="m-1 mb-20 bg-rose-50 py-6">
+          <Link href="/enduser/conocenuestrosproductos">
+            <h2 className={`m-6 text-center text-4xl ${sofia.className}`}>
+              Conoce Nuestros Productos
+            </h2>
+          </Link>
+          <div className="flex flex-col md:grid md:grid-cols-2 lg:flex lg:flex-row items-center md:flex-row md:mt-10 md:justify-center gap-10 font-bold">
+            <div className="">
+              <div className="flex justify-center">
                 <Image
-                  className="w-[190px] h-[200px]"
+                  className="w-52 h-52 rounded-full"
                   src="/img/sabores.jpeg"
                   width={190}
                   height={190}
                   alt="foto de flan de sabores"
                 />
               </div>
-              <div className="saboresDescription text-center pt-3 text-lg">
+              <div className="saboresDescription text-center pt-1 md:pt-3 text-lg m-4">
                 Nuestros Sabores
               </div>
             </div>
             <div className="postresContainer">
-              <div className="postresImg w-[190px] h-[190px] rounded-full overflow-hidden">
+              <div className="flex justify-center">
                 <Image
-                  className="w-[190px] h-[200px]"
+                  className="w-52 h-52 rounded-full"
                   src="/img/pay.jpeg"
                   width={190}
                   height={190}
                   alt="foto de flan de sabores"
                 />
               </div>
-              <div className="postresDescription text-center pt-3 text-lg">
+              <div className="postresDescription text-center pt-1 md:pt-3 text-lg m-4">
                 Postres
               </div>
             </div>
             <div className="pastelesContainer">
-              <div className="pastelesImg h-[190px] w-[190px] rounded-full overflow-hidden">
+              <div className="flex justify-center">
                 <Image
+                  className="w-52 h-52 rounded-full"
                   src="/img/yoda.jpg"
                   width={190}
                   height={190}
                   alt="Foto de pastel 3d yoda"
                 />
               </div>
-              <div className="pastelesDescription text-center pt-3 text-lg">
+              <div className="pastelesDescription text-center pt-1 md:pt-3 text-lg m-4">
                 Pasteles 3D
               </div>
             </div>
             <div className="galletasContainer">
-              <div className="galletasImg w-[190px] h-[190px] rounded-full overflow-hidden">
+              <div className="flex justify-center">
                 <Image
-                  className="w-[190px] h-[190px]"
+                  className="w-52 h-52 rounded-full"
                   src="/img/coockies.jpg"
                   width={500}
                   height={500}
                   alt="Foto de galletas americanas"
                 />
               </div>
-              <div className="galletasDescription text-center pt-3 text-lg">
+              <div className="galletasDescription text-center pt-1 md:pt-3 text-lg m-4">
                 Galletas Americanas
               </div>
             </div>
           </div>
         </div>
-        <div className="landingBottom flex gap-[20px] my-[100px] mx-[200px] px-[200px]">
-          <div className="landingBottomTexto basis-1/2 flex flex-col justify-center gap-10">
-            <div className="text-center text-4xl">
-              <h2>Conocenos</h2>
+        <div className="md:flex m-10 mb-20 gap-4">
+          <div className="md:w-1/2 mb-8">
+            <div className="text-center text-3xl my-4">
+              <h2 className={`text-center text-4xl ${sofia.className}`}>Conocenos</h2>
             </div>
             <div className="text-center text-lg">
               <p>
@@ -120,13 +128,15 @@ export default function Home() {
                 ubicados en el hermoso Guadalajara, Jalisco.
               </p>
             </div>
-            <div className="text-center text-lg">
-              <button>
-                <p>Leer más...</p>
-              </button>
+            <div className="text-center my-10px text-lg">
+              <Link href="/enduser/conocenos">
+                <button>
+                  <p>Leer más...</p>
+                </button>
+              </Link>
             </div>
           </div>
-          <div className="landingBottomImg basis-1/2 flex justify-center pl-[200px]">
+          <div className="flex justify-center md:w-1/2">
             <Image
               className="rounded-xl"
               src="/img/pasteleslanding.png"
@@ -136,7 +146,7 @@ export default function Home() {
             />
           </div>
         </div>
-      </div>
+      </main>
       <WebFooter />
     </main>
   );
