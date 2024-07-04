@@ -11,7 +11,7 @@ export default function Conocenuestrosproductos() {
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
-      <div className="flexflex w-3/4">
+      <div className="flex">
         <Asideadmin />
         <main className={`text-text ${poppins.className} flex-grow w-3/4`}>     
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis cotizaciones</h1>

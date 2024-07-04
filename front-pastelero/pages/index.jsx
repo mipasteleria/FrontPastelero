@@ -37,7 +37,7 @@ export default function Home() {
           </p>
         </div>
         <div className="flex flex-col gap-4 justify-center items-center m-6">
-          <Link href="/enduser/nuevasolicitud">
+          <Link href="/enduser/solicitarcotizacion">
             <button className="bg-primary font-bold p-6 px-8 rounded-md">
               ¡COTIZA HOY MISMO!
             </button>

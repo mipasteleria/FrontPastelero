@@ -1,166 +1,353 @@
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import DatePicker from "@/src/components/calendario";
+import WebFooter from "@/src/components/WebFooter";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-export default function Conocenuestrosproductos() {
+export default function SolicitarCotizacion() {
   return (
     <div>
       <NavbarAdmin />
       <main className={`text-text ${poppins.className}`}>
       <h1 className={`text-4xl m-6 ${sofia.className}`}>Solicitar cotización</h1>
       <p className="m-6">Le pedimos que complete cada campo con la mayor cantidad de detalles posible para acelerar el proceso de cotización.Recuerda que somos es una empresa pequeña que realiza pocos pasteles a la semana. Por favor, solicita tucotización con suficiente anticipación. Hacemos todo lo posible para responder rápidamente, pero a veces puede haber retrasos. Agradecemos tu comprensión.</p>
-
       <fieldset className="flex font-semibold text-lg justify-between gap-4 m-6">
-        <div class="flex items-center mb-4">
+        <div class="flex items-center">
           <input id="country-option-2" type="radio" name="countries" value="Germany" class="w-6 h-6 border-gray-300 focus:ring-2 focus:ring-accent"/>
           <label for="country-option-2" class="block ms-2">
             Pastel
           </label>
         </div>
 
-        <div class="flex items-center mb-4">
+        <div class="flex items-center">
           <input id="country-option-3" type="radio" name="countries" value="Spain" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600"/>
           <label for="country-option-3" class="block ms-2">
             Cupcakes
           </label>
         </div>
 
-        <div class="flex items-center mb-4">
+        <div class="flex items-center">
           <input id="country-option-4" type="radio" name="countries" value="United Kingdom" class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus-ring-blue-600 dark:bg-gray-700 dark:border-gray-600"/>
           <label for="country-option-4" class="block ms-2">
             Mesa de postres
           </label>
         </div>
       </fieldset>
-      
-<button type="button" data-modal-target="timepicker-modal" data-modal-toggle="timepicker-modal" class="text-gray-900 bg-white hover:bg-gray-100 border border-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700">
-<svg class="w4 h-4 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-  <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd"/>
-</svg>
-Schedule appointment
-</button>
-
-
-<div id="timepicker-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative p-4 w-full max-w-[23rem] max-h-full">
-
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
-
-            <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    Schedule an appointment
-                </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="timepicker-modal">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-            </div>
-
-            <div class="p-4 pt-0">
-                <div inline-datepicker datepicker-autoselect-today class="mx-auto sm:mx-0 flex justify-center my-5 [&>div>div]:shadow-none [&>div>div]:bg-gray-50 [&_div>button]:bg-gray-50"></div>
-                <label class="text-sm font-medium text-gray-900 dark:text-white mb-2 block">
-                Pick your time
+      <div className="flex flex-col md:flex-row justify-around mb-6">
+        <div className="flex flex-col md:grid md:grid-cols-2">
+            <div className="m-4">
+                <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                Sabor del bizcocho
                 </label>
-                <ul id="timetable" class="grid w-full grid-cols-3 gap-2 mb-5">
-                    <li>
-                        <input type="radio" id="10-am" value="" class="hidden peer" name="timetable"/>
-                        <label for="10-am"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        10:00 AM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="10-30-am" value="" class="hidden peer" name="timetable"/>
-                        <label for="10-30-am"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        10:30 AM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="11-am" value="" class="hidden peer" name="timetable"/>
-                        <label for="11-am"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        11:00 AM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="11-30-am" value="" class="hidden peer" name="timetable"/>
-                        <label for="11-30-am"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        11:30 AM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="12-am" value="" class="hidden peer" name="timetable" checked/>
-                        <label for="12-am"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        12:00 AM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="12-30-pm" value="" class="hidden peer" name="timetable"/>
-                        <label for="12-30-pm"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        12:30 PM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="1-pm" value="" class="hidden peer" name="timetable"/>
-                        <label for="1-pm"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        01:00 PM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="1-30-pm" value="" class="hidden peer" name="timetable"/>
-                        <label for="1-30-pm"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        01:30 PM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="2-pm" value="" class="hidden peer" name="timetable"/>
-                        <label for="2-pm"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        02:00 PM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="2-30-pm" value="" class="hidden peer" name="timetable"/>
-                        <label for="2-30-pm"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        02:30 PM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="3-pm" value="" class="hidden peer" name="timetable"/>
-                        <label for="3-pm"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        03:00 PM
-                        </label>
-                    </li>
-                    <li>
-                        <input type="radio" id="3-30-pm" value="" class="hidden peer" name="timetable"/>
-                        <label for="3-30-pm"
-                        class="inline-flex items-center justify-center w-full px-2 py-1 text-sm font-medium text-center hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 border rounded-lg cursor-pointer text-gray-500 border-gray-200 dark:border-gray-700 dark:peer-checked:border-blue-500 peer-checked:border-blue-700 dark:hover:border-gray-600 dark:peer-checked:text-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-600 dark:peer-checked:bg-blue-900">
-                        03:30 PM
-                        </label>
-                    </li>
-                </ul>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Save</button>
-                    <button type="button" data-modal-hide="timepicker-modal" class="py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Discard</button>
-                </div>
+                <select
+                        id="unit"
+                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                      >
+                        <option value="grams">Vainilla</option>
+                        <option value="ml">Chocolate</option>
+                      </select>
+            </div>
+            <div className="m-4">
+                <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                ¿Cuántos niveles quieres?
+                </label>
+                <select
+                        id="unit"
+                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                      >
+                        <option value="grams">1 Nivel</option>
+                        <option value="ml">2 Niveles</option>
+                      </select>
+            </div>
+            <div className="m-4">
+                <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                Número de Porciones
+                </label>
+                <select
+                        id="unit"
+                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                      >
+                        <option value="grams">10</option>
+                        <option value="ml">20</option>
+                      </select>
+            </div>
+            <div className="m-4">
+                <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                ¿Requieres envío al evento?
+                </label>
+                <select
+                        id="unit"
+                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      >
+                        <option value="grams">Sí</option>
+                        <option value="ml">No</option>
+                      </select>
+            </div>
+            <div className="m-4">
+                <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                Sabor del relleno
+                </label>
+                <select
+                        id="unit"
+                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      >
+                        <option value="grams">Vainilla</option>
+                        <option value="ml">Chocolate</option>
+                      </select>
+            </div>
+            <div className="m-4">
+                <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                Ingresa la dirección de la entrega
+                </label>
+                <input
+                type="text"
+                id="recipe_name"
+                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                placeholder="Calle Bonita #10"
+                required
+                />
             </div>
         </div>
-    </div>
-</div>
+        <DatePicker />
+      </div>
+      <div className="flex flex-col md:flex-row justify-around bg-rose-50">
+        <fieldset className="m-4">
+            <div class="flex items-center mb-4">
+              <input
+                checked
+                id="checkbox-1"
+                type="checkbox"
+                value=""
+                class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              />
+              <label for="checkbox-1" class="ms-2 text-sm font-medium text-text">
+              Cobertura Buttercream (betún con base en mantequilla).
+              </label>
+            </div>
+
+          <div class="flex items-center mb-4">
+            <input
+              id="checkbox-2"
+              type="checkbox"
+              value=""
+              class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+            />
+            <label for="checkbox-2" class="ms-2 text-sm font-medium focus:font-bold text-text">Cobertura Garnache (Base de chocolate)</label>
+          </div>
+
+          <div class="flex items-center mb-4">
+            <input
+              id="checkbox-3"
+              type="checkbox"
+              value=""
+              class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+            />
+            <label for="checkbox-3" class="ms-2 text-sm font-medium text-text">Cobertura fondant</label>
+          </div>
+          
+          <div class="flex mb-4">
+            <div class="flex items-center h-5">
+              <input
+                id="helper-checkbox"
+                aria-describedby="helper-checkbox-text"
+                type="checkbox"
+                value=""
+                class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              />
+            </div>
+            <div class="ms-2 text-sm">
+              <label for="helper-checkbox" class="font-medium text-text">Dibujo en Buttercream</label>
+            </div>
+          </div>
+          <div class="flex mb-4">
+            <div class="flex items-center h-5">
+              <input
+                id="helper-checkbox"
+                aria-describedby="helper-checkbox-text"
+                type="checkbox"
+                value=""
+                class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              />
+            </div>
+            <div class="ms-2 text-sm">
+              <label for="helper-checkbox" class="font-medium text-text">Dibujo en Fondant</label>
+            </div>
+          </div>
+          <div class="flex mb-4">
+            <div class="flex items-center h-5">
+              <input
+                id="helper-checkbox"
+                aria-describedby="helper-checkbox-text"
+                type="checkbox"
+                value=""
+                class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              />
+            </div>
+            <div class="ms-2 text-sm">
+              <label for="helper-checkbox" class="font-medium text-text">Figura 3d en Fondant</label>
+            </div>
+          </div>
+
+        </fieldset>
+        <fieldset className="m-4">
+            <div class="flex items-center mb-4">
+              <input
+                checked
+                id="checkbox-1"
+                type="checkbox"
+                value=""
+                class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              />
+              <label for="checkbox-1" class="ms-2 text-sm font-medium text-text">
+              Flores naturales.
+              </label>
+            </div>
+
+          <div class="flex items-center mb-4">
+            <input
+              id="checkbox-2"
+              type="checkbox"
+              value=""
+              class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+            />
+            <label for="checkbox-2" class="ms-2 text-sm font-medium focus:font-bold text-text">Cobertura GFlores de Fondant</label>
+          </div>
+
+          <div class="flex items-center mb-4">
+            <input
+              id="checkbox-3"
+              type="checkbox"
+              value=""
+              class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+            />
+            <label for="checkbox-3" class="ms-2 text-sm font-medium text-text">Letrero</label>
+          </div>
+          
+          <div class="flex mb-4">
+            <div class="flex items-center h-5">
+              <input
+                id="helper-checkbox"
+                aria-describedby="helper-checkbox-text"
+                type="checkbox"
+                value=""
+                class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              />
+            </div>
+            <div class="ms-2 text-sm">
+              <label for="helper-checkbox" class="font-medium text-text">Pastel 3d de algún pesonaje</label>
+            </div>
+          </div>
+          <div className="mb-6">
+                  <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                    Otro
+                  </label>
+                  <input
+                    type="text"
+                    id="recipe_name"
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                    placeholder="Pastel de vainilla"
+                    required
+                  />
+                </div>
+        </fieldset>
+      </div>
+      <div className="m-6">
+        <p className="my-2">
+          Por favor, sube imágenes de inspiración, como la temática, los elementos que te gustaría ver en el pastel, la paleta de colores u otras preferencias. 
+        </p>
+        <p className="my-2">
+          Esto nos ayudará a crear un diseño personalizado para ti. Puedes subir hasta 5 imágenes de hasta 10MB cada una.
+        </p>
+      </div>
+      <div class="flex items-center justify-center m-10">
+          <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100">
+              <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                  </svg>
+                  <p class="mb-2 text-sm text-gray-500 dark:text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+              </div>
+              <input id="dropzone-file" type="file" class="hidden" />
+          </label>
+      </div> 
+      <div class=" bg-gray-200 rounded-full m-10">
+        <div class="bg-primary text-xs font-medium text-text text-center p-0.5 leading-none rounded-full"> 45%</div>
+      </div>
+      <div className="flex flex-col md:flex-row m-6">
+        <p className="md:w-1/2">¿Podrías informarnos si tienes un presupuesto específico para este pedido? Nos sería de gran ayuda conocer la cantidad que tienes en mente.</p>
+        <div className="m-4 md:w-1/2">
+            <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+              Presupuesto deseado
+            </label>
+            <input
+            type="text"
+            id="recipe_name"
+            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+            placeholder="0.0"
+            required
+            />
+        </div>
+      </div>
+      <div className="flex flex-col mb-4">
+      <h2 className={`text-3xl m-4 ${sofia.className}`}>Información de contacto</h2>
+      <div className="bg-rose-50 m-4 rounded-lg">
+      <div className="flex flex-col md:flex-row mb-6">
+          <div className="m-4 md:w-1/2">
+              <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                Nombre
+              </label>
+              <input
+              type="text"
+              id="recipe_name"
+              className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+              placeholder="Juan de Dios"
+              required
+              />
+          </div>
+          <div className="m-4 md:w-1/2">
+              <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+                Número de celular
+              </label>
+              <input
+              type="text"
+              id="recipe_name"
+              className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+              placeholder="9613202460"
+              required
+              />
+          </div>
+        </div>
+        <div className="m-4 md:w-1/2">
+            <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
+              Preguntas o comentarios
+            </label>
+            <textarea
+            id="description"
+            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+            placeholder=""
+            required
+            rows="6"
+            style={{ resize: 'none' }}
+            />
+        </div>
+      </div>
+      </div>
+            <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
+                <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 mb-2 md:mb-0 md:mr-2 w-56">
+                    Cancelar
+                </button>
+                <Link href="/enduser/detallecotizacion">
+                  <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 w-56">
+                      Guardar
+                  </button>
+                </Link>
+            </div>  
     </main>
+    <WebFooter/>
     </div>
   );
 }

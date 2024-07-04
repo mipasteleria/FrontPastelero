@@ -7,7 +7,7 @@ import FooterDashboard from "@/src/components/footeradmin";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-export default function Conocenuestrosproductos() {
+export default function Costeorecetas() {
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
