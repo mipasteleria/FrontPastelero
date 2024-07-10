@@ -8,19 +8,23 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const options = [
-  { id: 1, costo: 1, name: "Cobertura Buttercream(betun con base en mantequilla)" },
-  { id: 2, costo: 2, name: "Cobertura Ganache Base de Chocolate" },
-  { id: 3, costo: 3, name: "Forrado de Fondant" },
-  { id: 4, costo: 4, name: "Dibujo a mano en Fondant" },
-  { id: 5, costo: 5, name: "Dibujo en Buttercream" },
-  { id: 6, costo: 6, name: "Flores naturales" },
-  { id: 7, costo: 7, name: "Letrero" },
-  { id: 8, costo: 8, name: "Pastel 3d de un personaje" },
+  { id: 1, costo: 1, name: "Cobertura Buttercream(betun con base en mantequilla)",tipo: "gr", cantidad:300 },
+  { id: 2, costo: 2, name: "Cobertura Ganache Base de Chocolate",tipo: "gr", cantidad:650 },
+  { id: 3, costo: 3, name: "Forrado de Fondant", tipo: "gr", cantidad:150 },
+  { id: 4, costo: 4, name: "Dibujo a mano en Fondant",tipo: "unidad", cantidad:1 },
+  { id: 5, costo: 5, name: "Dibujo en Buttercream",tipo: "unidad", cantidad:1 },
+  { id: 6, costo: 6, name: "Flores naturales",tipo: "unidad", cantidad:1 },
+  { id: 7, costo: 7, name: "Letrero",tipo: "unidad", cantidad:1 },
+  { id: 8, costo: 8, name: "Pastel 3d de un personaje", tipo: "unidad", cantidad:1 },
 ];
 
-const units = ["kg", "g", "lb", "oz"];
-const names = ["Nombre 1", "Nombre 2", "Nombre 3"];
 
+
+const elementos = [
+  {id:1, costo: 80, name: "Vainilla",  tipo: "porción", cantidad:1},
+  {id:2, costo: 159,name: "Buttercream Vainilla",  tipo: "gr", cantidad:300 },
+  {id:3, costo: 90, name: "Base de madera",  tipo: "unidad", cantidad:300 }
+];
 export default function GenerarCotizacion() {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [isClient, setIsClient] = useState(false);
@@ -98,6 +102,8 @@ export default function GenerarCotizacion() {
                     height={164}
                     alt="imagen"
                   /> 
+                 
+
                 </div>
               </div>
               
@@ -275,7 +281,7 @@ export default function GenerarCotizacion() {
                     className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5"
                   >
                     <option value="">Seleccionar nombre</option>
-                    {names.map((name, index) => (
+                    {options.map((name, index) => (
                       <option key={index} value={name}>{name}</option>
                     ))}
                   </select>
@@ -293,13 +299,13 @@ export default function GenerarCotizacion() {
                 <div className="w-full md:w-1/3 p-2">
                   <select
                     name="unit"
-                    value={formData.unit}
+                    value={formData.tipo}
                     onChange={handleInputChange}
                     className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5"
                   >
                     <option value="">Unidad</option>
-                    {units.map((unit, index) => (
-                      <option key={index} value={unit}>{unit}</option>
+                    {elementos.map((tipo, index) => (
+                      <option key={index} value={tipo}>{tipo}</option>
                     ))}
                   </select>
                 </div>
@@ -346,7 +352,7 @@ export default function GenerarCotizacion() {
                     className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5"
                   >
                     <option value="">Unidad</option>
-                    {units.map((unit, index) => (
+                    {elementos.map((unit, index) => (
                       <option key={index} value={unit}>{unit}</option>
                     ))}
                   </select>
@@ -364,36 +370,43 @@ export default function GenerarCotizacion() {
               </div>
             )}
             <button
-              onClick={handleFormSubmit}
-              className="bg-primary text-text rounded-lg px-4 py-2 mt-4"
+              type="submit"
+              className="text-white bg-accent hover:bg-primary focus:ring-4 focus:outline-none focus:ring-accent-light font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-accent dark:hover:bg-primary dark:focus:ring-accent-light"
             >
-              Agregar
+              Agregar opción
             </button>
           </div>
 
           {isClient && (
             <div className="mt-8">
               <h2 className={`text-2xl p-4 ${sofia.className}`}>Opciones seleccionadas</h2>
-              <table className="min-w-full bg-highlightText">
-                <thead>
-                  <tr>
-                    <th className="py-2">Costo</th>
-                    <th className="py-2">Nombre</th>
+              <table className="min-w-full bg-white dark:bg-gray-800">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Nombre</th>
+                  <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Cantidad</th>
+                  <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Unidad</th>
+                  <th className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">Costo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedOptions.map((option, index) => (
+                  <tr key={index}>
+                    <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{option.name}</td>
+                    <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{option.cantidad}</td>
+                    <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{option.tipo}</td>
+                    <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{option.costo}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {selectedOptions.map((id) => {
-                    const option = options.find((option) => option.id === id);
-                    return (
-                      <tr key={id}>
-                        <td className="py-2 px-4 border">{option.costo}</td>
-                        <td className="py-2 px-4 border">{option.name}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              <div className="flex  items-start mb-4">
+                ))}
+                <tr>
+                  <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700" colSpan="3">
+                    <strong>Total</strong>
+                  </td>
+                  <td className="py-2 px-4 border-b border-gray-200 dark:border-gray-700">{totalCost}</td>
+                </tr>
+              </tbody>
+            </table>
+              <div className="flex mt-4  items-start mb-4">
                     <label htmlFor="quantity" className="w-1/4 text-sm font-medium dark:text-white">
                     Agregar texto a la seccion de Extras en la cotizacion del cliente
                     </label>
