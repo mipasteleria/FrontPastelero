@@ -10,7 +10,7 @@ export default function Carrito() {
   return (
     <div>
       <NavbarAdmin />
-      <main className={`text-text ${poppins.className} md:mb-28`}>
+      <main className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto`}>
       <h1 className={`text-4xl m-6 ${sofia.className}`}>Su carrito</h1>
       <div className="flex flex-col md:flex-row gap-8 bg-rose-50 p-6 justify-between w-full">
             <figure class="max-w-lg m-6">

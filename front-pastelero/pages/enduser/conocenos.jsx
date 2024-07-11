@@ -6,7 +6,7 @@ export default function Conocenos() {
   return (
     <div>
       <NavbarAdmin />
-      <div className="flex flex-col md:flex-row items-center gap-8 md:gap-30 mx-6 pt-8 md:pt-30">
+      <div className="flex flex-col md:flex-row items-center gap-8 md:gap-30 pt-8 md:pt-30 max-w-screen-lg mx-auto">
         <div className="photoContainer w-full md:w-1/4 flex justify-center">
           <Image
             className="rounded-xl"

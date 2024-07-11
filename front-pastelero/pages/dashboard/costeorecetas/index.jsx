@@ -13,7 +13,7 @@ export default function Costeorecetas() {
       <NavbarDashboard />
       <div className="flex">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>     
+        <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>     
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis recetas</h1>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
           <div className="overflow-x-auto w-full">

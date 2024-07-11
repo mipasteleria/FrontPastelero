@@ -10,7 +10,7 @@ export default function DetalleCotizacion() {
   return (
     <div>
       <NavbarAdmin />
-      <main className={`text-text ${poppins.className}`}>
+      <main className={`text-text ${poppins.className} max-w-screen-lg mx-auto`}>
       <h1 className={`text-4xl m-6 ${sofia.className}`}>Cotización</h1>
       <div className="flex flex-col md:flex-row m-6 justify-between">
         <div className="flex flex-col mb-8">
