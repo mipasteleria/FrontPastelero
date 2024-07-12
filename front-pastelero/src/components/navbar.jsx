@@ -33,7 +33,7 @@ const NavbarAdmin = () => {
   }, [dropdownOpen]);
 
   return (
-    <nav className={`bg-primary h-16 ${sofia.className} text-text relative z-50`}>
+    <nav className={`fixed top-0 left-0 w-full bg-primary h-16 ${sofia.className} text-text z-50 shadow-lg`}>
       <div className="flex flex-row justify-between items-center">
         <div className="flex">
           <button id="menuButton" className="block md:hidden" onClick={toggleDropdown}>
@@ -68,10 +68,10 @@ const NavbarAdmin = () => {
                 </button>
               </Link>
             ) : (
-              <div className='flex'>
-                  <div className={`${poppins.className} m-4 hidden lg:flex cursor-pointer`}>
-                    jalbores339@gmail.com
-                  </div>
+              <div className="flex">
+                <div className={`${poppins.className} m-4 hidden lg:flex cursor-pointer`}>
+                  jalbores339@gmail.com
+                </div>
                 <Link href="/registrarse">
                   <button className={`${poppins.className} m-4 hidden md:flex cursor-pointer`}>
                     Mis Pedidos
@@ -86,7 +86,6 @@ const NavbarAdmin = () => {
                   </div>
                 </Link>
               </div>
-              
             )
           ) : (
             <div className="flex">
@@ -111,13 +110,13 @@ const NavbarAdmin = () => {
                 </button>
               </Link>
               <Link href="/enduser/solicitarcotizacion">
-              <div
-                className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer ${
-                  dropdownOpen ? 'hidden' : 'block'
-                }`}
-              >
-                ¡Cotizar ahora!
-              </div>
+                <div
+                  className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer ${
+                    dropdownOpen ? 'hidden' : 'block'
+                  }`}
+                >
+                  ¡Cotizar ahora!
+                </div>
               </Link>
             </div>
           )}
@@ -156,14 +155,13 @@ const NavbarAdmin = () => {
                 </Link>
                 <Link href="/enduser/solicitarcotizacion">
                   <button className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}>
-                  ¡Cotizar ahora!
+                    ¡Cotizar ahora!
                   </button>
                 </Link>
               </div>
-              
             )
           ) : (
-            <div className='flex flex-col font-bold'>
+            <div className="flex flex-col font-bold">
               <Link href="/registrarse">
                 <button className={`${poppins.className} m-6 text-lg cursor-pointer`}>
                   Registrarse

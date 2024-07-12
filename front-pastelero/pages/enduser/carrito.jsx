@@ -10,8 +10,8 @@ export default function Carrito() {
   return (
     <div>
       <NavbarAdmin />
-      <main className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto`}>
-      <h1 className={`text-4xl m-6 ${sofia.className}`}>Su carrito</h1>
+      <main className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto mt-24`}>
+      <h1 className={`text-4xl m-4 ${sofia.className}`}>Su carrito</h1>
       <div className="flex flex-col md:flex-row gap-8 bg-rose-50 p-6 justify-between w-full">
             <figure class="max-w-lg m-6">
             <img class="h-auto max-w-full rounded-lg" src="/img/animalcrossing.jpg" alt="image description"/>
@@ -36,12 +36,12 @@ export default function Carrito() {
         duda o aclaración, te recordamos que el horario de atención es de Lunes a Viernes de 9am a 6pm.</p>
         <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
             <Link href="/enduser/detallecotizacion">
-                <button className="text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
+                <button className="shadow-lg text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
                 Pagar
                 </button>
             </Link>
             <Link href="/enduser/carrito">
-                <button className="text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
+                <button className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
                 Seguir comprando
                 </button>
             </Link>

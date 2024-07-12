@@ -194,7 +194,7 @@ export default function Conocenuestrosproductos() {
           >
             <button
               type="submit"
-              className="text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-8 py-2.5 text-center ml-2 m-4"
+              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-8 py-2.5 text-center ml-2 m-4"
             >
               Crear Cotización Manual
             </button>
@@ -205,7 +205,7 @@ export default function Conocenuestrosproductos() {
           >
             <button
               type="submit"
-              className="text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 m-4"
+              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 m-4"
             >
               Aprobar y Enviar
             </button>
