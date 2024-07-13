@@ -96,7 +96,7 @@ export default function Conocenuestrosproductos() {
                         <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
                           <Link
                             className=""
-                            href="/dashboard/cotizaciones/verdetallesolicitud"
+                            href={`cotizaciones/${pastelCotiza._id}`}
                           >
                             <svg
                               class="w-6 h-6 text-accent dark:text-white"
