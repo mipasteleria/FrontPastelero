@@ -21,8 +21,8 @@ export default function ConocenuestrosProductos() {
   return (
     <div>
       <NavbarAdmin />
-      <main className={`text-text ${poppins.className}`}>
-        <h1 className={`text-4xl p-6 ${sofia.className}`}>Conoce nuestros productos</h1>
+      <main className={`text-text ${poppins.className} max-w-screen-lg mx-auto mt-16`}>
+        <h1 className={`text-4xl p-4 ${sofia.className}`}>Conoce nuestros productos</h1>
         <div className="p-4" id="accordion-open" data-accordion="open">
           <h2 id="accordion-open-heading-1">
             <button
@@ -56,7 +56,7 @@ export default function ConocenuestrosProductos() {
             </button>
           </h2>
           <div id="accordion-open-body-1" className={`${isSectionOpen(1) ? "" : "hidden"}`} aria-labelledby="accordion-open-heading-1">
-            <div className="p-5 border border-b-0 border-secondary">
+            <div className="p-5 border border-b-0 border-secondary leading-relaxed">
               <p className="mb-2">
               <b>Vainilla</b> - El clásico sabor favorito de las fiestas infantiles, con un infalible gusto suave y esponjoso que evoca recuerdos de infancia y felicidad en cada bocado. ¡Un deleite atemporal!
               </p>
@@ -119,7 +119,7 @@ export default function ConocenuestrosProductos() {
             </button>
           </h2>
           <div id="accordion-open-body-2" className={`${isSectionOpen(2) ? "" : "hidden"}`} aria-labelledby="accordion-open-heading-2">
-            <div className="p-5 border border-b-0 border-secondary">
+            <div className="p-5 border border-b-0 border-secondary leading-relaxed">
               <p className="mb-2">
               <b>Pay de Queso</b>  - Deléitate con nuestro pay de queso, que presenta un relleno suave y cremoso con un toque de vainilla, sobre una base de galleta rica y crujiente. ¡Una combinación perfecta para cualquier ocasión!
               </p>
@@ -190,7 +190,7 @@ export default function ConocenuestrosProductos() {
             </button>
           </h2>
           <div id="accordion-open-body-4" className={`${isSectionOpen(4) ? "" : "hidden"}`} aria-labelledby="accordion-open-heading-4">
-            <div className="p-5 border border-t-0 border-secondary">
+            <div className="p-5 border border-t-0 border-secondary leading-relaxed">
               <p className="mb-2">
               Lleva tus eventos al siguiente nivel con nuestros impresionantes pasteles 3D. Estos pasteles no solo son una delicia para el paladar, sino también un espectáculo visual que dejará a todos maravillados. Cada pastel 3D es una obra de arte comestible, creada meticulosamente para impresionar desde todos los ángulos.
               </p>
@@ -237,7 +237,7 @@ export default function ConocenuestrosProductos() {
             </button>
           </h2>
           <div id="accordion-open-body-3" className={`${isSectionOpen(3) ? "" : "hidden"}`} aria-labelledby="accordion-open-heading-3">
-            <div className="p-5 border border-secondary">
+            <div className="p-5 border border-secondary leading-relaxed">
               <p className="mb-2">
               <b>Galleta de Chips de Chocolate con Nuez:</b> Sumérgete en el placer de un clásico irresistible. Esta galleta combina la dulzura de los chips de chocolate con el toque crujiente de las nueces, creando una experiencia de sabor que te llevará de regreso a tus recuerdos más felices.
               </p>
