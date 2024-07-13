@@ -12,7 +12,7 @@ export default function Conocenuestrosproductos() {
       <NavbarDashboard />
       <div className="flex flex-row">
         <Asideadmin />
-        <main className="flex-grow w-3/4">
+        <main className="flex-grow w-3/4 max-w-screen-lg mx-auto">
         <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis facturas</h1>
 
         </main>

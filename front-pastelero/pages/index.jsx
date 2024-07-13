@@ -60,7 +60,7 @@ export default function Home() {
             <div className="">
               <div className="flex justify-center">
                 <Image
-                  className="w-52 h-52 rounded-full"
+                  className="w-52 h-52 rounded-full border border-accent"
                   src="/img/sabores.jpeg"
                   width={190}
                   height={190}
@@ -74,7 +74,7 @@ export default function Home() {
             <div className="postresContainer">
               <div className="flex justify-center">
                 <Image
-                  className="w-52 h-52 rounded-full"
+                  className="w-52 h-52 rounded-full border border-accent"
                   src="/img/pay.jpeg"
                   width={190}
                   height={190}
@@ -88,7 +88,7 @@ export default function Home() {
             <div className="pastelesContainer">
               <div className="flex justify-center">
                 <Image
-                  className="w-52 h-52 rounded-full"
+                  className="w-52 h-52 rounded-full border border-accent"
                   src="/img/yoda.jpg"
                   width={190}
                   height={190}
@@ -102,7 +102,7 @@ export default function Home() {
             <div className="galletasContainer">
               <div className="flex justify-center">
                 <Image
-                  className="w-52 h-52 rounded-full"
+                  className="w-52 h-52 rounded-full border border-accent"
                   src="/img/coockies.jpg"
                   width={500}
                   height={500}
@@ -131,8 +131,8 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center my-10px text-lg">
-              <Link href="/enduser/conocenos">
-                <button>
+              <Link href="/enduser/conocenos#preguntasfrecuentes">
+                <button className="italic">
                   <p>Leer más...</p>
                 </button>
               </Link>
