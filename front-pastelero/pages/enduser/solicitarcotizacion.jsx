@@ -9,8 +9,6 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function SolicitarCotizacion() {
-  const [showPopup, setShowPopup] = useState(false);
-
   const handleClearFields = () => {
     document.querySelectorAll("input").forEach(input => (input.value = ""));
     document.querySelectorAll("select").forEach(select => (select.value = ""));
@@ -18,153 +16,167 @@ export default function SolicitarCotizacion() {
     document.querySelectorAll("input[type=radio], input[type=checkbox]").forEach(input => (input.checked = false));
   };
 
-  const handleSave = () => {
-    setShowPopup(true);
+  const [selectedOption, setSelectedOption] = useState("Pastel");
+
+  const handleOptionChange = (e) => {
+    setSelectedOption(e.target.value);
   };
 
   return (
     <div>
       <NavbarAdmin />
-      <main className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto mt-24`}>
+      <main className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}>
         <h1 className={`text-4xl m-4 ${sofia.className}`}>
           Solicitar cotización
         </h1>
         <p className="m-6">
           Le pedimos que complete cada campo con la mayor cantidad de detalles
-          posible para acelerar el proceso de cotización.Recuerda que somos es
+          posible para acelerar el proceso de cotización. Recuerda que somos es
           una empresa pequeña que realiza pocos pasteles a la semana. Por favor,
-          solicita tucotización con suficiente anticipación. Hacemos todo lo
+          solicita tu cotización con suficiente anticipación. Hacemos todo lo
           posible para responder rápidamente, pero a veces puede haber retrasos.
           Agradecemos tu comprensión.
         </p>
-        <fieldset className="flex font-semibold text-lg justify-between gap-4 m-6">
-          <div class="flex items-center">
+        <fieldset className="flex flex-col md:flex-row font-semibold text-lg justify-between gap-4 m-6">
+          <div className="flex items-center">
             <input
-              id="country-option-2"
+              id="country-option-1"
               type="radio"
               name="countries"
-              value="Germany"
-              class="w-6 h-6 border-gray-300 focus:ring-2 focus:ring-accent"
+              value="Pastel"
+              checked={selectedOption === "Pastel"}
+              onChange={handleOptionChange}
+              className="w-6 h-6 border-gray-300 focus:ring-2 focus:ring-accent"
             />
-            <label for="country-option-2" class="block ms-2">
+            <label htmlFor="country-option-1" className="block ms-2">
               Pastel
             </label>
           </div>
 
-          <div class="flex items-center">
+          <div className="flex items-center">
             <input
-              id="country-option-3"
+              id="country-option-2"
               type="radio"
               name="countries"
-              value="Spain"
-              class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600"
+              value="Cupcakes"
+              checked={selectedOption === "Cupcakes"}
+              onChange={handleOptionChange}
+              className="w-6 h-6 border-gray-300 focus:ring-2 focus:ring-accent"
             />
-            <label for="country-option-3" class="block ms-2">
+            <label htmlFor="country-option-2" className="block ms-2">
               Cupcakes
             </label>
           </div>
 
-          <div class="flex items-center">
+          <div className="flex items-center">
             <input
-              id="country-option-4"
+              id="country-option-3"
               type="radio"
               name="countries"
-              value="United Kingdom"
-              class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus-ring-blue-600 dark:bg-gray-700 dark:border-gray-600"
+              value="Mesa de postres"
+              checked={selectedOption === "Mesa de postres"}
+              onChange={handleOptionChange}
+              className="w-6 h-6 border-gray-300 focus:ring-2 focus:ring-accent"
             />
-            <label for="country-option-4" class="block ms-2">
+            <label htmlFor="country-option-3" className="block ms-2">
               Mesa de postres
             </label>
           </div>
         </fieldset>
         <div className="flex flex-col md:flex-row justify-around mb-6">
           <div className="flex flex-col md:grid md:grid-cols-2">
+            {selectedOption !== "Mesa de postres" && (
+              <div className="m-4">
+                <label
+                  htmlFor="recipe_name"
+                  className="block mb-2 text-sm font-medium dark:text-white"
+                >
+                  Sabor del bizcocho
+                </label>
+                <select
+                  id="unit"
+                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                >
+                  <option value="vainilla">Vainilla</option>
+                  <option value="chocolate">Chocolate</option>
+                </select>
+              </div>
+            )}
+            {selectedOption === "Pastel" && (
+              <>
+                <div className="m-4">
+                  <label
+                    htmlFor="levels"
+                    className="block mb-2 text-sm font-medium dark:text-white"
+                  >
+                    ¿Cuántos niveles quieres?
+                  </label>
+                  <select
+                    id="levels"
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  >
+                    <option value="1">1 Nivel</option>
+                    <option value="2">2 Niveles</option>
+                  </select>
+                </div>
+                <div className="m-4">
+                  <label
+                    htmlFor="filling"
+                    className="block mb-2 text-sm font-medium dark:text-white"
+                  >
+                    Sabor del relleno
+                  </label>
+                  <select
+                    id="filling"
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  >
+                    <option value="vainilla">Vainilla</option>
+                    <option value="chocolate">Chocolate</option>
+                  </select>
+                </div>
+              </>
+            )}
             <div className="m-4">
               <label
-                htmlFor="recipe_name"
-                className="block mb-2 text-sm font-medium dark:text-white"
-              >
-                Sabor del bizcocho
-              </label>
-              <select
-                id="unit"
-                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-              >
-                <option value="grams">Vainilla</option>
-                <option value="ml">Chocolate</option>
-              </select>
-            </div>
-            <div className="m-4">
-              <label
-                htmlFor="recipe_name"
-                className="block mb-2 text-sm font-medium dark:text-white"
-              >
-                ¿Cuántos niveles quieres?
-              </label>
-              <select
-                id="unit"
-                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-              >
-                <option value="grams">1 Nivel</option>
-                <option value="ml">2 Niveles</option>
-              </select>
-            </div>
-            <div className="m-4">
-              <label
-                htmlFor="recipe_name"
+                htmlFor="portions"
                 className="block mb-2 text-sm font-medium dark:text-white"
               >
                 Número de Porciones
               </label>
               <select
-                id="unit"
+                id="portions"
                 className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
               >
-                <option value="grams">10</option>
-                <option value="ml">20</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
               </select>
             </div>
             <div className="m-4">
               <label
-                htmlFor="recipe_name"
+                htmlFor="delivery"
                 className="block mb-2 text-sm font-medium dark:text-white"
               >
                 ¿Requieres envío al evento?
               </label>
               <select
-                id="unit"
-                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                id="delivery"
+                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
               >
-                <option value="grams">Sí</option>
-                <option value="ml">No</option>
+                <option value="yes">Sí</option>
+                <option value="no">No</option>
               </select>
             </div>
             <div className="m-4">
               <label
-                htmlFor="recipe_name"
-                className="block mb-2 text-sm font-medium dark:text-white"
-              >
-                Sabor del relleno
-              </label>
-              <select
-                id="unit"
-                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-              >
-                <option value="grams">Vainilla</option>
-                <option value="ml">Chocolate</option>
-              </select>
-            </div>
-            <div className="m-4">
-              <label
-                htmlFor="recipe_name"
+                htmlFor="address"
                 className="block mb-2 text-sm font-medium dark:text-white"
               >
                 Ingresa la dirección de la entrega
               </label>
               <input
                 type="text"
-                id="recipe_name"
-                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                id="address"
+                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
                 placeholder="Calle Bonita #10"
                 required
               />
