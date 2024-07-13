@@ -11,12 +11,12 @@ export default function Home() {
   return (
 <main>
   <NavbarAdmin />
-  <main className={`text-text ${poppins.className}`}>
+  <main className={`text-text ${poppins.className} max-w-screen-lg mx-auto mt-24`}>
     <div className="m-8 flex flex-col items-center lg:flex-row justify-between">
       <div className="flex justify-center md:w-1/2">
         <div className="flex justify-center w-full aspect-w-4 aspect-h-3 md:rounded-xl overflow-hidden">
           <iframe
-            className="w-80 h-56 sm:w-80 md:w-full lg:h-96 rounded-xl"
+            className="w-80 h-56 sm:w-80 md:w-full lg:h-72 rounded-xl"
             src="https://www.youtube.com/embed/ib1V_Z9sjHQ"
             title="Video de pasteles"
             frameborder="0"
@@ -36,21 +36,16 @@ export default function Home() {
             ¿Cuántos de tus recuerdos más preciados incluyen un delicioso pastel? En nuestra pastelería, ofrecemos calidad y personalización en cada pastel. Visita nuestra galería para admirar nuestros diseños y descubrir la calidad que nos distingue. <br /> ¡Convierte tus momentos especiales en experiencias inolvidables!
           </p>
         </div>
-        <div className="flex flex-col gap-4 justify-center items-center m-6">
+        <div className="flex flex-col gap-4 justify-center items-center">
           <Link href="/enduser/solicitarcotizacion">
-            <button className="bg-primary font-bold p-6 px-8 rounded-md">
+            <button className="bg-primary font-bold p-6 px-8 rounded-md shadow-lg w-72">
               ¡COTIZA HOY MISMO!
-            </button>
-          </Link>
-          <Link href="/enduser/preguntasfrecuentes">
-            <button className={`bg-primary font-bold p-6 px-8 rounded-md text-xl text-white ${sofia.className}`}>
-              Preguntas frecuentes
             </button>
           </Link>
         </div>
       </div>
       </div>
-        <div className="m-1 mb-20 bg-rose-50 py-6">
+        <div className="m-1 mb-20 bg-rose-50 py-6 rounded-lg">
           <Link href="/enduser/conocenuestrosproductos">
             <h2 className={`m-6 text-center text-4xl ${sofia.className}`}>
               Conoce Nuestros Productos
@@ -60,7 +55,7 @@ export default function Home() {
             <div className="">
               <div className="flex justify-center">
                 <Image
-                  className="w-52 h-52 rounded-full"
+                  className="w-52 h-52 rounded-full border border-accent"
                   src="/img/sabores.jpeg"
                   width={190}
                   height={190}
@@ -74,7 +69,7 @@ export default function Home() {
             <div className="postresContainer">
               <div className="flex justify-center">
                 <Image
-                  className="w-52 h-52 rounded-full"
+                  className="w-52 h-52 rounded-full border border-accent"
                   src="/img/pay.jpeg"
                   width={190}
                   height={190}
@@ -88,7 +83,7 @@ export default function Home() {
             <div className="pastelesContainer">
               <div className="flex justify-center">
                 <Image
-                  className="w-52 h-52 rounded-full"
+                  className="w-52 h-52 rounded-full border border-accent"
                   src="/img/yoda.jpg"
                   width={190}
                   height={190}
@@ -102,7 +97,7 @@ export default function Home() {
             <div className="galletasContainer">
               <div className="flex justify-center">
                 <Image
-                  className="w-52 h-52 rounded-full"
+                  className="w-52 h-52 rounded-full border border-accent"
                   src="/img/coockies.jpg"
                   width={500}
                   height={500}
@@ -129,8 +124,8 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center my-10px text-lg">
-              <Link href="/enduser/conocenos">
-                <button>
+              <Link href="/enduser/conocenos#preguntasfrecuentes">
+                <button className="italic">
                   <p>Leer más...</p>
                 </button>
               </Link>
