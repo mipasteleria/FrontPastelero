@@ -19,7 +19,6 @@ export default function Home() {
                 className="w-80 h-56 sm:w-80 md:w-full lg:h-96 rounded-xl"
                 src="https://www.youtube.com/embed/ib1V_Z9sjHQ"
                 title="Video de pasteles"
-                frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen
               ></iframe>
