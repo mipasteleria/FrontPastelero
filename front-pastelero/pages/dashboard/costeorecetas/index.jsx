@@ -13,7 +13,7 @@ export default function Costeorecetas() {
       <NavbarDashboard />
       <div className="flex">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>     
+        <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>     
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis recetas</h1>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
           <div className="overflow-x-auto w-full">
@@ -279,7 +279,7 @@ export default function Costeorecetas() {
             </nav>
 
           <Link className="flex justify-end mb-20" href="/dashboard/costeorecetas/nuevareceta">
-            <button type="submit" className="text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+            <button type="submit" className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
               Nueva Receta
             </button>
           </Link>
