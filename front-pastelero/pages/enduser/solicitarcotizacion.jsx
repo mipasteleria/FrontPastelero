@@ -893,19 +893,38 @@ export default function SolicitarCotizacion() {
             >
               Limpiar campos
             </button>
-          <Link href="/enduser/detallecotizacion">
-          <button
-            className="bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition"
-          >
-            {selectedOption === "Cupcakes"
-            ? "Cotizar Cupcakes"
-            : selectedOption === "Mesa de postres"
-            ? "Cotizar Mesa"
-            : selectedOption === "Pastel"
-            ? "Cotizar Pastel"
-            : "Cotizar Pastel"}
-          </button>
-          </Link>
+            <div>
+              <Link href="/enduser/detallecotizacion">
+                <button
+                  className={`${
+                    selectedOption === "Cupcakes" ? "block" : "hidden"
+                  } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
+                >
+                  Cotizar Cupcakes
+                </button>
+              </Link>
+
+              <Link href="/enduser/detallecotizacion">
+                <button
+                  className={`${
+                    selectedOption === "Mesa de postres" ? "block" : "hidden"
+                  } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
+                >
+                  Cotizar Mesa
+                </button>
+              </Link>
+
+              <Link href="/enduser/detallecotizacion">
+                <button
+                  className={`${
+                    selectedOption === "Pastel" ? "block" : "hidden"
+                  } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
+                >
+                  Cotizar Pastel
+                </button>
+              </Link>
+            </div>
+
         </div>
       </main>
       <WebFooter />
