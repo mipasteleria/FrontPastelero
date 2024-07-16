@@ -25,15 +25,17 @@ export default function SolicitarCotizacion() {
   return (
     <div>
       <NavbarAdmin />
-      <main className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}>
+      <main
+        className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}
+      >
         <h1 className={`text-4xl m-4 ${sofia.className}`}>
           Solicitar cotización
         </h1>
         <p className="m-6">
           Le pedimos que complete cada campo con la mayor cantidad de detalles
-          posible para acelerar el proceso de cotización. Recuerda que somos es
+          posible para acelerar el proceso de cotización.  Recuerda que somos es
           una empresa pequeña que realiza pocos pasteles a la semana. Por favor,
-          solicita tu cotización con suficiente anticipación. Hacemos todo lo
+          solicita tu  cotización con suficiente anticipación. Hacemos todo lo
           posible para responder rápidamente, pero a veces puede haber retrasos.
           Agradecemos tu comprensión.
         </p>
@@ -83,8 +85,60 @@ export default function SolicitarCotizacion() {
             </label>
           </div>
         </fieldset>
+
         <div className="flex flex-col md:flex-row justify-around mb-6">
           <div className="flex flex-col md:grid md:grid-cols-2">
+            {selectedOption !== "Mesa de postres" && (
+              <div className="m-4">
+                <label
+                  htmlFor="recipe_name"
+                  className="block mb-2 text-sm font-medium dark:text-white"
+                >
+                  Sabor del bizcocho
+                </label>
+                <select
+                  id="unit"
+                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                >
+                  <option value="vainilla">Vainilla</option>
+                  <option value="chocolate">Chocolate</option>
+                </select>
+              </div>
+            )}
+            {selectedOption === "Pastel" && (
+              <>
+                <div className="m-4">
+                  <label
+                    htmlFor="levels"
+                    className="block mb-2 text-sm font-medium dark:text-white"
+                  >
+                    ¿Cuántos niveles quieres?
+                  </label>
+                  <select
+                    id="levels"
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  >
+                    <option value="1">1 Nivel</option>
+                    <option value="2">2 Niveles</option>
+                  </select>
+                </div>
+                <div className="m-4">
+                  <label
+                    htmlFor="filling"
+                    className="block mb-2 text-sm font-medium dark:text-white"
+                  >
+                    Sabor del relleno
+                  </label>
+                  <select
+                    id="filling"
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  >
+                    <option value="vainilla">Vainilla</option>
+                    <option value="chocolate">Chocolate</option>
+                  </select>
+                </div>
+              </>
+            )}
             {selectedOption !== "Mesa de postres" && (
               <div className="m-4">
                 <label
@@ -149,6 +203,8 @@ export default function SolicitarCotizacion() {
               >
                 <option value="10">10</option>
                 <option value="20">20</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
               </select>
             </div>
             <div className="m-4">
@@ -162,6 +218,8 @@ export default function SolicitarCotizacion() {
                 id="delivery"
                 className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
               >
+                <option value="yes">Sí</option>
+                <option value="no">No</option>
                 <option value="yes">Sí</option>
                 <option value="no">No</option>
               </select>
@@ -237,55 +295,55 @@ export default function SolicitarCotizacion() {
                     </label>
                   </div>
 
-                  <div class="flex mb-4">
-                    <div class="flex items-center h-5">
-                      <input
-                        id="helper-checkbox"
-                        aria-describedby="helper-checkbox-text"
-                        type="checkbox"
-                        value=""
-                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                      />
-                    </div>
-                    <div class="ms-2 text-sm">
-                      <label for="helper-checkbox" class="font-medium text-text">
-                        Dibujo en Buttercream
-                      </label>
-                    </div>
-                  </div>
-                  <div class="flex mb-4">
-                    <div class="flex items-center h-5">
-                      <input
-                        id="helper-checkbox"
-                        aria-describedby="helper-checkbox-text"
-                        type="checkbox"
-                        value=""
-                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                      />
-                    </div>
-                    <div class="ms-2 text-sm">
-                      <label for="helper-checkbox" class="font-medium text-text">
-                        Dibujo en Fondant
-                      </label>
-                    </div>
-                  </div>
-                  <div class="flex mb-4">
-                    <div class="flex items-center h-5">
-                      <input
-                        id="helper-checkbox"
-                        aria-describedby="helper-checkbox-text"
-                        type="checkbox"
-                        value=""
-                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                      />
-                    </div>
-                    <div class="ms-2 text-sm">
-                      <label for="helper-checkbox" class="font-medium text-text">
-                        Figura 3d en Fondant
-                      </label>
-                    </div>
-                  </div>
-                </fieldset>
+            <div class="flex mb-4">
+              <div class="flex items-center h-5">
+                <input
+                  id="helper-checkbox"
+                  aria-describedby="helper-checkbox-text"
+                  type="checkbox"
+                  value=""
+                  class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+              </div>
+              <div class="ms-2 text-sm">
+                <label for="helper-checkbox" class="font-medium text-text">
+                  Dibujo en Buttercream
+                </label>
+              </div>
+            </div>
+            <div class="flex mb-4">
+              <div class="flex items-center h-5">
+                <input
+                  id="helper-checkbox"
+                  aria-describedby="helper-checkbox-text"
+                  type="checkbox"
+                  value=""
+                  class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+              </div>
+              <div class="ms-2 text-sm">
+                <label for="helper-checkbox" class="font-medium text-text">
+                  Dibujo en Fondant
+                </label>
+              </div>
+            </div>
+            <div class="flex mb-4">
+              <div class="flex items-center h-5">
+                <input
+                  id="helper-checkbox"
+                  aria-describedby="helper-checkbox-text"
+                  type="checkbox"
+                  value=""
+                  class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+              </div>
+              <div class="ms-2 text-sm">
+                <label for="helper-checkbox" class="font-medium text-text">
+                  Figura 3d en Fondant
+                </label>
+              </div>
+            </div>
+          </fieldset>
                 <fieldset className="m-4">
                   <div class="flex items-center mb-4">
                     <input
@@ -742,6 +800,7 @@ export default function SolicitarCotizacion() {
               </p>
             </div>
             <input id="dropzone-file" type="file" class="hidden" />
+            <input id="dropzone-file" type="file" class="hidden" />
           </label>
         </div>
         <div class=" bg-gray-200 rounded-full m-10">
@@ -827,22 +886,26 @@ export default function SolicitarCotizacion() {
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-4 m-6">
+        <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
           <button
-            className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
-            onClick={handleClearFields}
-          >
-            Limpiar campos
-          </button>
+              className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
+              onClick={handleClearFields}
+            >
+              Limpiar campos
+            </button>
+          <Link href="/enduser/detallecotizacion">
           <button
             className="bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition"
           >
             {selectedOption === "Cupcakes"
-              ? "Cotizar Cupcakes"
-              : selectedOption === "Mesa de postres"
-              ? "Cotizar Mesa"
-              : "Cotizar Pastel"}
+            ? "Cotizar Cupcakes"
+            : selectedOption === "Mesa de postres"
+            ? "Cotizar Mesa"
+            : selectedOption === "Pastel"
+            ? "Cotizar Pastel"
+            : "Cotizar Pastel"}
           </button>
+          </Link>
         </div>
       </main>
       <WebFooter />
