@@ -7,6 +7,19 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Conocenuestrosproductos() {
+  useEffect(() => {
+    if (formData.envio === "no") {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        LugEnt: "Se recogerá en sucursal"
+      }));
+    } else {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        LugEnt: ""
+      }));
+    }
+  }, [formData.envio]);
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />

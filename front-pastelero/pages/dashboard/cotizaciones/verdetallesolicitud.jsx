@@ -169,4 +169,6 @@ export default function verdetallesolicitud() {
                </div>
                </div>
                </form>
-               </main></div></div>)}
+               </main>
+               </div>
+               </div>)}
