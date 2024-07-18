@@ -11,9 +11,15 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 export default function SolicitarCotizacion() {
   const handleClearFields = () => {
     document.querySelectorAll("input").forEach((input) => (input.value = ""));
-    document.querySelectorAll("select").forEach((select) => (select.value = ""));
-    document.querySelectorAll("textarea").forEach((textarea) => (textarea.value = ""));
-    document.querySelectorAll("input[type=radio], input[type=checkbox]").forEach((input) => (input.checked = false));
+    document
+      .querySelectorAll("select")
+      .forEach((select) => (select.value = ""));
+    document
+      .querySelectorAll("textarea")
+      .forEach((textarea) => (textarea.value = ""));
+    document
+      .querySelectorAll("input[type=radio], input[type=checkbox]")
+      .forEach((input) => (input.checked = false));
   };
 
   const [selectedOption, setSelectedOption] = useState("Pastel");
@@ -33,9 +39,9 @@ export default function SolicitarCotizacion() {
         </h1>
         <p className="m-6">
           Le pedimos que complete cada campo con la mayor cantidad de detalles
-          posible para acelerar el proceso de cotización.  Recuerda que somos es
+          posible para acelerar el proceso de cotización. Recuerda que somos es
           una empresa pequeña que realiza pocos pasteles a la semana. Por favor,
-          solicita tu  cotización con suficiente anticipación. Hacemos todo lo
+          solicita tu cotización con suficiente anticipación. Hacemos todo lo
           posible para responder rápidamente, pero a veces puede haber retrasos.
           Agradecemos tu comprensión.
         </p>
@@ -246,7 +252,8 @@ export default function SolicitarCotizacion() {
           {selectedOption === "Pastel" && (
             <div className="">
               <h2 className={`text-xl m-4 ${sofia.className}`}>
-              Elige las opciones de decoración que te gustaría que tenga tu pastel
+                Elige las opciones de decoración que te gustaría que tenga tu
+                pastel
               </h2>
               <div className="flex flex-col md:flex-row justify-around">
                 <fieldset className="m-4">
@@ -295,55 +302,64 @@ export default function SolicitarCotizacion() {
                     </label>
                   </div>
 
-            <div class="flex mb-4">
-              <div class="flex items-center h-5">
-                <input
-                  id="helper-checkbox"
-                  aria-describedby="helper-checkbox-text"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                />
-              </div>
-              <div class="ms-2 text-sm">
-                <label for="helper-checkbox" class="font-medium text-text">
-                  Dibujo en Buttercream
-                </label>
-              </div>
-            </div>
-            <div class="flex mb-4">
-              <div class="flex items-center h-5">
-                <input
-                  id="helper-checkbox"
-                  aria-describedby="helper-checkbox-text"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                />
-              </div>
-              <div class="ms-2 text-sm">
-                <label for="helper-checkbox" class="font-medium text-text">
-                  Dibujo en Fondant
-                </label>
-              </div>
-            </div>
-            <div class="flex mb-4">
-              <div class="flex items-center h-5">
-                <input
-                  id="helper-checkbox"
-                  aria-describedby="helper-checkbox-text"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                />
-              </div>
-              <div class="ms-2 text-sm">
-                <label for="helper-checkbox" class="font-medium text-text">
-                  Figura 3d en Fondant
-                </label>
-              </div>
-            </div>
-          </fieldset>
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
+                      <input
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
+                        type="checkbox"
+                        value=""
+                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                      />
+                    </div>
+                    <div class="ms-2 text-sm">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
+                        Dibujo en Buttercream
+                      </label>
+                    </div>
+                  </div>
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
+                      <input
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
+                        type="checkbox"
+                        value=""
+                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                      />
+                    </div>
+                    <div class="ms-2 text-sm">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
+                        Dibujo en Fondant
+                      </label>
+                    </div>
+                  </div>
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
+                      <input
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
+                        type="checkbox"
+                        value=""
+                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                      />
+                    </div>
+                    <div class="ms-2 text-sm">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
+                        Figura 3d en Fondant
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
                 <fieldset className="m-4">
                   <div class="flex items-center mb-4">
                     <input
@@ -401,7 +417,10 @@ export default function SolicitarCotizacion() {
                       />
                     </div>
                     <div class="ms-2 text-sm">
-                      <label for="helper-checkbox" class="font-medium text-text">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
                         Pastel 3d de algún pesonaje
                       </label>
                     </div>
@@ -427,336 +446,359 @@ export default function SolicitarCotizacion() {
           )}
           {selectedOption === "Cupcakes" && (
             <div className="">
-            <h2 className={`text-xl m-4 ${sofia.className}`}>
-            Elige las opciones de decoración que te gustaría que tenga tu pastel
-            </h2>
-            <div className="flex flex-col md:flex-row justify-around">
-              <fieldset className="m-4">
-                <div class="flex items-center mb-4">
-                  <input
-                    id="checkbox-1"
-                    type="checkbox"
-                    value=""
-                    class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                  />
-                  <label
-                    for="checkbox-1"
-                    class="ms-2 text-sm font-medium text-text"
-                  >
-                    Cobertura Buttercream (betún con base en mantequilla).
-                  </label>
-                </div>
-
-                <div class="flex items-center mb-4">
-                  <input
-                    id="checkbox-2"
-                    type="checkbox"
-                    value=""
-                    class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                  />
-                  <label
-                    for="checkbox-2"
-                    class="ms-2 text-sm font-medium focus:font-bold text-text"
-                  >
-                    Cobertura Garnache (Base de chocolate)
-                  </label>
-                </div>
-
-                <div class="flex items-center mb-4">
-                  <input
-                    id="checkbox-3"
-                    type="checkbox"
-                    value=""
-                    class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                  />
-                  <label
-                    for="checkbox-3"
-                    class="ms-2 text-sm font-medium text-text"
-                  >
-                    Cobertura fondant
-                  </label>
-                </div>
-
-                <div class="flex mb-4">
-                  <div class="flex items-center h-5">
+              <h2 className={`text-xl m-4 ${sofia.className}`}>
+                Elige las opciones de decoración que te gustaría que tenga tu
+                pastel
+              </h2>
+              <div className="flex flex-col md:flex-row justify-around">
+                <fieldset className="m-4">
+                  <div class="flex items-center mb-4">
                     <input
-                      id="helper-checkbox"
-                      aria-describedby="helper-checkbox-text"
+                      id="checkbox-1"
                       type="checkbox"
                       value=""
                       class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
                     />
-                  </div>
-                  <div class="ms-2 text-sm">
-                    <label for="helper-checkbox" class="font-medium text-text">
-                      Dibujo en Buttercream
+                    <label
+                      for="checkbox-1"
+                      class="ms-2 text-sm font-medium text-text"
+                    >
+                      Cobertura Buttercream (betún con base en mantequilla).
                     </label>
                   </div>
-                </div>
-                <div class="flex mb-4">
-                  <div class="flex items-center h-5">
+
+                  <div class="flex items-center mb-4">
                     <input
-                      id="helper-checkbox"
-                      aria-describedby="helper-checkbox-text"
+                      id="checkbox-2"
                       type="checkbox"
                       value=""
                       class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
                     />
-                  </div>
-                  <div class="ms-2 text-sm">
-                    <label for="helper-checkbox" class="font-medium text-text">
-                      Dibujo en Fondant
+                    <label
+                      for="checkbox-2"
+                      class="ms-2 text-sm font-medium focus:font-bold text-text"
+                    >
+                      Cobertura Garnache (Base de chocolate)
                     </label>
                   </div>
-                </div>
-              </fieldset>
-              <fieldset className="m-4">
-                <div class="flex items-center mb-4">
-                  <input
-                    id="checkbox-1"
-                    type="checkbox"
-                    value=""
-                    class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                  />
-                  <label
-                    for="checkbox-1"
-                    class="ms-2 text-sm font-medium text-text"
-                  >
-                    Flores naturales.
-                  </label>
-                </div>
 
-                <div class="flex items-center mb-4">
-                  <input
-                    id="checkbox-2"
-                    type="checkbox"
-                    value=""
-                    class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                  />
-                  <label
-                    for="checkbox-2"
-                    class="ms-2 text-sm font-medium focus:font-bold text-text"
-                  >
-                    Flores de Fondant
-                  </label>
-                </div>
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-3"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-3"
+                      class="ms-2 text-sm font-medium text-text"
+                    >
+                      Cobertura fondant
+                    </label>
+                  </div>
 
-                <div class="flex items-center mb-4">
-                  <input
-                    id="checkbox-3"
-                    type="checkbox"
-                    value=""
-                    class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                  />
-                  <label
-                    for="checkbox-3"
-                    class="ms-2 text-sm font-medium text-text"
-                  >
-                    Letrero
-                  </label>
-                </div>
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
+                      <input
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
+                        type="checkbox"
+                        value=""
+                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                      />
+                    </div>
+                    <div class="ms-2 text-sm">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
+                        Dibujo en Buttercream
+                      </label>
+                    </div>
+                  </div>
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
+                      <input
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
+                        type="checkbox"
+                        value=""
+                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                      />
+                    </div>
+                    <div class="ms-2 text-sm">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
+                        Dibujo en Fondant
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
+                <fieldset className="m-4">
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-1"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-1"
+                      class="ms-2 text-sm font-medium text-text"
+                    >
+                      Flores naturales.
+                    </label>
+                  </div>
 
-                <div className="mb-6">
-                  <label
-                    htmlFor="recipe_name"
-                    className="block mb-2 text-sm font-medium dark:text-white"
-                  >
-                    Otro
-                  </label>
-                  <input
-                    type="text"
-                    id="recipe_name"
-                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                    placeholder="Pastel de vainilla"
-                    required
-                  />
-                </div>
-              </fieldset>
-            </div>
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-2"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-2"
+                      class="ms-2 text-sm font-medium focus:font-bold text-text"
+                    >
+                      Flores de Fondant
+                    </label>
+                  </div>
+
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-3"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-3"
+                      class="ms-2 text-sm font-medium text-text"
+                    >
+                      Letrero
+                    </label>
+                  </div>
+
+                  <div className="mb-6">
+                    <label
+                      htmlFor="recipe_name"
+                      className="block mb-2 text-sm font-medium dark:text-white"
+                    >
+                      Otro
+                    </label>
+                    <input
+                      type="text"
+                      id="recipe_name"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="Pastel de vainilla"
+                      required
+                    />
+                  </div>
+                </fieldset>
+              </div>
             </div>
           )}
           {selectedOption === "Mesa de postres" && (
             <div className="">
-                <h2 className={`text-xl m-4 ${sofia.className}`}>
-                Elige las opciones de decoración que te gustaría que tenga tu pastel
-                </h2>
-                <div className="flex flex-col md:flex-row justify-around">
-                  <fieldset className="m-4">
-                    <div class="flex items-center mb-4">
+              <h2 className={`text-xl m-4 ${sofia.className}`}>
+                Elige las opciones de decoración que te gustaría que tenga tu
+                pastel
+              </h2>
+              <div className="flex flex-col md:flex-row justify-around">
+                <fieldset className="m-4">
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-1"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-1"
+                      class="ms-2 text-sm font-medium text-text"
+                    >
+                      Pay de queso
+                    </label>
+                  </div>
+
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-2"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-2"
+                      class="ms-2 text-sm font-medium focus:font-bold text-text"
+                    >
+                      Brownie
+                    </label>
+                  </div>
+
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-3"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-3"
+                      class="ms-2 text-sm font-medium text-text"
+                    >
+                      Galletas decoradas
+                    </label>
+                  </div>
+
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
                       <input
-                        id="checkbox-1"
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
                         type="checkbox"
                         value=""
                         class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
                       />
-                      <label
-                        for="checkbox-1"
-                        class="ms-2 text-sm font-medium text-text"
-                      >
-                        Pay de queso
-                      </label>
                     </div>
-
-                    <div class="flex items-center mb-4">
-                      <input
-                        id="checkbox-2"
-                        type="checkbox"
-                        value=""
-                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                      />
+                    <div class="ms-2 text-sm">
                       <label
-                        for="checkbox-2"
-                        class="ms-2 text-sm font-medium focus:font-bold text-text"
+                        for="helper-checkbox"
+                        class="font-medium text-text"
                       >
-                        Brownie
-                      </label>
-                    </div>
-
-                    <div class="flex items-center mb-4">
-                      <input
-                        id="checkbox-3"
-                        type="checkbox"
-                        value=""
-                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                      />
-                      <label
-                        for="checkbox-3"
-                        class="ms-2 text-sm font-medium text-text"
-                      >
-                        Galletas decoradas
-                      </label>
-                    </div>
-
-                    <div class="flex mb-4">
-                      <div class="flex items-center h-5">
-                        <input
-                          id="helper-checkbox"
-                          aria-describedby="helper-checkbox-text"
-                          type="checkbox"
-                          value=""
-                          class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                        />
-                      </div>
-                      <div class="ms-2 text-sm">
-                        <label for="helper-checkbox" class="font-medium text-text">
                         Alfajores
-                        </label>
-                      </div>
+                      </label>
                     </div>
-                    <div class="flex mb-4">
-                      <div class="flex items-center h-5">
-                        <input
-                          id="helper-checkbox"
-                          aria-describedby="helper-checkbox-text"
-                          type="checkbox"
-                          value=""
-                          class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                        />
-                      </div>
-                      <div class="ms-2 text-sm">
-                        <label for="helper-checkbox" class="font-medium text-text">
+                  </div>
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
+                      <input
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
+                        type="checkbox"
+                        value=""
+                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                      />
+                    </div>
+                    <div class="ms-2 text-sm">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
                         Macarrons
-                        </label>
-                      </div>
+                      </label>
                     </div>
-                    <div class="flex mb-4">
-                      <div class="flex items-center h-5">
-                        <input
-                          id="helper-checkbox"
-                          aria-describedby="helper-checkbox-text"
-                          type="checkbox"
-                          value=""
-                          class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                        />
-                      </div>
-                      <div class="ms-2 text-sm">
-                        <label for="helper-checkbox" class="font-medium text-text">
+                  </div>
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
+                      <input
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
+                        type="checkbox"
+                        value=""
+                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                      />
+                    </div>
+                    <div class="ms-2 text-sm">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
                         Donas
-                        </label>
-                      </div>
+                      </label>
                     </div>
-                  </fieldset>
-                  <fieldset className="m-4">
-                    <div class="flex items-center mb-4">
+                  </div>
+                </fieldset>
+                <fieldset className="m-4">
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-1"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-1"
+                      class="ms-2 text-sm font-medium text-text"
+                    >
+                      Paletas magnum
+                    </label>
+                  </div>
+
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-2"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-2"
+                      class="ms-2 text-sm font-medium focus:font-bold text-text"
+                    >
+                      Cupcake
+                    </label>
+                  </div>
+
+                  <div class="flex items-center mb-4">
+                    <input
+                      id="checkbox-3"
+                      type="checkbox"
+                      value=""
+                      class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                    />
+                    <label
+                      for="checkbox-3"
+                      class="ms-2 text-sm font-medium text-text"
+                    >
+                      Pan de naranja con mermelada de maracuya
+                    </label>
+                  </div>
+
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
                       <input
-                        id="checkbox-1"
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
                         type="checkbox"
                         value=""
                         class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
                       />
-                      <label
-                        for="checkbox-1"
-                        class="ms-2 text-sm font-medium text-text"
-                      >
-                        Paletas magnum
-                      </label>
                     </div>
-
-                    <div class="flex items-center mb-4">
-                      <input
-                        id="checkbox-2"
-                        type="checkbox"
-                        value=""
-                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                      />
+                    <div class="ms-2 text-sm">
                       <label
-                        for="checkbox-2"
-                        class="ms-2 text-sm font-medium focus:font-bold text-text"
+                        for="helper-checkbox"
+                        class="font-medium text-text"
                       >
-                        Cupcake
-                      </label>
-                    </div>
-
-                    <div class="flex items-center mb-4">
-                      <input
-                        id="checkbox-3"
-                        type="checkbox"
-                        value=""
-                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                      />
-                      <label
-                        for="checkbox-3"
-                        class="ms-2 text-sm font-medium text-text"
-                      >
-                        Pan de naranja con mermelada de maracuya
-                      </label>
-                    </div>
-
-                    <div class="flex mb-4">
-                      <div class="flex items-center h-5">
-                        <input
-                          id="helper-checkbox"
-                          aria-describedby="helper-checkbox-text"
-                          type="checkbox"
-                          value=""
-                          class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                        />
-                      </div>
-                      <div class="ms-2 text-sm">
-                        <label for="helper-checkbox" class="font-medium text-text">
                         Galletas americanas
-                        </label>
-                      </div>
+                      </label>
                     </div>
-                    <div class="flex mb-4">
-                      <div class="flex items-center h-5">
-                        <input
-                          id="helper-checkbox"
-                          aria-describedby="helper-checkbox-text"
-                          type="checkbox"
-                          value=""
-                          class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                        />
-                      </div>
-                      <div class="ms-2 text-sm">
-                        <label for="helper-checkbox" class="font-medium text-text">
+                  </div>
+                  <div class="flex mb-4">
+                    <div class="flex items-center h-5">
+                      <input
+                        id="helper-checkbox"
+                        aria-describedby="helper-checkbox-text"
+                        type="checkbox"
+                        value=""
+                        class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                      />
+                    </div>
+                    <div class="ms-2 text-sm">
+                      <label
+                        for="helper-checkbox"
+                        class="font-medium text-text"
+                      >
                         Tarta de Manzana
-                        </label>
-                      </div>
+                      </label>
                     </div>
-                  </fieldset>
-                </div>
-          </div>
+                  </div>
+                </fieldset>
+              </div>
+            </div>
           )}
         </div>
         <div className="m-6">
@@ -888,43 +930,42 @@ export default function SolicitarCotizacion() {
         </div>
         <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
           <button
-              className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
-              onClick={handleClearFields}
-            >
-              Limpiar campos
-            </button>
-            <div>
-              <Link href="/enduser/detallecotizacion">
-                <button
-                  className={`${
-                    selectedOption === "Cupcakes" ? "block" : "hidden"
-                  } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
-                >
-                  Cotizar Cupcakes
-                </button>
-              </Link>
+            className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
+            onClick={handleClearFields}
+          >
+            Limpiar campos
+          </button>
+          <div>
+            <Link href="/enduser/detallecotizacion">
+              <button
+                className={`${
+                  selectedOption === "Cupcakes" ? "block" : "hidden"
+                } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
+              >
+                Cotizar Cupcakes
+              </button>
+            </Link>
 
-              <Link href="/enduser/detallecotizacion">
-                <button
-                  className={`${
-                    selectedOption === "Mesa de postres" ? "block" : "hidden"
-                  } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
-                >
-                  Cotizar Mesa
-                </button>
-              </Link>
+            <Link href="/enduser/detallecotizacion">
+              <button
+                className={`${
+                  selectedOption === "Mesa de postres" ? "block" : "hidden"
+                } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
+              >
+                Cotizar Mesa
+              </button>
+            </Link>
 
-              <Link href="/enduser/detallecotizacion">
-                <button
-                  className={`${
-                    selectedOption === "Pastel" ? "block" : "hidden"
-                  } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
-                >
-                  Cotizar Pastel
-                </button>
-              </Link>
-            </div>
-
+            <Link href="/enduser/detallecotizacion">
+              <button
+                className={`${
+                  selectedOption === "Pastel" ? "block" : "hidden"
+                } bg-accent text-white py-2 px-4 rounded hover:bg-secondary transition`}
+              >
+                Cotizar Pastel
+              </button>
+            </Link>
+          </div>
         </div>
       </main>
       <WebFooter />
