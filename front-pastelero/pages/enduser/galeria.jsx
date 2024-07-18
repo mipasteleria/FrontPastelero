@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Image from "next/image";
 import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
@@ -22,7 +23,9 @@ export default function Galeria() {
         <h1 className={`text-4xl m-4 ${sofia.className}`}>Galería</h1>
         <div className="grid gap-4 mb-10">
           <div className="flex justify-center">
-            <img
+            <Image
+              width={500}
+              height={500}
               className="h-auto max-w-full rounded-lg object-contain"
               src={currentImage}
               alt=""
@@ -31,7 +34,9 @@ export default function Galeria() {
           </div>
           <div className="grid grid-cols-5 gap-4">
             <div onClick={() => handleImageClick("/img/animalcrossing.jpg")}>
-              <img
+              <Image
+                width={500}
+                height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/animalcrossing.jpg"
                 alt=""
@@ -39,7 +44,9 @@ export default function Galeria() {
               />
             </div>
             <div onClick={() => handleImageClick("/img/coockies.jpg")}>
-              <img
+              <Image
+                width={500}
+                height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/coockies.jpg"
                 alt=""
@@ -47,7 +54,9 @@ export default function Galeria() {
               />
             </div>
             <div onClick={() => handleImageClick("/img/yoda.jpg")}>
-              <img
+              <Image
+                width={500}
+                height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/yoda.jpg"
                 alt=""
@@ -55,7 +64,9 @@ export default function Galeria() {
               />
             </div>
             <div onClick={() => handleImageClick("/img/galletas.jpg")}>
-              <img
+              <Image
+                width={500}
+                height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/galletas.jpg"
                 alt=""
@@ -63,7 +74,9 @@ export default function Galeria() {
               />
             </div>
             <div onClick={() => handleImageClick("/img/pay.jpeg")}>
-              <img
+              <Image
+                width={500}
+                height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/pay.jpeg"
                 alt=""
