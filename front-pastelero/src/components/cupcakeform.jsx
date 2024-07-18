@@ -6,16 +6,17 @@ import DatePicker from "@/src/components/calendario";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-const CakeForm = () => {
-  const cakeFlavor = [
-    "Bizcocho de Vainilla",
-    "Bizcocho de Chocolate",
-    "Bizcocho Red Velvet",
-    "Bizcocho de Naranja",
-    "Bizcocho Dulce de Leche",
+const CupcakeForm = () => {
+  const cupcakeFlavor = [
+    "Vainilla",
+    "Chocolate",
+    "Chocochip",
+    "Red Velvet",
+    "Zanahoria",
+    "Limon",
   ];
 
-  const cakeFilling = [
+  const cupcakeFilling = [
     "Buttercream Vainilla",
     "Buttercream Chocolate",
     "Ganache Chocolate semiamargo",
@@ -33,7 +34,7 @@ const CakeForm = () => {
     "Ganache Chocolate Blanco",
   ];
 
-  const cakeDecoreOptions = [
+  const cupcakesDecoreOptions = [
     "Cobertura Buttercream(betun con base en mantequilla)",
     "Cobertura Ganache Base de Chocolate",
     "Forrado de Fondant",
@@ -42,15 +43,12 @@ const CakeForm = () => {
     "Flores naturales",
     "Letrero",
     "Impresion comestible",
-    "Personajes modelados de azúcar",
-    "Pastel 3d de un personaje",
   ];
 
   const [formData, setFormData] = useState({
-    cakeFlavor: "",
+    cupcakeFlavor: "",
     portions: "",
-    levels: "",
-    cakeFilling: "",
+    cupcakeFilling: "",
     cober: "",
     fondant: false,
     decorations: [],
@@ -95,15 +93,15 @@ const CakeForm = () => {
     <form onSubmit={handleSubmit} className={`${poppins.className}`}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label>Sabor del Bizcocho</label>
+          <label>Sabor de Cupcake</label>
           <select
             className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-            name="cakeFlavor"
-            value={formData.cakeFlavor}
+            name="cupcakeFlavor"
+            value={formData.cupcakeFlavor}
             onChange={handleInputChange}
           >
             <option value="">Selecciona un sabor</option>
-            {cakeFlavor.map((flavor) => (
+            {cupcakeFlavor.map((flavor) => (
               <option key={flavor} value={flavor}>
                 {flavor}
               </option>
@@ -122,22 +120,6 @@ const CakeForm = () => {
             {[...Array(20)].map((_, i) => (
               <option key={i} value={(i + 1) * 10}>
                 {(i + 1) * 10}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Número de Niveles</label>
-          <select
-            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-            name="levels"
-            value={formData.levels}
-            onChange={handleInputChange}
-          >
-            <option value="">Selecciona el número de niveles</option>
-            {[...Array(5)].map((_, i) => (
-              <option key={i} value={i + 1}>
-                {i + 1}
               </option>
             ))}
           </select>
@@ -177,10 +159,10 @@ const CakeForm = () => {
       </div>
       <div className="flex flex-col bg-rose-50 p-6 mb-6 rounded-lg">
         <h2 className={`text-xl m-4 ${sofia.className}`}>
-          Elige las opciones de decoración que te gustaría que tenga tu pastel
+          Elige las opciones de decoración que te gustaría que tengan tus cupcakes
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {cakeDecoreOptions.map((option) => (
+          {cupcakesDecoreOptions.map((option) => (
             <label key={option} className="flex items-center">
               <input
                 type="checkbox"
@@ -213,4 +195,4 @@ const CakeForm = () => {
   );
 };
 
-export default CakeForm;
+export default CupcakeForm;

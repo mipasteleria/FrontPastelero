@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import NavbarDashboard from "@/src/components/navbardashboard";
 import CakeForm from "@/src/components/cakeform";
+import CupcakeForm from "@/src/components/cupcakeform";
+import DessertTableForm from "@/src/components/dessertsform";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 
@@ -10,50 +12,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function GenerarCotizacion() {
     const units = ["kg", "g", "lb", "oz","porciones"];
-    const cakeFlavor = ["Bizcocho de Vainilla", "Bizocho de Chocolate", "Bizcocho de Zanahoria", "Bizcocho Red Velvet"];
-    const cupcakeFlavor = ["Vainilla", "Chocolate", "Chocochip","Red Velvet","Zanahoria","Limon"];
-    const cakeFilling =["Buttercream Vainilla","Buttercream Chocolate", "Ganache Chocolate semiamargo", "Ganache Chocolate Blanco", "Mermelada de blueberry y LemonCurd", "Queso Crema", "Mermelada Frambuesa", "Mermelada Maracuya"];
-    const cober =["Buttercream Vainilla","Buttercream Chocolate", "Ganache Chocolate semiamargo", "Ganache Chocolate Blanco"];
     
-    const desserts = [
-    "Pay de queso",
-    "Brownie",
-    "Galletas Decoradas",
-    "Alfajores",
-    "Macarrons",
-    "Donas",
-    "Paletas Magnum",
-    "Cupcakes",
-    "Pan de Naranja",
-    "Tarta de Frutas",
-    "Galletas Americanas",
-    "Tarta de Manzana",
-    ]
-    
-    const cakeDecoreOptions = [
-     "Cobertura Buttercream(betun con base en mantequilla)" ,
-     "Cobertura Ganache Base de Chocolate",
-     "Forrado de Fondant" ,
-     "Dibujo a mano en Fondant" ,
-     "Dibujo en Buttercream" ,
-     "Flores naturales" ,
-     "Letrero" ,
-     "Impresion comestible",
-     "Personajes modelados de azúcar",
-     "Pastel 3d de un personaje",
-    ];
-
-    const cupcakesDecoreOptions = [
-        "Cobertura Buttercream(betun con base en mantequilla)" ,
-        "Cobertura Ganache Base de Chocolate",
-        "Forrado de Fondant" ,
-        "Dibujo a mano en Fondant" ,
-        "Dibujo en Buttercream" ,
-        "Flores naturales" ,
-        "Letrero" ,
-        "Impresion comestible" ,
-       ];
-
   // Define el estado del formulario
   const [formData, setFormData] = useState({
     noOrden: "",
@@ -202,44 +161,13 @@ export default function GenerarCotizacion() {
                       onChange={handleInputChange}
                       required
                     />
-                  </div>
-                  <div className="flex items-center mb-4">
-                    <label htmlFor="envio" className="block w-1/4 text-sm font-medium dark:text-white">
-                      Requiere Envio
-                    </label>
-                    <select
-                      id="envio"
-                      name="envio"
-                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5"
-                      value={formData.envio}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">Selecciona una opción</option>
-                      <option value="si">Sí</option>
-                      <option value="no">No</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center mb-4">
-                    <label htmlFor="LugEnt" className="block w-1/4 text-sm font-medium dark:text-white">
-                      Lugar de entrega
-                    </label>
-                    <input
-                      type="text"
-                      id="LugEnt"
-                      name="LugEnt"
-                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="Calle, número y colonia"
-                      value={formData.LugEnt}
-                      onChange={handleInputChange}
-                      disabled={formData.envio === "no"}
-                      required
-                    />
-                  </div>
-                    <CakeForm className="w-3/4 p-4"></CakeForm>
+                  </div>              
                 </div>
               </div>
             </div>
+            <CakeForm className="w-3/4 p-4"></CakeForm>
+            <CupcakeForm className="w-3/4 p-4"></CupcakeForm>
+            <DessertTableForm className="w-3/4 p-4"></DessertTableForm>
           </form>
         </main>
       </div>
