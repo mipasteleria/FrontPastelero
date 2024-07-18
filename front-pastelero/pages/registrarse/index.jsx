@@ -36,8 +36,6 @@ export default function Login() {
     })
       .then((response) => response.json())
       .then((json) => console.log(json));
-
-    //router.push("/login");
   };
   return (
     <main className="bg-primary min-h-screen flex flex-col justify-center items-center">
