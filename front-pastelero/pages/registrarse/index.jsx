@@ -27,7 +27,7 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(createAccountText);
-    fetch("https://pasteleros-back.vercel.app//users", {
+    fetch("https://pasteleros-back.vercel.app/users", {
       method: "Post",
       body: JSON.stringify(createAccountText),
       headers: {
