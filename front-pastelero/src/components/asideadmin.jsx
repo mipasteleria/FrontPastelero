@@ -36,7 +36,7 @@ const Asideadmin = () => {
           <Link href="/dashboard/usuarios">
             <li>
               <Link
-                href="#"
+                href="/dashboard/usuarios"
                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -57,7 +57,7 @@ const Asideadmin = () => {
           <Link href="/dashboard/insumosytrabajomanual">
             <li>
               <Link
-                href="#"
+                href="/dashboard/insumosytrabajomanual"
                 class="flex items-center p-2 text-text rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -94,7 +94,7 @@ const Asideadmin = () => {
           <Link href="/dashboard/costeorecetas">
             <li>
               <Link
-                href="#"
+                href="/dashboard/costeorecetas"
                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -126,7 +126,7 @@ const Asideadmin = () => {
           <Link href="/dashboard/gastosfijosymanodeobra">
             <li>
               <Link
-                href="#"
+                href="/dashboard/gastosfijosymanodeobra"
                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -153,7 +153,7 @@ const Asideadmin = () => {
           <Link href="/dashboard/cotizaciones">
             <li>
               <Link
-                href="#"
+                href="/dashboard/insumosytrabajomanual"
                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <svg
@@ -182,7 +182,7 @@ const Asideadmin = () => {
           <Link href="/dashboard/misfacturas">
             <li>
               <Link
-                href="#"
+                href="/dashboard/misfacturas"
                 class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
                 <svg
