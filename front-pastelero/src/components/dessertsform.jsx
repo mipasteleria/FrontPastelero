@@ -5,7 +5,10 @@ import DatePicker from "@/src/components/calendario";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const isNameValid = (name) => {
+  const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
+  return regex.test(name);
+};
 const DessertTableForm = () => {
   const desserts = [
     "Pay de queso",
