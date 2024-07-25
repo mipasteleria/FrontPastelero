@@ -134,6 +134,22 @@ export default function Conocenuestrosproductos() {
                     />
                   </div>
                 </div>
+                <div className="m-4">
+                <label
+                  htmlFor="recipe_name"
+                  className="block mb-2 text-sm font-medium dark:text-white"
+                >
+                  Permisos
+                </label>
+                <select
+                  id="unit"
+                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                >
+                  <option value="vainilla">Admin</option>
+                  <option value="chocolate">Standard</option>
+                  <option value="chocolate">End user</option>
+                </select>
+              </div>
               </form>
             </div>
             <div className="flex flex-col">
