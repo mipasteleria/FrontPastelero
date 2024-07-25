@@ -58,7 +58,7 @@ export default function AdministradorUsuarios() {
                   return (
                     <tr
                       key={`userInfo-${userInfo.name}`}
-                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                      class="bg-white"
                     >
                       <td class="w-4 p-4">
                         <div class="flex items-center">
@@ -74,14 +74,14 @@ export default function AdministradorUsuarios() {
                       </td>
                       <th
                         scope="row"
-                        class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+                        class="flex items-center px-6 py-4 whitespace-nowrap"
                       >
                         <div class="ps-3">
                           <div class="text-base font-semibold">
                             {userInfo.name}
                           </div>
                           <div>{userInfo.lastname}</div>
-                          <div class="font-normal text-gray-500">
+                          <div class="font-normal">
                             {userInfo.email}
                           </div>
                         </div>
@@ -99,7 +99,7 @@ export default function AdministradorUsuarios() {
                       <td class="px-6 py-4">
                         <Link
                           href="#"
-                          class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                          class="font-medium hover:underline"
                         >
                           Editar usuario
                         </Link>
@@ -110,6 +110,11 @@ export default function AdministradorUsuarios() {
               </tbody>
             </table>
           </div>
+          <Link className="flex justify-end mb-20" href="/dashboard/usuarios/nuevousuario">
+            <button type="submit" className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-64 px-16 py-2.5 text-center mt-10 ml-2 m-6">
+              Agregar usuario
+            </button>
+          </Link>
         </main>
         <FooterDashboard />
       </div>
