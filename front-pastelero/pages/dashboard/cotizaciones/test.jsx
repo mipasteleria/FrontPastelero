@@ -11,9 +11,8 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function GenerarCotizacion() {
-    const units = ["kg", "g", "lb", "oz","porciones"];
-    
-  // Define el estado del formulario
+  const units = ["kg", "g", "lb", "oz", "porciones"];
+  
   const [formData, setFormData] = useState({
     noOrden: "",
     FecExp: "",
@@ -23,7 +22,8 @@ export default function GenerarCotizacion() {
     LugEnt: ""
   });
 
-  // Maneja los cambios en los campos del formulario
+  const [selectedForm, setSelectedForm] = useState("cake");
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
@@ -32,14 +32,12 @@ export default function GenerarCotizacion() {
     }));
   };
 
-  // Verifica que el nombre del cliente sea válido
   const isNameValid = (name) => {
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     return regex.test(name);
   };
 
   useEffect(() => {
-    // Configura FecExp a la fecha actual
     const today = new Date();
     const date = today.toLocaleDateString("es-ES", {
       day: "2-digit",
@@ -71,6 +69,10 @@ export default function GenerarCotizacion() {
     }
   }, [formData.envio]);
 
+  const handleFormSelection = (e) => {
+    setSelectedForm(e.target.value);
+  };
+
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
       <NavbarDashboard />
@@ -81,21 +83,7 @@ export default function GenerarCotizacion() {
           <form className="m-4" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 pr-2">
-                <div className="mb-6">
-                  <h3 className={`text-xl p-2 ${poppins.className}`}>Diseño Solicitado o Imágenes de inspiración</h3>
-                  <div className="flex items-center justify-center w-full">
-                      <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                              </svg>
-                              <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-                          </div>
-                          <input id="dropzone-file" type="file" className="hidden" />
-                      </label>
-                  </div> 
-                </div>
+
               </div>
               
               <div className="w-full md:w-1/2 pl-2">
@@ -131,43 +119,54 @@ export default function GenerarCotizacion() {
                       disabled
                     />
                   </div>
-                  <div className="flex items-center mb-4">
-                    <label htmlFor="NomCli" className="block w-1/4 text-sm font-medium dark:text-white">
-                      En atención a
-                    </label>
-                    <input
-                      type="text"
-                      id="NomCli"
-                      name="NomCli"
-                      className={`w-3/4 bg-gray-50 border ${isNameValid(formData.NomCli) ? "border-secondary" : "border-red-500"} text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent`}
-                      placeholder="Cliente"
-                      value={formData.NomCli}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                 
-                  <div className="flex items-center mb-4">
-                    <label htmlFor="FecEnt" className="block w-1/4 text-sm font-medium dark:text-white">
-                      Fecha y hora de entrega
-                    </label>
-                    <input
-                      type="text"
-                      id="FecEnt"
-                      name="FecEnt"
-                      className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="MM/DD/YYYY hh:mm:aa"
-                      value={formData.FecEnt}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>              
+              
+             
                 </div>
               </div>
             </div>
-            <CakeForm className="w-3/4 p-4"></CakeForm>
-            <CupcakeForm className="w-3/4 p-4"></CupcakeForm>
-            <DessertTableForm className="w-3/4 p-4"></DessertTableForm>
+            
+            <div className="mb-6">
+              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Seleccionar tipo de cotización:</label>
+              <div className="flex">
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    name="formType"
+                    value="cake"
+                    checked={selectedForm === "cake"}
+                    onChange={handleFormSelection}
+                    className="mr-1"
+                  />
+                  Pastel
+                </label>
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    name="formType"
+                    value="cupcake"
+                    checked={selectedForm === "cupcake"}
+                    onChange={handleFormSelection}
+                    className="mr-1"
+                  />
+                  Cupcake
+                </label>
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    name="formType"
+                    value="dessertTable"
+                    checked={selectedForm === "dessertTable"}
+                    onChange={handleFormSelection}
+                    className="mr-1"
+                  />
+                  Mesa de postres
+                </label>
+              </div>
+            </div>
+
+            {selectedForm === "cake" && <CakeForm className="w-3/4 p-4" />}
+            {selectedForm === "cupcake" && <CupcakeForm className="w-3/4 p-4" />}
+            {selectedForm === "dessertTable" && <DessertTableForm className="w-3/4 p-4" />}
           </form>
         </main>
       </div>
