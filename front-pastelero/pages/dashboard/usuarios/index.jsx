@@ -12,7 +12,9 @@ export default function AdministradorUsuarios() {
   const [usersInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/users/list")
+    fetch(
+      "https://pasteleros-back-m0q4um7nj-laxdays-projects.vercel.app/users/list"
+    )
       .then((res) => res.json())
       .then((info) => setUserInfo(info.data));
   }, []);
@@ -56,10 +58,7 @@ export default function AdministradorUsuarios() {
               <tbody>
                 {usersInfo.map((userInfo, index) => {
                   return (
-                    <tr
-                      key={`userInfo-${userInfo.name}`}
-                      class="bg-white"
-                    >
+                    <tr key={`userInfo-${userInfo.name}`} class="bg-white">
                       <td class="w-4 p-4">
                         <div class="flex items-center">
                           <input
@@ -81,9 +80,7 @@ export default function AdministradorUsuarios() {
                             {userInfo.name}
                           </div>
                           <div>{userInfo.lastname}</div>
-                          <div class="font-normal">
-                            {userInfo.email}
-                          </div>
+                          <div class="font-normal">{userInfo.email}</div>
                         </div>
                       </th>
                       <td class="px-6 py-4">Role</td>
@@ -97,10 +94,7 @@ export default function AdministradorUsuarios() {
                         </div>
                       </td>
                       <td class="px-6 py-4">
-                        <Link
-                          href="#"
-                          class="font-medium hover:underline"
-                        >
+                        <Link href="#" class="font-medium hover:underline">
                           Editar usuario
                         </Link>
                       </td>
@@ -110,8 +104,14 @@ export default function AdministradorUsuarios() {
               </tbody>
             </table>
           </div>
-          <Link className="flex justify-end mb-20" href="/dashboard/usuarios/nuevousuario">
-            <button type="submit" className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-64 px-16 py-2.5 text-center mt-10 ml-2 m-6">
+          <Link
+            className="flex justify-end mb-20"
+            href="/dashboard/usuarios/nuevousuario"
+          >
+            <button
+              type="submit"
+              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-64 px-16 py-2.5 text-center mt-10 ml-2 m-6"
+            >
               Agregar usuario
             </button>
           </Link>
