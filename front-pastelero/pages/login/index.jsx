@@ -15,19 +15,16 @@ export default function Login() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    fetch(
-      "https://pasteleros-back-m0q4um7nj-laxdays-projects.vercel.app/users/login",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: "",
-          username: "",
-          email: email,
-          password: password,
-        }),
-      }
-    )
+    fetch("https://pasteleros-back.vercel.app/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "",
+        username: "",
+        email: email,
+        password: password,
+      }),
+    })
       .then((response) => response.json())
       .then((json) => {
         console.log(json);

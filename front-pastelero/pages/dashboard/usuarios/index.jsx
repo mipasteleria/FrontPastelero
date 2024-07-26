@@ -12,9 +12,7 @@ export default function AdministradorUsuarios() {
   const [usersInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
-    fetch(
-      "https://pasteleros-back-m0q4um7nj-laxdays-projects.vercel.app/users/list"
-    )
+    fetch("https://pasteleros-back.vercel.app/users/list")
       .then((res) => res.json())
       .then((info) => setUserInfo(info.data));
   }, []);
