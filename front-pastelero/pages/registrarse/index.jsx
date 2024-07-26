@@ -27,16 +27,13 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(createAccountText);
-    fetch(
-      "https://pasteleros-back-m0q4um7nj-laxdays-projects.vercel.app/users",
-      {
-        method: "Post",
-        body: JSON.stringify(createAccountText),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      }
-    )
+    fetch("https://pasteleros-back.vercel.app/users", {
+      method: "Post",
+      body: JSON.stringify(createAccountText),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
       .then((response) => response.json())
       .then((json) => console.log(json));
   };
