@@ -112,89 +112,89 @@ const CupcakeForm = () => {
   return (
     <form onSubmit={handleSubmit} className={`${poppins.className}`}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-  <div className="md:col-span-3">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label>Sabor de Cupcake</label>
-        <select
-          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-          name="cupcakeFlavor"
-          value={formData.cupcakeFlavor}
-          onChange={handleInputChange}
-        >
-          <option value="">Selecciona un sabor</option>
-          {cupcakeFlavor.map((flavor) => (
-            <option key={flavor} value={flavor}>
-              {flavor}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label>Relleno</label>
-        <select
-          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-          name="cupcakeFilling"
-          value={formData.cupcakeFilling}
-          onChange={handleInputChange}
-        >
-          <option value="">Selecciona un sabor</option>
-          {cupcakeFilling.map((flavor) => (
-            <option key={flavor} value={flavor}>
-              {flavor}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label>Cobertura deseada</label>
-        <select
-          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-          name="cober"
-          value={formData.cober}
-          onChange={handleInputChange}
-        >
-          <option value="">Selecciona la cobertura</option>
-          {cober.map((flavor) => (
-            <option key={flavor} value={flavor}>
-              {flavor}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label>Número de Porciones</label>
-        <select
-          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-          name="portions"
-          value={formData.portions}
-          onChange={handleInputChange}
-        >
-          <option value="">Selecciona el número de porciones</option>
-          {[...Array(20)].map((_, i) => (
-            <option key={i} value={(i + 1) * 12}>
-              {(i + 1) * 12}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label class="ms-2 text-sm font-medium text-text">
-          <input
-            type="checkbox"
-            name="fondant"
-            class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-            checked={formData.fondant}
-            onChange={handleInputChange}
-          />
-          Forrado de Fondant
-        </label>
-      </div>
-    </div>
-  </div>
-  <div>
-    <DatePicker />
-  </div>
+        <div className="md:col-span-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label>Sabor de Cupcake</label>
+              <select
+                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                name="cupcakeFlavor"
+                value={formData.cupcakeFlavor}
+                onChange={handleInputChange}
+              >
+                <option value="">Selecciona un sabor</option>
+                {cupcakeFlavor.map((flavor) => (
+                  <option key={flavor} value={flavor}>
+                    {flavor}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label>Relleno</label>
+              <select
+                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                name="cupcakeFilling"
+                value={formData.cupcakeFilling}
+                onChange={handleInputChange}
+              >
+                <option value="">Selecciona un sabor</option>
+                {cupcakeFilling.map((flavor) => (
+                  <option key={flavor} value={flavor}>
+                    {flavor}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label>Cobertura deseada</label>
+              <select
+                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                name="cober"
+                value={formData.cober}
+                onChange={handleInputChange}
+              >
+                <option value="">Selecciona la cobertura</option>
+                {cober.map((flavor) => (
+                  <option key={flavor} value={flavor}>
+                    {flavor}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label>Número de Porciones</label>
+              <select
+                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                name="portions"
+                value={formData.portions}
+                onChange={handleInputChange}
+              >
+                <option value="">Selecciona el número de porciones</option>
+                {[...Array(20)].map((_, i) => (
+                  <option key={i} value={(i + 1) * 12}>
+                    {(i + 1) * 12}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label class="ms-2 text-sm font-medium text-text">
+                <input
+                  type="checkbox"
+                  name="fondant"
+                  class="w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                  checked={formData.fondant}
+                  onChange={handleInputChange}
+                />
+                Forrado de Fondant
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="md:col-span-1 flex items-start">
+          <DatePicker />
+        </div>
 </div>
 
       <div className="flex flex-col bg-rose-50 p-6 mb-6 rounded-lg">
@@ -373,12 +373,14 @@ const CupcakeForm = () => {
     >
       Limpiar campos
     </button>
+    <Link href="/enduser/detallecotizacion">
     <button
         type="submit"
         className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
       >
         Cotizar Cupcakes
       </button>
+      </Link>
   </div>
       
     </form>
