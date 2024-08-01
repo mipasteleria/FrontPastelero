@@ -344,14 +344,16 @@ const DessertTableForm = () => {
     >
       Limpiar campos
     </button>
+    <Link href="/enduser/detallecotizacion">
     <button
         type="submit"
         className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
       >
         Cotizar Mesa de Postres
       </button>
+      </Link> 
   </div>
-      
+     
     </form>
   );
 };
