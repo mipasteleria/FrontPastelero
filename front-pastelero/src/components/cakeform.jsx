@@ -62,6 +62,8 @@ const CakeForm = () => {
     userName: "",
     userPhone: "",
     userComments: "",
+    Date:"",
+    Hour:"",
   });
 
   const handleInputChange = (e) => {
@@ -107,6 +109,8 @@ const CakeForm = () => {
       images: [],
       userName: "",
       userPhone: "",
+      Date:"",
+      Hour:"",
       userComments: "",
     });
   };
@@ -431,7 +435,7 @@ const CakeForm = () => {
         >
           Limpiar campos
         </button>
-        <Link href="/enduser/detallecotizacion">
+        <Link href="/enduser/detallecotizacionpastel">
         <button
         type="submit"
         className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
