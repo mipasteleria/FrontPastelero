@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import NavbarDashboard from "@/src/components/navbardashboard";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
@@ -9,46 +9,39 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function NuevaReceta() {
-  const [quantity, setQuantity] = useState("");
-  const [cost, setCost] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm();
+  const [costPerUnit, setCostPerUnit] = useState(0);
 
-  const handleQuantityChange = (e) => {
-    setQuantity(e.target.value);
-  };
-
-  const handleCostChange = (e) => {
-    setCost(e.target.value);
-  };
-
-  const costPerUnit =
-    quantity && cost ? (parseFloat(cost) / parseFloat(quantity)).toFixed(2) : 0;
-
-  const [createInsumo, setCreateInsumo] = useState({
-    name: "",
-    amount: "",
-    cost: "",
-    unit: "",
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCreateInsumo((prev) => {
-      return { ...prev, [name]: value };
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(createInsumo);
+  const onSubmit = (data) => {
+    console.log(data);
     fetch("http://localhost:3001/insumos", {
-      method: "Post",
-      body: JSON.stringify(createInsumo),
+      method: "POST",
+      body: JSON.stringify(data),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
     })
       .then((response) => response.json())
       .then((json) => console.log(json));
+  };
+
+  const handleQuantityChange = (e) => {
+    const value = e.target.value;
+    setValue("amount", value);
+    const cost = e.target.form.elements.cost.value;
+    setCostPerUnit(value && cost ? (parseFloat(cost) / parseFloat(value)).toFixed(2) : 0);
+  };
+
+  const handleCostChange = (e) => {
+    const value = e.target.value;
+    setValue("cost", value);
+    const quantity = e.target.form.elements.quantity.value;
+    setCostPerUnit(quantity && value ? (parseFloat(value) / parseFloat(quantity)).toFixed(2) : 0);
   };
 
   return (
@@ -62,9 +55,9 @@ export default function NuevaReceta() {
           </h1>
           <form
             className="m-4 flex flex-col w-3/4 mx-auto"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit(onSubmit)}
           >
-            <div className="">
+            <div>
               <div className="mb-6">
                 <label
                   htmlFor="recipe_name"
@@ -74,13 +67,12 @@ export default function NuevaReceta() {
                 </label>
                 <input
                   type="text"
-                  name="name"
                   id="recipe_name"
+                  {...register("name", { required: "Nombre es requerido" })}
                   className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                   placeholder="Pastel de vainilla"
-                  onChange={handleChange}
-                  required
                 />
+                {errors.name && <p className="text-red-600">{errors.name.message}</p>}
               </div>
               <div className="grid gap-6 mb-6">
                 <div>
@@ -93,12 +85,12 @@ export default function NuevaReceta() {
                   <input
                     type="number"
                     id="quantity"
-                    name="amount"
+                    {...register("amount", { required: "Cantidad es requerida" })}
                     className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                     placeholder="0.0"
                     onChange={handleQuantityChange}
-                    required
                   />
+                  {errors.amount && <p className="text-red-600">{errors.amount.message}</p>}
                 </div>
                 <div>
                   <label
@@ -110,12 +102,12 @@ export default function NuevaReceta() {
                   <input
                     type="number"
                     id="cost"
+                    {...register("cost", { required: "Costo es requerido" })}
                     className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                     placeholder="0.0"
-                    value={cost}
                     onChange={handleCostChange}
-                    required
                   />
+                  {errors.cost && <p className="text-red-600">{errors.cost.message}</p>}
                 </div>
                 <div className="flex items-end">
                   <div className="w-full">
@@ -127,11 +119,13 @@ export default function NuevaReceta() {
                     </label>
                     <select
                       id="unit"
+                      {...register("unit", { required: "Unidad es requerida" })}
                       className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                     >
                       <option value="grams">gramos</option>
                       <option value="ml">mililitros</option>
                     </select>
+                    {errors.unit && <p className="text-red-600">{errors.unit.message}</p>}
                   </div>
                 </div>
               </div>

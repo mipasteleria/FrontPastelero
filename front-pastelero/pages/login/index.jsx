@@ -2,46 +2,37 @@ import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Image from "next/image";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Login() {
-  const [email, setEmail] = useState(" ");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const router = useRouter();
+  const [error, setError] = useState("");
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    fetch("https://pasteleros-back.vercel.app/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: "",
-        username: "",
-        email: email,
-        password: password,
-      }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        console.log(json.data);
-        if (json.data) {
-          localStorage.setItem("token", json.data);
-          setEmail("");
-          setPassword("");
-          router.push("/dashboard");
-          return;
-        }
-        setError("¡Usuario o contraseña incorrectos!");
-      })
-      .catch((error) => {
-        console.error("Login error: ", error);
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch("https://pasteleros-back.vercel.app/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
-  }
+      const json = await response.json();
+      if (json.data) {
+        localStorage.setItem("token", json.data);
+        router.push("/dashboard");
+      } else {
+        setError("¡Usuario o contraseña incorrectos!");
+      }
+    } catch (error) {
+      console.error("Login error: ", error);
+      setError("Error al iniciar sesión, por favor intente nuevamente.");
+    }
+  };
+
   return (
     <main className="bg-primary min-h-screen flex flex-col justify-center items-center">
       <div className={`flex mt-6 justify-center rounded-xl ${sofia.className}`}>
@@ -62,7 +53,7 @@ export default function Login() {
       <h1 className="text-text text-2xl">Ingresar</h1>
       <form
         className="w-11/12 md:w-10/12 lg:w-6/12 my-10 md:my-10 bg-rose-100 border border-accent p-6 rounded-xl shadow-xl"
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <div className="mb-5">
           <label
@@ -74,13 +65,11 @@ export default function Login() {
           <input
             type="email"
             id="email"
-            name="email"
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-            className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 "
+            {...register("email", { required: "Correo electrónico es requerido" })}
+            className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder="name@pasteleriaruiseñor.com"
-            required
           />
+          {errors.email && <p className="text-red-600">{errors.email.message}</p>}
         </div>
         <div className="mb-5">
           <label
@@ -92,19 +81,17 @@ export default function Login() {
           <input
             type="password"
             id="password"
-            name="password"
-            onChange={(e) => setPassword(e.target.value)}
-            value={password}
+            {...register("password", { required: "Contraseña es requerida" })}
             className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             required
           />
+          {errors.password && <p className="text-red-600">{errors.password.message}</p>}
         </div>
         <div className="flex items-start mb-5">
           <div className="flex items-center h-5">
             <input
               id="remember"
               type="checkbox"
-              value=""
               className="w-4 h-4 border border-secondary rounded bg-gray-50 focus:ring-3 focus:ring-accent"
             />
           </div>
@@ -115,8 +102,7 @@ export default function Login() {
             Remember me
           </label>
         </div>
-        <div>{error && <p className="errorUoC">{error}</p>}</div>
-
+        {error && <p className="text-red-600">{error}</p>}
         <button
           type="submit"
           className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
