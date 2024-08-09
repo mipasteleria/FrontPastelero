@@ -10,22 +10,22 @@ const NavbarDashboard = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+    setDropdownOpen(prevState => !prevState);
   };
 
   return (
     <nav
       className={`bg-primary h-16 ${sofia.className} shadow-md z-50 sticky top-0`}
     >
-      <div className="w-full flex flex-wrap items-center justify-between mx-auto">
-        <div className="flex">
+      <div className="w-full flex items-center justify-between mx-auto px-4">
+        <div className="flex items-center">
           <Link href="/">
             <Image
               className="mx-2"
               src="/img/logo.JPG"
               width={64}
               height={64}
-              alt=""
+              alt="Logo"
             />
           </Link>
           <div>
@@ -33,12 +33,13 @@ const NavbarDashboard = () => {
             <div className="text-white text-4xl px-2">El Ruiseñor</div>
           </div>
         </div>
-        <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+        <div className="relative flex items-center space-x-3 md:space-x-0 rtl:space-x-reverse">
           <button
             type="button"
-            className="flex text-sm rounded-full md:me-0 focus:ring-4 focus:ring-gray-300"
+            className="flex text-sm rounded-full focus:ring-4 focus:ring-gray-300"
             onClick={toggleDropdown}
             aria-expanded={dropdownOpen}
+            aria-controls="dropdown-menu"
           >
             <span className="sr-only">Open user menu</span>
             <Image
@@ -46,11 +47,14 @@ const NavbarDashboard = () => {
               height={500}
               className="w-8 h-8 rounded-full md:mx-6"
               src="/img/userphoto.jpg"
-              alt="user photo"
+              alt="User photo"
             />
           </button>
           {dropdownOpen && (
-            <div className="z-50 fixed top-16 right-2 text-base list-none bg-primary/80 backdrop-blur-sm text-text divide-y divide-gray-100 rounded-lg shadow-xl p-2">
+            <div
+              id="dropdown-menu"
+              className="absolute top-full right-0 mt-2 text-base bg-primary/80 backdrop-blur-sm text-text divide-y divide-gray-100 rounded-lg shadow-xl p-2 z-50"
+            >
               <ul className="py-2">
                 <li>
                   <Link

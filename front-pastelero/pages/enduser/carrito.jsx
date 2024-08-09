@@ -1,30 +1,28 @@
 import Link from "next/link";
 import Image from "next/image";
 import NavbarAdmin from "@/src/components/navbar";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import WebFooter from "@/src/components/WebFooter";
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Carrito() {
   return (
-    <div>
+    <div className={`min-h-screen flex flex-col ${poppins.className}`}>
       <NavbarAdmin />
-      <main
-        className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto mt-24`}
-      >
+      <main className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto mt-24`}>
         <h1 className={`text-4xl m-4 ${sofia.className}`}>Su carrito</h1>
         <div className="flex flex-col md:flex-row gap-8 bg-rose-50 p-6 justify-between w-full">
-          <figure class="max-w-lg m-6">
+          <figure className="max-w-lg m-6">
             <Image
-              class="h-auto max-w-full rounded-lg"
+              className="h-auto max-w-full rounded-lg"
               width={500}
               height={500}
               src="/img/animalcrossing.jpg"
-              alt="image description"
+              alt="Imagen del carrito"
             />
-            <figcaption class="mt-2 text-sm text-center text-gray-500 dark:text-gray-400">
+            <figcaption className="mt-2 text-sm text-center text-gray-500 dark:text-gray-400">
               Ejemplo de imagen
             </figcaption>
           </figure>
@@ -35,7 +33,7 @@ export default function Carrito() {
         </div>
         <div className="mb-10">
           <h2 className={`text-3xl m-4 ${sofia.className}`}>
-            Condiciones e informacion importante
+            Condiciones e información importante
           </h2>
           <div className="bg-rose-50 m-4 flex flex-col gap-4 p-4">
             <p>
@@ -43,22 +41,22 @@ export default function Carrito() {
               Favor de confirmar disponibilidad antes de hacer su pedido.
             </p>
             <p>
-              **Vigencia:** El presupuesto es válido por 30 días a partir de la
+              <strong>Vigencia:</strong> El presupuesto es válido por 30 días a partir de la
               fecha estipulada en la orden.
             </p>
             <p>
-              **Cancelaciones:** Podrá cancelar su pedido hasta 5 días antes de
-              la fecha de entrega, llamando o enviando un mensaje de 9am a 5pm
+              <strong>Cancelaciones:</strong> Podrá cancelar su pedido hasta 5 días antes de
+              la fecha de entrega, llamando o enviando un mensaje de 9 am a 5 pm
               de lunes a viernes. Se aplicará un cargo del 30% del total del
               pedido; después de este plazo, el cargo será del 50%.
             </p>
             <p>
-              **Cambios de diseño:** Puede realizar cambios en el diseño hasta 5
+              <strong>Cambios de diseño:</strong> Puede realizar cambios en el diseño hasta 5
               días antes de la fecha de entrega, lo que podría modificar la
               cotización.
             </p>
             <p>
-              **Liquidar y recoger:** Se solicita liquidar su pedido un día
+              <strong>Liquidar y recoger:</strong> Se solicita liquidar su pedido un día
               antes de la entrega. Para recoger su pedido, por favor indique su
               número de orden.
             </p>
@@ -66,8 +64,8 @@ export default function Carrito() {
         </div>
         <p className="text-accent m-6">
           Muchas gracias por tomarte el tiempo para leer toda la información,
-          quedamos al pendiente para cualquier duda o aclaración, te recordamos
-          que el horario de atención es de Lunes a Viernes de 9am a 6pm.
+          quedamos al pendiente para cualquier duda o aclaración. Te recordamos
+          que el horario de atención es de lunes a viernes de 9 am a 6 pm.
         </p>
         <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
           <Link href="/enduser/detallecotizacion">
