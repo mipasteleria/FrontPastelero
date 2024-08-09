@@ -4,7 +4,7 @@ import NavbarDashboard from "@/src/components/navbardashboard";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
-import { useState } from "react"; // Asegúrate de importar useState
+import { useState } from "react";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -48,7 +48,7 @@ export default function NuevaReceta() {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
-        "Content-type": "application/json; charset=UTF-8",
+        "Content-Type": "application/json; charset=UTF-8",
       },
     })
       .then((response) => response.json())
@@ -68,97 +68,110 @@ export default function NuevaReceta() {
             className="m-4 flex flex-col w-3/4 mx-auto"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div>
-              <div className="mb-6">
+            <div className="mb-6">
+              <label
+                htmlFor="recipe_name"
+                className="block mb-2 text-sm font-medium dark:text-white"
+              >
+                Nombre
+              </label>
+              <input
+                type="text"
+                id="recipe_name"
+                {...register("name", { required: "Nombre es requerido" })}
+                className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                placeholder="Pastel de vainilla"
+              />
+              {errors.name && <p className="text-red-600">{errors.name.message}</p>}
+            </div>
+
+            <div className="grid gap-6 mb-6 md:grid-cols-2">
+              <div>
                 <label
-                  htmlFor="recipe_name"
+                  htmlFor="quantity"
                   className="block mb-2 text-sm font-medium dark:text-white"
                 >
-                  Nombre
+                  Cantidad
                 </label>
                 <input
-                  type="text"
-                  id="recipe_name"
-                  {...register("name", { required: "Nombre es requerido" })}
-                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                  placeholder="Pastel de vainilla"
+                  type="number"
+                  id="quantity"
+                  {...register("amount", { required: "Cantidad es requerida" })}
+                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  placeholder="0.0"
+                  onChange={handleQuantityChange}
                 />
-                {errors.name && <p className="text-red-600">{errors.name.message}</p>}
+                {errors.amount && <p className="text-red-600">{errors.amount.message}</p>}
               </div>
-              <div className="grid gap-6 mb-6">
-                <div>
+
+              <div>
+                <label
+                  htmlFor="cost"
+                  className="block mb-2 text-sm font-medium dark:text-white"
+                >
+                  Costo
+                </label>
+                <input
+                  type="number"
+                  id="cost"
+                  {...register("cost", { required: "Costo es requerido" })}
+                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  placeholder="0.0"
+                  onChange={handleCostChange}
+                />
+                {errors.cost && <p className="text-red-600">{errors.cost.message}</p>}
+              </div>
+
+              <div className="flex items-end">
+                <div className="w-full">
                   <label
-                    htmlFor="quantity"
+                    htmlFor="unit"
                     className="block mb-2 text-sm font-medium dark:text-white"
                   >
-                    Cantidad
+                    Unidad
                   </label>
-                  <input
-                    type="number"
-                    id="quantity"
-                    {...register("amount", { required: "Cantidad es requerida" })}
-                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                    placeholder="0.0"
-                    onChange={handleQuantityChange}
-                  />
-                  {errors.amount && <p className="text-red-600">{errors.amount.message}</p>}
-                </div>
-                <div>
-                  <label
-                    htmlFor="cost"
-                    className="block mb-2 text-sm font-medium dark:text-white"
+                  <select
+                    id="unit"
+                    {...register("unit", { required: "Unidad es requerida" })}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
                   >
-                    Costo
-                  </label>
-                  <input
-                    type="number"
-                    id="cost"
-                    {...register("cost", { required: "Costo es requerido" })}
-                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                    placeholder="0.0"
-                    onChange={handleCostChange}
-                  />
-                  {errors.cost && <p className="text-red-600">{errors.cost.message}</p>}
-                </div>
-                <div className="flex items-end">
-                  <div className="w-full">
-                    <label
-                      htmlFor="unit"
-                      className="block mb-2 text-sm font-medium dark:text-white"
-                    >
-                      Unidad
-                    </label>
-                    <select
-                      id="unit"
-                      {...register("unit", { required: "Unidad es requerida" })}
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                    >
-                      <option value="grams">gramos</option>
-                      <option value="ml">mililitros</option>
-                    </select>
-                    {errors.unit && <p className="text-red-600">{errors.unit.message}</p>}
-                  </div>
+                    <option value="grams">gramos</option>
+                    <option value="ml">mililitros</option>
+                  </select>
+                  {errors.unit && <p className="text-red-600">{errors.unit.message}</p>}
                 </div>
               </div>
             </div>
+
             <button
               type="submit"
-              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6"
+              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 m-6"
             >
               Guardar cambios
             </button>
           </form>
-          <div className="m-4 w-3/4 mx-auto text-lg">
+
+          <div 
+            className="m-4 w-3/4 mx-auto text-lg"
+          >
             Costo por unidad: {costPerUnit} por gramo/ml
           </div>
-          <Link className="flex justify-end mb-20" href="/dashboard/insumosytrabajomanual">
-            <button className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+
+          <Link 
+          href="/dashboard/insumosytrabajomanual" 
+          passHref
+          >
+            <button 
+              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 m-6"
+            >
               Regresar
             </button>
           </Link>
+
           <FooterDashboard />
         </main>
       </div>
     </div>
   );
 }
+

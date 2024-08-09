@@ -44,7 +44,7 @@ export default function NuevaReceta() {
       <NavbarDashboard />
       <div className="flex">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>
+        <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Editar Receta</h1>
           <form className="m-4" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-wrap">

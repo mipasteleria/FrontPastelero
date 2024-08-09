@@ -140,7 +140,6 @@ export default function NuevaReceta() {
           <div className="m-4 w-3/4 mx-auto text-lg">
             Costo por unidad: {costPerUnit} por gramo/ml
           </div>
-
           <FooterDashboard />
         </main>
       </div>

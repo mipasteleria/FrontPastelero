@@ -23,13 +23,16 @@ export default function Login() {
       });
       const json = await response.json();
       console.log(json);
+      if (json.success) {
+        // Handle successful response
+      }
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
   return (
-    <main className="bg-primary min-h-screen flex flex-col justify-center items-center">
+    <main className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}>
       <div className={`flex mt-6 justify-center rounded-xl ${sofia.className}`}>
         <Link href="/">
           <Image
@@ -37,7 +40,7 @@ export default function Login() {
             src="/img/logo.JPG"
             width={400}
             height={400}
-            alt="logo de Pastelería El Ruiseñor"
+            alt="Logo de Pastelería El Ruiseñor"
           />
         </Link>
         <div className="px-2">
@@ -45,9 +48,9 @@ export default function Login() {
           <div className="text-white text-4xl">El Ruiseñor</div>
         </div>
       </div>
-      <h1 className="text-text text-2xl">Registrarse</h1>
+      <h1 className="text-text text-2xl mt-10">Registrarse</h1>
       <form
-        className="w-11/12 md:w-10/12 lg:w-6/12 my-10 md:my-10 bg-rose-100 border border-accent p-6 rounded-xl shadow-xl mx-auto"
+        className="w-11/12 md:w-10/12 lg:w-6/12 my-10 bg-rose-100 border border-accent p-6 rounded-xl shadow-xl"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div className="mb-5">
@@ -63,8 +66,10 @@ export default function Login() {
             {...register("email", { required: "Correo electrónico es requerido" })}
             className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder="nombre@dominio.com"
+            aria-required="true"
+            aria-invalid={!!errors.email}
           />
-          {errors.email && <p className="text-red-600">{errors.email.message}</p>}
+          {errors.email && <p className="text-red-600 mt-1">{errors.email.message}</p>}
         </div>
         <div className="mb-5">
           <label
@@ -79,8 +84,10 @@ export default function Login() {
             {...register("password", { required: "Contraseña es requerida" })}
             className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder=" "
+            aria-required="true"
+            aria-invalid={!!errors.password}
           />
-          {errors.password && <p className="text-red-600">{errors.password.message}</p>}
+          {errors.password && <p className="text-red-600 mt-1">{errors.password.message}</p>}
         </div>
         <div className="mb-5">
           <label
@@ -95,8 +102,10 @@ export default function Login() {
             {...register("floating_repeat_password", { required: "Confirmar contraseña es requerida" })}
             className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder=" "
+            aria-required="true"
+            aria-invalid={!!errors.floating_repeat_password}
           />
-          {errors.floating_repeat_password && <p className="text-red-600">{errors.floating_repeat_password.message}</p>}
+          {errors.floating_repeat_password && <p className="text-red-600 mt-1">{errors.floating_repeat_password.message}</p>}
         </div>
         <div className="grid md:grid-cols-2 md:gap-6 mb-5">
           <div>
@@ -112,8 +121,10 @@ export default function Login() {
               {...register("name", { required: "Nombre es requerido" })}
               className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
               placeholder=" "
+              aria-required="true"
+              aria-invalid={!!errors.name}
             />
-            {errors.name && <p className="text-red-600">{errors.name.message}</p>}
+            {errors.name && <p className="text-red-600 mt-1">{errors.name.message}</p>}
           </div>
           <div>
             <label
@@ -128,32 +139,34 @@ export default function Login() {
               {...register("lastname", { required: "Apellido es requerido" })}
               className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
               placeholder=" "
+              aria-required="true"
+              aria-invalid={!!errors.lastname}
             />
-            {errors.lastname && <p className="text-red-600">{errors.lastname.message}</p>}
+            {errors.lastname && <p className="text-red-600 mt-1">{errors.lastname.message}</p>}
           </div>
         </div>
-        <div className="md:gap-6 mb-5">
-          <div>
-            <label
-              htmlFor="phone"
-              className="block mb-2 text-sm font-medium text-gray-900"
-            >
-              Número de teléfono (961-456-7890)
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-              {...register("phone", { required: "Número de teléfono es requerido" })}
-              className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-              placeholder=" "
-            />
-            {errors.phone && <p className="text-red-600">{errors.phone.message}</p>}
-          </div>
+        <div className="mb-5">
+          <label
+            htmlFor="phone"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Número de teléfono (961-456-7890)
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+            {...register("phone", { required: "Número de teléfono es requerido" })}
+            className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            placeholder=" "
+            aria-required="true"
+            aria-invalid={!!errors.phone}
+          />
+          {errors.phone && <p className="text-red-600 mt-1">{errors.phone.message}</p>}
         </div>
         <button
           type="submit"
-          className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+          className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
         >
           Enviar
         </button>
