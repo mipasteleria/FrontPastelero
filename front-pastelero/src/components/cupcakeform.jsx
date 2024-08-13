@@ -234,6 +234,50 @@ const CupcakeForm = ({ register, errors }) => {
         </div>
       </div>
     </div>
+<<<<<<< HEAD
+    <div className="m-4">
+      <label
+        htmlFor="userComments"
+        className="block mb-2 text-sm font-medium dark:text-white"
+      >
+        Preguntas o comentarios
+      </label>
+      <textarea
+        id="userComments"
+        name="userComments"
+        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+        placeholder=""
+        value={formData.userComments}
+        onChange={handleInputChange}
+        required
+        rows="6"
+        style={{ resize: "none" }}
+      />
+    </div>
+  </div>
+
+  {/* Botón para limpiar campos */}
+  <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
+    <button
+      type="button"
+      className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
+      onClick={handleClearFields}
+    >
+      Limpiar campos
+    </button>
+    <Link href="/enduser/detallesolicitudcupcake">
+    <button
+        type="submit"
+        className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
+      >
+        Cotizar Cupcakes
+      </button>
+      </Link>
+  </div>
+      
+    </form>
+=======
+>>>>>>> e15d296f208f5c11e5c0f7ee401b5c953be8b4bf
   );
 };
 

@@ -121,7 +121,7 @@ export default function Home() {
           <div className="flex justify-center md:w-1/2">
             <Image
               className="rounded-xl"
-              src="/img/pasteleslanding.png"
+              src="/img/home.jpg"
               width={450}
               height={450}
               alt="Foto de pasteles"
