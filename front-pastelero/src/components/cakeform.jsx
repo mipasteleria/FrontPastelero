@@ -435,7 +435,7 @@ const CakeForm = () => {
         >
           Limpiar campos
         </button>
-        <Link href="/enduser/detallecotizacionpastel">
+        <Link href="/enduser/detallesolicitudpastel">
         <button
         type="submit"
         className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"

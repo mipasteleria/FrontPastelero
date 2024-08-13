@@ -373,7 +373,7 @@ const CupcakeForm = () => {
     >
       Limpiar campos
     </button>
-    <Link href="/enduser/detallecotizacioncupcake">
+    <Link href="/enduser/detallesolicitudcupcake">
     <button
         type="submit"
         className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"

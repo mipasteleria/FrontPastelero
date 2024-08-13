@@ -7,7 +7,7 @@ import ImportantInfo from "@/src/components/importantinfo";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 import CakeFormDetails from "@/src/components/cakeformdetails";
-import CupcakeFormDetails from "@/src/components/cupcakeformdetails";
+
 const cakeforminfo ={
   cakeFlavor: "Vainilla",
   portions: "50",

@@ -344,7 +344,7 @@ const DessertTableForm = () => {
     >
       Limpiar campos
     </button>
-    <Link href="/enduser/detallecotizacionpostres">
+    <Link href="/enduser/detallesolicitudpostres">
     <button
         type="submit"
         className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
