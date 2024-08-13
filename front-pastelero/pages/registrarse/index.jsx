@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Image from "next/image";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
@@ -9,36 +9,30 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Login() {
   const router = useRouter();
-  const [createAccountText, setCreateAccountText] = useState({
-    name: "",
-    lastname: "",
-    email: "",
-    password: "",
-    phone: "",
-  });
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCreateAccountText((prev) => {
-      return { ...prev, [name]: value };
-    });
+  const onSubmit = async (data) => {
+    console.log(data);
+    try {
+      const response = await fetch("https://pasteleros-back.vercel.app/users", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+      });
+      const json = await response.json();
+      console.log(json);
+      if (json.success) {
+        // Handle successful response
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(createAccountText);
-    fetch("https://pasteleros-back.vercel.app/users", {
-      method: "Post",
-      body: JSON.stringify(createAccountText),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    })
-      .then((response) => response.json())
-      .then((json) => console.log(json));
-  };
   return (
-    <main className="bg-primary min-h-screen flex flex-col justify-center items-center">
+    <main className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}>
       <div className={`flex mt-6 justify-center rounded-xl ${sofia.className}`}>
         <Link href="/">
           <Image
@@ -46,7 +40,7 @@ export default function Login() {
             src="/img/logo.JPG"
             width={400}
             height={400}
-            alt="logo de Pastelería El Ruiseñor"
+            alt="Logo de Pastelería El Ruiseñor"
           />
         </Link>
         <div className="px-2">
@@ -54,120 +48,125 @@ export default function Login() {
           <div className="text-white text-4xl">El Ruiseñor</div>
         </div>
       </div>
-      <h1 className="text-text text-2xl">Registrarse</h1>
+      <h1 className="text-text text-2xl mt-10">Registrarse</h1>
       <form
-        class="w-11/12 md:w-10/12 lg:w-6/12 my-10 md:my-10 bg-rose-100 border border-accent p-6 rounded-xl shadow-xl mx-auto"
-        onSubmit={handleSubmit}
+        className="w-11/12 md:w-10/12 lg:w-6/12 my-10 bg-rose-100 border border-accent p-6 rounded-xl shadow-xl"
+        onSubmit={handleSubmit(onSubmit)}
       >
-        <div class="mb-5">
+        <div className="mb-5">
           <label
-            for="floating_email"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="email"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
           >
             Correo electrónico
           </label>
           <input
             type="email"
-            name="email"
-            id="floating_email"
-            class="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            id="email"
+            {...register("email", { required: "Correo electrónico es requerido" })}
+            className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder="nombre@dominio.com"
-            onChange={handleChange}
-            required
+            aria-required="true"
+            aria-invalid={!!errors.email}
           />
+          {errors.email && <p className="text-red-600 mt-1">{errors.email.message}</p>}
         </div>
-        <div class="mb-5">
+        <div className="mb-5">
           <label
-            for="floating_password"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="password"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
           >
             Contraseña
           </label>
           <input
             type="password"
-            name="password"
-            id="floating_password"
-            class="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            id="password"
+            {...register("password", { required: "Contraseña es requerida" })}
+            className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder=" "
-            onChange={handleChange}
-            required
+            aria-required="true"
+            aria-invalid={!!errors.password}
           />
+          {errors.password && <p className="text-red-600 mt-1">{errors.password.message}</p>}
         </div>
-        <div class="mb-5">
+        <div className="mb-5">
           <label
-            for="floating_repeat_password"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="floating_repeat_password"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
           >
             Confirmar contraseña
           </label>
           <input
             type="password"
-            name="floating_repeat_password"
             id="floating_repeat_password"
-            class="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            {...register("floating_repeat_password", { required: "Confirmar contraseña es requerida" })}
+            className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder=" "
-            required
+            aria-required="true"
+            aria-invalid={!!errors.floating_repeat_password}
           />
+          {errors.floating_repeat_password && <p className="text-red-600 mt-1">{errors.floating_repeat_password.message}</p>}
         </div>
-        <div class="grid md:grid-cols-2 md:gap-6 mb-5">
+        <div className="grid md:grid-cols-2 md:gap-6 mb-5">
           <div>
             <label
-              for="floating_first_name"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor="name"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Nombre
             </label>
             <input
               type="text"
-              name="name"
-              id="floating_first_name"
-              class="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+              id="name"
+              {...register("name", { required: "Nombre es requerido" })}
+              className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
               placeholder=" "
-              onChange={handleChange}
-              required
+              aria-required="true"
+              aria-invalid={!!errors.name}
             />
+            {errors.name && <p className="text-red-600 mt-1">{errors.name.message}</p>}
           </div>
           <div>
             <label
-              for="floating_last_name"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor="lastname"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Apellido
             </label>
             <input
               type="text"
-              name="lastname"
-              id="floating_last_name"
-              class="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+              id="lastname"
+              {...register("lastname", { required: "Apellido es requerido" })}
+              className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
               placeholder=" "
-              onChange={handleChange}
-              required
+              aria-required="true"
+              aria-invalid={!!errors.lastname}
             />
+            {errors.lastname && <p className="text-red-600 mt-1">{errors.lastname.message}</p>}
           </div>
         </div>
-        <div class="md:gap-6 mb-5">
-          <div>
-            <label
-              for="floating_phone"
-              class="block mb-2 text-sm font-medium text-gray-900 "
-            >
-              Número de teléfono (961-456-7890)
-            </label>
-            <input
-              type="tel"
-              pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-              name="phone"
-              id="floating_phone"
-              class="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-              placeholder=" "
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <div className="mb-5">
+          <label
+            htmlFor="phone"
+            className="block mb-2 text-sm font-medium text-gray-900"
+          >
+            Número de teléfono (961-456-7890)
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+            {...register("phone", { required: "Número de teléfono es requerido" })}
+            className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            placeholder=" "
+            aria-required="true"
+            aria-invalid={!!errors.phone}
+          />
+          {errors.phone && <p className="text-red-600 mt-1">{errors.phone.message}</p>}
         </div>
         <button
           type="submit"
-          class="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+          className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
         >
           Enviar
         </button>
