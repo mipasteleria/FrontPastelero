@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import jwt from 'jsonwebtoken'; // Importa jsonwebtoken
+import jwt from 'jsonwebtoken';
 
 const AuthContext = createContext();
 

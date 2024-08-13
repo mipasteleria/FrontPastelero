@@ -14,7 +14,7 @@ export default function Verdetallesolicitud() {
   const [userCotizacionCake, setUserCotizacionCake] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/pricecake/${router.query.id}`)
+    fetch(`https://pasteleros-back.vercel.app/pricecake/${router.query.id}`)
       .then((res) => res.json())
       .then((info) => setUserCotizacionCake(info.data));
   }, [router]);
