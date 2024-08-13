@@ -1,47 +1,94 @@
+import { useState } from "react";
 import Link from "next/link";
 import NavbarDashboard from "@/src/components/navbardashboard";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
+import { useForm, Controller } from "react-hook-form";
+import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-export default function EditarReceta() {
+export default function NuevaReceta() {
+  const { handleSubmit, control, getValues, setValue, formState: { errors } } = useForm();
+  const [ingredientsList, setIngredientsList] = useState([]);
+  const router = useRouter();
+
+  const handleAddIngredient = () => {
+    const data = getValues();
+    if (data.ingredient && data.quantity && data.price) {
+      const total = (data.quantity * data.price).toFixed(2);
+      setIngredientsList([...ingredientsList, { ...data, total }]);
+      // Clear form inputs
+      setValue("ingredient", "");
+      setValue("quantity", "");
+      setValue("price", "");
+      setValue("unit", "grams");
+    }
+  };
+
+  const handleDeleteIngredient = (index) => {
+    const newList = ingredientsList.filter((_, i) => i !== index);
+    setIngredientsList(newList);
+  };
+
+  const onSubmit = (data) => {
+    // Handle form submission logic
+    console.log("Form Data:", data);
+    // Example: router.push('/dashboard/costeorecetas'); // Uncomment this if you want to navigate after saving
+  };
+
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
       <div className="flex">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>     
+        <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Editar Receta</h1>
-          <form className="m-4" onSubmit={(e) => e.preventDefault()}>
+          <form className="m-4" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 pr-2">
                 <div className="mb-6">
                   <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
                     Nombre de la receta
                   </label>
-                  <input
-                    type="text"
-                    id="recipe_name"
-                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                    placeholder="Pastel de vainilla"
-                    required
+                  <Controller
+                    name="recipe_name"
+                    control={control}
+                    rules={{ required: "El nombre de la receta es obligatorio" }}
+                    render={({ field }) => (
+                      <input
+                        type="text"
+                        id="recipe_name"
+                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                        placeholder="Pastel de vainilla"
+                        {...field}
+                      />
+                    )}
                   />
+                  {errors.recipe_name && <p className="text-red-600">{errors.recipe_name.message}</p>}
                 </div>
                 <div className="mb-6">
                   <label htmlFor="description" className="block mb-2 text-sm font-medium dark:text-white">
                     Descripción
                   </label>
-                  <textarea
-                    id="description"
-                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                    placeholder="El clásico sabor favorito de las fiestas infantiles..."
-                    required
-                    rows="6"
-                    style={{ resize: 'none' }}
+                  <Controller
+                    name="description"
+                    control={control}
+                    rules={{ required: "La descripción es obligatoria" }}
+                    render={({ field }) => (
+                      <textarea
+                        id="description"
+                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                        placeholder="El clásico sabor favorito de las fiestas infantiles..."
+                        rows="6"
+                        style={{ resize: 'none' }}
+                        {...field}
+                      />
+                    )}
                   />
+                  {errors.description && <p className="text-red-600">{errors.description.message}</p>}
                 </div>
               </div>
               <div className="w-full md:w-1/2 pl-2">
@@ -50,41 +97,86 @@ export default function EditarReceta() {
                     <label htmlFor="ingredient" className="block mb-2 text-sm font-medium dark:text-white">
                       Ingrediente
                     </label>
-                    <input
-                      type="text"
-                      id="ingredient"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="Vainilla"
-                      required
+                    <Controller
+                      name="ingredient"
+                      control={control}
+                      rules={{ required: "El ingrediente es obligatorio" }}
+                      render={({ field }) => (
+                        <input
+                          type="text"
+                          id="ingredient"
+                          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                          placeholder="Vainilla"
+                          {...field}
+                        />
+                      )}
                     />
+                    {errors.ingredient && <p className="text-red-600">{errors.ingredient.message}</p>}
                   </div>
                   <div>
                     <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
                       Cantidad
                     </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
+                    <Controller
+                      name="quantity"
+                      control={control}
+                      rules={{ required: "La cantidad es obligatoria" }}
+                      render={({ field }) => (
+                        <input
+                          type="number"
+                          id="quantity"
+                          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                          placeholder="0.0"
+                          {...field}
+                        />
+                      )}
                     />
+                    {errors.quantity && <p className="text-red-600">{errors.quantity.message}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="price" className="block mb-2 text-sm font-medium dark:text-white">
+                      Precio
+                    </label>
+                    <Controller
+                      name="price"
+                      control={control}
+                      rules={{ required: "El precio es obligatorio" }}
+                      render={({ field }) => (
+                        <input
+                          type="number"
+                          id="price"
+                          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                          placeholder="0.0"
+                          {...field}
+                        />
+                      )}
+                    />
+                    {errors.price && <p className="text-red-600">{errors.price.message}</p>}
                   </div>
                   <div className="flex items-end">
                     <div className="w-full">
                       <label htmlFor="unit" className="block mb-2 text-sm font-medium dark:text-white">
                         Unidad
                       </label>
-                      <select
-                        id="unit"
-                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      >
-                        <option value="grams">gramos</option>
-                        <option value="ml">mililitros</option>
-                      </select>
+                      <Controller
+                        name="unit"
+                        control={control}
+                        defaultValue="grams"
+                        render={({ field }) => (
+                          <select
+                            id="unit"
+                            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                            {...field}
+                          >
+                            <option value="grams">gramos</option>
+                            <option value="ml">mililitros</option>
+                          </select>
+                        )}
+                      />
                     </div>
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={handleAddIngredient}
                       className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
                       Agregar
@@ -93,208 +185,142 @@ export default function EditarReceta() {
                 </div>
               </div>
             </div>
-          </form>
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg bg-rose-100 p-4 m-4">
-          <div className="overflow-x-auto w-full">
-            <h2 className={`text-3xl p-4 ${sofia.className}`}>Lista de ingredientes</h2>
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
+            <div className="my-10 p-4 rounded-xl bg-rose-50">
+              <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Lista de ingredientes</h2>
+              {ingredientsList.length === 0 ? (
+                <p className={`text-center text-gray-500`}>Todavía no se han agregado ingredientes.</p>
+              ) : (
+                <table className="w-full text-left text-sm text-text">
+                  <thead className="text-xs text-text uppercase bg-rose-50">
                     <tr>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Ingrediente
-                        </th>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Cantidad
-                        </th>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Unidad
-                        </th>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Precio
-                        </th>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Total
-                        </th>
+                      <th className="px-6 py-3">Ingrediente</th>
+                      <th className="px-6 py-3">Cantidad</th>
+                      <th className="px-6 py-3">Precio</th>
+                      <th className="px-6 py-3">Unidad</th>
+                      <th className="px-6 py-3">Total</th>
+                      <th className="px-6 py-3">Eliminar</th>
                     </tr>
-                </thead>
-                <tbody>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Mantequilla</span>
+                  </thead>
+                  <tbody>
+                    {ingredientsList.map((ingredient, index) => (
+                      <tr key={index} className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+                        <td className="px-6 py-4">{ingredient.ingredient}</td>
+                        <td className="px-6 py-4">{ingredient.quantity}</td>
+                        <td className="px-6 py-4">{ingredient.price}</td>
+                        <td className="px-6 py-4">{ingredient.unit}</td>
+                        <td className="px-6 py-4">{ingredient.total}</td>
+                        <td className="px-6 py-4">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteIngredient(index)}
+                            className="font-bold text-accent hover:underline"
+                          >
+                            Eliminar
+                          </button>
                         </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            500
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.12
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $60.00
-                        </td>
-                    </tr>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Azucar refinada</span>
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            400
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.316
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $12.64
-                        </td>
-                    </tr>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Huevo</span>
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            500
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.66
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $33.00
-                        </td>
-                    </tr>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Harina</span>
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            500
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.22
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $11.00
-                        </td>
-                    </tr>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Polvo para hornear</span>
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            35
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.075
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $2.63
-                        </td>
-                    </tr>
+                      </tr>
+                    ))}
                   </tbody>
-              </table>
-          </div>
+                </table>
+              )}
+            </div>
+            <div className="my-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+              <div>
+                <label htmlFor="profit_margin" className="block mb-2 text-sm font-medium dark:text-white">
+                  Margen de ganancia (%)
+                </label>
+                <Controller
+                  name="profit_margin"
+                  control={control}
+                  rules={{ required: "El margen de ganancia es obligatorio" }}
+                  render={({ field }) => (
+                    <input
+                      type="number"
+                      id="profit_margin"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      placeholder="10"
+                      {...field}
+                    />
+                  )}
+                />
+                {errors.profit_margin && <p className="text-red-600">{errors.profit_margin.message}</p>}
+              </div>
 
-          <div className="flex flex-col mt-4 gap-4 ml-4">
-                <button className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 md:mb-0 md:mr-2 w-56">
-                    Eliminar Producto
-                </button>
-                <button className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-56">
-                    Cancelar
-                </button>
-            </div>  
-          </div>
-          <div className="m-4 gap-4 grid md:grid-cols-2">
-          <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Mano de obra en horas
-                    </label>
+              <div>
+                <label htmlFor="portions" className="block mb-2 text-sm font-medium dark:text-white">
+                  Porciones
+                </label>
+                <Controller
+                  name="portions"
+                  control={control}
+                  rules={{ required: "El número de porciones es obligatorio" }}
+                  render={({ field }) => (
                     <input
                       type="number"
-                      id="quantity"
+                      id="portions"
                       className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
+                      placeholder="10"
+                      {...field}
                     />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Porcentaje de ganancia esperada
-                    </label>
+                  )}
+                />
+                {errors.portions && <p className="text-red-600">{errors.portions.message}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="fixed_costs_hours" className="block mb-2 text-sm font-medium dark:text-white">
+                  Gastos fijos en horas
+                </label>
+                <Controller
+                  name="fixed_costs_hours"
+                  control={control}
+                  rules={{ required: "Los gastos fijos en horas son obligatorios" }}
+                  render={({ field }) => (
                     <input
                       type="number"
-                      id="quantity"
+                      id="fixed_costs_hours"
                       className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
+                      placeholder="50"
+                      {...field}
                     />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Porciones
-                    </label>
+                  )}
+                />
+                {errors.fixed_costs_hours && <p className="text-red-600">{errors.fixed_costs_hours.message}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="tax_percentage" className="block mb-2 text-sm font-medium dark:text-white">
+                  Porcentaje de impuestos (%)
+                </label>
+                <Controller
+                  name="tax_percentage"
+                  control={control}
+                  rules={{ required: "El porcentaje de impuestos es obligatorio" }}
+                  render={({ field }) => (
                     <input
                       type="number"
-                      id="quantity"
+                      id="tax_percentage"
                       className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
+                      placeholder="16"
+                      {...field}
                     />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Gastos fijos en horas
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Porcentaje de impuestos (IEPS)
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
-                    />
-                  </div>
-          </div>
-          <div className="p-4">
-            <p className="m-4">Pecio Venta</p>
-            <p className="m-4">Precio por porción</p>
-          </div>
-          <Link className="flex justify-end" href="/dashboard/costeorecetas">
-            <button type="submit" className="shadow-md mb-32 text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+                  )}
+                />
+                {errors.tax_percentage && <p className="text-red-600">{errors.tax_percentage.message}</p>}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-16"
+            >
               Guardar Receta
             </button>
-          </Link>
+          </form>
         </main>
-        <FooterDashboard/>
       </div>
+      <FooterDashboard />
     </div>
   );
 }
+
