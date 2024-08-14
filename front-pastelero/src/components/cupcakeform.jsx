@@ -192,7 +192,7 @@ const CupcakeForm = () => {
       </div>
     </div>
   </div>
-  <div>
+  <div className="md:col-span-1 flex items-start">
     <DatePicker />
   </div>
 </div>
