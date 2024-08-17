@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-const CakeForm = ({ register, errors }) => {
+const CakeForm = () => {
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+
   const cakeFlavor = [
     "Bizcocho de Vainilla",
     "Bizcocho de Chocolate",
@@ -45,7 +47,6 @@ const CakeForm = ({ register, errors }) => {
     "Pastel 3d de un personaje",
   ];
 
-  const { handleSubmit, setValue, watch, control } = useForm();
   const selectedDecorations = watch("decorations", []);
   const envioValue = watch("envio");
 
@@ -55,6 +56,8 @@ const CakeForm = ({ register, errors }) => {
       : [...selectedDecorations, decoration];
     setValue("decorations", updatedDecorations);
   };
+
+
 
   return (
     <form onSubmit={handleSubmit((data) => console.log(data))} className={`${poppins.className}`}>

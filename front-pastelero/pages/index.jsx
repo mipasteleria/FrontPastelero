@@ -16,8 +16,8 @@ export default function Home() {
           <div className="flex justify-center md:w-1/2">
             <div className="flex justify-center w-full aspect-w-4 aspect-h-3 md:rounded-xl overflow-hidden">
               <iframe
-                className="w-80 h-56 sm:w-80 md:w-full lg:h-72 rounded-xl"
-                src="https://www.youtube.com/embed/ib1V_Z9sjHQ"
+                className="w-50% h-50% sm:w-80 md:w-full lg:h-72 rounded-xl"
+                src="https://players.brightcove.net/6041795507001/default_default/index.html?videoId=6360347153112"
                 title="Video de pasteles"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
