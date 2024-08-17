@@ -75,7 +75,7 @@ export default function Costeorecetas({ recetas }) {
                         {receta.total_cost || 'N/A'}
                       </td>
                       <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-1">
-                        <Link href={`/dashboard/costeorecetas/verreceta/${receta._id}`}>
+                        <Link href={`/dashboard/costeorecetas/${receta._id}`}>
                           <svg
                             className="w-6 h-6 text-accent dark:text-white"
                             aria-hidden="true"
@@ -158,6 +158,13 @@ export default function Costeorecetas({ recetas }) {
               </table>
             </div>
           </div>
+          <Link className="flex justify-center md:justify-start" href={"/dashboard/costeorecetas/nuevareceta"}>
+            <button
+              className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center"
+            >
+              Nueva Receta
+            </button>
+          </Link>
         </main>
       </div>
       <FooterDashboard />
