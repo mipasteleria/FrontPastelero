@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavbarDashboard from "@/src/components/navbardashboard";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
@@ -6,6 +6,7 @@ import FooterDashboard from "@/src/components/footeradmin";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/router";
 import axios from "axios";
+import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -21,6 +22,42 @@ export default function NuevaReceta() {
   const [ingredientsList, setIngredientsList] = useState([]);
   const [total, setTotal] = useState(0);
   const router = useRouter();
+  const { id } = router.query; // Obtén el ID de la receta del query string
+
+  useEffect(() => {
+    if (id) {
+      const fetchReceta = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3001/recetas/recetas/${id}`);
+          const receta = response.data.data;
+          
+          // Carga los datos en el formulario
+          setValue("nombre_receta", receta.nombre_receta);
+          setValue("descripcion", receta.descripcion);
+          setValue("profit_margin", receta.profit_margin);
+          setValue("portions", receta.portions);
+          setValue("fixed_costs_hours", receta.fixed_costs_hours);
+          setValue("fixed_costs", receta.fixed_costs);
+          setValue("special_tax", receta.special_tax);
+          setValue("additional_costs", receta.additional_costs);
+          setValue("total_cost", receta.total_cost);
+  
+          // Carga el total desde la base de datos
+          setTotal(receta.total_cost);
+          
+          // Carga los ingredientes si hay
+          if (receta.ingredientes.length > 0) {
+            setIngredientsList(receta.ingredientes);
+          }
+        } catch (error) {
+          console.error("Error al obtener la receta:", error);
+        }
+      };
+  
+      fetchReceta();
+    }
+  }, [id]);
+  
 
   const calculateTotal = () => {
     const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.costo), 0);
@@ -42,16 +79,12 @@ export default function NuevaReceta() {
     const { ingrediente, cantidad, precio, unidad } = getValues();
     if (ingrediente.trim() && cantidad && precio) {
       const total = (precio / cantidad).toFixed(2);
-      setIngredientsList([
-        ...ingredientsList,
-        { ingrediente, cantidad, precio, unidad, total } 
-      ]);
+      setIngredientsList([...ingredientsList, { ingrediente, cantidad, precio, unidad, total }]);
       setValue("ingrediente", "");
       setValue("cantidad", "");
       setValue("precio", "");
       setValue("unidad", "gramos");
-    } else {
-      console.error("Faltan valores para agregar el ingrediente");
+      calculateTotal(); // Recalcula el total cuando se agrega un ingrediente
     }
   };
 
@@ -60,11 +93,14 @@ export default function NuevaReceta() {
   const onInputChange = () => calculateTotal();
 
   const onSubmit = async (data) => {
-    data.ingredients = ingredientsList; 
+    data.ingredientes = ingredientsList; // Asegúrate de que ingredientsList contenga los datos correctos
     data.total_cost = total;
     
+    console.log("Datos enviados:", data); // Verifica los datos antes de enviarlos
+    
     try {
-      const response = await axios.post("http://localhost:3001/recetas/recetas", data, {
+      // Asegúrate de que `id` sea el identificador correcto para la receta que deseas actualizar
+      const response = await axios.put(`http://localhost:3001/recetas/recetas/${id}`, data, {
         headers: {
           'Content-Type': 'application/json',
         }
@@ -73,13 +109,15 @@ export default function NuevaReceta() {
       router.push('/dashboard/costeorecetas');
     } catch (error) {
       console.error("Error al guardar la receta:", error);
+      // Considera agregar una notificación o mensaje al usuario en caso de error
     }
   };
+  
   
 
   const renderInput = (id, label, type = "text", placeholder, validation) => (
     <div className="w-full">
-      <label htmlFor={id} className="block text-sm font-medium dark:text-white">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium">{label}</label>
       <Controller
         name={id}
         control={control}
@@ -88,12 +126,12 @@ export default function NuevaReceta() {
           <input
             type={type}
             id={id}
-            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary"
+            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder={placeholder}
             {...field}
             onChange={(e) => {
               field.onChange(e);
-              onInputChange(); 
+              onInputChange(); // Calcula el total en tiempo real
             }}
           />
         )}
@@ -166,23 +204,23 @@ export default function NuevaReceta() {
                       <th className="px-6 py-3">Cantidad</th>
                       <th className="px-6 py-3">Precio</th>
                       <th className="px-6 py-3">Unidad</th>
-                      <th className="px-6 py-3">Costo</th>
-                      <th className="px-6 py-3">Eliminar</th>
+                      <th className="px-6 py-3">Costo por gr/ml</th>
+                      <th className="px-6 py-3">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="bg-white divide-y divide-gray-200">
                     {ingredientsList.map((ingredient, index) => (
-                      <tr key={index} className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+                      <tr key={index}>
                         <td className="px-6 py-4">{ingredient.ingrediente}</td>
                         <td className="px-6 py-4">{ingredient.cantidad}</td>
                         <td className="px-6 py-4">{ingredient.precio}</td>
                         <td className="px-6 py-4">{ingredient.unidad}</td>
                         <td className="px-6 py-4">{ingredient.total}</td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-6 py-4">
                           <button
                             type="button"
                             onClick={() => handleDeleteIngredient(index)}
-                            className="text-red-600 hover:text-red-800"
+                            className="text-red-500 hover:text-red-700"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -195,45 +233,35 @@ export default function NuevaReceta() {
                 </table>
               )}
             </div>
-            <div className="grid gap-6 mb-6 md:grid-cols-2">
-            {renderInput("fixed_costs_hours", "Gastos fijos por hora", "number", "0.0", "Los gastos fijos por hora son obligatorios")}
-              {renderInput("fixed_costs", "Gastos fijos", "number", "0.0", "Los gastos fijos son obligatorios")}
-              {renderInput("special_tax", "IEPS", "number", "0.0", "El IEPS es obligatorio")}
-              {renderInput("additional_costs", "Costos adicionales", "number", "0.0", "Los costos adicionales son obligatorios")}
-              {renderInput("portions", "Porciones", "number", "0", "El número de porciones es obligatorio")}
-              <div className="w-full">
-                <label htmlFor="profit_margin" className="block text-sm font-medium dark:text-white">Margen de ganancia (%)</label>
-                <Controller
-                  name="profit_margin"
-                  control={control}
-                  rules={{ required: "El margen de ganancia es obligatorio" }}
-                  render={({ field }) => (
-                    <input
-                      type="number"
-                      id="profit_margin"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary"
-                      placeholder="10"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        onInputChange();
-                      }}
-                    />
-                  )}
-                />
-                {errors.profit_margin && <p className="text-red-600">{errors.profit_margin.message}</p>}
-              </div>
+            <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              {renderInput("profit_margin", "Margen de ganancia (%)", "number", "0.0", "")}
+              {renderInput("fixed_costs_hours", "Costos fijos por hora", "number", "0.0", "")}
+              {renderInput("fixed_costs", "Costos fijos", "number", "0.0", "")}
+              {renderInput("special_tax", "IEPS (%)", "number", "0.0", "")}
+              {renderInput("additional_costs", "Costos adicionales", "number", "0.0", "")}
             </div>
             <div className="my-10 p-4 rounded-xl bg-rose-50">
-              <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Costo total estimado</h2>
-              <p className="text-center text-2xl">{total.toFixed(2)} MXN</p>
+              <label htmlFor="total_cost" className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Costo total estimado</label>
+              <p
+                id="total_cost"
+                className=" text-center text-2xl"
+              >
+                {total.toFixed(2)} MXN
+              </p>
             </div>
             <button
               type="submit"
-              className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
+              className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-8"
             >
               Guardar Receta
             </button>
+            <Link href={"/dashboard/costeorecetas"}>
+              <button
+                className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
+              >
+                Regresar
+              </button>
+            </Link>
           </form>
         </main>
       </div>
