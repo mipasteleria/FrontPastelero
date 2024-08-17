@@ -234,7 +234,6 @@ const CupcakeForm = ({ register, errors }) => {
         </div>
       </div>
     </div>
-<<<<<<< HEAD
     <div className="m-4">
       <label
         htmlFor="userComments"
@@ -276,8 +275,6 @@ const CupcakeForm = ({ register, errors }) => {
   </div>
       
     </form>
-=======
->>>>>>> e15d296f208f5c11e5c0f7ee401b5c953be8b4bf
   );
 };
 
