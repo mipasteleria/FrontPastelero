@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/router';
 import NavbarDashboard from "@/src/components/navbardashboard";
 import Asideadmin from "@/src/components/asideadmin";
@@ -9,27 +9,71 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-export default function Conocenuestrosproductos() {
+export default function UsuarioForm() {
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const router = useRouter(); // Agrega esta línea
+  const [userData, setUserData] = useState(null);
+  const router = useRouter();
+  const { id } = router.query; // Obtén el ID desde la query de la URL
+
+  useEffect(() => {
+    if (id) {
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch(`http://localhost:3001/users/${id}`);
+          if (response.ok) {
+            const result = await response.json();
+            setUserData(result.data);
+            reset({
+              name: result.data.name || '',
+              lastname: result.data.lastname || '',
+              email: result.data.email || '',
+              phone: result.data.phone || '',
+              permissions: result.data.permissions || '',
+              billing_name: result.data.billing_name || '',
+              rfc: result.data.rfc || '',
+              address: result.data.address || '',
+              billing_email: result.data.billing_email || '',
+              password: '', // Mantén vacíos los campos de contraseña
+              repeat_password: '',
+            });
+          } else {
+            const errorResult = await response.json();
+            setErrorMessage(errorResult.message);
+          }
+        } catch (error) {
+          setErrorMessage("Error al conectar con el servidor.");
+        }
+      };
+
+      fetchUserData();
+    }
+  }, [id, reset]);
 
   const onSubmit = async (data) => {
     try {
-      const response = await fetch('http://localhost:3001/users', {
-        method: 'POST',
+      // Usa PUT siempre, ya que solo se permite actualizar
+      const url = `http://localhost:3001/users/${id}`;
+
+      // Elimina los campos de contraseña si están vacíos
+      const updatedData = { ...data };
+      if (!updatedData.password) delete updatedData.password;
+      if (!updatedData.repeat_password) delete updatedData.repeat_password;
+
+      const response = await fetch(url, {
+        method: 'PUT', // Solo PUT
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(updatedData),
       });
 
       if (response.ok) {
         const result = await response.json();
         setSuccessMessage(result.message);
         reset();
-        router.push('/dashboard/usuarios'); // Redirige después de una creación exitosa
+        router.push('/dashboard/usuarios');
       } else {
         const errorResult = await response.json();
         setErrorMessage(errorResult.message);
@@ -37,6 +81,10 @@ export default function Conocenuestrosproductos() {
     } catch (error) {
       setErrorMessage("Error al conectar con el servidor.");
     }
+  };
+
+  const handleCancel = () => {
+    router.push('/dashboard/usuarios'); // Redirige a la página de usuarios
   };
 
   const SelectField = ({ id, label, register, errors, options }) => (
@@ -55,8 +103,6 @@ export default function Conocenuestrosproductos() {
     </button>
   );
 
-  const handleCancel = () => reset();
-
   const InputField = ({ id, type, label, register, errors, placeholder, pattern }) => (
     <div className="mb-5">
       <label htmlFor={id} className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{label}</label>
@@ -71,14 +117,14 @@ export default function Conocenuestrosproductos() {
       <div className="flex flex-row">
         <Asideadmin />
         <main className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Nuevo usuario</h1>
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>{id ? 'Editar Usuario' : 'Nuevo Usuario'}</h1>
           <div className="flex flex-col md:flex-row justify-around">
             <div className="flex flex-col">
-              <h2 className={`text-2xl p-4 ${sofia.className}`}>Nuevo cliente</h2>
+              <h2 className={`text-2xl p-4 ${sofia.className}`}>Datos del Usuario</h2>
               <form onSubmit={handleSubmit(onSubmit)} className="p-4 m-4 rounded-xl shadow-xl">
                 <InputField id="email" type="email" label="Correo electrónico" placeholder="nombre@dominio.com" register={register("email", { required: "El correo electrónico es obligatorio" })} errors={errors.email} />
-                <InputField id="password" type="password" label="Contraseña" register={register("password", { required: "La contraseña es obligatoria" })} errors={errors.password} />
-                <InputField id="repeat_password" type="password" label="Confirmar contraseña" register={register("repeat_password", { required: "Confirmar la contraseña es obligatorio" })} errors={errors.repeat_password} />
+                <InputField id="password" type="password" label="Contraseña" register={register("password")} errors={errors.password} />
+                <InputField id="repeat_password" type="password" label="Confirmar Contraseña" register={register("repeat_password")} errors={errors.repeat_password} />
                 <div className="grid md:grid-cols-2 md:gap-6 mb-5">
                   <InputField id="name" type="text" label="Nombre" register={register("name", { required: "El nombre es obligatorio" })} errors={errors.name} />
                   <InputField id="lastname" type="text" label="Apellido" register={register("lastname", { required: "El apellido es obligatorio" })} errors={errors.lastname} />
@@ -88,7 +134,7 @@ export default function Conocenuestrosproductos() {
               </form>
             </div>
             <div className="flex flex-col">
-              <h2 className={`text-2xl p-4 ${sofia.className}`}>Datos de facturación</h2>
+              <h2 className={`text-2xl p-4 ${sofia.className}`}>Datos de Facturación</h2>
               <form onSubmit={handleSubmit(onSubmit)} className="p-4 m-4 rounded-xl shadow-xl">
                 <InputField id="billing_name" type="text" label="Nombre" register={register("billing_name")} errors={errors.billing_name} />
                 <InputField id="rfc" type="text" label="RFC" register={register("rfc")} errors={errors.rfc} />
@@ -99,15 +145,15 @@ export default function Conocenuestrosproductos() {
               </form>
             </div>
           </div>
-          {successMessage && <p className="text-green-600 text-sm mt-2">{successMessage}</p>}
-          {errorMessage && <p className="text-red-600 text-sm mt-2">{errorMessage}</p>}
-          <div className="flex flex-col items-center md:flex-row md:justify-end mb-10 mt-6">
-            <ActionButton text="Cancelar" onClick={handleCancel} />
+          {successMessage && <p className="text-green-600 text-sm mt-4">{successMessage}</p>}
+          {errorMessage && <p className="text-red-600 text-sm mt-4">{errorMessage}</p>}
+          <div className="flex justify-center">
+            <ActionButton text="Cancelar" onClick={handleCancel} disabled={isSubmitting} />
             <ActionButton text="Guardar" onClick={handleSubmit(onSubmit)} disabled={isSubmitting} />
           </div>
         </main>
-        <FooterDashboard />
       </div>
+      <FooterDashboard />
     </div>
   );
 }

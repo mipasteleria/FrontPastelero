@@ -36,7 +36,7 @@ export default function GenerarCotizacionManual() {
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Capturar Cotizacion Manual</h1>
           <form className="m-4" onSubmit={(e) => e.preventDefault()}>
             <div className="mb-6">
-              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              <label className="block mb-2 text-sm font-medium text-gray-900">
                 Seleccionar tipo de cotización:
               </label>
               <div className="flex justify-between">
