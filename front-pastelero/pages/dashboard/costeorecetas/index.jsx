@@ -124,10 +124,13 @@ export default function Costeorecetas({ recetas }) {
                               )
                             ) {
                               try {
+                                const token = localStorage.getItem("token");
+
                                 const res = await fetch(
                                   `https://pasteleros-back.vercel.app/recetas/recetas/${receta._id}`,
                                   {
                                     method: "DELETE",
+                                    Authorization: `Bearer ${token}`,
                                   }
                                 );
                                 if (res.ok) {
@@ -185,8 +188,17 @@ export default function Costeorecetas({ recetas }) {
 }
 
 // Fetching data for server-side rendering or static generation
+
 export async function getServerSideProps() {
-  const res = await fetch("https://pasteleros-back.vercel.app/recetas/recetas");
+  const res = await fetch(
+    "https://pasteleros-back.vercel.app/recetas/recetas",
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   const data = await res.json();
 
   return {

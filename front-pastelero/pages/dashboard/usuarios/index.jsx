@@ -80,9 +80,7 @@ export default function AdministradorUsuarios() {
                         <div className="font-normal">{userInfo.email}</div>
                       </div>
                     </th>
-                    <td className="px-6 py-4">
-                      {userInfo.role ? "Admin" : "User"}
-                    </td>
+                    <td className="px-6 py-4">{userInfo.role}</td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
                         {(Array.isArray(userInfo.permissions)
