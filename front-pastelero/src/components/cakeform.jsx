@@ -370,7 +370,7 @@ const CakeForm = () => {
               type="file"
               className="hidden"
               name="images"
-              value={formData.images}
+             
               multiple
               accept="image/png, image/jpeg, image/gif"
               onChange={handleInputChange}
@@ -426,7 +426,7 @@ const CakeForm = () => {
               value={formData.userName}
               onChange={handleInputChange}
               required
-              disabled={!isNameValid(formData.userName)}
+              
             />
           </div>
           <div className="m-4 md:w-1/2">
@@ -479,7 +479,7 @@ const CakeForm = () => {
         >
           Limpiar campos
         </button>
-        <Link href="/enduser/detallecotizacionpastel">
+        <Link href="/enduser/detallesolicitudpastel">
         <button
         type="submit"
         className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
