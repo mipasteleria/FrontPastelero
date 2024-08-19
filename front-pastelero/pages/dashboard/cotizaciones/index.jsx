@@ -47,7 +47,7 @@ export default function Conocenuestrosproductos() {
               <table className="w-full text-sm text-left rtl:text-right text-text">
                 <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
                   <tr>
-                    {["ID", "Cliente", "Creación", "Solicitud", "Estado", "Acciones"].map((header) => (
+                    {["ID", "Cliente", "Creación", "Solicitud", "Acciones"].map((header) => (
                       <th key={header} className="px-6 py-3 border-b border-secondary">{header}</th>
                     ))}
                   </tr>
