@@ -4,7 +4,6 @@ import NavbarAdmin from "@/src/components/navbar";
 import CakeForm from "@/src/components/cakeform";
 import CupcakeForm from "@/src/components/cupcakeform";
 import DessertTableForm from "@/src/components/dessertsform";
-import ContactInfo from "@/src/components/contactinfo";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { useForm } from "react-hook-form";
 
@@ -113,14 +112,7 @@ export default function SolicitarCotizacion() {
             <DessertTableForm register={register} errors={errors} />
           )}
 
-          <ContactInfo register={register} errors={errors} />
-
-          <button
-            type="submit"
-            className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center mt-6"
-          >
-            {getButtonText()}
-          </button>
+          
         </form>
       </main>
       <WebFooter />
