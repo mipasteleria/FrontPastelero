@@ -12,7 +12,15 @@ export default function Conocenuestrosproductos() {
   const [userCotizacionCake, setUserCotizacionCake] = useState([]);
 
   useEffect(() => {
-    fetch("https://pasteleros-back.vercel.app/pricecake")
+    const token = localStorage.getItem("token");
+
+    fetch("https://pasteleros-back.vercel.app/pricecake", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((info) => setUserCotizacionCake(info.data));
   }, []);

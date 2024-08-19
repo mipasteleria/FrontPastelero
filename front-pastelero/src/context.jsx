@@ -1,5 +1,5 @@
-import { createContext, useState, useContext, useEffect } from 'react';
-import jwt from 'jsonwebtoken';
+import { createContext, useState, useContext, useEffect } from "react";
+import jwt from "jsonwebtoken";
 
 const AuthContext = createContext();
 
@@ -8,29 +8,31 @@ export function AuthProvider({ children }) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    console.log('Token:', token);
+    const token = localStorage.getItem("token");
+    console.log("Token:", token);
 
     if (token) {
       try {
-        const decodedToken = jwt.decode(token); 
-        console.log('Decoded Token:', decodedToken);
+        const decodedToken = jwt.decode(token);
+        console.log("Decoded Token:", decodedToken);
 
         setIsLoggedIn(true);
-        setIsAdmin(decodedToken.role === 'admin');
+        setIsAdmin(decodedToken.role === "admin");
 
-        console.log('isAdmin:', decodedToken.role === 'admin');
-        console.log('isLoggedIn:', true);
+        console.log("isAdmin:", decodedToken.role === "admin");
+        console.log("isLoggedIn:", true);
       } catch (error) {
         console.error("Token decode failed:", error);
       }
     } else {
-      console.log('No token found');
+      console.log("No token found");
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isAdmin, setIsLoggedIn, setIsAdmin }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, isAdmin, setIsLoggedIn, setIsAdmin }}
+    >
       {children}
     </AuthContext.Provider>
   );
