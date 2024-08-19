@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import DatePicker from "@/src/components/calendario";
 

@@ -5,6 +5,7 @@ import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useRouter } from "next/router";
 import axios from "axios";
+import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -107,10 +108,17 @@ export default function VerReceta() {
               </div>
             </div>
           </div>
-          <div className="my-10 p-4 rounded-xl bg-rose-50 mb-20">
+          <div className="my-10 p-4 rounded-xl bg-rose-50 mb-10">
               <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Costo total estimado</h2>
               <p className="text-center text-2xl">{receta.total_cost.toFixed(2)} MXN</p>
             </div>
+            <Link href={"/dashboard/costeorecetas"}>
+            <button
+              className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
+            >
+              Regresar
+            </button>
+        </Link>
         </main>
       </div>
       <FooterDashboard />

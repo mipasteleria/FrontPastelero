@@ -12,106 +12,71 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function SolicitarCotizacion() {
-  const { register, handleSubmit, formState: { errors }, setError } = useForm();
+  const { register, handleSubmit, formState: { errors }, watch } = useForm();
   const [selectedForm, setSelectedForm] = useState("cake");
 
-  const handleFormSelection = (e) => {
-    setSelectedForm(e.target.value);
-  };
+  const handleFormSelection = (e) => setSelectedForm(e.target.value);
 
-  const onSubmit = (data) => {
-    console.log("Form Data: ", data);
-    // Aquí puedes manejar el envío del formulario, como enviar los datos a tu API
-
-    // Mostrar errores en el frontend si el formulario está vacío
-    if (!data) {
-      setError("formType", { type: "manual", message: "Por favor, selecciona un producto." });
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch('http:localhost:3001/pricecake', {  // Reemplaza '/api/submitForm' con la URL de tu API
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al enviar los datos');
+      }
+  
+      const result = await response.json();
+      console.log('Form submission successful:', result);
+    } catch (error) {
+      console.error('Error submitting form:', error);
     }
-  };
+  };  
 
   const getButtonText = () => {
-    switch (selectedForm) {
-      case "cake":
-        return "Cotizar pastel";
-      case "cupcake":
-        return "Cotizar cupcakes";
-      case "dessertTable":
-        return "Cotizar mesa de postres";
-      default:
-        return "Enviar";
-    }
+    if (selectedForm === "cake") return "Cotizar pastel";
+    if (selectedForm === "cupcake") return "Cotizar cupcakes";
+    if (selectedForm === "dessertTable") return "Cotizar mesa de postres";
+    return "Cotizar"; // 
   };
-
+  
   return (
     <div>
       <NavbarAdmin />
-      <main
-        className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}
-      >
-        <h1 className={`text-4xl m-4 ${sofia.className}`}>
-          Solicitar cotización
-        </h1>
+      <main className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}>
+        <h1 className={`text-4xl m-4 ${sofia.className}`}>Solicitar cotización</h1>
         <p className="m-6">
-          Le pedimos que complete cada campo con la mayor cantidad de detalles
-          posible para acelerar el proceso de cotización. Recuerda que somos una
-          empresa pequeña que realiza pocos pasteles a la semana. Por favor,
-          solicita tu cotización con suficiente anticipación. Hacemos todo lo
-          posible para responder rápidamente, pero a veces puede haber retrasos.
-          Agradecemos tu comprensión.
+          Le pedimos que complete cada campo con la mayor cantidad de detalles posible para acelerar el proceso de cotización. Recuerda que somos una empresa pequeña que realiza pocos pasteles a la semana. Por favor, solicita tu cotización con suficiente anticipación. Hacemos todo lo posible para responder rápidamente, pero a veces puede haber retrasos. Agradecemos tu comprensión.
         </p>
-
         <form className="m-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-6">
-            <label className={`text-2xl m-4 ${sofia.className}`}>
-              Selecciona el producto que deseas cotizar:
-            </label>
-            <div className="flex justify-between">
-              <label className="mr-4">
-                <input
-                  type="radio"
-                  name="formType"
-                  value="cake"
-                  checked={selectedForm === "cake"}
-                  onChange={handleFormSelection}
-                  className="mr-1"
-                />
-                Pastel
-              </label>
-              <label className="mr-4">
-                <input
-                  type="radio"
-                  name="formType"
-                  value="cupcake"
-                  checked={selectedForm === "cupcake"}
-                  onChange={handleFormSelection}
-                  className="mr-1"
-                />
-                Cupcake
-              </label>
-              <label className="mr-4">
-                <input
-                  type="radio"
-                  name="formType"
-                  value="dessertTable"
-                  checked={selectedForm === "dessertTable"}
-                  onChange={handleFormSelection}
-                  className="mr-1"
-                />
-                Mesa de postres
-              </label>
+            <label className={`text-2xl m-4 ${sofia.className}`}>Selecciona el producto que deseas cotizar:</label>
+            <div className="flex justify-between mt-6">
+              {["cake", "cupcake", "dessertTable"].map((type) => (
+                <label key={type} className="mr-4">
+                  <input
+                    type="radio"
+                    name="formType"
+                    value={type}
+                    checked={selectedForm === type}
+                    onChange={handleFormSelection}
+                    className="mr-1"
+                  />
+                  {type === "cake" ? "Pastel" : type === "cupcake" ? "Cupcake" : "Mesa de postres"}
+                </label>
+              ))}
             </div>
             {errors.formType && <p className="text-red-500">{errors.formType.message}</p>}
           </div>
 
-          {selectedForm === "cake" && (
-            <CakeForm register={register} errors={errors} />
-          )}
-          {selectedForm === "cupcake" && (
-            <CupcakeForm register={register} errors={errors} />
-          )}
-          {selectedForm === "dessertTable" && (
-            <DessertTableForm register={register} errors={errors} />
-          )}
+          {selectedForm === "cake" && <CakeForm register={register} errors={errors} watch={watch} />}
+          {selectedForm === "cupcake" && <CupcakeForm register={register} errors={errors} watch={watch} />}
+          {selectedForm === "dessertTable" && <DessertTableForm register={register} errors={errors} watch={watch} />}
 
           <ContactInfo register={register} errors={errors} />
 

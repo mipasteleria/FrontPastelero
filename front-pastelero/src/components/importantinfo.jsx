@@ -1,9 +1,4 @@
-import { useState } from "react";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
-import Link from "next/link";
-
-// Importa las fuentes
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const ImportantInfo = () => {
