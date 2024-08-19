@@ -9,13 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@stripe/react-stripe-js": "^2.8.0",
-    "@stripe/stripe-js": "^4.3.0",
-    "axios": "^1.7.3",
-=======
     "axios": "^1.7.4",
->>>>>>> 75c5b5e3288a89e66fce9c8a8283a26758ba9a85
     "date-fns": "^3.6.0",
     "flowbite": "^2.4.1",
     "flowbite-datepicker": "^1.2.7",
