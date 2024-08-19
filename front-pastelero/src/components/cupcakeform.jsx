@@ -381,7 +381,7 @@ const CupcakeForm = () => {
         htmlFor="userComments"
         className="block mb-2 text-sm font-medium dark:text-white"
       >
-        Preguntas o comentarios
+        Preguntas o comentarios, platicanos más acerca de tu idea o tematica, nos especializamos en diseñar dulsuras a la medida
       </label>
       <textarea
         id="userComments"
