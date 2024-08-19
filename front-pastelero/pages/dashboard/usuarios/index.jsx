@@ -12,7 +12,7 @@ export default function AdministradorUsuarios() {
   const [usersInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
-    fetch("https://pasteleros-back.vercel.app/users/list")
+    fetch("http://localhost:3001/users/list")
       .then((res) => res.json())
       .then((info) => setUserInfo(info.data || []));
   }, []);
@@ -20,18 +20,18 @@ export default function AdministradorUsuarios() {
   const handleDeleteUser = async (id) => {
     try {
       const response = await fetch(`http://localhost:3001/users/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (response.ok) {
-        alert('Usuario eliminado con éxito');
-        setUserInfo(usersInfo.filter(user => user._id !== id));
+        alert("Usuario eliminado con éxito");
+        setUserInfo(usersInfo.filter((user) => user._id !== id));
       } else {
-        alert('Error al eliminar el usuario');
+        alert("Error al eliminar el usuario");
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Error al eliminar el usuario');
+      console.error("Error:", error);
+      alert("Error al eliminar el usuario");
     }
   };
 
@@ -46,8 +46,7 @@ export default function AdministradorUsuarios() {
             <table className="w-full text-sm text-left rtl:text-right">
               <thead className="text-xs uppercase bg-rose-50">
                 <tr>
-                  <th className="p-4">
-                  </th>
+                  <th className="p-4"></th>
                   <th className="px-6 py-3">Nombre</th>
                   <th className="px-6 py-3">Rol</th>
                   <th className="px-6 py-3">Permisos</th>
@@ -57,19 +56,28 @@ export default function AdministradorUsuarios() {
               <tbody>
                 {usersInfo.map((userInfo) => (
                   <tr key={`userInfo-${userInfo._id}`} className="bg-white">
-                    <td className="w-4 p-4">
-                    </td>
-                    <th scope="row" className="flex items-center px-6 py-4 whitespace-nowrap">
+                    <td className="w-4 p-4"></td>
+                    <th
+                      scope="row"
+                      className="flex items-center px-6 py-4 whitespace-nowrap"
+                    >
                       <div className="ps-3">
-                        <div className="text-base font-semibold">{userInfo.name}</div>
+                        <div className="text-base font-semibold">
+                          {userInfo.name}
+                        </div>
                         <div>{userInfo.lastname}</div>
                         <div className="font-normal">{userInfo.email}</div>
                       </div>
                     </th>
-                    <td className="px-6 py-4">{userInfo.role ? 'Admin' : 'User'}</td>
+                    <td className="px-6 py-4">
+                      {userInfo.role ? "Admin" : "User"}
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
-                        {(Array.isArray(userInfo.permissions) ? userInfo.permissions : []).map((perm) => (
+                        {(Array.isArray(userInfo.permissions)
+                          ? userInfo.permissions
+                          : []
+                        ).map((perm) => (
                           <p key={perm}>{perm}</p>
                         ))}
                       </div>
@@ -80,26 +88,26 @@ export default function AdministradorUsuarios() {
                         className="font-medium text-accent hover:underline"
                       >
                         <svg
-                            className="w-6 h-6 text-accent dark:text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                          className="w-6 h-6 text-accent dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                       </Link>
                       <button
                         onClick={() => handleDeleteUser(userInfo._id)}
                         className="text-red-500 hover:underline"
                       >
-                                        <svg
+                        <svg
                           class="w-6 h-6 text-accent dark:text-white"
                           aria-hidden="true"
                           xmlns="http://www.w3.org/2000/svg"
@@ -123,7 +131,10 @@ export default function AdministradorUsuarios() {
               </tbody>
             </table>
           </div>
-          <Link href="/dashboard/usuarios/nuevousuario" className="flex justify-end mb-20">
+          <Link
+            href="/dashboard/usuarios/nuevousuario"
+            className="flex justify-end mb-20"
+          >
             <button
               type="button"
               className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-64 px-16 py-2.5 text-center mt-10 ml-2"

@@ -9,12 +9,16 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Login() {
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const response = await fetch("https://pasteleros-back.vercel.app/users", {
+      const response = await fetch("http://localhost:3001/users", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
@@ -32,7 +36,9 @@ export default function Login() {
   };
 
   return (
-    <main className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}>
+    <main
+      className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}
+    >
       <div className={`flex mt-6 justify-center rounded-xl ${sofia.className}`}>
         <Link href="/">
           <Image
@@ -63,13 +69,17 @@ export default function Login() {
           <input
             type="email"
             id="email"
-            {...register("email", { required: "Correo electrónico es requerido" })}
+            {...register("email", {
+              required: "Correo electrónico es requerido",
+            })}
             className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder="nombre@dominio.com"
             aria-required="true"
             aria-invalid={!!errors.email}
           />
-          {errors.email && <p className="text-red-600 mt-1">{errors.email.message}</p>}
+          {errors.email && (
+            <p className="text-red-600 mt-1">{errors.email.message}</p>
+          )}
         </div>
         <div className="mb-5">
           <label
@@ -87,7 +97,9 @@ export default function Login() {
             aria-required="true"
             aria-invalid={!!errors.password}
           />
-          {errors.password && <p className="text-red-600 mt-1">{errors.password.message}</p>}
+          {errors.password && (
+            <p className="text-red-600 mt-1">{errors.password.message}</p>
+          )}
         </div>
         <div className="mb-5">
           <label
@@ -99,13 +111,19 @@ export default function Login() {
           <input
             type="password"
             id="floating_repeat_password"
-            {...register("floating_repeat_password", { required: "Confirmar contraseña es requerida" })}
+            {...register("floating_repeat_password", {
+              required: "Confirmar contraseña es requerida",
+            })}
             className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder=" "
             aria-required="true"
             aria-invalid={!!errors.floating_repeat_password}
           />
-          {errors.floating_repeat_password && <p className="text-red-600 mt-1">{errors.floating_repeat_password.message}</p>}
+          {errors.floating_repeat_password && (
+            <p className="text-red-600 mt-1">
+              {errors.floating_repeat_password.message}
+            </p>
+          )}
         </div>
         <div className="grid md:grid-cols-2 md:gap-6 mb-5">
           <div>
@@ -124,7 +142,9 @@ export default function Login() {
               aria-required="true"
               aria-invalid={!!errors.name}
             />
-            {errors.name && <p className="text-red-600 mt-1">{errors.name.message}</p>}
+            {errors.name && (
+              <p className="text-red-600 mt-1">{errors.name.message}</p>
+            )}
           </div>
           <div>
             <label
@@ -142,7 +162,9 @@ export default function Login() {
               aria-required="true"
               aria-invalid={!!errors.lastname}
             />
-            {errors.lastname && <p className="text-red-600 mt-1">{errors.lastname.message}</p>}
+            {errors.lastname && (
+              <p className="text-red-600 mt-1">{errors.lastname.message}</p>
+            )}
           </div>
         </div>
         <div className="mb-5">
@@ -156,13 +178,17 @@ export default function Login() {
             type="tel"
             id="phone"
             pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-            {...register("phone", { required: "Número de teléfono es requerido" })}
+            {...register("phone", {
+              required: "Número de teléfono es requerido",
+            })}
             className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder=" "
             aria-required="true"
             aria-invalid={!!errors.phone}
           />
-          {errors.phone && <p className="text-red-600 mt-1">{errors.phone.message}</p>}
+          {errors.phone && (
+            <p className="text-red-600 mt-1">{errors.phone.message}</p>
+          )}
         </div>
         <button
           type="submit"

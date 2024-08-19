@@ -106,6 +106,7 @@ const DessertTableForm = () => {
     } else {
       alert("Selecciona una fecha con al menos 4 días de anticipación.");
     }
+  
   };
 
   const handleTimeChange = (e) => {
@@ -232,7 +233,7 @@ const DessertTableForm = () => {
             
         
         <div className="md:col-span-1 flex items-end">
-          
+          {/*Schedule */}
         <div className="flex flex-col items-center m-6 p-6 bg-white rounded-lg shadow-md">
         <h2 className={`text-xl m-2 ${poppins.className}`}>
           Fecha y Hora del Evento
@@ -316,6 +317,7 @@ const DessertTableForm = () => {
           />
         </div>
         </div>
+{/*Images*/}
         <div>
         <p className="my-2">
           Por favor, sube imágenes de inspiración, como la temática, los
@@ -366,6 +368,7 @@ const DessertTableForm = () => {
           </label>
         </div>
       </div>
+      {/*Buget*/}
         <div className="flex flex-col md:flex-row m-6">
           <p className="md:w-1/2">
             ¿Podrías informarnos si tienes un presupuesto específico para este pedido? Nos sería de gran ayuda conocer la cantidad que tienes en mente.
@@ -389,8 +392,8 @@ const DessertTableForm = () => {
             />
           </div>
         </div>
-      
-      <h2 className={`text-3xl m-4 ${sofia.className}`}>
+{/*Contact information*/}      
+    <h2 className={`text-3xl m-4 ${sofia.className}`}>
     Información de contacto
   </h2>
   <div className="flex flex-col bg-rose-50 p-6 mb-6 rounded-lg">
