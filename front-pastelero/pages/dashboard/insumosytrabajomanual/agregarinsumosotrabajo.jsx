@@ -17,39 +17,45 @@ export default function NuevaReceta() {
   } = useForm();
   const [costPerUnit, setCostPerUnit] = useState(0);
 
-const onSubmit = (data) => {
-  console.log(data);
-  fetch("http://localhost:3001/insumos", {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-type": "application/json; charset=UTF-8",
-    },
-  })
-    .then((response) => {
-      if (response.ok) {
-        window.location.href = "/dashboard/insumosytrabajomanual";
-      } else {
-        return response.json().then((json) => {
-          console.error("Error:", json.message);
-        });
-      }
+  const onSubmit = (data) => {
+    console.log(data);
+    fetch("https://pasteleros-back.vercel.app/insumos", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
     })
-    .catch((error) => console.error("Error:", error));
-};
+      .then((response) => {
+        if (response.ok) {
+          window.location.href = "/dashboard/insumosytrabajomanual";
+        } else {
+          return response.json().then((json) => {
+            console.error("Error:", json.message);
+          });
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  };
 
   const handleQuantityChange = (e) => {
     const value = e.target.value;
     setValue("amount", value);
     const cost = e.target.form.elements.cost.value;
-    setCostPerUnit(value && cost ? (parseFloat(cost) / parseFloat(value)).toFixed(2) : 0);
+    setCostPerUnit(
+      value && cost ? (parseFloat(cost) / parseFloat(value)).toFixed(2) : 0
+    );
   };
 
   const handleCostChange = (e) => {
     const value = e.target.value;
     setValue("cost", value);
     const quantity = e.target.form.elements.quantity.value;
-    setCostPerUnit(quantity && value ? (parseFloat(value) / parseFloat(quantity)).toFixed(2) : 0);
+    setCostPerUnit(
+      quantity && value
+        ? (parseFloat(value) / parseFloat(quantity)).toFixed(2)
+        : 0
+    );
   };
 
   return (
@@ -80,7 +86,9 @@ const onSubmit = (data) => {
                   className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                   placeholder="Pastel de vainilla"
                 />
-                {errors.name && <p className="text-red-600">{errors.name.message}</p>}
+                {errors.name && (
+                  <p className="text-red-600">{errors.name.message}</p>
+                )}
               </div>
               <div className="grid gap-6 mb-6">
                 <div>
@@ -93,12 +101,16 @@ const onSubmit = (data) => {
                   <input
                     type="number"
                     id="quantity"
-                    {...register("amount", { required: "Cantidad es requerida" })}
+                    {...register("amount", {
+                      required: "Cantidad es requerida",
+                    })}
                     className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                     placeholder="0.0"
                     onChange={handleQuantityChange}
                   />
-                  {errors.amount && <p className="text-red-600">{errors.amount.message}</p>}
+                  {errors.amount && (
+                    <p className="text-red-600">{errors.amount.message}</p>
+                  )}
                 </div>
                 <div>
                   <label
@@ -115,7 +127,9 @@ const onSubmit = (data) => {
                     placeholder="0.0"
                     onChange={handleCostChange}
                   />
-                  {errors.cost && <p className="text-red-600">{errors.cost.message}</p>}
+                  {errors.cost && (
+                    <p className="text-red-600">{errors.cost.message}</p>
+                  )}
                 </div>
                 <div className="flex items-end">
                   <div className="w-full">
@@ -133,7 +147,9 @@ const onSubmit = (data) => {
                       <option value="gr">gramos</option>
                       <option value="ml">mililitros</option>
                     </select>
-                    {errors.unit && <p className="text-red-600">{errors.unit.message}</p>}
+                    {errors.unit && (
+                      <p className="text-red-600">{errors.unit.message}</p>
+                    )}
                   </div>
                 </div>
               </div>
