@@ -354,7 +354,7 @@ const CupcakeForm = () => {
           value={formData.userName}
           onChange={handleInputChange}
           required
-          disabled={!isNameValid(formData.userName)}
+          
         />
       </div>
       <div className="m-4 md:w-1/2">
@@ -406,7 +406,7 @@ const CupcakeForm = () => {
     >
       Limpiar campos
     </button>
-    <Link href="/enduser/detallecotizacioncupcake">
+    <Link href="/enduser/detallesolicitudcupcake">
     <button
         type="submit"
         className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
