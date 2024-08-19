@@ -130,7 +130,7 @@ const onSubmit = (data) => {
                       {...register("unit", { required: "Unidad es requerida" })}
                       className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                     >
-                      <option value="grams">gramos</option>
+                      <option value="gr">gramos</option>
                       <option value="ml">mililitros</option>
                     </select>
                     {errors.unit && <p className="text-red-600">{errors.unit.message}</p>}
