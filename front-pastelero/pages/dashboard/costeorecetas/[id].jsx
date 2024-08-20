@@ -17,7 +17,7 @@ export default function VerReceta() {
   useEffect(() => {
     if (id) {
       axios
-        .get(`https://pasteleros-back.vercel.app/recetas/recetas/${id}`)
+        .get(`http://localhost:3001/recetas/recetas/${id}`)
         .then((response) => {
           const recetaData = response.data.data; // Ajuste aquí
           setReceta(recetaData);

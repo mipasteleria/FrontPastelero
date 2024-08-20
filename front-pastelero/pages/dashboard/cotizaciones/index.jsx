@@ -14,7 +14,7 @@ export default function Conocenuestrosproductos() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("https://pasteleros-back.vercel.app/pricecake", {
+    fetch("http://localhost:3001/pricecake", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

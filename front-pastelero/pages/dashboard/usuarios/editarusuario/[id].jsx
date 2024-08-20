@@ -26,9 +26,7 @@ export default function UsuarioForm() {
     if (id) {
       const fetchUserData = async () => {
         try {
-          const response = await fetch(
-            `https://pasteleros-back.vercel.app/users/${id}`
-          );
+          const response = await fetch(`http://localhost:3001/users/${id}`);
           if (response.ok) {
             const result = await response.json();
             setUserData(result.data);
@@ -61,7 +59,7 @@ export default function UsuarioForm() {
   const onSubmit = async (data) => {
     try {
       // Usa PUT siempre, ya que solo se permite actualizar
-      const url = `https://pasteleros-back.vercel.app/users/${id}`;
+      const url = `http://localhost:3001/users/${id}`;
 
       // Elimina los campos de contraseña si están vacíos
       const updatedData = { ...data };

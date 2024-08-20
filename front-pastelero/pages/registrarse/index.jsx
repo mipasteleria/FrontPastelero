@@ -18,7 +18,7 @@ export default function Login() {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const response = await fetch("https://pasteleros-back.vercel.app/users", {
+      const response = await fetch("http://localhost:3001/users", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {

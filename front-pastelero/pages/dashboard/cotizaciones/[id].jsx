@@ -16,7 +16,7 @@ export default function Verdetallesolicitud() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch(`https://pasteleros-back.vercel.app/pricecake/${router.query.id}`, {
+    fetch(`http://localhost:3001/pricecake/${router.query.id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -58,7 +58,7 @@ export default function EditarInsumo({ insumo }) {
 
   const onSubmit = async (data) => {
     console.log("ID del insumo:", insumo._id);
-    await fetch(`https://pasteleros-back.vercel.app/insumos/${insumo._id}`, {
+    await fetch(`http://localhost:3001/insumos/${insumo._id}`, {
       method: "PUT",
       body: JSON.stringify(data),
       headers: {
@@ -189,9 +189,7 @@ export default function EditarInsumo({ insumo }) {
 }
 
 export async function getServerSideProps({ params }) {
-  const res = await fetch(
-    `https://pasteleros-back.vercel.app/insumos/${params.id}`
-  );
+  const res = await fetch(`http://localhost:3001/insumos/${params.id}`);
   const insumo = await res.json();
   return { props: { insumo } };
 }
