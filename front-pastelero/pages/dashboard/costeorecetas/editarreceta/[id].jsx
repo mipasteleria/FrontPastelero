@@ -17,7 +17,7 @@ export default function NuevaReceta() {
     control,
     getValues,
     setValue,
-    formState: { errors }
+    formState: { errors },
   } = useForm();
   const [ingredientsList, setIngredientsList] = useState([]);
   const [total, setTotal] = useState(0);
@@ -28,9 +28,11 @@ export default function NuevaReceta() {
     if (id) {
       const fetchReceta = async () => {
         try {
-          const response = await axios.get(`http://localhost:3001/recetas/recetas/${id}`);
+          const response = await axios.get(
+            `https://pasteleros-back.vercel.app/recetas/recetas/${id}`
+          );
           const receta = response.data.data;
-          
+
           // Carga los datos en el formulario
           setValue("nombre_receta", receta.nombre_receta);
           setValue("descripcion", receta.descripcion);
@@ -41,10 +43,10 @@ export default function NuevaReceta() {
           setValue("special_tax", receta.special_tax);
           setValue("additional_costs", receta.additional_costs);
           setValue("total_cost", receta.total_cost);
-  
+
           // Carga el total desde la base de datos
           setTotal(receta.total_cost);
-          
+
           // Carga los ingredientes si hay
           if (receta.ingredientes.length > 0) {
             setIngredientsList(receta.ingredientes);
@@ -53,15 +55,23 @@ export default function NuevaReceta() {
           console.error("Error al obtener la receta:", error);
         }
       };
-  
+
       fetchReceta();
     }
   }, [id]);
-  
 
   const calculateTotal = () => {
-    const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.costo), 0);
-    const { special_tax, additional_costs, fixed_costs, fixed_costs_hours, profit_margin } = getValues();
+    const ingredientTotal = ingredientsList.reduce(
+      (acc, ingredient) => acc + parseFloat(ingredient.costo),
+      0
+    );
+    const {
+      special_tax,
+      additional_costs,
+      fixed_costs,
+      fixed_costs_hours,
+      profit_margin,
+    } = getValues();
 
     const specialTaxValue = parseFloat(special_tax || 0);
     const additionalCostsValue = parseFloat(additional_costs || 0);
@@ -69,8 +79,13 @@ export default function NuevaReceta() {
     const fixedCostsHoursValue = parseFloat(fixed_costs_hours || 0);
     const profitMarginValue = parseFloat(profit_margin || 0);
 
-    const totalCost = ingredientTotal + specialTaxValue + additionalCostsValue + fixedCostsValue + fixedCostsHoursValue;
-    const totalWithProfit = totalCost + (totalCost * profitMarginValue / 100);
+    const totalCost =
+      ingredientTotal +
+      specialTaxValue +
+      additionalCostsValue +
+      fixedCostsValue +
+      fixedCostsHoursValue;
+    const totalWithProfit = totalCost + (totalCost * profitMarginValue) / 100;
 
     setTotal(totalWithProfit);
   };
@@ -79,7 +94,10 @@ export default function NuevaReceta() {
     const { ingrediente, cantidad, precio, unidad } = getValues();
     if (ingrediente.trim() && cantidad && precio) {
       const total = (precio / cantidad).toFixed(2);
-      setIngredientsList([...ingredientsList, { ingrediente, cantidad, precio, unidad, total }]);
+      setIngredientsList([
+        ...ingredientsList,
+        { ingrediente, cantidad, precio, unidad, total },
+      ]);
       setValue("ingrediente", "");
       setValue("cantidad", "");
       setValue("precio", "");
@@ -88,36 +106,41 @@ export default function NuevaReceta() {
     }
   };
 
-  const handleDeleteIngredient = (index) => setIngredientsList(ingredientsList.filter((_, i) => i !== index));
+  const handleDeleteIngredient = (index) =>
+    setIngredientsList(ingredientsList.filter((_, i) => i !== index));
 
   const onInputChange = () => calculateTotal();
 
   const onSubmit = async (data) => {
     data.ingredientes = ingredientsList; // Asegúrate de que ingredientsList contenga los datos correctos
     data.total_cost = total;
-    
+
     console.log("Datos enviados:", data); // Verifica los datos antes de enviarlos
-    
+
     try {
       // Asegúrate de que `id` sea el identificador correcto para la receta que deseas actualizar
-      const response = await axios.put(`http://localhost:3001/recetas/recetas/${id}`, data, {
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await axios.put(
+        `http://localhost:3001/recetas/recetas/${id}`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       console.log("Receta guardada:", response.data);
-      router.push('/dashboard/costeorecetas');
+      router.push("/dashboard/costeorecetas");
     } catch (error) {
       console.error("Error al guardar la receta:", error);
       // Considera agregar una notificación o mensaje al usuario en caso de error
     }
   };
-  
-  
 
   const renderInput = (id, label, type = "text", placeholder, validation) => (
     <div className="w-full">
-      <label htmlFor={id} className="block text-sm font-medium">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium">
+        {label}
+      </label>
       <Controller
         name={id}
         control={control}
@@ -145,26 +168,51 @@ export default function NuevaReceta() {
       <NavbarDashboard />
       <div className="flex">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>
+        <main
+          className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}
+        >
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Nueva Receta</h1>
           <form className="m-4" onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 px-2">
                 <div className="mb-4">
-                  {renderInput("nombre_receta", "Nombre de la receta", "text", "Pastel de vainilla", "El nombre de la receta es obligatorio")}
+                  {renderInput(
+                    "nombre_receta",
+                    "Nombre de la receta",
+                    "text",
+                    "Pastel de vainilla",
+                    "El nombre de la receta es obligatorio"
+                  )}
                 </div>
                 <div className="mb-4">
-                  {renderInput("descripcion", "Descripción", "textarea", "El clásico sabor favorito de las fiestas infantiles...", "La descripción es obligatoria")}
+                  {renderInput(
+                    "descripcion",
+                    "Descripción",
+                    "textarea",
+                    "El clásico sabor favorito de las fiestas infantiles...",
+                    "La descripción es obligatoria"
+                  )}
                 </div>
               </div>
               <div className="w-full md:w-1/2 pl-2">
                 <div className="grid gap-6 mb-6">
-                  {renderInput("ingrediente", "Ingrediente", "text", "Vainilla", "")}
+                  {renderInput(
+                    "ingrediente",
+                    "Ingrediente",
+                    "text",
+                    "Vainilla",
+                    ""
+                  )}
                   {renderInput("cantidad", "Cantidad", "number", "0.0", "")}
                   {renderInput("precio", "Precio", "number", "0.0", "")}
                   <div className="flex items-end">
                     <div className="w-full">
-                      <label htmlFor="unidad" className="block mb-2 text-sm font-medium dark:text-white">Unidad</label>
+                      <label
+                        htmlFor="unidad"
+                        className="block mb-2 text-sm font-medium dark:text-white"
+                      >
+                        Unidad
+                      </label>
                       <Controller
                         name="unidad"
                         control={control}
@@ -193,9 +241,13 @@ export default function NuevaReceta() {
               </div>
             </div>
             <div className="my-10 p-4 rounded-xl bg-rose-50 overflow-x-auto">
-              <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Lista de ingredientes</h2>
+              <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>
+                Lista de ingredientes
+              </h2>
               {ingredientsList.length === 0 ? (
-                <p className="text-center text-gray-500">Todavía no se han agregado ingredientes.</p>
+                <p className="text-center text-gray-500">
+                  Todavía no se han agregado ingredientes.
+                </p>
               ) : (
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="text-xs text-text uppercase bg-rose-50">
@@ -222,8 +274,19 @@ export default function NuevaReceta() {
                             onClick={() => handleDeleteIngredient(index)}
                             className="text-red-500 hover:text-red-700"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
                             </svg>
                           </button>
                         </td>
@@ -234,18 +297,38 @@ export default function NuevaReceta() {
               )}
             </div>
             <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-              {renderInput("profit_margin", "Margen de ganancia (%)", "number", "0.0", "")}
-              {renderInput("fixed_costs_hours", "Costos fijos por hora", "number", "0.0", "")}
+              {renderInput(
+                "profit_margin",
+                "Margen de ganancia (%)",
+                "number",
+                "0.0",
+                ""
+              )}
+              {renderInput(
+                "fixed_costs_hours",
+                "Costos fijos por hora",
+                "number",
+                "0.0",
+                ""
+              )}
               {renderInput("fixed_costs", "Costos fijos", "number", "0.0", "")}
               {renderInput("special_tax", "IEPS (%)", "number", "0.0", "")}
-              {renderInput("additional_costs", "Costos adicionales", "number", "0.0", "")}
+              {renderInput(
+                "additional_costs",
+                "Costos adicionales",
+                "number",
+                "0.0",
+                ""
+              )}
             </div>
             <div className="my-10 p-4 rounded-xl bg-rose-50">
-              <label htmlFor="total_cost" className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Costo total estimado</label>
-              <p
-                id="total_cost"
-                className=" text-center text-2xl"
+              <label
+                htmlFor="total_cost"
+                className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}
               >
+                Costo total estimado
+              </label>
+              <p id="total_cost" className=" text-center text-2xl">
                 {total.toFixed(2)} MXN
               </p>
             </div>
@@ -256,9 +339,7 @@ export default function NuevaReceta() {
               Guardar Receta
             </button>
             <Link href={"/dashboard/costeorecetas"}>
-              <button
-                className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
-              >
+              <button className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20">
                 Regresar
               </button>
             </Link>
