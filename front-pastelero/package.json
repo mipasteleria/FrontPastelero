@@ -9,19 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "axios": "^1.7.4",
-=======
     "@stripe/react-stripe-js": "^2.8.0",
     "@stripe/stripe-js": "^4.3.0",
     "axios": "^1.7.3",
->>>>>>> b73ecd3a345ea2d75dd192c3112b890c45b9c5f5
     "date-fns": "^3.6.0",
     "flowbite": "^2.4.1",
     "flowbite-datepicker": "^1.2.7",
     "flowbite-react": "^0.9.0",
     "jsonwebtoken": "^9.0.2",
-    "next": "14.2.4",
+    "next": "^14.2.4",
     "react": "^18",
     "react-calendar": "^5.0.0",
     "react-dom": "^18",
