@@ -10,6 +10,12 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function SolicitarCotizacion() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm();
   const [selectedForm, setSelectedForm] = useState("cake");
 
   const handleInputChange = (e) => {
@@ -17,7 +23,29 @@ export default function SolicitarCotizacion() {
     setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
   };
 
-  const handleFormSelection = (e) => setSelectedForm(e.target.value);
+  const onSubmit = (data) => {
+    console.log("Form Data: ", data);
+
+    if (!data) {
+      setError("formType", {
+        type: "manual",
+        message: "Por favor, selecciona un producto.",
+      });
+    }
+  };
+
+  const getButtonText = () => {
+    switch (selectedForm) {
+      case "cake":
+        return "Cotizar pastel";
+      case "cupcake":
+        return "Cotizar cupcakes";
+      case "dessertTable":
+        return "Cotizar mesa de postres";
+      default:
+        return "Enviar";
+    }
+  };
 
   return (
     <div>
@@ -53,11 +81,20 @@ export default function SolicitarCotizacion() {
                 </label>
               ))}
             </div>
+            {errors.formType && (
+              <p className="text-red-500">{errors.formType.message}</p>
+            )}
           </div>
 
-          {selectedForm === "cake" && <CakeForm className="w-3/4 p-4" />}
-          {selectedForm === "cupcake" && <CupcakeForm className="w-3/4 p-4" />}
-          {selectedForm === "dessertTable" && <DessertTableForm className="w-3/4 p-4" />}
+          {selectedForm === "cake" && (
+            <CakeForm register={register} errors={errors} />
+          )}
+          {selectedForm === "cupcake" && (
+            <CupcakeForm register={register} errors={errors} />
+          )}
+          {selectedForm === "dessertTable" && (
+            <DessertTableForm register={register} errors={errors} />
+          )}
         </form>
       </main>
       <WebFooter />

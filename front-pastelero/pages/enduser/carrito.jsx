@@ -68,7 +68,7 @@ export default function Carrito() {
           que el horario de atención es de lunes a viernes de 9 am a 6 pm.
         </p>
         <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
-          <Link href="/enduser/detallecotizacion">
+          <Link href="/enduser/payout">
             <button className="shadow-lg text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
               Pagar
             </button>

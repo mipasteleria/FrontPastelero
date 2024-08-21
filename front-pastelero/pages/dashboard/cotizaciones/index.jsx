@@ -13,26 +13,17 @@ export default function Conocenuestrosproductos() {
   const [cotizacionType, setCotizacionType] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
-      const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-        fetch("https://pasteleros-back.vercel.app/pricecake"),
-        fetch("https://pasteleros-back.vercel.app/pricecupcake"),
-        fetch("https://pasteleros-back.vercel.app/pricesnack")
-      ]);
-      const [cakeData, cupcakeData, snackData] = await Promise.all([
-        cakeRes.json(),
-        cupcakeRes.json(),
-        snackRes.json()
-      ]);
+    const token = localStorage.getItem("token");
 
-      setUserCotizacion([
-        ...cakeData.data.map(item => ({ ...item, type: 'Pastel' })),
-        ...cupcakeData.data.map(item => ({ ...item, type: 'Cupcake' })),
-        ...snackData.data.map(item => ({ ...item, type: 'Snack' }))
-      ]);
-    };
-
-    fetchData();
+    fetch("http://localhost:3001/pricecake", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((info) => setUserCotizacionCake(info.data));
   }, []);
 
   return (

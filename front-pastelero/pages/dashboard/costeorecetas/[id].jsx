@@ -17,12 +17,13 @@ export default function VerReceta() {
 
   useEffect(() => {
     if (id) {
-      axios.get(`http://localhost:3001/recetas/recetas/${id}`)
-        .then(response => {
+      axios
+        .get(`http://localhost:3001/recetas/recetas/${id}`)
+        .then((response) => {
           const recetaData = response.data.data; // Ajuste aquí
           setReceta(recetaData);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Error al cargar la receta:", error);
         });
     }
@@ -35,26 +36,35 @@ export default function VerReceta() {
       <NavbarDashboard />
       <div className="flex">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>
+        <main
+          className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}
+        >
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Ver Receta</h1>
           <div className="m-4">
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 px-2">
                 <div className="mb-4">
                   <p className="block text-sm font-bold">Nombre de la receta</p>
-                  <p className="bg-gray-50 text-sm rounded-lg p-2.5 dark:placeholder-secondary">{receta.nombre_receta}</p>
+                  <p className="bg-gray-50 text-sm rounded-lg p-2.5 dark:placeholder-secondary">
+                    {receta.nombre_receta}
+                  </p>
                 </div>
                 <div className="mb-4">
                   <p className="block text-sm font-bold">Descripción</p>
-                  <p className="bg-gray-50 text-sm rounded-lg p-2.5">{receta.descripcion}</p>
+                  <p className="bg-gray-50 text-sm rounded-lg p-2.5">
+                    {receta.descripcion}
+                  </p>
                 </div>
               </div>
-
             </div>
             <div className="my-10 p-4 rounded-xl bg-rose-50 overflow-x-auto">
-              <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Lista de ingredientes</h2>
+              <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>
+                Lista de ingredientes
+              </h2>
               {receta.ingredientes.length === 0 ? (
-                <p className="text-center text-gray-500">Todavía no se han agregado ingredientes.</p>
+                <p className="text-center text-gray-500">
+                  Todavía no se han agregado ingredientes.
+                </p>
               ) : (
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="text-xs text-text uppercase bg-rose-50">
@@ -68,7 +78,10 @@ export default function VerReceta() {
                   </thead>
                   <tbody>
                     {receta.ingredientes.map((ingredient, index) => (
-                      <tr key={index} className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+                      <tr
+                        key={index}
+                        className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
+                      >
                         <td className="px-6 py-4">{ingredient.ingrediente}</td>
                         <td className="px-6 py-4">{ingredient.cantidad}</td>
                         <td className="px-6 py-4">{ingredient.precio}</td>
@@ -80,34 +93,51 @@ export default function VerReceta() {
                 </table>
               )}
             </div>
-            <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Costos adicionales</h2>
+            <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>
+              Costos adicionales
+            </h2>
             <div className="my-10 grid grid-cols-2 gap-6 p-4 rounded-xl">
               <div className="mb-4">
                 <p className="block text-sm font-bold">Costos fijos</p>
-                <p className="bg-gray-50 text-sm rounded-lg p-2.5">{receta.fixed_costs}</p>
+                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
+                  {receta.fixed_costs}
+                </p>
               </div>
               <div className="mb-4">
                 <p className="block text-sm font-bold">Porciones</p>
-                <p className="bg-gray-50 text-sm rounded-lg p-2.5">{receta.portions}</p>
+                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
+                  {receta.portions}
+                </p>
               </div>
               <div className="mb-4">
                 <p className="block text-sm font-bold">Costos por horas</p>
-                <p className="bg-gray-50 text-sm rounded-lg p-2.5">{receta.fixed_costs_hours}</p>
+                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
+                  {receta.fixed_costs_hours}
+                </p>
               </div>
               <div className="mb-4">
-                <p className="block text-sm font-bold">Impuesto especial sobre producción y servicios (IEPS)</p>
-                <p className="bg-gray-50 text-sm rounded-lg p-2.5">{receta.special_tax}</p>
+                <p className="block text-sm font-bold">
+                  Impuesto especial sobre producción y servicios (IEPS)
+                </p>
+                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
+                  {receta.special_tax}
+                </p>
               </div>
               <div className="mb-4">
                 <p className="block text-sm font-bold">Costos adicionales</p>
-                <p className="bg-gray-50 text-sm rounded-lg p-2.5">{receta.additional_costs}</p>
+                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
+                  {receta.additional_costs}
+                </p>
               </div>
               <div className="mb-4">
                 <p className="block text-sm font-bold">Margen de ganancia</p>
-                <p className="bg-gray-50 text-sm rounded-lg p-2.5 ">{receta.profit_margin}</p>
+                <p className="bg-gray-50 text-sm rounded-lg p-2.5 ">
+                  {receta.profit_margin}
+                </p>
               </div>
             </div>
           </div>
+<<<<<<< HEAD
           <div className="my-10 p-4 rounded-xl bg-rose-50 mb-10">
               <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Costo total estimado</h2>
               <p className="text-center text-2xl">{receta.total_cost.toFixed(2)} MXN</p>
@@ -119,6 +149,16 @@ export default function VerReceta() {
               Regresar
             </button>
         </Link>
+=======
+          <div className="my-10 p-4 rounded-xl bg-rose-50 mb-20">
+            <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>
+              Costo total estimado
+            </h2>
+            <p className="text-center text-2xl">
+              {receta.total_cost.toFixed(2)} MXN
+            </p>
+          </div>
+>>>>>>> 0a37e0502cbeb910f34263918a6df6d1736fa6a7
         </main>
       </div>
       <FooterDashboard />

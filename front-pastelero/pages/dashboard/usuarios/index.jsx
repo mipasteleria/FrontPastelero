@@ -12,7 +12,15 @@ export default function AdministradorUsuarios() {
   const [usersInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/users/list")
+    const token = localStorage.getItem("token");
+
+    fetch("http://localhost:3001/users/list", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((info) => setUserInfo(info.data || []));
   }, []);
@@ -69,9 +77,7 @@ export default function AdministradorUsuarios() {
                         <div className="font-normal">{userInfo.email}</div>
                       </div>
                     </th>
-                    <td className="px-6 py-4">
-                      {userInfo.role ? "Admin" : "User"}
-                    </td>
+                    <td className="px-6 py-4">{userInfo.role}</td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
                         {(Array.isArray(userInfo.permissions)

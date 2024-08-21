@@ -72,7 +72,7 @@ export default function Costeorecetas({ recetas }) {
                         {new Date(receta.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 border-b border-secondary">
-                        {receta.total_cost || 'N/A'}
+                        {receta.total_cost || "N/A"}
                       </td>
                       <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-1">
                         <Link href={`/dashboard/costeorecetas/${receta._id}`}>
@@ -97,7 +97,9 @@ export default function Costeorecetas({ recetas }) {
                             />
                           </svg>
                         </Link>
-                        <Link href={`/dashboard/costeorecetas/editarreceta/${receta._id}`}>
+                        <Link
+                          href={`/dashboard/costeorecetas/editarreceta/${receta._id}`}
+                        >
                           <svg
                             className="w-6 h-6 text-accent dark:text-white"
                             aria-hidden="true"
@@ -116,21 +118,29 @@ export default function Costeorecetas({ recetas }) {
                         </Link>
                         <button
                           onClick={async () => {
-                            if (confirm('¿Estás seguro de que deseas eliminar esta receta?')) {
+                            if (
+                              confirm(
+                                "¿Estás seguro de que deseas eliminar esta receta?"
+                              )
+                            ) {
                               try {
-                                const res = await fetch(`http://localhost:3001/recetas/recetas/${receta._id}`, {
-                                  method: 'DELETE',
-                                });
+                                const res = await fetch(
+                                  `http://localhost:3001/recetas/recetas/${receta._id}`,
+                                  {
+                                    method: "DELETE",
+                                  }
+                                );
                                 if (res.ok) {
-                                  alert('Receta eliminada');
-                                  // Optionally, you can refresh the page or remove the item from the UI
+                                  alert("Receta eliminada");
                                   window.location.reload();
                                 } else {
-                                  throw new Error('Error al eliminar la receta');
+                                  throw new Error(
+                                    "Error al eliminar la receta"
+                                  );
                                 }
                               } catch (error) {
                                 console.error(error);
-                                alert('No se pudo eliminar la receta');
+                                alert("No se pudo eliminar la receta");
                               }
                             }
                           }}
@@ -158,10 +168,11 @@ export default function Costeorecetas({ recetas }) {
               </table>
             </div>
           </div>
-          <Link className="flex justify-center md:justify-start" href={"/dashboard/costeorecetas/nuevareceta"}>
-            <button
-              className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center"
-            >
+          <Link
+            className="flex justify-center md:justify-start"
+            href={"/dashboard/costeorecetas/nuevareceta"}
+          >
+            <button className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center">
               Nueva Receta
             </button>
           </Link>
@@ -173,8 +184,14 @@ export default function Costeorecetas({ recetas }) {
 }
 
 // Fetching data for server-side rendering or static generation
+
 export async function getServerSideProps() {
-  const res = await fetch('http://localhost:3001/recetas/recetas');
+  const res = await fetch("http://localhost:3001/recetas/recetas", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   const data = await res.json();
 
   return {
