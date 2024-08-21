@@ -22,7 +22,7 @@ export default function Conocenuestrosproductos() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await fetch("https://pasteleros-back.vercel.app/users", {
+      const response = await fetch("http://localhost:3001/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

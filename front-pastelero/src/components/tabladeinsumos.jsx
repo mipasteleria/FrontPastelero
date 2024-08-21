@@ -9,9 +9,7 @@ export default function TablaDeInsumos() {
   useEffect(() => {
     const fetchInsumos = async () => {
       try {
-        const response = await axios.get(
-          "https://pasteleros-back.vercel.app/insumos"
-        );
+        const response = await axios.get("http://localhost:3001/insumos");
         setInsumos(response.data);
       } catch (error) {
         console.error("Error fetching insumos:", error);

@@ -19,7 +19,7 @@ export default function NuevaReceta() {
 
   const onSubmit = (data) => {
     console.log(data);
-    fetch("https://pasteleros-back.vercel.app/insumos", {
+    fetch("http://localhost:3001/insumos", {
       method: "POST",
       body: JSON.stringify(data),
       headers: {

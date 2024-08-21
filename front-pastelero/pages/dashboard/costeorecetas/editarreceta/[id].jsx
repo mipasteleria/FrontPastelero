@@ -29,7 +29,7 @@ export default function NuevaReceta() {
       const fetchReceta = async () => {
         try {
           const response = await axios.get(
-            `https://pasteleros-back.vercel.app/recetas/recetas/${id}`
+            `http://localhost:3001/recetas/recetas/${id}`
           );
           const receta = response.data.data;
 

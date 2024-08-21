@@ -14,7 +14,7 @@ export default function AdministradorUsuarios() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("https://pasteleros-back.vercel.app/users/list", {
+    fetch("http://localhost:3001/users/list", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -27,12 +27,9 @@ export default function AdministradorUsuarios() {
 
   const handleDeleteUser = async (id) => {
     try {
-      const response = await fetch(
-        `https://pasteleros-back.vercel.app/users/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`http://localhost:3001/users/${id}`, {
+        method: "DELETE",
+      });
 
       if (response.ok) {
         alert("Usuario eliminado con éxito");
