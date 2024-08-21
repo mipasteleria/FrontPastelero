@@ -8,7 +8,7 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const NavbarAdmin = () => {
-  const { isAdmin, isLoggedIn } = useContext(AuthContext);
+  const { isAdmin, isLoggedIn, user } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {

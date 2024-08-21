@@ -25,6 +25,22 @@ export default function Conocenuestrosproductos() {
       .then((info) => setUserCotizacionCake(info.data));
   }, []);
 
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+  
+    await fetch(`http://localhost:3001/pricecake/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  
+    // Actualiza el estado para eliminar el item de la lista
+    setUserCotizacionCake(userCotizacionCake.filter((item) => item._id !== id));
+  };
+  
+
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
@@ -144,8 +160,8 @@ export default function Conocenuestrosproductos() {
                               />
                             </svg>
                           </Link>
-                          <Link href="/dashboard/costeorecetas/editarreceta">
                             <svg
+                              onClick={() => handleDelete(pastelCotiza._id)}
                               class="w-6 h-6 text-accent dark:text-white"
                               aria-hidden="true"
                               xmlns="http://www.w3.org/2000/svg"
@@ -162,7 +178,6 @@ export default function Conocenuestrosproductos() {
                                 d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
                               />
                             </svg>
-                          </Link>
                         </td>
                       </tr>
                     );

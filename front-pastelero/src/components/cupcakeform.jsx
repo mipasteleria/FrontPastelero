@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 import { useState } from "react";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Link from "next/link";
@@ -421,3 +423,4 @@ const CupcakeForm = () => {
 };
 
 export default CupcakeForm;
+>>>>>>> 0a37e0502cbeb910f34263918a6df6d1736fa6a7

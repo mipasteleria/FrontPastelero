@@ -332,6 +332,14 @@ export default function NuevaReceta() {
                 {total.toFixed(2)} MXN
               </p>
             </div>
+<<<<<<< HEAD
+            <div className="flex flex-col md:flex-row gap-10 justify-center">
+              <button
+                type="submit"
+                className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center md:mb-20"
+              >
+                Guardar Receta
+=======
             <button
               type="submit"
               className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-8"
@@ -341,8 +349,16 @@ export default function NuevaReceta() {
             <Link href={"/dashboard/costeorecetas"}>
               <button className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20">
                 Regresar
+>>>>>>> 0a37e0502cbeb910f34263918a6df6d1736fa6a7
               </button>
-            </Link>
+              <Link href={"/dashboard/costeorecetas"}>
+                <button
+                  className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
+                >
+                  Regresar
+                </button>
+              </Link>
+            </div>
           </form>
         </main>
       </div>
