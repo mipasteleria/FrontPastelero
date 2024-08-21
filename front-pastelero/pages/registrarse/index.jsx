@@ -25,15 +25,25 @@ export default function Login() {
           "Content-Type": "application/json; charset=UTF-8",
         },
       });
+    
       const json = await response.json();
-      console.log(json);
-      if (json.success) {
-        // Handle successful response
+    
+      if (response.ok) {
+        // Actualizar el estado global del usuario
+        //setUser(json.data);
+        // Redirigir al home en caso de éxito
+        router.push("/");
+      } else {
+        // Manejo del error en caso de que la respuesta no sea exitosa
+        console.error("Error en la creación del usuario:", json.message || "Unknown error");
       }
     } catch (error) {
-      console.error("Error:", error);
+      // Manejo de cualquier error que ocurra durante la solicitud
+      console.error("Error:", error.message || "An unexpected error occurred");
     }
   };
+  
+  
 
   return (
     <main

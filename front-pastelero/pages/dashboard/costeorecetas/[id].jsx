@@ -137,19 +137,6 @@ export default function VerReceta() {
               </div>
             </div>
           </div>
-<<<<<<< HEAD
-          <div className="my-10 p-4 rounded-xl bg-rose-50 mb-10">
-              <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Costo total estimado</h2>
-              <p className="text-center text-2xl">{receta.total_cost.toFixed(2)} MXN</p>
-            </div>
-            <Link href={"/dashboard/costeorecetas"}>
-            <button
-              className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
-            >
-              Regresar
-            </button>
-        </Link>
-=======
           <div className="my-10 p-4 rounded-xl bg-rose-50 mb-20">
             <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>
               Costo total estimado
@@ -158,7 +145,13 @@ export default function VerReceta() {
               {receta.total_cost.toFixed(2)} MXN
             </p>
           </div>
->>>>>>> 0a37e0502cbeb910f34263918a6df6d1736fa6a7
+            <Link href={"/dashboard/costeorecetas"}>
+            <button
+              className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
+            >
+              Regresar
+            </button>
+            </Link>
         </main>
       </div>
       <FooterDashboard />
