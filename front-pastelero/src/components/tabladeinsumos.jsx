@@ -1,13 +1,7 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Link from 'next/link';
-=======
 // components/TablaDeInsumos.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
->>>>>>> 0a37e0502cbeb910f34263918a6df6d1736fa6a7
 
 export default function TablaDeInsumos() {
   const [insumos, setInsumos] = useState([]);
