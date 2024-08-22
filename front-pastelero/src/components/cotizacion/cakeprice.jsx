@@ -39,15 +39,6 @@ export default function Cakeprice() {
 
   return (
     <main>
-      <h1>Solicitar cotización</h1>
-      <p>
-        Le pedimos que complete cada campo con la mayor cantidad de detalles
-        posible para acelerar el proceso de cotización. Recuerda que somos una
-        empresa pequeña que realiza pocos pasteles a la semana. Por favor,
-        solicita tu cotización con suficiente anticipación. Hacemos todo lo
-        posible para responder rápidamente, pero a veces puede haber retrasos.
-        Agradecemos tu comprensión.
-      </p>
       <p>Selecciona el producto que deseas cotizar:</p>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
@@ -167,7 +158,6 @@ export default function Cakeprice() {
             type="text"
             name="deliveryAdress"
             placeholder="Calle, número y colonia"
-            required
             {...register("deliveryAdress")}
           />
           <label>
@@ -288,7 +278,6 @@ export default function Cakeprice() {
             className="inputOtherCake"
             type="text"
             name="other"
-            required
             {...register("other")}
           />
         </div>
@@ -321,7 +310,6 @@ export default function Cakeprice() {
             className="inputBudgetrCake"
             type="text"
             name="budget"
-            required
             {...register("budget")}
           />
         </div>
@@ -353,7 +341,6 @@ export default function Cakeprice() {
             className="inputQuestionsOrCommentsCake"
             type="text"
             name="questionsOrComments"
-            required
             {...register("questionsOrComments")}
           />
         </div>
