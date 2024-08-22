@@ -1,34 +1,29 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
-export default function Cakeprice() {
+export default function Cupcakeprice() {
   const { register, handleSubmit } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
 
   async function onSubmit(data) {
-    const response = await fetch("http://localhost:3001/pricecake", {
+    const response = await fetch("http://localhost:3001/pricecupcake", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        flavor: data.flavor,
-        levels: data.levels,
-        portions: data.portions,
-        delivery: data.delivery,
+        flavorBizcocho: data.flavorBizcocho,
         stuffedFlavor: data.stuffedFlavor,
         cover: data.cover,
+        portions: data.portions,
+        delivery: data.delivery,
         deliveryAdress: data.deliveryAdress,
         fondantCover: data.fondantCover,
         deliveryDate: data.deliveryDate,
-        buttercream: data.buttercream,
-        ganache: data.ganache,
-        fondant: data.fondant,
         fondantDraw: data.fondantDraw,
         buttercreamDraw: data.buttercreamDraw,
         naturalFlowers: data.naturalFlowers,
         sign: data.sign,
         eatablePrint: data.eatablePrint,
-        sugarcharacter3d: data.sugarcharacter3d,
-        character: data.character,
+        sprinkles: data.sprinkles,
         other: data.other,
         image: data.image,
         budget: data.budget,
@@ -43,23 +38,62 @@ export default function Cakeprice() {
     <main>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
-          <p>Sabor del bizocho</p>
+          <p>Sabor de Cupcake</p>
           <select
-            className="inputFlavorCake"
-            name="flavor"
-            {...register("flavor")}
+            className="inputFlavorBizcochoCupcake"
+            name="flavorBizcocho"
+            {...register("flavorBizcocho")}
             required
           >
             <option value="">Selecciona un sabor</option>
-            <option value="vainilla">Bizcocho de vainilla</option>
-            <option value="chocolate">Bizcocho de chocolate</option>
-            <option value="Red Velvet">Bizcocho de red velvet</option>
-            <option value="Naranja">Bizcocho de naranja</option>
-            <option value="Dulce de leche">Bizcocho de dulce de leche</option>
+            <option value="vainilla">Vainilla</option>
+            <option value="chocolate">Chocolate</option>
+            <option value="chocochip">Chocochip</option>
+            <option value="red Velvet">Red velvet</option>
+            <option value="zanahoria">Zanahoria</option>
+            <option value="limon">Limon</option>
+          </select>
+          <p>Relleno</p>
+          <select
+            className="inputStuffedFlavorCupcake"
+            name="stuffedFlavor"
+            {...register("stuffedFlavor")}
+            required
+          >
+            <option value="">Selecciona un Sabor</option>
+            <option value="sin Relleno">Sin Relleno</option>
+            <option value="chocolate">Chocolate</option>
+            <option value="nutella">Nutella</option>
+            <option value="dulce de leche">Dulce de Leche</option>
+            <option value="queso Crema">Queso Crema </option>
+            <option value="mermelada de Blueberry y LemonCurd">
+              Mermelada de Blueberry y LemonCurd (Crema de limon)
+            </option>
+            <option value="mermelada de Frambuesa">
+              Mermelada de Frambuesa
+            </option>
+            <option value="mermelada de Maracuya">Mermelada de Maracuya</option>
+          </select>
+          <p>Cobertura</p>
+          <select
+            className="inputCoverCupcake"
+            name="cover"
+            {...register("cover")}
+            required
+          >
+            <option value="">Selecciona la cobertura</option>
+            <option value="Buttercream vainilla">Buttercream vainilla</option>
+            <option value="Buttercream chocolate">Buttercream chocolate</option>
+            <option value="Ganache Chocolate Semiamargo">
+              Ganache Chocolate Semiamargo
+            </option>
+            <option value="Ganache Chocolate Blanco">
+              Ganache Chocolate Blanco
+            </option>
           </select>
           <p>Número de Porciones</p>
           <select
-            className="inputPortionsCake"
+            className="inputPortionsCupcake"
             name="portions"
             {...register("portions")}
             required
@@ -87,77 +121,19 @@ export default function Cakeprice() {
             <option value="200">200 porciones</option>
             <option value="200+">200+ especificar en comentarios</option>
           </select>
-          <p>Número de Niveles</p>
-          <select
-            className="inputLevelsCake"
-            name="levels"
-            {...register("levels")}
-            required
-          >
-            <option value="">Selecciona el número de niveles</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="5+">5+ especificar en comentarios</option>
-          </select>
-          <p>Sabor del Relleno</p>
-          <select
-            className="inputStuffedFlavorCake"
-            name="stuffedFlavor"
-            {...register("stuffedFlavor")}
-            required
-          >
-            <option value="">Selecciona el Sabor de Relleno</option>
-            <option value="Buttercream Vainilla">Buttercream Vainilla</option>
-            <option value="Buttercream chocolate">Buttercream chocolate</option>
-            <option value="Ganache Chocolate semiamargo">
-              Ganache Chocolate semiamargo
-            </option>
-            <option value="Ganache Chocolate Blanco">
-              Ganache Chocolate Blanco
-            </option>
-            <option value="Mermelada de Blueberry y LemonCurd">
-              Mermelada de Blueberry y LemonCurd
-            </option>
-            <option value="Queso Crema">Queso Crema </option>
-            <option value="Mermelada de Frambuesa">
-              Mermelada de Frambuesa
-            </option>
-            <option value="Mermelada de Maracuya">Mermelada de Maracuya</option>
-          </select>
-          <p>Cobertura</p>
-          <select
-            className="inputCoverCake"
-            name="cover"
-            {...register("cover")}
-            required
-          >
-            <option value="">Selecciona la cobertura</option>
-            <option value="Buttercream vainilla">Buttercream vainilla</option>
-            <option value="Buttercream chocolate">Buttercream chocolate</option>
-            <option value="Ganache Chocolate Semiamargo">
-              Ganache Chocolate Semiamargo
-            </option>
-            <option value="Ganache Chocolate Blanco">
-              Ganache Chocolate Blanco
-            </option>
-          </select>
           <label>
             <input
-              className="inputDeliveryCake"
+              className="inputDeliveryCupcake"
               type="checkbox"
               name="delivery"
               {...register("delivery")}
               onChange={(e) => setIsDelivery(e.target.checked)}
             />
-            ¿Requiere Envío?
+            ¿Requiere Envio?
           </label>
-
           <p>Lugar de entrega</p>
           <input
-            className="inputDeliveryAdressCake"
+            className="inputDeliveryAdressCupcake"
             type="text"
             name="deliveryAdress"
             placeholder="Calle, número y colonia"
@@ -166,7 +142,7 @@ export default function Cakeprice() {
           />
           <label>
             <input
-              className="inputFondantCoverCake"
+              className="inputFondantCoverCupcake"
               type="checkbox"
               name="fondantCover"
               {...register("fondantCover")}
@@ -175,48 +151,21 @@ export default function Cakeprice() {
           </label>
           <p>Fecha y hora del evento</p>
           <input
-            className="inputDeliveryDateCake"
+            className="inputDeliveryDateCupcake"
             type="datetime-local"
             name="deliveryDate"
             {...register("deliveryDate")}
             required
           />
         </div>
-
         <div>
           <p>
-            Elige las opciones de decoración que te gustaría que tenga tu pastel
+            Elige las opciones de decoración que te gustaría que tengan tus
+            Cupcakes
           </p>
           <label>
             <input
-              className="inputButtercreamCake"
-              type="checkbox"
-              name="buttercream"
-              {...register("buttercream")}
-            />
-            Cobertura Buttercream(betun con base en mantequilla)
-          </label>
-          <label>
-            <input
-              className="inputGanacheCake"
-              type="checkbox"
-              name="ganache"
-              {...register("ganache")}
-            />
-            Cobertura Ganache Base de Chocolate
-          </label>
-          <label>
-            <input
-              className="inputFondantCake"
-              type="checkbox"
-              name="fondant"
-              {...register("fondant")}
-            />
-            Forrado de Fondant
-          </label>
-          <label>
-            <input
-              className="inputFondantDrawCake"
+              className="inputDondantDrawCupcake"
               type="checkbox"
               name="fondantDraw"
               {...register("fondantDraw")}
@@ -225,7 +174,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputbuttercreamDrawCake"
+              className="inputButtercreamDrawCupcake"
               type="checkbox"
               name="buttercreamDraw"
               {...register("buttercreamDraw")}
@@ -234,7 +183,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputNaturalFlowersCake"
+              className="inputNaturalFlowersCupcake"
               type="checkbox"
               name="naturalFlowers"
               {...register("naturalFlowers")}
@@ -243,7 +192,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputSignCake"
+              className="inputNaturalSignCupcake"
               type="checkbox"
               name="sign"
               {...register("sign")}
@@ -252,7 +201,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputEatablePrintCake"
+              className="inputNaturalEatablePrintCupcake"
               type="checkbox"
               name="eatablePrint"
               {...register("eatablePrint")}
@@ -261,36 +210,26 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputSugarcharacter3dCake"
+              className="inputNaturalSprinklesCupcake"
               type="checkbox"
-              name="sugarcharacter3d"
-              {...register("sugarcharacter3d")}
+              name="sprinkles"
+              {...register("sprinkles")}
             />
-            Personajes modelados de azúcar
-          </label>
-          <label>
-            <input
-              className="inputCharacterCake"
-              type="checkbox"
-              name="character"
-              {...register("character")}
-            />
-            Pastel 3d de un personaje
+            Sprinkles
           </label>
           <p>Otros</p>
           <input
-            className="inputOtherCake"
+            className="inputOtherCupcake"
             type="text"
             name="other"
             {...register("other")}
           />
         </div>
-
         <div>
           <p>
             Por favor, sube imágenes de inspiración (ligas), como la temática,
-            los elementos que te gustaría ver en el pastel, la paleta de colores
-            u otras preferencias.
+            los elementos que te gustaría ver en la mesa de postres, la paleta
+            de colores u otras preferencias.
           </p>
           <p>
             Esto nos ayudará a crear un diseño personalizado para ti. Puedes
@@ -348,7 +287,7 @@ export default function Cakeprice() {
             {...register("questionsOrComments")}
           />
         </div>
-        <button className="btnSubmitCake"> Cotizar Pastel </button>
+        <button className="btnSubmitSnack"> Cotizar Cupcakes </button>
       </form>
     </main>
   );
