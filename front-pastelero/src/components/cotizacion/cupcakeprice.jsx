@@ -6,32 +6,42 @@ export default function Cupcakeprice() {
   const [isDelivery, setIsDelivery] = useState(false);
 
   async function onSubmit(data) {
-    const response = await fetch("http://localhost:3001/pricecupcake", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        flavorBizcocho: data.flavorBizcocho,
-        stuffedFlavor: data.stuffedFlavor,
-        cover: data.cover,
-        portions: data.portions,
-        delivery: data.delivery,
-        deliveryAdress: data.deliveryAdress,
-        fondantCover: data.fondantCover,
-        deliveryDate: data.deliveryDate,
-        fondantDraw: data.fondantDraw,
-        buttercreamDraw: data.buttercreamDraw,
-        naturalFlowers: data.naturalFlowers,
-        sign: data.sign,
-        eatablePrint: data.eatablePrint,
-        sprinkles: data.sprinkles,
-        other: data.other,
-        image: data.image,
-        budget: data.budget,
-        contactName: data.contactName,
-        contactPhone: data.contactPhone,
-        questionsOrComments: data.questionsOrComments,
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:3001/pricecupcake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          flavorBizcocho: data.flavorBizcocho,
+          stuffedFlavor: data.stuffedFlavor,
+          cover: data.cover,
+          portions: data.portions,
+          delivery: data.delivery,
+          deliveryAdress: data.deliveryAdress,
+          fondantCover: data.fondantCover,
+          deliveryDate: data.deliveryDate,
+          fondantDraw: data.fondantDraw,
+          buttercreamDraw: data.buttercreamDraw,
+          naturalFlowers: data.naturalFlowers,
+          sign: data.sign,
+          eatablePrint: data.eatablePrint,
+          sprinkles: data.sprinkles,
+          other: data.other,
+          image: data.image,
+          budget: data.budget,
+          contactName: data.contactName,
+          contactPhone: data.contactPhone,
+          questionsOrComments: data.questionsOrComments,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const json = await response.json();
+      console.log("Response data:", json);
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
   }
 
   return (
@@ -56,7 +66,6 @@ export default function Cupcakeprice() {
           <p>Relleno</p>
           <select
             className="inputStuffedFlavorCupcake"
-            name="stuffedFlavor"
             {...register("stuffedFlavor")}
             required
           >
@@ -75,12 +84,7 @@ export default function Cupcakeprice() {
             <option value="mermelada de Maracuya">Mermelada de Maracuya</option>
           </select>
           <p>Cobertura</p>
-          <select
-            className="inputCoverCupcake"
-            name="cover"
-            {...register("cover")}
-            required
-          >
+          <select className="inputCoverCupcake" {...register("cover")} required>
             <option value="">Selecciona la cobertura</option>
             <option value="Buttercream vainilla">Buttercream vainilla</option>
             <option value="Buttercream chocolate">Buttercream chocolate</option>
@@ -94,7 +98,6 @@ export default function Cupcakeprice() {
           <p>Número de Porciones</p>
           <select
             className="inputPortionsCupcake"
-            name="portions"
             {...register("portions")}
             required
           >
@@ -125,7 +128,6 @@ export default function Cupcakeprice() {
             <input
               className="inputDeliveryCupcake"
               type="checkbox"
-              name="delivery"
               {...register("delivery")}
               onChange={(e) => setIsDelivery(e.target.checked)}
             />
@@ -135,7 +137,6 @@ export default function Cupcakeprice() {
           <input
             className="inputDeliveryAdressCupcake"
             type="text"
-            name="deliveryAdress"
             placeholder="Calle, número y colonia"
             {...register("deliveryAdress")}
             disabled={!isDelivery}
@@ -144,7 +145,6 @@ export default function Cupcakeprice() {
             <input
               className="inputFondantCoverCupcake"
               type="checkbox"
-              name="fondantCover"
               {...register("fondantCover")}
             />
             Forrado de Fondant
@@ -153,7 +153,6 @@ export default function Cupcakeprice() {
           <input
             className="inputDeliveryDateCupcake"
             type="datetime-local"
-            name="deliveryDate"
             {...register("deliveryDate")}
             required
           />
@@ -167,7 +166,6 @@ export default function Cupcakeprice() {
             <input
               className="inputDondantDrawCupcake"
               type="checkbox"
-              name="fondantDraw"
               {...register("fondantDraw")}
             />
             Dibujo a mano en Fondant
@@ -176,7 +174,6 @@ export default function Cupcakeprice() {
             <input
               className="inputButtercreamDrawCupcake"
               type="checkbox"
-              name="buttercreamDraw"
               {...register("buttercreamDraw")}
             />
             Dibujo en Buttercream
@@ -185,7 +182,6 @@ export default function Cupcakeprice() {
             <input
               className="inputNaturalFlowersCupcake"
               type="checkbox"
-              name="naturalFlowers"
               {...register("naturalFlowers")}
             />
             Flores naturales
@@ -194,7 +190,6 @@ export default function Cupcakeprice() {
             <input
               className="inputNaturalSignCupcake"
               type="checkbox"
-              name="sign"
               {...register("sign")}
             />
             Letrero
@@ -203,7 +198,6 @@ export default function Cupcakeprice() {
             <input
               className="inputNaturalEatablePrintCupcake"
               type="checkbox"
-              name="eatablePrint"
               {...register("eatablePrint")}
             />
             Impresion comestible
@@ -212,7 +206,6 @@ export default function Cupcakeprice() {
             <input
               className="inputNaturalSprinklesCupcake"
               type="checkbox"
-              name="sprinkles"
               {...register("sprinkles")}
             />
             Sprinkles
@@ -221,7 +214,6 @@ export default function Cupcakeprice() {
           <input
             className="inputOtherCupcake"
             type="text"
-            name="other"
             {...register("other")}
           />
         </div>
@@ -238,7 +230,6 @@ export default function Cupcakeprice() {
           <input
             className="inputImageCake"
             type="text"
-            name="image"
             placeholder="Copia aquí la url de la imagen a subir"
             required
             {...register("image")}
@@ -252,7 +243,6 @@ export default function Cupcakeprice() {
           <input
             className="inputBudgetrCake"
             type="text"
-            name="budget"
             {...register("budget")}
           />
         </div>
@@ -262,7 +252,6 @@ export default function Cupcakeprice() {
           <input
             className="inputContactNameCake"
             type="text"
-            name="contactName"
             placeholder="Escribe tu nombre"
             required
             {...register("contactName")}
@@ -271,7 +260,6 @@ export default function Cupcakeprice() {
           <input
             className="inputContactPhoneCake"
             type="text"
-            name="contactPhone"
             placeholder="000-000-0000"
             required
             {...register("contactPhone")}
@@ -283,7 +271,6 @@ export default function Cupcakeprice() {
           <input
             className="inputQuestionsOrCommentsCake"
             type="text"
-            name="questionsOrComments"
             {...register("questionsOrComments")}
           />
         </div>
