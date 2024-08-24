@@ -2,12 +2,15 @@ import { useState } from "react";
 import Cakeprice from "../../src/components/cotizacion/cakeprice";
 import Snackprice from "@/src/components/cotizacion/snackprice";
 import Cupcakeprice from "@/src/components/cotizacion/cupcakeprice";
+import NavbarAdmin from "@/src/components/navbar";
+import WebFooter from "@/src/components/WebFooter";
 
 export default function Price() {
   const [selectedProduct, setSelectedProduct] = useState("");
 
   return (
     <main>
+      <NavbarAdmin />
       <h1>Solicitar cotización</h1>
       <p>
         Le pedimos que complete cada campo con la mayor cantidad de detalles
@@ -52,6 +55,8 @@ export default function Price() {
       {selectedProduct === "cake" && <Cakeprice />}
       {selectedProduct === "snack" && <Snackprice />}
       {selectedProduct === "cupcake" && <Cupcakeprice />}
+
+      <WebFooter />
     </main>
   );
 }

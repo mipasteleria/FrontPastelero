@@ -29,13 +29,14 @@ export default function Home() {
               Horneando Recuerdos
             </h1>
             <p className="text-center text-lg my-6">
-              ¿Cuántos de tus recuerdos más preciados incluyen un delicioso pastel? 
-              En nuestra pastelería, ofrecemos calidad y personalización en cada pastel. 
-              Visita nuestra galería para admirar nuestros diseños y descubrir la calidad que 
-              nos distingue. <br /> ¡Convierte tus momentos especiales en experiencias inolvidables!
+              ¿Cuántos de tus recuerdos más preciados incluyen un delicioso
+              pastel? En nuestra pastelería, ofrecemos calidad y personalización
+              en cada pastel. Visita nuestra galería para admirar nuestros
+              diseños y descubrir la calidad que nos distingue. <br />{" "}
+              ¡Convierte tus momentos especiales en experiencias inolvidables!
             </p>
             <div className="flex flex-col gap-4 justify-center items-center">
-              <Link href="/enduser/solicitarcotizacion">
+              <Link href="/cotizacion">
                 <button className="bg-primary font-bold p-6 px-8 rounded-md shadow-lg w-72">
                   ¡COTIZA HOY MISMO!
                 </button>
@@ -106,15 +107,14 @@ export default function Home() {
               Conócenos
             </h2>
             <p className="text-center text-lg my-4">
-              ¡Bienvenidos a Pastelería El Ruiseñor! Nos encanta añadir ese toque dulce a tus eventos 
-              y ocasiones especiales con diseños personalizados que se adaptan a tus necesidades. 
-              Estamos ubicados en el hermoso Guadalajara, Jalisco.
+              ¡Bienvenidos a Pastelería El Ruiseñor! Nos encanta añadir ese
+              toque dulce a tus eventos y ocasiones especiales con diseños
+              personalizados que se adaptan a tus necesidades. Estamos ubicados
+              en el hermoso Guadalajara, Jalisco.
             </p>
             <div className="text-center my-10">
               <Link href="/enduser/conocenos#preguntasfrecuentes">
-                <button className="italic">
-                  Leer más...
-                </button>
+                <button className="italic">Leer más...</button>
               </Link>
             </div>
           </div>
