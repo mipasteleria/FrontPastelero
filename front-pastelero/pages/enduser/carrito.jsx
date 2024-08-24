@@ -8,6 +8,35 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Carrito() {
+  const handleClick = async (event) => {
+    try {
+      const response = await fetch('/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error en la solicitud de creación de sesión de pago');
+      }
+
+      const session = await response.json();
+      const stripe = Stripe('your-publishable-key-here');
+
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      });
+
+      if (error) {
+        console.error("Error al redirigir al checkout:", error);
+      }
+    } catch (error) {
+      console.error("Error en el proceso de checkout:", error);
+    }
+  };
+
   return (
     <div className={`min-h-screen flex flex-col ${poppins.className}`}>
       <NavbarAdmin />
@@ -68,11 +97,13 @@ export default function Carrito() {
           que el horario de atención es de lunes a viernes de 9 am a 6 pm.
         </p>
         <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
-          <Link href="/enduser/pasarela">
-          <button type="button" onClick={handleClick}>
-               Pagar
+          <button 
+            className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56" 
+            type="button" 
+            onClick={handleClick}
+          >
+            Pagar
           </button>
-          </Link>
           
           <Link href="/enduser/carrito">
             <button className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
@@ -85,3 +116,4 @@ export default function Carrito() {
     </div>
   );
 }
+
