@@ -6,35 +6,46 @@ export default function Snackprice() {
   const [isDelivery, setIsDelivery] = useState(false);
 
   async function onSubmit(data) {
-    const response = await fetch("http://localhost:3001/pricesnack", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        people: data.people,
-        portionsPerPerson: data.portionsPerPerson,
-        delivery: data.delivery,
-        deliveryAdress: data.deliveryAdress,
-        deliveryDate: data.deliveryDate,
-        pay: data.pay,
-        brownie: data.brownie,
-        coockie: data.coockie,
-        alfajores: data.alfajores,
-        macaroni: data.macaroni,
-        donuts: data.donuts,
-        lollipops: data.lollipops,
-        cupcakes: data.cupcakes,
-        bread: data.bread,
-        tortaFruts: data.tortaFruts,
-        americanCoockies: data.americanCoockies,
-        tortaApple: data.tortaApple,
-        other: data.other,
-        image: data.image,
-        budget: data.budget,
-        contactName: data.contactName,
-        contactPhone: data.contactPhone,
-        questionsOrComments: data.questionsOrComments,
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:3001/pricesnack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          people: data.people,
+          portionsPerPerson: data.portionsPerPerson,
+          delivery: data.delivery,
+          deliveryAdress: data.deliveryAdress,
+          deliveryDate: data.deliveryDate,
+          pay: data.pay,
+          brownie: data.brownie,
+          coockie: data.coockie,
+          alfajores: data.alfajores,
+          macaroni: data.macaroni,
+          donuts: data.donuts,
+          lollipops: data.lollipops,
+          cupcakes: data.cupcakes,
+          bread: data.bread,
+          tortaFruts: data.tortaFruts,
+          americanCoockies: data.americanCoockies,
+          tortaApple: data.tortaApple,
+          other: data.other,
+          image: data.image,
+          budget: data.budget,
+          contactName: data.contactName,
+          contactPhone: data.contactPhone,
+          questionsOrComments: data.questionsOrComments,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const json = await response.json();
+      console.log("Response data:", json);
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
   }
 
   return (
@@ -42,12 +53,7 @@ export default function Snackprice() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <p>Número de Personas</p>
-          <select
-            className="inputPeopleSnack"
-            name="people"
-            {...register("people")}
-            required
-          >
+          <select className="inputPeopleSnack" {...register("people")} required>
             <option value="">Selecciona el número de personas</option>
             <option value="30">30 personas,</option>
             <option value="40">40 personas,</option>
@@ -64,7 +70,6 @@ export default function Snackprice() {
           <p>Número de Postres por Persona</p>
           <select
             className="inputPortionsPerPersonSnack"
-            name="portionsPerPerson"
             {...register("portionsPerPerson")}
             required
           >
@@ -85,7 +90,6 @@ export default function Snackprice() {
             <input
               className="inputDeliverySnack"
               type="checkbox"
-              name="delivery"
               {...register("delivery")}
               onChange={(e) => setIsDelivery(e.target.checked)}
             />
@@ -95,7 +99,6 @@ export default function Snackprice() {
           <input
             className="inputDeliveryAdressSnack"
             type="text"
-            name="deliveryAdress"
             placeholder="Calle, número y colonia"
             {...register("deliveryAdress")}
             disabled={!isDelivery}
@@ -104,7 +107,6 @@ export default function Snackprice() {
           <input
             className="inputDeliveryDateSnack"
             type="datetime-local"
-            name="deliveryDate"
             {...register("deliveryDate")}
             required
           />
@@ -115,7 +117,6 @@ export default function Snackprice() {
             <input
               className="inputPaySnack"
               type="checkbox"
-              name="pay"
               {...register("pay")}
             />
             Pay de Queso
@@ -124,7 +125,6 @@ export default function Snackprice() {
             <input
               className="inputBrownieSnack"
               type="checkbox"
-              name="brownie"
               {...register("brownie")}
             />
             Brownie
@@ -133,7 +133,6 @@ export default function Snackprice() {
             <input
               className="inputCoockieSnack"
               type="checkbox"
-              name="coockie"
               {...register("coockie")}
             />
             Galletas Decoradas
@@ -142,7 +141,6 @@ export default function Snackprice() {
             <input
               className="inputAlfajoresSnack"
               type="checkbox"
-              name="alfajores"
               {...register("alfajores")}
             />
             Alfajores
@@ -151,7 +149,6 @@ export default function Snackprice() {
             <input
               className="inputMacaroniSnack"
               type="checkbox"
-              name="macaroni"
               {...register("macaroni")}
             />
             Macarrones
@@ -160,7 +157,6 @@ export default function Snackprice() {
             <input
               className="inputDonutsiSnack"
               type="checkbox"
-              name="donuts"
               {...register("donuts")}
             />
             Donas
@@ -169,7 +165,6 @@ export default function Snackprice() {
             <input
               className="inputLollipopssiSnack"
               type="checkbox"
-              name="lollipops"
               {...register("lollipops")}
             />
             Paletas Magnum
@@ -178,7 +173,6 @@ export default function Snackprice() {
             <input
               className="inputCupcakesSnack"
               type="checkbox"
-              name="cupcakes"
               {...register("cupcakes")}
             />
             Cupcakes
@@ -187,7 +181,6 @@ export default function Snackprice() {
             <input
               className="inputBreadSnack"
               type="checkbox"
-              name="bread"
               {...register("bread")}
             />
             Pan de Naranja
@@ -196,7 +189,6 @@ export default function Snackprice() {
             <input
               className="inputTortaFrutsSnack"
               type="checkbox"
-              name="tortaFruts"
               {...register("tortaFruts")}
             />
             Torta de Frutas
@@ -205,7 +197,6 @@ export default function Snackprice() {
             <input
               className="inputAmericanCoockiesSnack"
               type="checkbox"
-              name="americanCoockies"
               {...register("americanCoockies")}
             />
             Galletas Americanas
@@ -214,7 +205,6 @@ export default function Snackprice() {
             <input
               className="inputTortaAppleSnack"
               type="checkbox"
-              name="tortaApple"
               {...register("tortaApple")}
             />
             Torta de Manzana
@@ -223,7 +213,6 @@ export default function Snackprice() {
           <input
             className="inputOtherSnack"
             type="text"
-            name="other"
             {...register("other")}
           />
         </div>
@@ -238,9 +227,8 @@ export default function Snackprice() {
             subir hasta 5 imágenes de hasta 10MB cada una.
           </p>
           <input
-            className="inputImageCake"
+            className="inputImageSnack"
             type="text"
-            name="image"
             placeholder="Copia aquí la url de la imagen a subir"
             required
             {...register("image")}
@@ -250,30 +238,28 @@ export default function Snackprice() {
             pedido? Nos sería de gran ayuda conocer la cantidad que tienes en
             mente.
           </p>
-          <p>Presupuesto deseado</p>
           <input
-            className="inputBudgetrCake"
+            className="inputBudgetSnack"
             type="text"
-            name="budget"
+            placeholder="Ingrese una cantidad"
             {...register("budget")}
+            required
           />
         </div>
         <p>Información de contacto</p>
         <div>
           <p>Nombre</p>
           <input
-            className="inputContactNameCake"
+            className="inputContactNameSnack"
             type="text"
-            name="contactName"
             placeholder="Escribe tu nombre"
             required
             {...register("contactName")}
           />
           <p>Número de celular</p>
           <input
-            className="inputContactPhoneCake"
+            className="inputContactPhoneSnack"
             type="text"
-            name="contactPhone"
             placeholder="000-000-0000"
             required
             {...register("contactPhone")}
@@ -283,9 +269,8 @@ export default function Snackprice() {
             tematica, nos especializamos en diseñar dulsuras a la medida
           </p>
           <input
-            className="inputQuestionsOrCommentsCake"
+            className="inputQuestionsOrCommentsSnack"
             type="text"
-            name="questionsOrComments"
             {...register("questionsOrComments")}
           />
         </div>

@@ -6,37 +6,47 @@ export default function Cakeprice() {
   const [isDelivery, setIsDelivery] = useState(false);
 
   async function onSubmit(data) {
-    const response = await fetch("http://localhost:3001/pricecake", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        flavor: data.flavor,
-        levels: data.levels,
-        portions: data.portions,
-        delivery: data.delivery,
-        stuffedFlavor: data.stuffedFlavor,
-        cover: data.cover,
-        deliveryAdress: data.deliveryAdress,
-        fondantCover: data.fondantCover,
-        deliveryDate: data.deliveryDate,
-        buttercream: data.buttercream,
-        ganache: data.ganache,
-        fondant: data.fondant,
-        fondantDraw: data.fondantDraw,
-        buttercreamDraw: data.buttercreamDraw,
-        naturalFlowers: data.naturalFlowers,
-        sign: data.sign,
-        eatablePrint: data.eatablePrint,
-        sugarcharacter3d: data.sugarcharacter3d,
-        character: data.character,
-        other: data.other,
-        image: data.image,
-        budget: data.budget,
-        contactName: data.contactName,
-        contactPhone: data.contactPhone,
-        questionsOrComments: data.questionsOrComments,
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:3001/pricecake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          flavor: data.flavor,
+          levels: data.levels,
+          portions: data.portions,
+          delivery: data.delivery,
+          stuffedFlavor: data.stuffedFlavor,
+          cover: data.cover,
+          deliveryAdress: data.deliveryAdress,
+          fondantCover: data.fondantCover,
+          deliveryDate: data.deliveryDate,
+          buttercream: data.buttercream,
+          ganache: data.ganache,
+          fondant: data.fondant,
+          fondantDraw: data.fondantDraw,
+          buttercreamDraw: data.buttercreamDraw,
+          naturalFlowers: data.naturalFlowers,
+          sign: data.sign,
+          eatablePrint: data.eatablePrint,
+          sugarcharacter3d: data.sugarcharacter3d,
+          character: data.character,
+          other: data.other,
+          image: data.image,
+          budget: data.budget,
+          contactName: data.contactName,
+          contactPhone: data.contactPhone,
+          questionsOrComments: data.questionsOrComments,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const json = await response.json();
+      console.log("Response data:", json);
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
   }
 
   return (
@@ -44,12 +54,7 @@ export default function Cakeprice() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <p>Sabor del bizocho</p>
-          <select
-            className="inputFlavorCake"
-            name="flavor"
-            {...register("flavor")}
-            required
-          >
+          <select className="inputFlavorCake" {...register("flavor")} required>
             <option value="">Selecciona un sabor</option>
             <option value="vainilla">Bizcocho de vainilla</option>
             <option value="chocolate">Bizcocho de chocolate</option>
@@ -60,7 +65,6 @@ export default function Cakeprice() {
           <p>Número de Porciones</p>
           <select
             className="inputPortionsCake"
-            name="portions"
             {...register("portions")}
             required
           >
@@ -88,12 +92,7 @@ export default function Cakeprice() {
             <option value="200+">200+ especificar en comentarios</option>
           </select>
           <p>Número de Niveles</p>
-          <select
-            className="inputLevelsCake"
-            name="levels"
-            {...register("levels")}
-            required
-          >
+          <select className="inputLevelsCake" {...register("levels")} required>
             <option value="">Selecciona el número de niveles</option>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -105,7 +104,6 @@ export default function Cakeprice() {
           <p>Sabor del Relleno</p>
           <select
             className="inputStuffedFlavorCake"
-            name="stuffedFlavor"
             {...register("stuffedFlavor")}
             required
           >
@@ -128,12 +126,7 @@ export default function Cakeprice() {
             <option value="Mermelada de Maracuya">Mermelada de Maracuya</option>
           </select>
           <p>Cobertura</p>
-          <select
-            className="inputCoverCake"
-            name="cover"
-            {...register("cover")}
-            required
-          >
+          <select className="inputCoverCake" {...register("cover")} required>
             <option value="">Selecciona la cobertura</option>
             <option value="Buttercream vainilla">Buttercream vainilla</option>
             <option value="Buttercream chocolate">Buttercream chocolate</option>
@@ -148,7 +141,6 @@ export default function Cakeprice() {
             <input
               className="inputDeliveryCake"
               type="checkbox"
-              name="delivery"
               {...register("delivery")}
               onChange={(e) => setIsDelivery(e.target.checked)}
             />
@@ -159,7 +151,6 @@ export default function Cakeprice() {
           <input
             className="inputDeliveryAdressCake"
             type="text"
-            name="deliveryAdress"
             placeholder="Calle, número y colonia"
             {...register("deliveryAdress")}
             disabled={!isDelivery}
@@ -168,7 +159,6 @@ export default function Cakeprice() {
             <input
               className="inputFondantCoverCake"
               type="checkbox"
-              name="fondantCover"
               {...register("fondantCover")}
             />
             Forrado de Fondant
@@ -177,7 +167,6 @@ export default function Cakeprice() {
           <input
             className="inputDeliveryDateCake"
             type="datetime-local"
-            name="deliveryDate"
             {...register("deliveryDate")}
             required
           />
@@ -191,7 +180,6 @@ export default function Cakeprice() {
             <input
               className="inputButtercreamCake"
               type="checkbox"
-              name="buttercream"
               {...register("buttercream")}
             />
             Cobertura Buttercream(betun con base en mantequilla)
@@ -200,7 +188,6 @@ export default function Cakeprice() {
             <input
               className="inputGanacheCake"
               type="checkbox"
-              name="ganache"
               {...register("ganache")}
             />
             Cobertura Ganache Base de Chocolate
@@ -209,7 +196,6 @@ export default function Cakeprice() {
             <input
               className="inputFondantCake"
               type="checkbox"
-              name="fondant"
               {...register("fondant")}
             />
             Forrado de Fondant
@@ -218,7 +204,6 @@ export default function Cakeprice() {
             <input
               className="inputFondantDrawCake"
               type="checkbox"
-              name="fondantDraw"
               {...register("fondantDraw")}
             />
             Dibujo a mano en Fondant
@@ -227,7 +212,6 @@ export default function Cakeprice() {
             <input
               className="inputbuttercreamDrawCake"
               type="checkbox"
-              name="buttercreamDraw"
               {...register("buttercreamDraw")}
             />
             Dibujo en Buttercream
@@ -236,7 +220,6 @@ export default function Cakeprice() {
             <input
               className="inputNaturalFlowersCake"
               type="checkbox"
-              name="naturalFlowers"
               {...register("naturalFlowers")}
             />
             Flores naturales
@@ -245,7 +228,6 @@ export default function Cakeprice() {
             <input
               className="inputSignCake"
               type="checkbox"
-              name="sign"
               {...register("sign")}
             />
             Letrero
@@ -254,7 +236,6 @@ export default function Cakeprice() {
             <input
               className="inputEatablePrintCake"
               type="checkbox"
-              name="eatablePrint"
               {...register("eatablePrint")}
             />
             Impresion comestible
@@ -263,7 +244,6 @@ export default function Cakeprice() {
             <input
               className="inputSugarcharacter3dCake"
               type="checkbox"
-              name="sugarcharacter3d"
               {...register("sugarcharacter3d")}
             />
             Personajes modelados de azúcar
@@ -272,7 +252,6 @@ export default function Cakeprice() {
             <input
               className="inputCharacterCake"
               type="checkbox"
-              name="character"
               {...register("character")}
             />
             Pastel 3d de un personaje
@@ -281,7 +260,6 @@ export default function Cakeprice() {
           <input
             className="inputOtherCake"
             type="text"
-            name="other"
             {...register("other")}
           />
         </div>
@@ -299,7 +277,6 @@ export default function Cakeprice() {
           <input
             className="inputImageCake"
             type="text"
-            name="image"
             placeholder="Copia aquí la url de la imagen a subir"
             required
             {...register("image")}
@@ -313,7 +290,6 @@ export default function Cakeprice() {
           <input
             className="inputBudgetrCake"
             type="text"
-            name="budget"
             {...register("budget")}
           />
         </div>
@@ -323,7 +299,6 @@ export default function Cakeprice() {
           <input
             className="inputContactNameCake"
             type="text"
-            name="contactName"
             placeholder="Escribe tu nombre"
             required
             {...register("contactName")}
@@ -332,7 +307,6 @@ export default function Cakeprice() {
           <input
             className="inputContactPhoneCake"
             type="text"
-            name="contactPhone"
             placeholder="000-000-0000"
             required
             {...register("contactPhone")}
@@ -344,7 +318,6 @@ export default function Cakeprice() {
           <input
             className="inputQuestionsOrCommentsCake"
             type="text"
-            name="questionsOrComments"
             {...register("questionsOrComments")}
           />
         </div>
