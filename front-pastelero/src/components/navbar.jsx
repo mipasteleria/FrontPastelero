@@ -103,7 +103,7 @@ const NavbarAdmin = () => {
                     Mis Pedidos
                   </button>
                 </Link>
-                <Link href="/enduser/solicitarcotizacion">
+                <Link href="/cotizacion">
                   <div
                     className={`${
                       poppins.className
@@ -213,7 +213,7 @@ const NavbarAdmin = () => {
                   Log In
                 </button>
               </Link>
-              <Link href="/enduser/solicitarcotizacion">
+              <Link href="/cotizacion">
                 <div
                   className={`${
                     poppins.className
@@ -298,7 +298,7 @@ const NavbarAdmin = () => {
                     LogOut
                   </button>
                 </Link>
-                <Link href="/enduser/solicitarcotizacion">
+                <Link href="/cotizacion">
                   <button
                     className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
                   >
@@ -415,7 +415,7 @@ const NavbarAdmin = () => {
                   Preguntas frecuentes
                 </button>
               </Link>
-              <Link href="/enduser/solicitarcotizacion">
+              <Link href="/cotizacion">
                 <button
                   className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer font-normal`}
                 >
