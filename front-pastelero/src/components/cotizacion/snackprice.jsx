@@ -1,8 +1,12 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import Link from "next/link";
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+  const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
+  const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Snackprice() {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset} = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
 
   async function onSubmit(data) {
@@ -47,13 +51,44 @@ export default function Snackprice() {
       console.error("Error en la solicitud:", error);
     }
   }
-
+  const handleClearFields = () => {
+    reset({
+      people: "",
+      portionsPerPerson: "",
+      delivery: "",
+      deliveryAdress: "",
+      deliveryDate: "",
+      pay: "",
+      brownie: "",
+      coockie: "",
+      alfajores: "",
+      macaroni: "",
+      donuts: "",
+      lollipops: "",
+      cupcakes: "",
+      bread: "",
+      tortaFruts: "",
+      americanCoockies: "",
+      tortaApple: "",
+      other: "",
+      image: "",
+      budget: "",
+      contactName: "",
+      contactPhone: "",
+      questionsOrComments: "",
+    });
+  };
   return (
     <main>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
+      <form onSubmit={handleSubmit(onSubmit)}className={`${poppins.className}`}>
+        <div className="grid grid-cols-1 m-8 md:grid-cols-4 gap-4 text-sm font-medium dark:text-white">
+          {/* Basic request information */}
+          <div className="md:col-span-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Numero de personas */}
+          <div>
           <p>Número de Personas</p>
-          <select className="inputPeopleSnack" {...register("people")} required>
+          <select className="inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5" {...register("people")} required>
             <option value="">Selecciona el número de personas</option>
             <option value="30">30 personas,</option>
             <option value="40">40 personas,</option>
@@ -67,9 +102,12 @@ export default function Snackprice() {
               100+ personas, especificar en comentarios
             </option>
           </select>
+          </div>
+          {/* Postres por persona */}
+          <div>
           <p>Número de Postres por Persona</p>
           <select
-            className="inputPortionsPerPersonSnack"
+            className="inputPortionsPerPersonSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             {...register("portionsPerPerson")}
             required
           >
@@ -86,36 +124,52 @@ export default function Snackprice() {
             <option value="10">10 postres</option>
             <option value="10+">10+ postres especificar en comentarios</option>
           </select>
+          </div>
+          {/* Envio */}
+          <div>
           <label>
             <input
-              className="inputDeliverySnack"
+              className="inputDeliverySnack m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("delivery")}
               onChange={(e) => setIsDelivery(e.target.checked)}
             />
             ¿Requiere Envio?
           </label>
+          </div>
+          {/* Entrega */}
+          <div>
           <p>Lugar de entrega</p>
           <input
-            className="inputDeliveryAdressSnack"
+            className="inputDeliveryAdressSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
             placeholder="Calle, número y colonia"
             {...register("deliveryAdress")}
             disabled={!isDelivery}
           />
+          </div>
+          {/* Fecha */}
+          <div>
           <p>Fecha y hora del evento</p>
           <input
-            className="inputDeliveryDateSnack"
+            className="inputDeliveryDateSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="datetime-local"
             {...register("deliveryDate")}
             required
           />
+          </div>
         </div>
-        <div>
-          <p>Elige los postres que te gustaría incluir en tu mesa</p>
+        </div>
+        </div>
+        {/* Seleccion de postres */}
+        <div className="flex flex-col m-8 bg-rose-50 p-6 mb-6 rounded-lg">
+        <h2 className={`text-xl m-4 ${sofia.className}`}>
+        Elige los postres que te gustaría incluir en tu mesa
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label>
             <input
-              className="inputPaySnack"
+              className="inputPaySnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("pay")}
             />
@@ -123,7 +177,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputBrownieSnack"
+              className="inputBrownieSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("brownie")}
             />
@@ -131,7 +185,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputCoockieSnack"
+              className="inputCoockieSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("coockie")}
             />
@@ -139,7 +193,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputAlfajoresSnack"
+              className="inputAlfajoresSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("alfajores")}
             />
@@ -147,7 +201,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputMacaroniSnack"
+              className="inputMacaroniSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("macaroni")}
             />
@@ -155,7 +209,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputDonutsiSnack"
+              className="inputDonutsiSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("donuts")}
             />
@@ -163,7 +217,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputLollipopssiSnack"
+              className="inputLollipopssiSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("lollipops")}
             />
@@ -171,7 +225,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputCupcakesSnack"
+              className="inputCupcakesSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("cupcakes")}
             />
@@ -179,7 +233,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputBreadSnack"
+              className="inputBreadSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("bread")}
             />
@@ -187,7 +241,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputTortaFrutsSnack"
+              className="inputTortaFrutsSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("tortaFruts")}
             />
@@ -195,7 +249,7 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputAmericanCoockiesSnack"
+              className="inputAmericanCoockiesSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("americanCoockies")}
             />
@@ -203,78 +257,111 @@ export default function Snackprice() {
           </label>
           <label>
             <input
-              className="inputTortaAppleSnack"
+              className="inputTortaAppleSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("tortaApple")}
             />
             Torta de Manzana
           </label>
+          </div>
           <p>Otros</p>
           <input
-            className="inputOtherSnack"
+            className="inputOtherSnack m-2 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
             {...register("other")}
           />
         </div>
+        {/* Imagenes */}
         <div>
-          <p>
+          <p className="my-2 m-6">
             Por favor, sube imágenes de inspiración (ligas), como la temática,
             los elementos que te gustaría ver en la mesa de postres, la paleta
             de colores u otras preferencias.
           </p>
-          <p>
+          <p className="my-2 m-6">
             Esto nos ayudará a crear un diseño personalizado para ti. Puedes
             subir hasta 5 imágenes de hasta 10MB cada una.
           </p>
           <input
-            className="inputImageSnack"
+            className="inputImageSnack m-6 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
             placeholder="Copia aquí la url de la imagen a subir"
             required
             {...register("image")}
           />
+          </div>
+          {/* Presupuesto */}
+          <div className="flex flex-col md:flex-col m-6">
           <p>
             ¿Podrías informarnos si tienes un presupuesto específico para este
             pedido? Nos sería de gran ayuda conocer la cantidad que tienes en
             mente.
           </p>
+          <div className="m-4">
+          <p>Presupuesto deseado</p>
           <input
-            className="inputBudgetSnack"
+            className="inputBudgetrCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
-            placeholder="Ingrese una cantidad"
             {...register("budget")}
-            required
           />
+          </div>
         </div>
-        <p>Información de contacto</p>
-        <div>
+        
+        {/* Informacion de contacto */}
+        <div className="m-6">
+        <h2 className={`text-3xl m-4 ${sofia.className}`}>
+          Información de contacto
+        </h2>
+        <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
+        <div className="m-3">
           <p>Nombre</p>
           <input
-            className="inputContactNameSnack"
+            className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
             type="text"
             placeholder="Escribe tu nombre"
             required
             {...register("contactName")}
           />
+          </div>
+          <div className="m-3">
           <p>Número de celular</p>
           <input
-            className="inputContactPhoneSnack"
+            className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
             type="text"
             placeholder="000-000-0000"
             required
             {...register("contactPhone")}
           />
+          </div>
+          <div className="m-3">
           <p>
             Preguntas o comentarios, platicanos más acerca de tu idea o
             tematica, nos especializamos en diseñar dulsuras a la medida
           </p>
           <input
-            className="inputQuestionsOrCommentsSnack"
+            className="inputQuestionsOrCommentsCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
             type="text"
             {...register("questionsOrComments")}
           />
+          </div>
+          </div>
         </div>
-        <button className="btnSubmitSnack"> Cotizar Mesa de Postres </button>
+        {/* Botones */}
+
+        <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
+        <button
+          type="button"
+          className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
+          onClick={handleClearFields}
+        >
+          Limpiar campos
+        </button>
+        <Link href="/enduser/detallesolicitudcupcake">
+
+          <button className="btnSubmitSnack btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> 
+          Cotizar Mesa de Postres </button>
+        </Link>
+      </div>
       </form>
     </main>
   );
