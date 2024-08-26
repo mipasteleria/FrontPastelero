@@ -1,12 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import Link from "next/link";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
-  const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-  const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Cupcakeprice() {
-  const { register, handleSubmit, reset} = useForm();
+  const { register, handleSubmit } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
 
   async function onSubmit(data) {
@@ -47,42 +43,14 @@ export default function Cupcakeprice() {
       console.error("Error en la solicitud:", error);
     }
   }
-  const handleClearFields = () => {
-    reset({
-      flavorBizcocho: "",
-          stuffedFlavor: "",
-          cover: "",
-          portions: "",
-          delivery: "",
-          deliveryAdress: "",
-          fondantCover: "",
-          deliveryDate: "",
-          fondantDraw: "",
-          buttercreamDraw: "",
-          naturalFlowers: "",
-          sign: "",
-          eatablePrint: "",
-          sprinkles: "",
-          other: "",
-          image: "",
-          budget: "",
-          contactName: "",
-          contactPhone: "",
-          questionsOrComments: "",
-    });
-  };
+
   return (
     <main>
-      <form onSubmit={handleSubmit(onSubmit)}className={`${poppins.className}`}>
-        <div className="grid grid-cols-1 m-8 md:grid-cols-4 gap-4 text-sm font-medium dark:text-white">
-          {/* Basic request information */}
-          <div className="md:col-span-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> 
-          {/* Sabor Cupcake */}
-          <div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div>
           <p>Sabor de Cupcake</p>
           <select
-            className="inputFlavorBizcochoCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputFlavorBizcochoCupcake"
             name="flavorBizcocho"
             {...register("flavorBizcocho")}
             required
@@ -95,12 +63,9 @@ export default function Cupcakeprice() {
             <option value="zanahoria">Zanahoria</option>
             <option value="limon">Limon</option>
           </select>
-          </div>
-          {/* Relleno */}
-          <div>
           <p>Relleno</p>
           <select
-            className="inputStuffedFlavorCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputStuffedFlavorCupcake"
             {...register("stuffedFlavor")}
             required
           >
@@ -118,11 +83,8 @@ export default function Cupcakeprice() {
             </option>
             <option value="mermelada de Maracuya">Mermelada de Maracuya</option>
           </select>
-          </div>
-          {/* Cobertura */}
-          <div>
           <p>Cobertura</p>
-          <select className="inputCoverCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5" {...register("cover")} required>
+          <select className="inputCoverCupcake" {...register("cover")} required>
             <option value="">Selecciona la cobertura</option>
             <option value="Buttercream vainilla">Buttercream vainilla</option>
             <option value="Buttercream chocolate">Buttercream chocolate</option>
@@ -133,96 +95,76 @@ export default function Cupcakeprice() {
               Ganache Chocolate Blanco
             </option>
           </select>
-          </div>
-          {/* Porciones */}
-          <div>
           <p>Número de Porciones</p>
           <select
-            className="inputPortionsCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputPortionsCupcake"
             {...register("portions")}
             required
           >
             <option value="">Selecciona el número de porciones</option>
-            <option value="12">12 porciones</option>
-            <option value="24">24 porciones</option>
-            <option value="36">36 porciones</option>
-            <option value="48">48 porciones</option>
+            <option value="10">10 porciones</option>
+            <option value="20">20 porciones</option>
+            <option value="30">30 porciones</option>
+            <option value="40">40 porciones</option>
+            <option value="50">50 porciones</option>
             <option value="60">60 porciones</option>
-            <option value="72">72 porciones</option>
-            <option value="84">84 porciones</option>
-            <option value="96">96 porciones</option>
-            <option value="108">108 porciones</option>
+            <option value="70">70 porciones</option>
+            <option value="80">80 porciones</option>
+            <option value="90">90 porciones</option>
+            <option value="100">100 porciones</option>
             <option value="110">110 porciones</option>
-            <option value="122">122 porciones</option>
-            <option value="134">134 porciones</option>
-            <option value="146">146 porciones</option>
-            <option value="158">158 porciones</option>
+            <option value="120">120 porciones</option>
+            <option value="130">130 porciones</option>
+            <option value="140">140 porciones</option>
+            <option value="150">150 porciones</option>
+            <option value="160">160 porciones</option>
             <option value="170">170 porciones</option>
-            <option value="182">182 porciones</option>
-            <option value="194">194 porciones</option>
-            <option value="206">206 porciones</option>
-            <option value="218">218 porciones</option>
-            <option value="230">230 porciones</option>
-            <option value="242+">242+ especificar en comentarios</option>
+            <option value="180">180 porciones</option>
+            <option value="190">190 porciones</option>
+            <option value="200">200 porciones</option>
+            <option value="200+">200+ especificar en comentarios</option>
           </select>
-          </div>
-          {/* Envio */}
-          <div>
           <label>
             <input
-              className="inputDeliveryCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="inputDeliveryCupcake"
               type="checkbox"
               {...register("delivery")}
               onChange={(e) => setIsDelivery(e.target.checked)}
             />
             ¿Requiere Envio?
           </label>
-          </div>
-          {/* Entrega */}
-          <div>
           <p>Lugar de entrega</p>
           <input
-            className="inputDeliveryAdressCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputDeliveryAdressCupcake"
             type="text"
             placeholder="Calle, número y colonia"
             {...register("deliveryAdress")}
             disabled={!isDelivery}
           />
-          </div>
-          {/* Fondant */}
-          <div>
           <label>
             <input
-              className="inputFondantCoverCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="inputFondantCoverCupcake"
               type="checkbox"
               {...register("fondantCover")}
             />
             Forrado de Fondant
           </label>
-          </div>
-          {/* Fecha */}
-          <div>
           <p>Fecha y hora del evento</p>
           <input
-            className="inputDeliveryDateCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputDeliveryDateCupcake"
             type="datetime-local"
             {...register("deliveryDate")}
             required
           />
-          </div>
-          </div>
         </div>
-        </div>
-        {/* Decoraciones*/}
-        <div className="flex flex-col m-8 bg-rose-50 p-6 mb-6 rounded-lg">
-        <h2 className={`text-xl m-4 ${sofia.className}`}>
+        <div>
+          <p>
             Elige las opciones de decoración que te gustaría que tengan tus
             Cupcakes
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          </p>
           <label>
             <input
-              className="inputDondantDrawCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="inputDondantDrawCupcake"
               type="checkbox"
               {...register("fondantDraw")}
             />
@@ -230,7 +172,7 @@ export default function Cupcakeprice() {
           </label>
           <label>
             <input
-              className="inputButtercreamDrawCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="inputButtercreamDrawCupcake"
               type="checkbox"
               {...register("buttercreamDraw")}
             />
@@ -238,7 +180,7 @@ export default function Cupcakeprice() {
           </label>
           <label>
             <input
-              className="inputNaturalFlowersCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="inputNaturalFlowersCupcake"
               type="checkbox"
               {...register("naturalFlowers")}
             />
@@ -246,7 +188,7 @@ export default function Cupcakeprice() {
           </label>
           <label>
             <input
-              className="inputNaturalSignCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accentm-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="inputNaturalSignCupcake"
               type="checkbox"
               {...register("sign")}
             />
@@ -254,7 +196,7 @@ export default function Cupcakeprice() {
           </label>
           <label>
             <input
-              className="inputNaturalEatablePrintCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="inputNaturalEatablePrintCupcake"
               type="checkbox"
               {...register("eatablePrint")}
             />
@@ -262,112 +204,78 @@ export default function Cupcakeprice() {
           </label>
           <label>
             <input
-              className="inputNaturalSprinklesCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="inputNaturalSprinklesCupcake"
               type="checkbox"
               {...register("sprinkles")}
             />
             Sprinkles
           </label>
-          </div>
           <p>Otros</p>
           <input
-            className="inputOtherCupcakem-2 m-2 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputOtherCupcake"
             type="text"
             {...register("other")}
           />
         </div>
-        {/* Imagenes */}
         <div>
-          <p className="my-2 m-6">
+          <p>
             Por favor, sube imágenes de inspiración (ligas), como la temática,
             los elementos que te gustaría ver en la mesa de postres, la paleta
             de colores u otras preferencias.
           </p>
-          <p className="my-2 m-6">
+          <p>
             Esto nos ayudará a crear un diseño personalizado para ti. Puedes
             subir hasta 5 imágenes de hasta 10MB cada una.
           </p>
           <input
-            className="inputImageCake m-6 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputImageCake"
             type="text"
             placeholder="Copia aquí la url de la imagen a subir"
             required
             {...register("image")}
           />
-          </div>
-          {/* Presupuesto */}
-          <div className="flex flex-col md:flex-col m-6">
           <p>
             ¿Podrías informarnos si tienes un presupuesto específico para este
             pedido? Nos sería de gran ayuda conocer la cantidad que tienes en
             mente.
           </p>
-          <div className="m-4">
           <p>Presupuesto deseado</p>
           <input
-            className="inputBudgetrCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputBudgetrCake"
             type="text"
             {...register("budget")}
           />
-          </div>
         </div>
-        {/* Informacion de contacto */}
-        <div className="m-6">
-        <h2 className={`text-3xl m-4 ${sofia.className}`}>
-          Información de contacto
-        </h2>
-        <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
-        <div className="m-3">
+        <p>Información de contacto</p>
+        <div>
           <p>Nombre</p>
           <input
-            className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+            className="inputContactNameCake"
             type="text"
             placeholder="Escribe tu nombre"
             required
             {...register("contactName")}
           />
-          </div>
-          <div className="m-3">
           <p>Número de celular</p>
           <input
-            className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+            className="inputContactPhoneCake"
             type="text"
             placeholder="000-000-0000"
             required
             {...register("contactPhone")}
           />
-          </div>
-          <div className="m-3">
           <p>
             Preguntas o comentarios, platicanos más acerca de tu idea o
             tematica, nos especializamos en diseñar dulsuras a la medida
           </p>
           <input
-            className="inputQuestionsOrCommentsCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+            className="inputQuestionsOrCommentsCake"
             type="text"
             {...register("questionsOrComments")}
           />
-          </div>
-          </div>
         </div>
-        {/* Botones */}
-        
-
-        <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
-        <button
-          type="button"
-          className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
-          onClick={handleClearFields}
-        >
-          Limpiar campos
-        </button>
-        <Link href="/enduser/detallesolicitudcupcake">
-
-          <button className="btnSubmitSnack btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> 
-            Cotizar Cupcakes </button>
-        </Link>
-      </div>
-      </form> 
+        <button className="btnSubmitSnack"> Cotizar Cupcakes </button>
+      </form>
     </main>
   );
 }

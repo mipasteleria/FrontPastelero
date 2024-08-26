@@ -1,9 +1,9 @@
 import { useState } from "react";
 import WebFooter from "@/src/components/WebFooter";
 import NavbarAdmin from "@/src/components/navbar";
-import CakeForm from "@/src/components/cotizacion/cakeprice";
-import CupcakeForm from "@/src/components/cotizacion/cupcakeprice";
-import DessertTableForm from "@/src/components/cotizacion/snackprice";
+import CakeForm from "@/src/components/cakeform";
+import CupcakeForm from "@/src/components/cupcakeform";
+import DessertTableForm from "@/src/components/dessertsform";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
@@ -51,9 +51,8 @@ export default function SolicitarCotizacion() {
     <div>
       <NavbarAdmin />
       <main className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}>
-      <h1 className={`text-4xl m-4 ${sofia.className}`}>Solicitar cotización</h1>
-       
-       <p className="m-6">
+        <h1 className={`text-4xl m-4 ${sofia.className}`}>Solicitar cotización</h1>
+        <p className="m-6">
           Le pedimos que complete cada campo con la mayor cantidad de detalles
           posible para acelerar el proceso de cotización. Recuerda que somos es
           una empresa pequeña que realiza pocos pasteles a la semana. Por favor,
@@ -67,9 +66,9 @@ export default function SolicitarCotizacion() {
             <label className={`text-2xl m-4 ${sofia.className}`}>
               Selecciona el producto que deseas cotizar:
             </label>
-            <div className="flex justify-between w-full m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent">
+            <div className="flex justify-between">
               {["cake", "cupcake", "dessertTable"].map(type => (
-                <label key={type} className="mr-4 ">
+                <label key={type} className="mr-4">
                   <input
                     type="radio"
                     name="formType"
