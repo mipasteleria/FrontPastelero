@@ -1,9 +1,14 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-
+import Link from "next/link";
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+  const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
+  const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 export default function Cakeprice() {
-  const { register, handleSubmit } = useForm();
+  
+  const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
+  
 
   async function onSubmit(data) {
     try {
@@ -48,13 +53,46 @@ export default function Cakeprice() {
       console.error("Error en la solicitud:", error);
     }
   }
+  const handleClearFields = () => {
+    reset({
+      flavor: "",
+      levels: "",
+      portions: "",
+      delivery: "",
+      stuffedFlavor: "",
+      cover: "",
+      deliveryAdress: "",
+      fondantCover: "",
+      deliveryDate: "",
+      buttercream: "",
+      ganache: "",
+      fondant: "",
+      fondantDraw: "",
+      buttercreamDraw: "",
+      naturalFlowers: "",
+      sign: "",
+      eatablePrint: "",
+      sugarcharacter3d: "",
+      character: "",
+      other: "",
+      image: "",
+      budget: "",
+      contactName: "",
+      contactPhone: "",
+      questionsOrComments: "",
+    });
+  };
 
   return (
     <main>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
+      <form onSubmit={handleSubmit(onSubmit)}className={`${poppins.className}`}>
+        <div className="grid grid-cols-1 m-8 md:grid-cols-4 gap-4 text-sm font-medium dark:text-white">
+          {/* Basic request information */}
+          <div className="md:col-span-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> 
+            <div>
           <p>Sabor del bizocho</p>
-          <select className="inputFlavorCake" {...register("flavor")} required>
+          <select className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5" {...register("flavor")} required>
             <option value="">Selecciona un sabor</option>
             <option value="vainilla">Bizcocho de vainilla</option>
             <option value="chocolate">Bizcocho de chocolate</option>
@@ -62,9 +100,12 @@ export default function Cakeprice() {
             <option value="Naranja">Bizcocho de naranja</option>
             <option value="Dulce de leche">Bizcocho de dulce de leche</option>
           </select>
+          </div>
+          {/* Porciones */}
+          <div>         
           <p>Número de Porciones</p>
           <select
-            className="inputPortionsCake"
+            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             {...register("portions")}
             required
           >
@@ -91,8 +132,11 @@ export default function Cakeprice() {
             <option value="200">200 porciones</option>
             <option value="200+">200+ especificar en comentarios</option>
           </select>
+          </div>
+          {/* Niveles */}
+          <div>
           <p>Número de Niveles</p>
-          <select className="inputLevelsCake" {...register("levels")} required>
+          <select className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5" {...register("levels")} required>
             <option value="">Selecciona el número de niveles</option>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -101,9 +145,12 @@ export default function Cakeprice() {
             <option value="5">5</option>
             <option value="5+">5+ especificar en comentarios</option>
           </select>
+          </div>
+           {/* Relleno */}
+           <div> 
           <p>Sabor del Relleno</p>
           <select
-            className="inputStuffedFlavorCake"
+            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             {...register("stuffedFlavor")}
             required
           >
@@ -125,8 +172,11 @@ export default function Cakeprice() {
             </option>
             <option value="Mermelada de Maracuya">Mermelada de Maracuya</option>
           </select>
+          </div>
+           {/* Cobertura */}
+           <div>
           <p>Cobertura</p>
-          <select className="inputCoverCake" {...register("cover")} required>
+          <select className="inputCoverCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5" {...register("cover")} required>
             <option value="">Selecciona la cobertura</option>
             <option value="Buttercream vainilla">Buttercream vainilla</option>
             <option value="Buttercream chocolate">Buttercream chocolate</option>
@@ -137,56 +187,77 @@ export default function Cakeprice() {
               Ganache Chocolate Blanco
             </option>
           </select>
+          </div>
+          {/* Envio */}
+          <div>
           <label>
             <input
-              className="inputDeliveryCake"
+              className="inputDeliveryCake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("delivery")}
               onChange={(e) => setIsDelivery(e.target.checked)}
             />
             ¿Requiere Envío?
           </label>
-
+          </div>
+          {/* Entrega */}
+          <div>
           <p>Lugar de entrega</p>
           <input
-            className="inputDeliveryAdressCake"
+            className="inputDeliveryAdressCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
             placeholder="Calle, número y colonia"
             {...register("deliveryAdress")}
             disabled={!isDelivery}
           />
+          </div>
+           {/* Forrado */}
+           <div>
           <label>
             <input
-              className="inputFondantCoverCake"
+              className="inputFondantCoverCake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("fondantCover")}
             />
+            
             Forrado de Fondant
           </label>
+          </div>
+          {/* Fecha y hora */}
+          <div>
           <p>Fecha y hora del evento</p>
           <input
-            className="inputDeliveryDateCake"
+            className="inputDeliveryDateCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="datetime-local"
             {...register("deliveryDate")}
             required
           />
-        </div>
+          </div>
 
+        </div>
+        </div> 
+        </div>
+        {/* Decoraciones */}
         <div>
-          <p>
+        <div className="flex flex-col m-8 bg-rose-50 p-6 mb-6 rounded-lg">
+        <h2 className={`text-xl m-4 ${sofia.className}`}>
             Elige las opciones de decoración que te gustaría que tenga tu pastel
-          </p>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label>
+          
             <input
-              className="inputButtercreamCake"
+              className="inputButtercreamCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("buttercream")}
             />
             Cobertura Buttercream(betun con base en mantequilla)
           </label>
+          
+
           <label>
             <input
-              className="inputGanacheCake"
+              className="inputGanacheCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("ganache")}
             />
@@ -194,7 +265,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputFondantCake"
+              className="inputFondantCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("fondant")}
             />
@@ -202,7 +273,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputFondantDrawCake"
+              className="inputFondantDrawCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("fondantDraw")}
             />
@@ -210,7 +281,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputbuttercreamDrawCake"
+              className="inputbuttercreamDrawCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("buttercreamDraw")}
             />
@@ -218,7 +289,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputNaturalFlowersCake"
+              className="inputNaturalFlowersCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("naturalFlowers")}
             />
@@ -226,7 +297,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputSignCake"
+              className="inputSignCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accentw-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("sign")}
             />
@@ -234,7 +305,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputEatablePrintCake"
+              className="inputEatablePrintCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("eatablePrint")}
             />
@@ -242,7 +313,7 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputSugarcharacter3dCake"
+              className="inputSugarcharacter3dCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("sugarcharacter3d")}
             />
@@ -250,78 +321,113 @@ export default function Cakeprice() {
           </label>
           <label>
             <input
-              className="inputCharacterCake"
+              className="inputCharacterCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("character")}
             />
             Pastel 3d de un personaje
           </label>
+          </div>
           <p>Otros</p>
           <input
-            className="inputOtherCake"
+            className="inputOtherCake m-2 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
             {...register("other")}
           />
+          </div>
+        
         </div>
-
+        {/* Imagenes */}
         <div>
-          <p>
+          <p className="my-2 m-6">
             Por favor, sube imágenes de inspiración (ligas), como la temática,
             los elementos que te gustaría ver en el pastel, la paleta de colores
             u otras preferencias.
           </p>
-          <p>
+          <p className="my-2 m-6">
             Esto nos ayudará a crear un diseño personalizado para ti. Puedes
             subir hasta 5 imágenes de hasta 10MB cada una.
           </p>
           <input
-            className="inputImageCake"
+            className="inputImageCake m-6 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
             placeholder="Copia aquí la url de la imagen a subir"
             required
             {...register("image")}
           />
+          </div>
+          {/* Presupuesto */}
+          <div className="flex flex-col md:flex-col m-6">
           <p>
             ¿Podrías informarnos si tienes un presupuesto específico para este
             pedido? Nos sería de gran ayuda conocer la cantidad que tienes en
             mente.
           </p>
+          <div className="m-4">
           <p>Presupuesto deseado</p>
           <input
-            className="inputBudgetrCake"
+            className="inputBudgetrCake  bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
             {...register("budget")}
           />
+          </div>
         </div>
-        <p>Información de contacto</p>
-        <div>
+        {/* Informacion de contacto */}
+        <div className="m-6">
+        <h2 className={`text-3xl m-4 ${sofia.className}`}>
+          Información de contacto
+        </h2>
+        <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
+          <div className="m-3">
           <p>Nombre</p>
           <input
-            className="inputContactNameCake"
+            className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
             type="text"
             placeholder="Escribe tu nombre"
             required
             {...register("contactName")}
           />
+          </div>
+
+          <div className="m-3">
           <p>Número de celular</p>
           <input
-            className="inputContactPhoneCake"
+            className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
             type="text"
             placeholder="000-000-0000"
             required
             {...register("contactPhone")}
           />
+          </div>
+
+          <div className="m-3">
           <p>
             Preguntas o comentarios, platicanos más acerca de tu idea o
             tematica, nos especializamos en diseñar dulsuras a la medida
           </p>
           <input
-            className="inputQuestionsOrCommentsCake"
+            className="inputQuestionsOrCommentsCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
             type="text"
             {...register("questionsOrComments")}
           />
+          </div>
         </div>
-        <button className="btnSubmitCake"> Cotizar Pastel </button>
+        </div>
+        
+              {/* Botónes para limpiar campos */}
+      <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
+        <button
+          type="button"
+          className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
+          onClick={handleClearFields}
+        >
+          Limpiar campos
+        </button>
+        <Link href="/enduser/detallesolicitudpastel">
+
+          <button className="btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> Cotizar Pastel </button>
+        </Link>
+      </div>
       </form>
     </main>
   );

@@ -104,7 +104,7 @@ const CakeForm = () => {
 
   const handleClearFields = () => {
     setFormData({
-      cakeFlavor: "",
+      flavor: "",
       portions: "",
       levels: "",
       cakeFilling: "",
@@ -121,6 +121,7 @@ const CakeForm = () => {
       eventDate: new Date(),
       eventTime: "09:00",
       userComments: "",
+      
     });
   };
 
