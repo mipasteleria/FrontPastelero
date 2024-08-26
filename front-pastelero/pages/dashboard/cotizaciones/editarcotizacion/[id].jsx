@@ -1,8 +1,8 @@
 import Image from "next/image";
 import NavbarDashboard from "@/src/components/navbardashboard";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
-import DetalleCotizacion from "@/src/components/cotizacionview";
+import EditarCotizacion from "@/src/components/cotizacionedit";
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -33,7 +33,7 @@ export default function Verdetallesolicitud() {
                   />
                 </div>
               </div>
-              <DetalleCotizacion/>
+              <EditarCotizacion/>
             </div>
           </form>
         </main>
