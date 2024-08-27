@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import NavbarDashboard from "@/src/components/navbardashboard";
-import CakeForm from "@/src/components/cakeform";
-import CupcakeForm from "@/src/components/cupcakeform";
-import DessertTableForm from "@/src/components/dessertsform";
+import VerCotizacion from "@/src/components/cotizacionview";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 
@@ -18,11 +16,6 @@ export default function GenerarCotizacion() {
       Unidad: "Porcion",
       PrecioUnidad: 30
     },
-    {
-      Elemento: "Pastel de Chocolate",
-      Unidad: "Porcion",
-      PrecioUnidad: 30
-    }
   ];
   const TrabajoManual = [
     {
@@ -30,11 +23,6 @@ export default function GenerarCotizacion() {
       Unidad: "Porcion",
       PrecioUnidad: 50
     },
-    {
-      Elemento: "Decoracion Sencilla Buttercream",
-      Unidad: "Porcion",
-      PrecioUnidad: 300
-    }
   ];
   const Insumos = [
     {
@@ -42,11 +30,6 @@ export default function GenerarCotizacion() {
       Unidad: "gr",
       PrecioUnidad: 0.5
     },
-    {
-      Elemento: "Licor Naranja",
-      Unidad: "ml",
-      PrecioUnidad: 300
-    }
   ];
 
   const [formData, setFormData] = useState({
@@ -57,7 +40,6 @@ export default function GenerarCotizacion() {
     Extras: ""
   });
 
-  const [selectedForm, setSelectedForm] = useState("cake");
   const [selectedType, setSelectedType] = useState("precargado");
   const [customElement, setCustomElement] = useState({
     Elemento: "",
@@ -185,50 +167,8 @@ export default function GenerarCotizacion() {
               </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Seleccionar tipo de cotización:
-              </label>
-              <div className="flex">
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="formType"
-                    value="cake"
-                    checked={selectedForm === "cake"}
-                    onChange={handleFormSelection}
-                    className="mr-1"
-                  />
-                  Pastel
-                </label>
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="formType"
-                    value="cupcake"
-                    checked={selectedForm === "cupcake"}
-                    onChange={handleFormSelection}
-                    className="mr-1"
-                  />
-                  Cupcake
-                </label>
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="formType"
-                    value="dessertTable"
-                    checked={selectedForm === "dessertTable"}
-                    onChange={handleFormSelection}
-                    className="mr-1"
-                  />
-                  Mesa de postres
-                </label>
-              </div>
-            </div>
+          <VerCotizacion/>
 
-            {selectedForm === "cake" && <CakeForm className="w-3/4 p-4" />}
-            {selectedForm === "cupcake" && <CupcakeForm className="w-3/4 p-4" />}
-            {selectedForm === "dessertTable" && <DessertTableForm className="w-3/4 p-4" />}
           <div>
             <div className="mb-6">
               <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">

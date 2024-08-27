@@ -1,13 +1,18 @@
 import Image from "next/image";
 import NavbarDashboard from "@/src/components/navbardashboard";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
-import DetalleCotizacion from "@/src/components/cotizacionview";
+import VerCotizacion from "@/src/components/cotizacionview";
+import { useRouter } from "next/router";
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Verdetallesolicitud() {
+  const router = useRouter();
+  const { id, source } = router.query;
+
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
       <NavbarDashboard />
@@ -33,7 +38,13 @@ export default function Verdetallesolicitud() {
                   />
                 </div>
               </div>
-              <DetalleCotizacion/>
+              <VerCotizacion/>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => router.push(`/dashboard/cotizaciones/generarcotizacion/${id}?source=${source}&type=${source.toLocaleLowerCase()}`)}
+              >
+                Generar Cotización
+              </button>
             </div>
           </form>
         </main>
