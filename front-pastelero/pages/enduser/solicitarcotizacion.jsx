@@ -1,9 +1,9 @@
 import { useState } from "react";
 import WebFooter from "@/src/components/WebFooter";
 import NavbarAdmin from "@/src/components/navbar";
-import CakeForm from "@/src/components/cakeform";
-import CupcakeForm from "@/src/components/cupcakeform";
-import DessertTableForm from "@/src/components/dessertsform";
+import CakeForm from "@/src/components/cotizacion/cakeprice";
+import CupcakeForm from "@/src/components/cotizacion/cupcakeprice";
+import DessertTableForm from "@/src/components/cotizacion/snackprice";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });

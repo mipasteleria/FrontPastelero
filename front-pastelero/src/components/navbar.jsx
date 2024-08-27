@@ -3,14 +3,16 @@ import { AuthContext } from "../context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const NavbarAdmin = () => {
-  const { isAdmin, isLoggedIn, user } = useContext(AuthContext);
+  const { isAdmin, isLoggedIn, setIsAdmin, setIsLoggedIn, user } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
+  const router = useRouter();
+  
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -35,6 +37,19 @@ const NavbarAdmin = () => {
       document.removeEventListener("click", handleClickOutside);
     };
   }, [dropdownOpen]);
+  const navigate = () => {
+    router.push('/');
+  };
+
+const handleLogout = () => {
+    localStorage.removeItem("token");
+    
+    setIsLoggedIn(false); //actualizar el estado
+    setIsAdmin(false); // Si es aplicable
+    console.log("Token removed successfully!");
+    window.location.reload();
+    router.push("/"); // Redirigir a la página inicio
+  };
 
   return (
     <nav
@@ -88,6 +103,12 @@ const NavbarAdmin = () => {
                 >
                   Dashboard
                 </button>
+                <button
+                className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
               </Link>
             ) : (
               <div className="flex">
@@ -275,6 +296,7 @@ const NavbarAdmin = () => {
           </button>
           {isLoggedIn ? (
             isAdmin ? (
+              <div>
               <Link href="/admin/dashboard">
                 <button
                   className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
@@ -282,6 +304,13 @@ const NavbarAdmin = () => {
                   Dashboard
                 </button>
               </Link>
+              <button
+              className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+            </div>
             ) : (
               <div className="flex flex-col">
                 <Link href="/user/orders">
@@ -294,6 +323,7 @@ const NavbarAdmin = () => {
                 <Link href="/user/orders">
                   <button
                     className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
+                    onClick={handleLogout}                  
                   >
                     LogOut
                   </button>
