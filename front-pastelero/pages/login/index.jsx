@@ -1,22 +1,26 @@
 import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 
+
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+
 
 export default function Login() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
   const router = useRouter();
   const [error, setError] = useState("");
-
+  
+ 
   const onSubmit = async (data) => {
     console.log(data);
     try {
@@ -32,8 +36,12 @@ export default function Login() {
         localStorage.setItem("token", json.token);
         console.log(json.token);
         router.push("/");
-        return;
-      } else {
+        navigate.call
+        reset ()
+        return;   
+      }
+
+      else {
         setError("¡Usuario o contraseña incorrectos!");
       }
     } catch (error) {
@@ -42,12 +50,23 @@ export default function Login() {
     }
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/");
+    }
+  }, [router]);
+  
+  const navigate = () => {
+  router.push('/'); // Cambia la URL a /home
+};
+
   return (
     <main
       className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}
     >
       <div className="flex mt-6 justify-center rounded-xl">
-        <Link href="/">
+          <Link href="/" className="flex items-center">
           <Image
             className="h-32 w-32"
             src="/img/logo.JPG"
@@ -55,13 +74,15 @@ export default function Login() {
             height={400}
             alt="Logo de Pastelería El Ruiseñor"
           />
+          
+          <div className="flex flex-col items-center justify-center flex-grow px-2 m-6">
+            <div className={`text-white text-3xl ${sofia.className}`}>Pastelería</div>
+            <div className={`text-white text-4xl mt-3 ${sofia.className}`}>El Ruiseñor</div>
+          </div>
         </Link>
-        <div className="px-2">
-          <div className="text-white text-3xl">Pastelería</div>
-          <div className="text-white text-4xl">El Ruiseñor</div>
-        </div>
       </div>
-      <h1 className={`text-text text-2xl mt-10 ${sofia.className}`}>
+      
+      <h1 className={`text-text text-2xl mt-10 ${poppins.className}`}>
         Ingresar
       </h1>
       <form
