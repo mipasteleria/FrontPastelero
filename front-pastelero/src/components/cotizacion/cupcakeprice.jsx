@@ -303,7 +303,7 @@ export default function Cupcakeprice() {
           </p>
           <p>Presupuesto deseado</p>
           <input
-            className="inputBudgetrCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputBudgetrCake bg-gray-50 border border-secondary text-sm  p-2.5"
             type="text"
             {...register("budget")}
           />
