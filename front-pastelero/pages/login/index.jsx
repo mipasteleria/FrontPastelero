@@ -59,6 +59,7 @@ export default function Login() {
   
   const navigate = () => {
   router.push('/'); // Cambia la URL a /home
+  window.location.reload();
 };
 
   return (

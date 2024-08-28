@@ -1,6 +1,4 @@
 import { useState } from "react";
-import WebFooter from "@/src/components/WebFooter";
-import NavbarAdmin from "@/src/components/navbar";
 import CakeForm from "@/src/components/cotizacion/cakeprice";
 import CupcakeForm from "@/src/components/cotizacion/cupcakeprice";
 import DessertTableForm from "@/src/components/cotizacion/snackprice";
@@ -10,7 +8,13 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function SolicitarCotizacion() {
-
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm();
+  const [selectedForm, setSelectedForm] = useState("cake");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -28,23 +32,10 @@ export default function SolicitarCotizacion() {
     }
   };
 
-  const getButtonText = () => {
-    switch (selectedForm) {
-      case "cake":
-        return "Cotizar pastel";
-      case "cupcake":
-        return "Cotizar cupcakes";
-      case "dessertTable":
-        return "Cotizar mesa de postres";
-      default:
-        return "Enviar";
-    }
-  };
 
   return (
-    <div>
     <main className={`text-text ${poppins.className} mt-32 max-w-screen-lg mx-auto`}>
-      <NavbarAdmin />
+   
       
       <h1 className={`text-4xl m-6 ${sofia.className}`}>Solicitar cotización</h1>
         <p className="m-6">
@@ -92,9 +83,7 @@ export default function SolicitarCotizacion() {
           )}
         </form>
       
-     
+
       </main>
-       <WebFooter />
-       </div>
   );
 }

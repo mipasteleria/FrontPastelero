@@ -91,7 +91,7 @@ export default function Cakeprice() {
           {/* Sabor */}
           <div>
           <p>Sabor del bizocho</p>
-          <select className="inputFlavorCake" {...register("flavor")} required>
+          <select className="inputFlavorCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5" {...register("flavor")} required>
             <option value="">Selecciona un sabor</option>
             <option value="vainilla">Bizcocho de vainilla</option>
             <option value="chocolate">Bizcocho de chocolate</option>
@@ -104,7 +104,7 @@ export default function Cakeprice() {
           <div>
           <p>Número de Porciones</p>
           <select
-            className="inputPortionsCake"
+            className="inputPortionsCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             {...register("portions")}
             required
           >
@@ -135,7 +135,7 @@ export default function Cakeprice() {
           {/* Niveles */}
           <div>
           <p>Número de Niveles</p>
-          <select className="inputLevelsCake" {...register("levels")} required>
+          <select className="inputLevelsCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5" {...register("levels")} required>
             <option value="">Selecciona el número de niveles</option>
             <option value="1">1</option>
             <option value="2">2</option>
@@ -149,7 +149,7 @@ export default function Cakeprice() {
           <div>
           <p>Sabor del Relleno</p>
           <select
-            className="inputStuffedFlavorCake"
+            className="inputStuffedFlavorCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             {...register("stuffedFlavor")}
             required
           >
@@ -175,7 +175,7 @@ export default function Cakeprice() {
           {/* Cobertura */}
           <div>
           <p>Cobertura</p>
-          <select className="inputCoverCake" {...register("cover")} required>
+          <select className="inputCoverCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5" {...register("cover")} required>
             <option value="">Selecciona la cobertura</option>
             <option value="Buttercream vainilla">Buttercream vainilla</option>
             <option value="Buttercream chocolate">Buttercream chocolate</option>
@@ -191,7 +191,7 @@ export default function Cakeprice() {
           <div>
           <label>
             <input
-              className="inputDeliveryCake"
+              className="inputDeliveryCake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("delivery")}
               onChange={(e) => setIsDelivery(e.target.checked)}
@@ -203,7 +203,7 @@ export default function Cakeprice() {
             <div>
           <p>Lugar de entrega</p>
           <input
-            className="inputDeliveryAdressCake"
+            className="inputDeliveryAdressCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
             placeholder="Calle, número y colonia"
             {...register("deliveryAdress")}
@@ -214,7 +214,7 @@ export default function Cakeprice() {
           <div>
           <label>
             <input
-              className="inputFondantCoverCake"
+              className="inputFondantCoverCake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               type="checkbox"
               {...register("fondantCover")}
             />
@@ -225,7 +225,7 @@ export default function Cakeprice() {
           <div>
           <p>Fecha y hora del evento</p>
           <input
-            className="inputDeliveryDateCake"
+            className="inputDeliveryDateCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="datetime-local"
             {...register("deliveryDate")}
             required
