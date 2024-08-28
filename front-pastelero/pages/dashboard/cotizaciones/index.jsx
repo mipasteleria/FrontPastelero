@@ -111,8 +111,6 @@ export default function Conocenuestrosproductos() {
     }
   };
   
-  
-
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
@@ -141,21 +139,62 @@ export default function Conocenuestrosproductos() {
                       <td className="px-6 py-4 border-b border-secondary">{cotizacion.type}</td>
                       <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
                         <Link href={`/dashboard/cotizaciones/${cotizacion._id}?type=${cotizacion.type}&source=${cotizacion.type.toLowerCase()}`}>
-                          <svg className="w-6 h-6 text-accent dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" strokeWidth="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
-                            <path stroke="currentColor" strokeWidth="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <svg
+                            className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"
+                            />
+                            <path
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                            />
                           </svg>
                         </Link>
                         <Link href={`/dashboard/cotizaciones/editarcotizacion/${cotizacion._id}?type=${cotizacion.type}&source=${cotizacion.type.toLowerCase()}`}>
-                          <svg className="w-6 h-6 text-accent dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" strokeWidth="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
-                            <path stroke="currentColor" strokeWidth="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <svg
+                            className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                         </Link>
-                        <button onClick={() => deleteCotizacion(cotizacion._id, cotizacion.type.toLowerCase())} className="text-red-600 hover:text-red-800">
-                          <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" strokeWidth="2" d="M19 13H5m6-6h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Zm0 0H7m7 0v14" />
-                          </svg>
+                        <button onClick={() => deleteCotizacion(cotizacion._id, cotizacion.type.toLowerCase())} className="text-red-600 hover:text-red-800 my-2 mx-.5">
+                        <svg
+                          class="w-6 h-6 text-accent dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                          />
+                        </svg>
                         </button>
                       </td>
                     </tr>
@@ -179,9 +218,14 @@ export default function Conocenuestrosproductos() {
               ))}
             </ul>
           </nav>
-          <button className="mb-20">
-            hola
-          </button>
+          <Link
+            className="flex justify-center md:justify-end"
+            href={"/dashboard/cotizaciones/cotizacionmanual"}
+          >
+            <button className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center">
+              Crear cotización manual
+            </button>
+          </Link>
         </main>
       </div>
       <FooterDashboard />
