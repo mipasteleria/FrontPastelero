@@ -24,29 +24,36 @@ export default function NuevaReceta() {
   const router = useRouter();
 
   const calculateTotal = () => {
-    const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.costo), 0);
+    const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
     const { special_tax, additional_costs, fixed_costs, fixed_costs_hours, profit_margin } = getValues();
-
+  
     const specialTaxValue = parseFloat(special_tax || 0);
     const additionalCostsValue = parseFloat(additional_costs || 0);
     const fixedCostsValue = parseFloat(fixed_costs || 0);
     const fixedCostsHoursValue = parseFloat(fixed_costs_hours || 0);
     const profitMarginValue = parseFloat(profit_margin || 0);
-
+  
     const totalCost = ingredientTotal + specialTaxValue + additionalCostsValue + fixedCostsValue + fixedCostsHoursValue;
     const totalWithProfit = totalCost + (totalCost * profitMarginValue / 100);
-
+  
     setTotal(totalWithProfit);
   };
+  
 
   const handleAddIngredient = () => {
     const { ingrediente, cantidad, precio, unidad } = getValues();
     if (ingrediente.trim() && cantidad && precio) {
-      const total = (precio / cantidad).toFixed(2);
-      setIngredientsList([
-        ...ingredientsList,
-        { ingrediente, cantidad, precio, unidad, total } 
-      ]);
+      const total = (parseFloat(precio) || 0) / (parseFloat(cantidad) || 1);
+      const newIngredient = { ingrediente, cantidad, precio: parseFloat(precio), unidad, total: total.toFixed(2) };
+  
+      console.log("Form Data on Add:", getValues());
+      console.log("Ingredient to be Added:", newIngredient);
+  
+      setIngredientsList(prevIngredients => {
+        const newIngredients = [...prevIngredients, newIngredient];
+        calculateTotal();
+        return newIngredients;
+      });
       setValue("ingrediente", "");
       setValue("cantidad", "");
       setValue("precio", "");
@@ -55,15 +62,21 @@ export default function NuevaReceta() {
       console.error("Faltan valores para agregar el ingrediente");
     }
   };
-
+  
+  
   const handleDeleteIngredient = (index) => setIngredientsList(ingredientsList.filter((_, i) => i !== index));
 
   const onInputChange = () => calculateTotal();
 
   const onSubmit = async (data) => {
-    data.ingredients = ingredientsList; 
+    data.ingredientes = ingredientsList;
     data.total_cost = total;
-    
+  
+    // Verifica los datos antes de enviarlos
+    console.log("Ingredients List:", ingredientsList);
+    console.log("Form Data:", data);
+    console.log("Total Cost:", total);
+  
     try {
       const response = await axios.post("http://localhost:3001/recetas/recetas", data, {
         headers: {
@@ -77,7 +90,6 @@ export default function NuevaReceta() {
     }
   };
   
-
   const renderInput = (id, label, type = "text", placeholder, validation) => (
     <div className="w-full">
       <label htmlFor={id} className="block text-sm font-medium dark:text-white">{label}</label>

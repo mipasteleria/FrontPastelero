@@ -40,7 +40,7 @@ export default function Verdetallesolicitud() {
               </div>
               <VerCotizacion/>
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center"
                 onClick={() => router.push(`/dashboard/cotizaciones/generarcotizacion/${id}?source=${source}&type=${source.toLocaleLowerCase()}`)}
               >
                 Generar Cotización

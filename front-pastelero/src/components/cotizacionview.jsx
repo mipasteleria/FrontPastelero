@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Poppins as PoppinsFont } from "next/font/google";
-import Link from 'next/link';
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 
