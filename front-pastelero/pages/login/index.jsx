@@ -20,6 +20,11 @@ export default function Login() {
   const router = useRouter();
   const [error, setError] = useState("");
   
+  const navigate = () => {
+    router.push('/'); // Cambia la URL a /home
+    window.location.reload();
+  };
+  
  
   const onSubmit = async (data) => {
     console.log(data);
@@ -34,9 +39,10 @@ export default function Login() {
       console.log(json);
       if (json.token) {
         localStorage.setItem("token", json.token);
+        window.location.reload();
         console.log(json.token);
-        router.push("/");
         navigate.call
+        
         reset ()
         return;   
       }
@@ -57,11 +63,7 @@ export default function Login() {
     }
   }, [router]);
   
-  const navigate = () => {
-  router.push('/'); // Cambia la URL a /home
-  window.location.reload();
-};
-
+  
   return (
     <main
       className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}
