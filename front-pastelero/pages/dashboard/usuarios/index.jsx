@@ -27,10 +27,16 @@ export default function AdministradorUsuarios() {
 
   const handleDeleteUser = async (id) => {
     try {
+      const token = localStorage.getItem("token"); // Obtener el token
+  
       const response = await fetch(`http://localhost:3001/users/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Agregar el token en el encabezado
+        },
       });
-
+  
       if (response.ok) {
         alert("Usuario eliminado con éxito");
         setUserInfo(usersInfo.filter((user) => user._id !== id));
@@ -42,6 +48,7 @@ export default function AdministradorUsuarios() {
       alert("Error al eliminar el usuario");
     }
   };
+  
 
   return (
     <div className={`text-text ${poppins.className}`}>

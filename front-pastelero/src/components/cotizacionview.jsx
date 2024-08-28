@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Poppins as PoppinsFont } from "next/font/google";
+import Link from 'next/link';
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 
-const DetalleCotizacion = () => {
+const VerCotizacion = () => {
   const router = useRouter();
   const { id, source } = router.query;
   const [data, setData] = useState(null);
@@ -146,4 +147,4 @@ const DetalleCotizacion = () => {
   );
 };
 
-export default DetalleCotizacion;
+export default VerCotizacion;
