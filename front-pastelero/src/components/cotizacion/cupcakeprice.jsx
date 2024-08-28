@@ -138,7 +138,7 @@ export default function Cupcakeprice() {
           <div>
           <p>Número de Porciones</p>
           <select
-            className="inputPortionsCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            className="inputPortionsCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             {...register("portions")}
             required
           >
