@@ -264,7 +264,7 @@ export default function Snackprice() {
             Torta de Manzana
           </label>
           </div>
-          <p>Otros</p>
+          <p className="m-4">Otros</p>
           <input
             className="inputOtherSnack m-2 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="text"
@@ -356,7 +356,7 @@ export default function Snackprice() {
         >
           Limpiar campos
         </button>
-        <Link href="/enduser/detallesolicitudcupcake">
+        <Link href="/enduser/detallesolicitudpostres">
 
           <button className="btnSubmitSnack btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> 
           Cotizar Mesa de Postres </button>

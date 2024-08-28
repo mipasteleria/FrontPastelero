@@ -9,7 +9,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Home() {
   return (
-    <main className={`min-h-screen ${poppins.className}`}>
+    <main className={`h-auto ${poppins.className}`}>
       <NavbarAdmin />
       <div className={`text-text max-w-screen-lg mx-auto mt-24`}>
         <section className="m-8 flex flex-col items-center lg:flex-row justify-between">
