@@ -43,8 +43,6 @@ export default function Login() {
     }
   };
   
-  
-
   return (
     <main
       className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}

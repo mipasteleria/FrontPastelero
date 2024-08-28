@@ -5,13 +5,24 @@ import VerCotizacion from "@/src/components/cotizacionview";
 import { useRouter } from "next/router";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
-
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Verdetallesolicitud() {
   const router = useRouter();
   const { id, source } = router.query;
+
+  const handleButtonClick = () => {
+    if (id && source) {
+      const type = source.toLocaleLowerCase();
+      const url = `/dashboard/cotizaciones/generarcotizacion/${id}?source=${source}&type=${type}`;
+      
+      console.log(`Navigating to: ${url}`);
+      router.push(url);
+    } else {
+      console.error('id or source is undefined');
+    }
+  };
 
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
@@ -38,10 +49,11 @@ export default function Verdetallesolicitud() {
                   />
                 </div>
               </div>
-              <VerCotizacion/>
+              <VerCotizacion />
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => router.push(`/dashboard/cotizaciones/generarcotizacion/${id}?source=${source}&type=${source.toLocaleLowerCase()}`)}
+                type="button" // Asegúrate de especificar el tipo de botón
+                className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center"
+                onClick={handleButtonClick}
               >
                 Generar Cotización
               </button>

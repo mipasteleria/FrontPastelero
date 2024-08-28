@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Poppins as PoppinsFont } from "next/font/google";
-import Link from 'next/link';
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -59,10 +58,14 @@ const VerCotizacion = () => {
   if (!data) return <div>Loading...</div>;
 
   const renderParagraphs = (items) => {
-    return Object.entries(items).map(([key, value]) =>
-      value ? <p key={key}><strong>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> {value}</p> : null
-    );
-  };  
+    return Object.entries(items).map(([key, value]) => {
+      if (key === 'status') {
+        value = value ? 'Aprobado' : 'Pendiente';
+      }
+      return value ? <p key={key}><strong>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</strong> {value}</p> : null;
+    });
+  };
+  
 
   return (
     <div className={`flex flex-col ${poppins.className}`}>
@@ -93,6 +96,9 @@ const VerCotizacion = () => {
         contactName: data.contactName,
         contactPhone: data.contactPhone,
         questionsOrComments: data.questionsOrComments,
+        precio: data.precio,
+        anticipo: data.anticipo,
+        status: data.status
       })}
 
       {source === 'snack' && renderParagraphs({
@@ -119,6 +125,9 @@ const VerCotizacion = () => {
         contactName: data.contactName,
         contactPhone: data.contactPhone,
         questionsOrComments: data.questionsOrComments,
+        precio: data.precio,
+        anticipo: data.anticipo,
+        status: data.status
       })}
 
       {source === 'cupcake' && renderParagraphs({
@@ -142,6 +151,9 @@ const VerCotizacion = () => {
         contactName: data.contactName,
         contactPhone: data.contactPhone,
         questionsOrComments: data.questionsOrComments,
+        precio: data.precio,
+        anticipo: data.anticipo,
+        status: data.status
       })}
     </div>
   );
