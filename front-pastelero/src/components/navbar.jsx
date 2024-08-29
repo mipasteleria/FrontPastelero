@@ -9,7 +9,7 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const NavbarAdmin = () => {
-  const { isAdmin, isLoggedIn, setIsAdmin, setIsLoggedIn, user } = useContext(AuthContext);
+  const { isAdmin, isLoggedIn, setIsAdmin, setIsLoggedIn, userEmail } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   
@@ -97,25 +97,27 @@ const handleLogout = () => {
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
             isAdmin ? (
-              <Link href="/dashboard">
+              <div>
+                <Link href="/dashboard">
+                  <button
+                    className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
+                  >
+                    Dashboard
+                  </button>
+                </Link>
                 <button
-                  className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
+                  className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
+                  onClick={handleLogout}
                 >
-                  Dashboard
+                  Logout
                 </button>
-                <button
-                className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-              </Link>
+            </div>
             ) : (
               <div className="flex">
                 <div
                   className={`${poppins.className} m-4 hidden lg:flex cursor-pointer`}
                 >
-                  jalbores339@gmail.com
+                  {userEmail}
                 </div>
                 <Link href="/enduser/mispedidos">
                   <button
@@ -135,6 +137,12 @@ const handleLogout = () => {
                     ¡Cotizar ahora!
                   </div>
                 </Link>
+                <button
+                  className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
                 <Link href="/enduser/carrito">
                   <button
                     className={`${poppins.className} m-4 hidden md:flex cursor-pointer text-text`}
@@ -177,27 +185,6 @@ const handleLogout = () => {
                         strokeLinejoin="round"
                         strokeWidth="2"
                         d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                      />
-                    </svg>
-                  </button>
-                </Link>
-                <Link href="/enduser/settings">
-                  <button className={`${poppins.className} m-4 cursor-pointer`}>
-                    <svg
-                      className="w-8 h-8"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="square"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                       />
                     </svg>
                   </button>
@@ -305,11 +292,11 @@ const handleLogout = () => {
                 </button>
               </Link>
               <button
-              className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
+                className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointercursor-pointer`}
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
             </div>
             ) : (
               <div className="flex flex-col">
@@ -320,14 +307,12 @@ const handleLogout = () => {
                     Mis Pedidos
                   </button>
                 </Link>
-                <Link href="/user/orders">
-                  <button
-                    className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
-                    onClick={handleLogout}                  
-                  >
-                    LogOut
-                  </button>
-                </Link>
+                <button
+                  className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
+                  onClick={handleLogout}                  
+                >
+                  LogOut
+                </button>
                 <Link href="/cotizacion">
                   <button
                     className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
@@ -378,29 +363,6 @@ const handleLogout = () => {
                           strokeLinejoin="round"
                           strokeWidth="2"
                           d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                        />
-                      </svg>
-                    </button>
-                  </Link>
-                  <Link href="/enduser/settings">
-                    <button
-                      className={`${poppins.className} m-4 cursor-pointer`}
-                    >
-                      <svg
-                        className="w-8 h-8"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="square"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                         />
                       </svg>
                     </button>

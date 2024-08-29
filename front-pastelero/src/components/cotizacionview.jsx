@@ -18,13 +18,13 @@ const VerCotizacion = () => {
         
         switch (source) {
           case 'pastel':
-            url = `https://pasteleros-back.vercel.app/pricecake/${id}`;
+            url = `http://localhost:3001/pricecake/${id}`;
             break;
           case 'cupcake':
-            url = `https://pasteleros-back.vercel.app/pricecupcake/${id}`;
+            url = `http://localhost:3001/pricecupcake/${id}`;
             break;
           case 'snack':
-            url = `https://pasteleros-back.vercel.app/pricesnack/${id}`;
+            url = `http://localhost:3001/pricesnack/${id}`;
             break;
           default:
             console.error("Invalid source");

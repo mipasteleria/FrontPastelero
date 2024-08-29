@@ -1,5 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "@/src/context";
 import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
   const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
@@ -8,6 +10,8 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 export default function Cupcakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
+  const { userId } = useAuth();
+  const router = useRouter();
 
   async function onSubmit(data) {
     try {
@@ -35,6 +39,7 @@ export default function Cupcakeprice() {
           contactName: data.contactName,
           contactPhone: data.contactPhone,
           questionsOrComments: data.questionsOrComments,
+          userId: userId,
         }),
       });
       if (!response.ok) {
@@ -42,6 +47,8 @@ export default function Cupcakeprice() {
       }
 
       const json = await response.json();
+      const id = json.data._id;
+      router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
       console.log("Response data:", json);
     } catch (error) {
       console.error("Error en la solicitud:", error);
@@ -358,11 +365,9 @@ export default function Cupcakeprice() {
         >
           Limpiar campos
         </button>
-        <Link href="detallesolicitud/[id]">
-
-          <button className="btnSubmitCupcake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> 
-          Cotizar Cupcakes</button>
-        </Link>
+        <button type="onsubmit" className="btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> 
+          Cotizar Cupcakes
+        </button>
       </div>
       </form>
     </main>
