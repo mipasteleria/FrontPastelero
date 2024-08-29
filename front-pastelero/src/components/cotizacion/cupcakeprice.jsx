@@ -143,27 +143,27 @@ export default function Cupcakeprice() {
             required
           >
             <option value="">Selecciona el número de porciones</option>
-            <option value="10">10 porciones</option>
-            <option value="20">20 porciones</option>
-            <option value="30">30 porciones</option>
-            <option value="40">40 porciones</option>
-            <option value="50">50 porciones</option>
+            <option value="12">12 porciones</option>
+            <option value="24">24 porciones</option>
+            <option value="36">36 porciones</option>
+            <option value="48">48 porciones</option>
             <option value="60">60 porciones</option>
-            <option value="70">70 porciones</option>
-            <option value="80">80 porciones</option>
-            <option value="90">90 porciones</option>
-            <option value="100">100 porciones</option>
-            <option value="110">110 porciones</option>
+            <option value="72">72 porciones</option>
+            <option value="84">84 porciones</option>
+            <option value="96">96 porciones</option>
+            <option value="108">108 porciones</option>
             <option value="120">120 porciones</option>
-            <option value="130">130 porciones</option>
-            <option value="140">140 porciones</option>
-            <option value="150">150 porciones</option>
-            <option value="160">160 porciones</option>
+            <option value="132">132 porciones</option>
+            <option value="144">144 porciones</option>
+            <option value="146">146 porciones</option>
+            <option value="158">158 porciones</option>
             <option value="170">170 porciones</option>
-            <option value="180">180 porciones</option>
-            <option value="190">190 porciones</option>
-            <option value="200">200 porciones</option>
-            <option value="200+">200+ especificar en comentarios</option>
+            <option value="182">182 porciones</option>
+            <option value="194">194 porciones</option>
+            <option value="206">206 porciones</option>
+            <option value="218">218 porciones</option>
+            <option value="230">230 porciones</option>
+            <option value="230+">230+ especificar en comentarios</option>
           </select>
           </div>
           {/* Envio */}
@@ -358,7 +358,7 @@ export default function Cupcakeprice() {
         >
           Limpiar campos
         </button>
-        <Link href="/enduser/detallesolicitudcupcake">
+        <Link href="detallesolicitud/[id]">
 
           <button className="btnSubmitCupcake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> 
           Cotizar Cupcakes</button>

@@ -356,7 +356,7 @@ export default function Snackprice() {
         >
           Limpiar campos
         </button>
-        <Link href="/enduser/detallesolicitudpostres">
+        <Link href="detallesolicitud/[id]">
 
           <button className="btnSubmitSnack btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> 
           Cotizar Mesa de Postres </button>

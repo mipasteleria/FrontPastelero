@@ -414,10 +414,10 @@ export default function Cakeprice() {
         >
           Limpiar campos
         </button>
-        <Link href="/enduser/detallesolicitudpastel">
+        <Link href="detallesolicitud/[id]">
 
           <button className="btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"> 
-          Cotizar Cupcakes</button>
+          Cotizar Pastel</button>
         </Link>
       </div>      
       </form>
