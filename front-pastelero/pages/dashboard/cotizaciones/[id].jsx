@@ -1,5 +1,5 @@
 import Image from "next/image";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
 import VerCotizacion from "@/src/components/cotizacionview";
 import { useRouter } from "next/router";
@@ -26,8 +26,8 @@ export default function Verdetallesolicitud() {
 
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex flex-row">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin className="w-1/4" />
         <main className="w-3/4 p-4">
           <h1 className={`text-4xl p-4 ${sofia.className}`}>

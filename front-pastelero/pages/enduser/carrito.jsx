@@ -69,7 +69,7 @@ export default function Carrito() {
       }
 
       const session = await response.json();
-      const stripe = Stripe('your-publishable-key-here');
+      const stripe = 'pk_test_51PpLMA05NkS1u2DA81LiZRgfXzRPrk8hkDrlf3JnlqcxkGlOrbo9DXBPf78uimP3IC6xX3DJHVxp6DAOPqeNzSEz00P2FAWsMZ';
 
       const { error } = await stripe.redirectToCheckout({
         sessionId: session.id,

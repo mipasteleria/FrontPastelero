@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import VerCotizacion from "@/src/components/cotizacionview";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
@@ -184,7 +184,7 @@ export default function GenerarCotizacion() {
       });
       console.log({precio: formData.Total,
         anticipo: formData.Anticipo,
-        status: true})
+        status: aprobado})
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
@@ -199,11 +199,11 @@ export default function GenerarCotizacion() {
 
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex flex-row">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin className="w-1/4" />
         <main className="w-full md:w-3/4 p-4">
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Cotizacion Manual</h1>
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>Generar Cotizacion</h1>
           <form className="m-4" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 pr-2">

@@ -32,7 +32,7 @@ export default function Payment() {
     <div className={`min-h-screen flex flex-col ${poppins.className}`}>
       <NavbarAdmin />
       <main className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto mt-24`}>
-        <h1 className={`text-4xl m-4 ${sofia.className}`}>Su carrito</h1>
+        <h1 className={`text-4xl m-4 ${sofia.className}`}>Pagar</h1>
         <div className="flex flex-col md:flex-row gap-8 bg-rose-50 p-6 justify-between w-full">
           <div id="checkout" className="w-full">
             <EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
