@@ -20,7 +20,7 @@ export default function Conocenuestrosproductos() {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch("https://pasteleros-back.vercel.app/pricecake", {
+            fetch("http://localhost:3001/pricecake", {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
@@ -48,9 +48,9 @@ export default function Conocenuestrosproductos() {
             ]);
 
             setUserCotizacion([
-              ...cakeData.data.map(item => ({ ...item, type: 'Pastel' })),
-              ...cupcakeData.data.map(item => ({ ...item, type: 'Cupcake' })),
-              ...snackData.data.map(item => ({ ...item, type: 'Snack' })),
+              ...cakeData.data.map((item) => ({ ...item, type: "Pastel" })),
+              ...cupcakeData.data.map((item) => ({ ...item, type: "Cupcake" })),
+              ...snackData.data.map((item) => ({ ...item, type: "Snack" })),
             ]);
           } else {
             throw new Error("Failed to fetch data");
@@ -75,23 +75,23 @@ export default function Conocenuestrosproductos() {
     try {
       const token = localStorage.getItem("token");
       let url;
-  
+
       // Validar el valor de source y asignar la URL correspondiente
       switch (source) {
-        case 'cake':
+        case "cake":
           url = `https://pasteleros-back.vercel.app/pricecake/${id}`;
           break;
-        case 'cupcake':
+        case "cupcake":
           url = `https://pasteleros-back.vercel.app/pricecupcake/${id}`;
           break;
-        case 'snack':
+        case "snack":
           url = `https://pasteleros-back.vercel.app/pricesnack/${id}`;
           break;
         default:
           console.error("Invalid source: ", source);
           return;
       }
-  
+
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
@@ -99,10 +99,12 @@ export default function Conocenuestrosproductos() {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (response.ok) {
         // Actualizar el estado después de la eliminación
-        setUserCotizacion(userCotizacion.filter(cotizacion => cotizacion._id !== id));
+        setUserCotizacion(
+          userCotizacion.filter((cotizacion) => cotizacion._id !== id)
+        );
       } else {
         console.error("Failed to delete the item. Status:", response.status);
       }
@@ -110,36 +112,67 @@ export default function Conocenuestrosproductos() {
       console.error("An error occurred while deleting the item:", error);
     }
   };
-  
+
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarDashboard />
       <div className="flex">
         <Asideadmin />
         <main className={`text-text ${poppins.className} flex-grow w-3/4`}>
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis cotizaciones</h1>
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>
+            Mis cotizaciones
+          </h1>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
             <div className="overflow-x-auto w-full">
               <table className="w-full text-sm text-left rtl:text-right text-text">
                 <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
                   <tr>
-                    {["ID", "Cliente", "Creación", "Solicitud", "Acciones"].map((header) => (
-                      <th key={header} className="px-6 py-3 border-b border-secondary">{header}</th>
+                    {[
+                      "ID",
+                      "Cliente",
+                      "Creación",
+                      "Solicitud",
+                      "Estado",
+                      "Acciones",
+                    ].map((header) => (
+                      <th
+                        key={header}
+                        className="px-6 py-3 border-b border-secondary"
+                      >
+                        {header}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {userCotizacion.map((cotizacion) => (
-                    <tr key={`cotizacion-${cotizacion._id}`} className="border-b dark:border-gray-700">
-                      {["_id", "contactName", "createdAt"].map((field) => (
-                        <td key={field} className="px-6 py-4 border-b border-secondary">
+                    <tr
+                      key={`cotizacion-${cotizacion._id}`}
+                      className="border-b dark:border-gray-700"
+                    >
+                      {[
+                        "_id",
+                        "contactName",
+                        "createdAt",
+                        "priceType",
+                        "status",
+                      ].map((field) => (
+                        <td
+                          key={field}
+                          className="px-6 py-4 border-b border-secondary"
+                        >
                           {cotizacion[field]}
                         </td>
                       ))}
-                      <td className="px-6 py-4 border-b border-secondary">{cotizacion.type}</td>
                       <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
-                        <Link href={`/dashboard/cotizaciones/${cotizacion._id}?type=${cotizacion.type}&source=${cotizacion.type.toLowerCase()}`}>
-                        <svg
+                        <Link
+                          href={`/dashboard/cotizaciones/${
+                            cotizacion._id
+                          }?type=${
+                            cotizacion.type
+                          }&source=${cotizacion.type.toLowerCase()}`}
+                        >
+                          <svg
                             className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
                             aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg"
@@ -160,8 +193,14 @@ export default function Conocenuestrosproductos() {
                             />
                           </svg>
                         </Link>
-                        <Link href={`/dashboard/cotizaciones/editarcotizacion/${cotizacion._id}?type=${cotizacion.type}&source=${cotizacion.type.toLowerCase()}`}>
-                        <svg
+                        <Link
+                          href={`/dashboard/cotizaciones/editarcotizacion/${
+                            cotizacion._id
+                          }?type=${
+                            cotizacion.type
+                          }&source=${cotizacion.type.toLowerCase()}`}
+                        >
+                          <svg
                             className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
                             aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg"
@@ -177,24 +216,32 @@ export default function Conocenuestrosproductos() {
                             />
                           </svg>
                         </Link>
-                        <button onClick={() => deleteCotizacion(cotizacion._id, cotizacion.type.toLowerCase())} className="text-red-600 hover:text-red-800 my-2 mx-.5">
-                        <svg
-                          class="w-6 h-6 text-accent dark:text-white"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
+                        <button
+                          onClick={() =>
+                            deleteCotizacion(
+                              cotizacion._id,
+                              cotizacion.type.toLowerCase()
+                            )
+                          }
+                          className="text-red-600 hover:text-red-800 my-2 mx-.5"
                         >
-                          <path
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
-                          />
-                        </svg>
+                          <svg
+                            class="w-6 h-6 text-accent dark:text-white"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                            />
+                          </svg>
                         </button>
                       </td>
                     </tr>
@@ -205,17 +252,25 @@ export default function Conocenuestrosproductos() {
           </div>
           <nav aria-label="Page navigation example" className="m-4">
             <ul className="inline-flex -space-x-px text-sm ml-auto">
-              {["Previous", "1", "2", "3", "4", "5", "Next"].map((item, index) => (
-                <li key={item}>
-                  <Link
-                    href="#"
-                    className={`flex items-center justify-center px-3 h-8 leading-tight text-text bg-white border border-secondary ${index === 0 ? "rounded-s-lg" : ""} ${index === 6 ? "rounded-e-lg" : ""} ${item === "3" ? "text-accent bg-blue-50" : "hover:bg-gray-100 hover:text-accent"} dark:bg-gray-800 dark:border-secondary dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white`}
-                    aria-current={item === "3" ? "page" : undefined}
-                  >
-                    {item}
-                  </Link>
-                </li>
-              ))}
+              {["Previous", "1", "2", "3", "4", "5", "Next"].map(
+                (item, index) => (
+                  <li key={item}>
+                    <Link
+                      href="#"
+                      className={`flex items-center justify-center px-3 h-8 leading-tight text-text bg-white border border-secondary ${
+                        index === 0 ? "rounded-s-lg" : ""
+                      } ${index === 6 ? "rounded-e-lg" : ""} ${
+                        item === "3"
+                          ? "text-accent bg-blue-50"
+                          : "hover:bg-gray-100 hover:text-accent"
+                      } dark:bg-gray-800 dark:border-secondary dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white`}
+                      aria-current={item === "3" ? "page" : undefined}
+                    >
+                      {item}
+                    </Link>
+                  </li>
+                )
+              )}
             </ul>
           </nav>
           <Link
