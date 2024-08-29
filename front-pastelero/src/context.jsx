@@ -6,9 +6,8 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-
-  const UserContext = createContext();
-
+  const [userId, setUserId] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -21,6 +20,8 @@ export function AuthProvider({ children }) {
 
         setIsLoggedIn(true);
         setIsAdmin(decodedToken.role === "admin");
+        setUserId(decodedToken._id);
+        setUserEmail(decodedToken.email);
 
         console.log("isAdmin:", decodedToken.role === "admin");
         console.log("isLoggedIn:", true);
@@ -34,7 +35,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, isAdmin, setIsLoggedIn, setIsAdmin, }}
+      value={{ isLoggedIn, isAdmin, userId, userEmail, setIsLoggedIn, setIsAdmin, }}
     >
       {children}
     </AuthContext.Provider>

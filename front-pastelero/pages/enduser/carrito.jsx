@@ -1,13 +1,59 @@
-import Link from "next/link";
-import Image from "next/image";
-import NavbarAdmin from "@/src/components/navbar";
-import WebFooter from "@/src/components/WebFooter";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import NavbarAdmin from '@/src/components/navbar';
+import WebFooter from '@/src/components/WebFooter';
+import { useAuth } from '@/src/context';
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from 'next/font/google';
+import Importante from '@/src/components/carritodetails';
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
+const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
 
 export default function Carrito() {
+  const { userId } = useAuth();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [anticipo, setAnticipo] = useState(0); // State to store anticipo
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const urls = [
+          'http://localhost:3001/pricecake/',
+          'http://localhost:3001/pricecupcake/',
+          'http://localhost:3001/pricesnack/',
+        ];
+        const requests = urls.map(url => fetch(url).then(res => res.json()));
+
+        const responses = await Promise.all(requests);
+        let mostRecentData = null;
+
+        responses.forEach(response => {
+          const userData = response.data.filter(item => item.userId === userId);
+          if (userData.length > 0) {
+            const mostRecentItem = userData.reduce((latest, item) => {
+              return new Date(item.createdAt) > new Date(latest.createdAt) ? item : latest;
+            });
+            if (!mostRecentData || new Date(mostRecentItem.createdAt) > new Date(mostRecentData.createdAt)) {
+              mostRecentData = mostRecentItem;
+            }
+          }
+        });
+
+        if (mostRecentData) {
+          setData(mostRecentData);
+          setAnticipo(mostRecentData.anticipo); // Set anticipo value
+        }
+      } catch (error) {
+        console.error('Error al obtener los datos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
   const handleClick = async (event) => {
     try {
       const response = await fetch('/create-checkout-session', {
@@ -15,7 +61,7 @@ export default function Carrito() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ amount: anticipo }), // Send anticipo value
       });
 
       if (!response.ok) {
@@ -42,70 +88,40 @@ export default function Carrito() {
       <NavbarAdmin />
       <main className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto mt-24`}>
         <h1 className={`text-4xl m-4 ${sofia.className}`}>Su carrito</h1>
-        <div className="flex flex-col md:flex-row gap-8 bg-rose-50 p-6 justify-between w-full">
-          <figure className="max-w-lg m-6">
-            <Image
-              className="h-auto max-w-full rounded-lg"
-              width={500}
-              height={500}
-              src="/img/animalcrossing.jpg"
-              alt="Imagen del carrito"
-            />
-            <figcaption className="mt-2 text-sm text-center text-gray-500 dark:text-gray-400">
-              Ejemplo de imagen
-            </figcaption>
-          </figure>
-          <div className="flex flex-col gap-10 md:mr-64">
-            <p>Número de orden:</p>
-            <p>Costo total:</p>
-          </div>
-        </div>
-        <div className="mb-10">
-          <h2 className={`text-3xl m-4 ${sofia.className}`}>
-            Condiciones e información importante
-          </h2>
-          <div className="bg-rose-50 m-4 flex flex-col gap-4 p-4">
-            <p>
-              Para iniciar su pedido, se solicita un anticipo del 50% del total.
-              Favor de confirmar disponibilidad antes de hacer su pedido.
-            </p>
-            <p>
-              <strong>Vigencia:</strong> El presupuesto es válido por 30 días a partir de la
-              fecha estipulada en la orden.
-            </p>
-            <p>
-              <strong>Cancelaciones:</strong> Podrá cancelar su pedido hasta 5 días antes de
-              la fecha de entrega, llamando o enviando un mensaje de 9 am a 5 pm
-              de lunes a viernes. Se aplicará un cargo del 30% del total del
-              pedido; después de este plazo, el cargo será del 50%.
-            </p>
-            <p>
-              <strong>Cambios de diseño:</strong> Puede realizar cambios en el diseño hasta 5
-              días antes de la fecha de entrega, lo que podría modificar la
-              cotización.
-            </p>
-            <p>
-              <strong>Liquidar y recoger:</strong> Se solicita liquidar su pedido un día
-              antes de la entrega. Para recoger su pedido, por favor indique su
-              número de orden.
-            </p>
-          </div>
-        </div>
-        <p className="text-accent m-6">
-          Muchas gracias por tomarte el tiempo para leer toda la información,
-          quedamos al pendiente para cualquier duda o aclaración. Te recordamos
-          que el horario de atención es de lunes a viernes de 9 am a 6 pm.
-        </p>
+        {loading ? (
+          <p>Cargando...</p>
+        ) : data ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 shadow-md">
+              <div>
+                {data.image && (
+                  <img src={data.image} alt="Product" className="w-full h-auto mb-4 rounded-xl" />
+                )}
+                {data.status && (
+                  <p className="text-2xl font-bold mb-4"><strong>Status:</strong> {data.status}</p>
+                )}
+              </div>
+              <div>
+                {Object.entries(data).filter(([key]) => !['image', 'status', 'anticipo'].includes(key)).map(([key, value]) => (
+                  <div key={key} className="mb-2">
+                    <p><strong>{key}:</strong> {value}</p>
+                  </div>
+                ))}
+              </div>
+              </div>
+        ) : (
+          <p>No hay datos disponibles.</p>
+        )}
+        <Importante />
         <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
-        <Link href="/enduser/pagar">
-          <button 
-            className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56" 
-            type="button" 
-            onClick={handleClick}
-          >
-            Pagar
-          </button>
-        </Link>
+          <Link href="/enduser/pagar">
+            <button 
+              className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56" 
+              type="button" 
+              onClick={handleClick}
+            >
+              Pagar
+            </button>
+          </Link>
           <Link href="/">
             <button className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
               Seguir explorando
@@ -117,4 +133,3 @@ export default function Carrito() {
     </div>
   );
 }
-
