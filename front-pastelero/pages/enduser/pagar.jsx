@@ -19,7 +19,7 @@ const stripePromise = loadStripe("pk_test_51PpLMA05NkS1u2DA81LiZRgfXzRPrk8hkDrlf
 export default function Payment() {
   const fetchClientSecret = useCallback(() => {
     // Crear una sesión de Checkout
-    return fetch("/create-checkout-session", {
+    return fetch("http://localhost:3001/create-checkout-session", {
       method: "POST",
     })
       .then((res) => res.json())
