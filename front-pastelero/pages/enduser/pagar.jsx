@@ -15,6 +15,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 // Asegúrate de llamar a `loadStripe` fuera del componente para evitar recrear la instancia en cada renderizado.
 const stripePromise = loadStripe("pk_test_51PpLMA05NkS1u2DA81LiZRgfXzRPrk8hkDrlf3JnlqcxkGlOrbo9DXBPf78uimP3IC6xX3DJHVxp6DAOPqeNzSEz00P2FAWsMZ");
+import { Navigate } from "react-router-dom"; 
 
 export default function Payment() {
   const fetchClientSecret = useCallback(() => {
