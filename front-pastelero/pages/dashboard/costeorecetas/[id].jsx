@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useRouter } from "next/router";
 import axios from "axios";
+import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -17,7 +18,7 @@ export default function VerReceta() {
   useEffect(() => {
     if (id) {
       axios
-        .get(`https://pasteleros-back.vercel.app/recetas/recetas/${id}`)
+        .get(`http://localhost:3001/recetas/recetas/${id}`)
         .then((response) => {
           const recetaData = response.data.data; // Ajuste aquí
           setReceta(recetaData);
@@ -32,8 +33,8 @@ export default function VerReceta() {
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
         <main
           className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}
@@ -144,6 +145,13 @@ export default function VerReceta() {
               {receta.total_cost.toFixed(2)} MXN
             </p>
           </div>
+            <Link href={"/dashboard/costeorecetas"}>
+            <button
+              className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
+            >
+              Regresar
+            </button>
+            </Link>
         </main>
       </div>
       <FooterDashboard />

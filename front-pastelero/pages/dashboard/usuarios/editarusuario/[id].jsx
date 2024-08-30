@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
@@ -26,9 +26,7 @@ export default function UsuarioForm() {
     if (id) {
       const fetchUserData = async () => {
         try {
-          const response = await fetch(
-            `https://pasteleros-back.vercel.app/users/${id}`
-          );
+          const response = await fetch(`http://localhost:3001/users/${id}`);
           if (response.ok) {
             const result = await response.json();
             setUserData(result.data);
@@ -61,7 +59,7 @@ export default function UsuarioForm() {
   const onSubmit = async (data) => {
     try {
       // Usa PUT siempre, ya que solo se permite actualizar
-      const url = `https://pasteleros-back.vercel.app/users/${id}`;
+      const url = `http://localhost:3001/users/${id}`;
 
       // Elimina los campos de contraseña si están vacíos
       const updatedData = { ...data };
@@ -158,8 +156,8 @@ export default function UsuarioForm() {
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex flex-row">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
         <main className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">
           <h1 className={`text-4xl p-4 ${sofia.className}`}>

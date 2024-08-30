@@ -1,53 +1,27 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import NavbarDashboard from "@/src/components/navbardashboard";
-import CakeForm from "@/src/components/cakeform";
-import CupcakeForm from "@/src/components/cupcakeform";
-import DessertTableForm from "@/src/components/dessertsform";
+import NavbarAdmin from "@/src/components/navbar";
+import VerCotizacion from "@/src/components/cotizacionview";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
+import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function GenerarCotizacion() {
+  const router = useRouter(); // Inicializa useRouter
+  const { id, source } = router.query; // Obtén los parámetros de consulta
   const units = ["kg", "g", "lb", "oz", "porciones"];
-  const Recetas = [
-    {
-      Elemento: "Pastel de Vainilla",
-      Unidad: "Porcion",
-      PrecioUnidad: 30
-    },
-    {
-      Elemento: "Pastel de Chocolate",
-      Unidad: "Porcion",
-      PrecioUnidad: 30
-    }
-  ];
-  const TrabajoManual = [
+  const [recetas, setRecetas] = useState([]);
+  const [insumos, setInsumos] = useState([]);
+  const [trabajoManual] = useState([
     {
       Elemento: "Un piso",
       Unidad: "Porcion",
       PrecioUnidad: 50
-    },
-    {
-      Elemento: "Decoracion Sencilla Buttercream",
-      Unidad: "Porcion",
-      PrecioUnidad: 300
     }
-  ];
-  const Insumos = [
-    {
-      Elemento: "Limon",
-      Unidad: "gr",
-      PrecioUnidad: 0.5
-    },
-    {
-      Elemento: "Licor Naranja",
-      Unidad: "ml",
-      PrecioUnidad: 300
-    }
-  ];
+  ]);
 
   const [formData, setFormData] = useState({
     noOrden: "",
@@ -57,7 +31,6 @@ export default function GenerarCotizacion() {
     Extras: ""
   });
 
-  const [selectedForm, setSelectedForm] = useState("cake");
   const [selectedType, setSelectedType] = useState("precargado");
   const [customElement, setCustomElement] = useState({
     Elemento: "",
@@ -67,6 +40,43 @@ export default function GenerarCotizacion() {
   });
   const [selectedElement, setSelectedElement] = useState(null);
   const [addedElements, setAddedElements] = useState([]);
+
+  useEffect(() => {
+    // Fetch recetas
+    fetch('http://localhost:3001/recetas/recetas', {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        const recetasData = data.data.map(item => ({
+          Elemento: item.nombre_receta,
+          Unidad: "Porcion", // Ajusta según la unidad de medida en tus datos
+          PrecioUnidad: item.total_cost
+        }));
+        setRecetas(recetasData);
+      })
+      .catch(error => console.error('Error fetching recetas:', error));
+  
+    // Fetch insumos
+    fetch('http://localhost:3001/insumos', {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        const insumosData = data.map(item => ({
+          Elemento: item.name,
+          Unidad: "gr", // Ajusta según la unidad de medida en tus datos
+          PrecioUnidad: item.cost
+        }));
+        setInsumos(insumosData);
+      })
+      .catch(error => console.error('Error fetching insumos:', error));
+  }, []);
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -86,7 +96,7 @@ export default function GenerarCotizacion() {
 
   const handleSelectElement = (e) => {
     const selected = e.target.value;
-    const allElements = [...Recetas, ...TrabajoManual, ...Insumos];
+    const allElements = [...recetas, ...trabajoManual, ...insumos];
     const element = allElements.find((el) => el.Elemento === selected);
     setSelectedElement(element);
   };
@@ -139,13 +149,61 @@ export default function GenerarCotizacion() {
     setSelectedType(e.target.value);
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+  
+    let url;
+    switch (source) {
+      case 'pastel':
+        url = `http://localhost:3001/pricecake/${id}`;
+        break;
+      case 'cupcake':
+        url = `http://localhost:3001/pricecupcake/${id}`;
+        break;
+      case 'snack':
+        url = `http://localhost:3001/pricesnack/${id}`;
+        break;
+      default:
+        console.error("Invalid source");
+        return;
+    }
+  
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          precio: formData.Total,
+          anticipo: formData.Anticipo,
+          status: true
+        }),
+      });
+      console.log({precio: formData.Total,
+        anticipo: formData.Anticipo,
+        status: aprobado})
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      // Redirigir a /dashboard/cotizaciones
+      router.push("/dashboard/cotizaciones");
+    } catch (error) {
+      console.error("Error updating data:", error);
+    }
+  };
+  
+
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex flex-row">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin className="w-1/4" />
-        <main className="w-3/4 p-4">
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Cotizacion Manual</h1>
+        <main className="w-full md:w-3/4 p-4">
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>Generar Cotizacion</h1>
           <form className="m-4" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 pr-2">
@@ -185,52 +243,10 @@ export default function GenerarCotizacion() {
               </div>
             </div>
 
-            <div className="mb-6">
-              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Seleccionar tipo de cotización:
-              </label>
-              <div className="flex">
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="formType"
-                    value="cake"
-                    checked={selectedForm === "cake"}
-                    onChange={handleFormSelection}
-                    className="mr-1"
-                  />
-                  Pastel
-                </label>
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="formType"
-                    value="cupcake"
-                    checked={selectedForm === "cupcake"}
-                    onChange={handleFormSelection}
-                    className="mr-1"
-                  />
-                  Cupcake
-                </label>
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="formType"
-                    value="dessertTable"
-                    checked={selectedForm === "dessertTable"}
-                    onChange={handleFormSelection}
-                    className="mr-1"
-                  />
-                  Mesa de postres
-                </label>
-              </div>
-            </div>
+          <VerCotizacion />
 
-            {selectedForm === "cake" && <CakeForm className="w-3/4 p-4" />}
-            {selectedForm === "cupcake" && <CupcakeForm className="w-3/4 p-4" />}
-            {selectedForm === "dessertTable" && <DessertTableForm className="w-3/4 p-4" />}
-          <div>
-            <div className="mb-6">
+          <div className="mt-8">
+            <div className="my-6">
               <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                 Seleccionar tipo de elemento:
               </label>
@@ -270,10 +286,10 @@ export default function GenerarCotizacion() {
                   onChange={handleSelectElement}
                 >
                   <option value="">Selecciona un elemento</option>
-                  {[...Recetas, ...TrabajoManual, ...Insumos].map((el, idx) => (
-                    <option key={idx} value={el.Elemento}>
-                      {el.Elemento}
-                    </option>
+                  {[...recetas, ...trabajoManual, ...insumos].map((el, idx) => (
+                    <option key={idx} value={el.Elemento || "Elemento no definido"}>
+                    {el.Elemento || "Elemento sin nombre"}
+                  </option>                  
                   ))}
                 </select>
                 {selectedElement && (
@@ -347,9 +363,9 @@ export default function GenerarCotizacion() {
               Agregar
             </button>
 
-            <div className="mt-6">
+            <div className="overflow-x-auto mt-6">
               <h2 className="text-2xl">Elementos agregados</h2>
-              <table className="w-full mt-4 bg-white rounded-lg shadow-md">
+              <table className="w-full my-8 bg-white rounded-lg shadow-md">
                 <thead>
                   <tr>
                     <th className="py-2 px-4 border-b">Elemento</th>
@@ -399,7 +415,7 @@ export default function GenerarCotizacion() {
               </div>
             </div>
             </div>
-            <div className="flex w-full justify-between mt-4">
+            <div className="flex flex-col md:flex-row justify-between mt-4">
                 <button
                 onClick={handleAddElement}
                 className="bg-primary text-text rounded-lg px-16 py-2 mt-4"
@@ -407,13 +423,8 @@ export default function GenerarCotizacion() {
                 Limpiar
               </button>
               <button
-                onClick={handleAddElement}
-                className="bg-primary text-text rounded-lg px-16 py-2 mt-4"
-              >
-                Guardar
-              </button>
-              <button
-                onClick={handleAddElement}
+                type="button"
+                onClick={handleSubmit}
                 className="bg-primary text-text rounded-lg px-16 py-2 mt-4"
               >
                 Guardar y Enviar

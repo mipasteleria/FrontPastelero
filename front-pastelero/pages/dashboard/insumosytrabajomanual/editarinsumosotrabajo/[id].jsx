@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useForm } from "react-hook-form";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
@@ -58,7 +58,7 @@ export default function EditarInsumo({ insumo }) {
 
   const onSubmit = async (data) => {
     console.log("ID del insumo:", insumo._id);
-    await fetch(`https://pasteleros-back.vercel.app/insumos/${insumo._id}`, {
+    await fetch(`http://localhost:3001/insumos/${insumo._id}`, {
       method: "PUT",
       body: JSON.stringify(data),
       headers: {
@@ -70,8 +70,8 @@ export default function EditarInsumo({ insumo }) {
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
         <main className={`text-text ${poppins.className} flex-grow w-3/4`}>
           <h1 className={`text-4xl p-4 ${sofia.className}`}>
@@ -167,20 +167,23 @@ export default function EditarInsumo({ insumo }) {
             <div className="m-4 w-3/4 mx-auto text-lg">
               Costo por unidad: {costPerUnit} por gramo/ml
             </div>
+            <div className="flex flex-col md:flex-row justify-center mb-20">
             <button
               type="submit"
-              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6"
+              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-72 px-16 py-2.5 text-center ml-2 m-6"
             >
               Guardar cambios
             </button>
-          </form>
-          <Link href="/dashboard/insumosytrabajomanual">
-            <div className="flex justify-end mb-20">
-              <button className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+            <Link className="" href={"/dashboard/insumosytrabajomanual"}>
+              <button
+                type=""
+                className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-72 px-16 py-2.5 text-center ml-2 m-6"
+              >
                 Regresar
               </button>
+            </Link>
             </div>
-          </Link>
+          </form>
           <FooterDashboard />
         </main>
       </div>
@@ -189,9 +192,7 @@ export default function EditarInsumo({ insumo }) {
 }
 
 export async function getServerSideProps({ params }) {
-  const res = await fetch(
-    `https://pasteleros-back.vercel.app/insumos/${params.id}`
-  );
+  const res = await fetch(`http://localhost:3001/insumos/${params.id}`);
   const insumo = await res.json();
   return { props: { insumo } };
 }

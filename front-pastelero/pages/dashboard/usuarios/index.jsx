@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
@@ -14,7 +14,7 @@ export default function AdministradorUsuarios() {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("https://pasteleros-back.vercel.app/users/list", {
+    fetch("http://localhost:3001/users/list", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -27,13 +27,16 @@ export default function AdministradorUsuarios() {
 
   const handleDeleteUser = async (id) => {
     try {
-      const response = await fetch(
-        `https://pasteleros-back.vercel.app/users/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
+      const token = localStorage.getItem("token"); // Obtener el token
+  
+      const response = await fetch(`http://localhost:3001/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Agregar el token en el encabezado
+        },
+      });
+  
       if (response.ok) {
         alert("Usuario eliminado con éxito");
         setUserInfo(usersInfo.filter((user) => user._id !== id));
@@ -45,11 +48,12 @@ export default function AdministradorUsuarios() {
       alert("Error al eliminar el usuario");
     }
   };
+  
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex flex-row">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
         <main className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis usuarios</h1>

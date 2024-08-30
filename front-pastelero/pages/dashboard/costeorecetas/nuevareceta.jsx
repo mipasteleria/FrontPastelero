@@ -1,11 +1,12 @@
 import { useState } from "react";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/router";
 import axios from "axios";
+import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -23,29 +24,36 @@ export default function NuevaReceta() {
   const router = useRouter();
 
   const calculateTotal = () => {
-    const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.costo), 0);
+    const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
     const { special_tax, additional_costs, fixed_costs, fixed_costs_hours, profit_margin } = getValues();
-
+  
     const specialTaxValue = parseFloat(special_tax || 0);
     const additionalCostsValue = parseFloat(additional_costs || 0);
     const fixedCostsValue = parseFloat(fixed_costs || 0);
     const fixedCostsHoursValue = parseFloat(fixed_costs_hours || 0);
     const profitMarginValue = parseFloat(profit_margin || 0);
-
+  
     const totalCost = ingredientTotal + specialTaxValue + additionalCostsValue + fixedCostsValue + fixedCostsHoursValue;
     const totalWithProfit = totalCost + (totalCost * profitMarginValue / 100);
-
+  
     setTotal(totalWithProfit);
   };
+  
 
   const handleAddIngredient = () => {
     const { ingrediente, cantidad, precio, unidad } = getValues();
     if (ingrediente.trim() && cantidad && precio) {
-      const total = (precio / cantidad).toFixed(2);
-      setIngredientsList([
-        ...ingredientsList,
-        { ingrediente, cantidad, precio, unidad, total } 
-      ]);
+      const total = (parseFloat(precio) || 0) / (parseFloat(cantidad) || 1);
+      const newIngredient = { ingrediente, cantidad, precio: parseFloat(precio), unidad, total: total.toFixed(2) };
+  
+      console.log("Form Data on Add:", getValues());
+      console.log("Ingredient to be Added:", newIngredient);
+  
+      setIngredientsList(prevIngredients => {
+        const newIngredients = [...prevIngredients, newIngredient];
+        calculateTotal();
+        return newIngredients;
+      });
       setValue("ingrediente", "");
       setValue("cantidad", "");
       setValue("precio", "");
@@ -54,15 +62,21 @@ export default function NuevaReceta() {
       console.error("Faltan valores para agregar el ingrediente");
     }
   };
-
+  
+  
   const handleDeleteIngredient = (index) => setIngredientsList(ingredientsList.filter((_, i) => i !== index));
 
   const onInputChange = () => calculateTotal();
 
   const onSubmit = async (data) => {
-    data.ingredients = ingredientsList; 
+    data.ingredientes = ingredientsList;
     data.total_cost = total;
-    
+  
+    // Verifica los datos antes de enviarlos
+    console.log("Ingredients List:", ingredientsList);
+    console.log("Form Data:", data);
+    console.log("Total Cost:", total);
+  
     try {
       const response = await axios.post("http://localhost:3001/recetas/recetas", data, {
         headers: {
@@ -76,7 +90,6 @@ export default function NuevaReceta() {
     }
   };
   
-
   const renderInput = (id, label, type = "text", placeholder, validation) => (
     <div className="w-full">
       <label htmlFor={id} className="block text-sm font-medium dark:text-white">{label}</label>
@@ -104,8 +117,8 @@ export default function NuevaReceta() {
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
         <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Nueva Receta</h1>
@@ -228,12 +241,21 @@ export default function NuevaReceta() {
               <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Costo total estimado</h2>
               <p className="text-center text-2xl">{total.toFixed(2)} MXN</p>
             </div>
-            <button
-              type="submit"
-              className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
-            >
-              Guardar Receta
-            </button>
+            <div className="flex flex-col md:flex-row gap-10 justify-center">
+              <button
+                type="submit"
+                className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center md:mb-20"
+              >
+                Guardar Receta
+              </button>
+              <Link href={"/dashboard/costeorecetas"}>
+                <button
+                  className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
+                >
+                  Regresar
+                </button>
+              </Link>
+            </div>
           </form>
         </main>
       </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css'; // Importa los estilos del calendario si no lo has hecho ya
+import 'react-calendar/dist/Calendar.css';
 
 const MyCalendar = () => {
   const [date, setDate] = useState(new Date());
@@ -24,9 +24,9 @@ const MyCalendar = () => {
         className="mb-6 custom-calendar"
       />
       <form className="w-full max-w-xs">
-        <label htmlFor="time" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-          Selecciona un horario valido:
-        </label>
+      <label htmlFor="time" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+        Selecciona un horario valido:
+      </label>
         <div className="relative">
           <div className="absolute inset-y-0 end-0 top-0 flex items-center pr-3.5 pointer-events-none">
             <svg
