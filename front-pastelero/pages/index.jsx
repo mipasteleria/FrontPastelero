@@ -9,12 +9,17 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Home() {
   return (
-    <main className={`h-auto ${poppins.className}`}>
+    <main 
+    className={`h-auto ${poppins.className}`}>
       <NavbarAdmin />
-      <div className={`text-text max-w-screen-lg mx-auto mt-24`}>
-        <section className="m-8 flex flex-col items-center lg:flex-row justify-between">
-          <div className="flex justify-center md:w-1/2">
-            <div className="flex justify-center w-full aspect-w-4 aspect-h-3 md:rounded-xl overflow-hidden">
+      <div 
+      className={`text-text max-w-screen-lg mx-auto mt-24`}>
+        <section 
+        className="m-8 flex flex-col items-center lg:flex-row justify-between">
+          <div 
+          className="flex justify-center md:w-1/2">
+            <div 
+            className="flex justify-center w-full aspect-w-4 aspect-h-3 md:rounded-xl overflow-hidden">
               <iframe
                 className="w-50% h-50% sm:w-80 md:w-full lg:h-72 rounded-xl"
                 src="https://players.brightcove.net/6041795507001/default_default/index.html?videoId=6360347153112"
@@ -24,11 +29,14 @@ export default function Home() {
               ></iframe>
             </div>
           </div>
-          <div className="md:basis-1/2 md:flex md:flex-col md:gap-6 m-6">
-            <h1 className={`text-center text-4xl ${sofia.className}`}>
+          <div 
+          className="md:basis-1/2 md:flex md:flex-col md:gap-6 m-6">
+            <h1 
+            className={`text-center text-4xl ${sofia.className}`}>
               Horneando Recuerdos
             </h1>
-            <p className="text-center text-lg my-6">
+            <p 
+            className="text-center text-lg my-6">
               ¿Cuántos de tus recuerdos más preciados incluyen un delicioso
               pastel? En nuestra pastelería, ofrecemos calidad y personalización
               en cada pastel. Visita nuestra galería para admirar nuestros
@@ -36,8 +44,10 @@ export default function Home() {
               ¡Convierte tus momentos especiales en experiencias inolvidables!
             </p>
             <div className="flex flex-col gap-4 justify-center items-center">
-              <Link href="/cotizacion">
-                <button className="bg-primary font-bold p-6 px-8 rounded-md shadow-lg w-72">
+              <Link 
+              href="/cotizacion">
+                <button 
+                className="bg-primary font-bold p-6 px-8 rounded-md shadow-lg w-72">
                   ¡COTIZA HOY MISMO!
                 </button>
               </Link>

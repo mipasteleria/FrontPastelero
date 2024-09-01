@@ -55,8 +55,10 @@ const handleLogout = () => {
     <nav
       className={`fixed top-0 left-0 w-full bg-primary h-16 ${sofia.className} text-text z-50 shadow-lg`}
     >
-      <div className="flex flex-row justify-between items-center">
-        <div className="flex">
+      <div 
+      className="flex flex-row justify-between items-center">
+        <div 
+        className="flex">
           <button
             id="menuButton"
             className="block md:hidden"
@@ -79,8 +81,10 @@ const handleLogout = () => {
               />
             </svg>
           </button>
-          <Link href="/">
-            <button className="mx-2 cursor-pointer">
+          <Link 
+          href="/">
+            <button 
+            className="mx-2 cursor-pointer">
               <Image
                 src="/img/logo.JPG"
                 width={64}
@@ -89,16 +93,21 @@ const handleLogout = () => {
               />
             </button>
           </Link>
-          <div className="hidden md:block">
-            <div className="text-white px-2">Pastelería</div>
-            <div className="text-white text-4xl px-2">El Ruiseñor</div>
+          <div 
+          className="hidden md:block">
+            <div 
+            className="text-white px-2">Pastelería</div>
+            <div 
+            className="text-white text-4xl px-2">El Ruiseñor</div>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div 
+        className="flex items-center gap-4">
           {isLoggedIn ? (
             isAdmin ? (
               <div>
-                <Link href="/dashboard">
+                <Link 
+                href="/dashboard">
                   <button
                     className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
                   >
@@ -113,20 +122,23 @@ const handleLogout = () => {
                 </button>
             </div>
             ) : (
-              <div className="flex">
+              <div 
+              className="flex">
                 <div
                   className={`${poppins.className} m-4 hidden lg:flex cursor-pointer`}
                 >
                   {userEmail}
                 </div>
-                <Link href="/enduser/mispedidos">
+                <Link 
+                href="/enduser/mispedidos">
                   <button
                     className={`${poppins.className} m-4 hidden md:flex cursor-pointer`}
                   >
                     Mis Pedidos
                   </button>
                 </Link>
-                <Link href="/cotizacion">
+                <Link 
+                href="/cotizacion">
                   <div
                     className={`${
                       poppins.className
@@ -264,7 +276,9 @@ const handleLogout = () => {
           id="dropdownMenu"
           className="z-60 fixed left-0 top-0 bottom-0 w-4/5 h-full bg-primary/80 backdrop-blur-lg text-text rounded-lg shadow-2xl p-4 md:hidden"
         >
-          <button className="absolute top-4 right-4" onClick={toggleDropdown}>
+          <button 
+          className="absolute top-4 right-4" 
+          onClick={toggleDropdown}>
             <svg
               className="w-8 h-8 text-text"
               aria-hidden="true"
@@ -284,7 +298,8 @@ const handleLogout = () => {
           {isLoggedIn ? (
             isAdmin ? (
               <div>
-              <Link href="/admin/dashboard">
+              <Link 
+              href="/admin/dashboard">
                 <button
                   className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
                 >
@@ -299,8 +314,10 @@ const handleLogout = () => {
               </button>
             </div>
             ) : (
-              <div className="flex flex-col">
-                <Link href="/user/orders">
+              <div 
+              className="flex flex-col">
+                <Link 
+                href="/user/orders">
                   <button
                     className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
                   >
@@ -313,15 +330,18 @@ const handleLogout = () => {
                 >
                   LogOut
                 </button>
-                <Link href="/cotizacion">
+                <Link 
+                href="/cotizacion">
                   <button
                     className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
                   >
                     ¡Cotizar ahora!
                   </button>
                 </Link>
-                <div className="flex flex-row text-text mx-6">
-                  <Link href="/enduser/carrito">
+                <div 
+                className="flex flex-row text-text mx-6">
+                  <Link 
+                  href="/enduser/carrito">
                     <button
                       className={`${poppins.className} m-4 cursor-pointer`}
                     >
@@ -344,7 +364,8 @@ const handleLogout = () => {
                       </svg>
                     </button>
                   </Link>
-                  <Link href="/enduser/conocenos#preguntasfrecuentes">
+                  <Link 
+                  href="/enduser/conocenos#preguntasfrecuentes">
                     <button
                       className={`${poppins.className} m-4 cursor-pointer`}
                     >
@@ -371,43 +392,50 @@ const handleLogout = () => {
               </div>
             )
           ) : (
-            <div className="flex flex-col font-bold">
-              <Link href="/registrarse">
+            <div 
+            className="flex flex-col font-bold">
+              <Link 
+              href="/registrarse">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Registrarse
                 </button>
               </Link>
-              <Link href="/enduser/conocenuestrosproductos">
+              <Link 
+              href="/enduser/conocenuestrosproductos">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Productos
                 </button>
               </Link>
-              <Link href="/enduser/galeria">
+              <Link 
+              href="/enduser/galeria">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Galería
                 </button>
               </Link>
-              <Link href="/login">
+              <Link 
+              href="/login">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Log In
                 </button>
               </Link>
-              <Link href="/enduser/conocenos#preguntasfrecuentes">
+              <Link 
+              href="/enduser/conocenos#preguntasfrecuentes">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Preguntas frecuentes
                 </button>
               </Link>
-              <Link href="/cotizacion">
+              <Link 
+              href="/cotizacion">
                 <button
                   className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer font-normal`}
                 >

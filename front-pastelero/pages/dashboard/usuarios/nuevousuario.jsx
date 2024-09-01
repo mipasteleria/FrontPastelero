@@ -109,8 +109,10 @@ export default function Conocenuestrosproductos() {
   );
 
   return (
-    <div className={`text-text ${poppins.className}`}>
-      <NavbarAdmin className="fixed top-0 w-full z-50" />
+    <div 
+    className={`text-text ${poppins.className}`}>
+      <NavbarAdmin 
+      className="fixed top-0 w-full z-50" />
       <div className="flex flex-row mt-16">
         <Asideadmin />
         <main className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">

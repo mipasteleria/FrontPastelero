@@ -86,11 +86,16 @@ export default function Snackprice() {
   };
   return (
     <main>
-      <form onSubmit={handleSubmit(onSubmit)}className={`${poppins.className}`}>
-        <div className="grid grid-cols-1 m-8 md:grid-cols-4 gap-4 text-sm font-medium dark:text-white">
+      <form 
+      onSubmit={handleSubmit(onSubmit)}
+      className={`${poppins.className}`}>
+        <div 
+        className="grid grid-cols-1 m-8 md:grid-cols-4 gap-4 text-sm font-medium dark:text-white">
           {/* Basic request information */}
-          <div className="md:col-span-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div 
+          className="md:col-span-3">
+          <div 
+          className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Numero de personas */}
           <div>
           <p>Número de Personas</p>

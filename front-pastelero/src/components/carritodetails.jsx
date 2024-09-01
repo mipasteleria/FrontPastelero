@@ -4,15 +4,18 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const Importante = () => {
     return (
         <div>
-            <div className="mb-10">
-            <h2 className={`text-3xl m-4 ${sofia.className}`}>
-            Condiciones e información importante
-            </h2>
-            <div className="bg-rose-50 m-4 flex flex-col gap-4 p-4">
-            <p>
-                Para iniciar su pedido, se solicita un anticipo del 50% del total.
-                Favor de confirmar disponibilidad antes de hacer su pedido.
-            </p>
+            <div 
+            className="mb-10">
+                <h2 
+                    className={`text-3xl m-4 ${sofia.className}`}>
+                    Condiciones e información importante
+                </h2>
+            <div 
+            className="bg-rose-50 m-4 flex flex-col gap-4 p-4">
+                <p>
+                    Para iniciar su pedido, se solicita un anticipo del 50% del total.
+                    Favor de confirmar disponibilidad antes de hacer su pedido.
+                </p>
             <p>
                 <strong>Vigencia:</strong> El presupuesto es válido por 30 días a partir de la
                 fecha estipulada en la orden.
@@ -35,7 +38,8 @@ const Importante = () => {
             </p>
             </div>
             </div>
-            <p className="text-accent m-6">
+            <p 
+            className="text-accent m-6">
             Muchas gracias por tomarte el tiempo para leer toda la información,
             quedamos al pendiente para cualquier duda o aclaración. Te recordamos
             que el horario de atención es de lunes a viernes de 9 am a 6 pm.

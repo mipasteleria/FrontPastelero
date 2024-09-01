@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
-import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
   const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
   const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
