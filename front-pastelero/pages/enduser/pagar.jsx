@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
@@ -9,16 +8,15 @@ import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout
 } from "@stripe/react-stripe-js";
+import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-// Asegúrate de llamar a `loadStripe` fuera del componente para evitar recrear la instancia en cada renderizado.
 const stripePromise = loadStripe("pk_test_51PpLMA05NkS1u2DA81LiZRgfXzRPrk8hkDrlf3JnlqcxkGlOrbo9DXBPf78uimP3IC6xX3DJHVxp6DAOPqeNzSEz00P2FAWsMZ");
 
-export default function Payment() {
+export function Payment() {
   const fetchClientSecret = useCallback(() => {
-    // Crear una sesión de Checkout
     return fetch("http://localhost:3001/create-checkout-session", {
       method: "POST",
     })
@@ -53,10 +51,10 @@ export default function Payment() {
   );
 }
 
-// Componente para manejar la página de retorno (success o fallo en la compra)
-const Return = () => {
+export function Return() {
   const [status, setStatus] = useState(null);
   const [customerEmail, setCustomerEmail] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const queryString = window.location.search;
@@ -72,7 +70,8 @@ const Return = () => {
   }, []);
 
   if (status === "open") {
-    return <Navigate to="/checkout" />;
+    router.push("/checkout");
+    return null;
   }
 
   if (status === "complete") {
@@ -87,4 +86,4 @@ const Return = () => {
   }
 
   return null;
-};
+}
