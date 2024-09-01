@@ -31,28 +31,44 @@ export default function TablaDeInsumos() {
   };
 
   return (
-    <table className="w-full text-sm text-left rtl:text-right text-text">
-      <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
+    <table 
+    className="w-full text-sm text-left rtl:text-right text-text">
+      <thead 
+      className="text-xs uppercase bg-transparent dark:bg-transparent">
         <tr>
-          <th scope="col" className="px-6 py-3 border-b border-secondary">
+          <th 
+          scope="col" 
+          className="px-6 py-3 border-b border-secondary">
             ID
           </th>
-          <th scope="col" className="px-6 py-3 border-b border-secondary">
+          <th 
+          scope="col" 
+          className="px-6 py-3 border-b border-secondary">
             Nombre
           </th>
-          <th scope="col" className="px-6 py-3 border-b border-secondary">
+          <th 
+          scope="col" 
+          className="px-6 py-3 border-b border-secondary">
             Cantidad
           </th>
-          <th scope="col" className="px-6 py-3 border-b border-secondary">
+          <th 
+          scope="col" 
+          className="px-6 py-3 border-b border-secondary">
             Costo
           </th>
-          <th scope="col" className="px-6 py-3 border-b border-secondary">
+          <th 
+          scope="col" 
+          className="px-6 py-3 border-b border-secondary">
             Unidad
           </th>
-          <th scope="col" className="px-6 py-3 border-b border-secondary">
+          <th 
+          scope="col" 
+          className="px-6 py-3 border-b border-secondary">
             Precio por gr/ml
           </th>
-          <th scope="col" className="px-6 py-3 border-b border-secondary">
+          <th 
+          scope="col" 
+          className="px-6 py-3 border-b border-secondary">
             Acciones
           </th>
         </tr>
@@ -64,33 +80,42 @@ export default function TablaDeInsumos() {
               key={insumo._id}
               className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700"
             >
-              <td className="px-6 py-4 border-b border-secondary">
-                <span className="ml-2 whitespace-nowrap font-medium dark:text-white">
+              <td 
+              className="px-6 py-4 border-b border-secondary">
+                <span 
+                className="ml-2 whitespace-nowrap font-medium dark:text-white">
                   {insumo._id}
                 </span>
               </td>
-              <td className="px-6 py-4 border-b border-secondary">
+              <td 
+              className="px-6 py-4 border-b border-secondary">
                 {insumo.name}
               </td>
-              <td className="px-6 py-4 border-b border-secondary">
+              <td 
+              className="px-6 py-4 border-b border-secondary">
                 {insumo.amount}
               </td>
-              <td className="px-6 py-4 border-b border-secondary">
+              <td 
+              className="px-6 py-4 border-b border-secondary">
                 {insumo.cost}
               </td>
-              <td className="px-6 py-4 border-b border-secondary">
+              <td 
+              className="px-6 py-4 border-b border-secondary">
                 {insumo.unit}
               </td>
-              <td className="px-6 py-4 border-b border-secondary">
+              <td 
+              className="px-6 py-4 border-b border-secondary">
                 {insumo.amount && insumo.cost
                   ? (insumo.cost / insumo.amount).toFixed(2)
                   : "N/A"}
               </td>
-              <td className="px-6 py-4 border-b border-secondary grid grid-cols-2 gap-2">
+              <td 
+              className="px-6 py-4 border-b border-secondary grid grid-cols-2 gap-2">
                 <Link
                   href={`/dashboard/insumosytrabajomanual/editarinsumosotrabajo/${insumo._id}`}
                 >
-                  <button className="text-accent dark:text-white hover:underline">
+                  <button 
+                  className="text-accent dark:text-white hover:underline">
                     <svg
                       className="w-6 h-6"
                       aria-hidden="true"
@@ -113,7 +138,7 @@ export default function TablaDeInsumos() {
                   className="text-red-500 hover:text-red-700"
                 >
                   <svg
-                    class="w-6 h-6 text-accent dark:text-white"
+                    className="w-6 h-6 text-accent dark:text-white"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -123,9 +148,9 @@ export default function TablaDeInsumos() {
                   >
                     <path
                       stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
                     />
                   </svg>

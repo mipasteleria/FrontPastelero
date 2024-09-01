@@ -10,7 +10,6 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 export default function SolicitarCotizacion() {
   const {
     register,
-    handleSubmit,
     formState: { errors },
     setError,
   } = useForm();
@@ -34,11 +33,12 @@ export default function SolicitarCotizacion() {
 
 
   return (
-    <main className={`text-text ${poppins.className} mt-32 max-w-screen-lg mx-auto`}>
-   
-      
-      <h1 className={`text-4xl m-6 ${sofia.className}`}>Solicitar cotización</h1>
-        <p className="m-6">
+    <main 
+    className={`text-text ${poppins.className} mt-32 max-w-screen-lg mx-auto`}>
+      <h1 
+      className={`text-4xl m-6 ${sofia.className}`}>Solicitar cotización</h1>
+        <p 
+        className="m-6">
           Le pedimos que complete cada campo con la mayor cantidad de detalles
           posible para acelerar el proceso de cotización. Recuerda que somos es
           una empresa pequeña que realiza pocos pasteles a la semana. Por favor,
@@ -46,15 +46,20 @@ export default function SolicitarCotizacion() {
           posible para responder rápidamente, pero a veces puede haber retrasos.
           Agradecemos tu comprensión.
         </p>
-
-        <form className="m-4" onSubmit={(e) => e.preventDefault()}>
-          <div className="mb-6">
-            <label className={`text-2xl m-4 ${sofia.className}`}>
+        <form 
+        className="m-4" 
+        onSubmit={(e) => e.preventDefault()}>
+          <div 
+          className="mb-6">
+            <label 
+            className={`text-2xl m-4 ${sofia.className}`}>
               Selecciona el producto que deseas cotizar:
             </label>
-            <div className="flex justify-between m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent">
+            <div 
+            className="flex justify-between m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent">
               {["cake", "cupcake", "dessertTable"].map(type => (
-                <label key={type} className="mr-4">
+                <label key={type} 
+                className="mr-4">
                   <input
                     type="radio"
                     name="formType"
@@ -82,8 +87,6 @@ export default function SolicitarCotizacion() {
             <DessertTableForm register={register} errors={errors} />
           )}
         </form>
-      
-
       </main>
   );
 }

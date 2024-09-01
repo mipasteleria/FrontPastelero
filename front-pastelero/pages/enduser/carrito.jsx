@@ -84,10 +84,13 @@ export default function Carrito() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col ${poppins.className}`}>
+    <div 
+    className={`min-h-screen flex flex-col ${poppins.className}`}>
       <NavbarAdmin />
-      <main className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto mt-24`}>
-        <h1 className={`text-4xl m-4 ${sofia.className}`}>Su carrito</h1>
+      <main 
+      className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto mt-24`}>
+        <h1 
+        className={`text-4xl m-4 ${sofia.className}`}>Su carrito</h1>
         {loading ? (
           <p>Cargando...</p>
         ) : data ? (
@@ -112,8 +115,10 @@ export default function Carrito() {
           <p>No hay datos disponibles.</p>
         )}
         <Importante />
-        <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
-          <Link href="/enduser/pagar">
+        <div 
+        className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
+          <Link 
+          href="/enduser/pagar">
             <button 
               className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56" 
               type="button" 
@@ -122,8 +127,10 @@ export default function Carrito() {
               Pagar
             </button>
           </Link>
-          <Link href="/">
-            <button className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
+          <Link 
+          href="/">
+            <button 
+            className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
               Seguir explorando
             </button>
           </Link>
