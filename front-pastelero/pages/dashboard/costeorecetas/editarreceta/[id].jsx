@@ -58,7 +58,7 @@ export default function EditarReceta() {
 
       fetchReceta();
     }
-  }, [id]);
+  }, [id, getValues, setValue]);
 
   const calculateTotal = () => {
     const ingredientTotal = ingredientsList.reduce(

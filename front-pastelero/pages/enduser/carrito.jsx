@@ -5,6 +5,7 @@ import WebFooter from '@/src/components/WebFooter';
 import { useAuth } from '@/src/context';
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from 'next/font/google';
 import Importante from '@/src/components/carritodetails';
+import Image from 'next/image';
 
 const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
 const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
@@ -97,7 +98,7 @@ export default function Carrito() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 shadow-md">
               <div>
                 {data.image && (
-                  <img src={data.image} alt="Product" className="w-full h-auto mb-4 rounded-xl" />
+                  <Image src={data.image} alt="Product" className="w-full h-auto mb-4 rounded-xl" />
                 )}
                 {data.status && (
                   <p className="text-2xl font-bold mb-4"><strong>Status:</strong> {data.status}</p>
