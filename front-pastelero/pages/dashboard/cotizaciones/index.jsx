@@ -10,7 +10,6 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Conocenuestrosproductos() {
   const [userCotizacion, setUserCotizacion] = useState([]);
-  const [cotizacionType, setCotizacionType] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   useEffect(() => {
@@ -26,13 +25,13 @@ export default function Conocenuestrosproductos() {
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("https://pasteleros-back.vercel.app/pricecupcake", {
+            fetch("http://localhost:3001/pricecupcake", {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("https://pasteleros-back.vercel.app/pricesnack", {
+            fetch("http://localhost:3001/pricesnack", {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
