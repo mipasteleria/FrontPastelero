@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import Image from "next/image";
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function UploadFormImage() {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -31,7 +31,7 @@ export default function UploadFormImage() {
     try {
       // Enviar los archivos al backend
       const uploadResponse = await axios.post(
-        "http://localhost:3001/upload",
+        `${API_BASE}/upload`,
         formData,
         {
           headers: {
