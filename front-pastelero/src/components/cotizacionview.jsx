@@ -17,14 +17,14 @@ const VerCotizacion = () => {
         const token = localStorage.getItem("token");
 
         switch (source) {
-          case "pastel":
-            url = `http://localhost:3001/pricecake/${id}`;
+          case 'pastel':
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecupcake/${id}`;
             break;
-          case "cupcake":
-            url = `http://localhost:3001/pricecupcake/${id}`;
+          case 'cupcake':
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecake/${id}`;
             break;
-          case "snack":
-            url = `http://localhost:3001/pricesnack/${id}`;
+          case 'snack':
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricesnack/${id}`;
             break;
           default:
             console.error("Invalid source");
