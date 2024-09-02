@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
@@ -10,7 +10,7 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-console.log('API_BASE:', API_BASE);  // Debería imprimir: http://localhost:3001
+console.log("API_BASE:", API_BASE);
 
 if (!API_BASE) {
   console.error("API_BASE is not defined! Check your .env configuration.");
@@ -27,7 +27,7 @@ export default function CotizacionesMan() {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch(`${API_BASE}/pricecupcake/`, {
+            fetch(`${API_BASE}/pricecake/`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`, // Corrección aquí
@@ -46,17 +46,17 @@ export default function CotizacionesMan() {
               },
             }),
           ]);
-  
+
           // Procesar las respuestas
         } catch (error) {
           console.error("Error fetching data:", error);
         }
       };
-  
+
       fetchData();
     }
   }, []);
-  
+
   if (!isAuthenticated) {
     return <div>You are not authenticated. Please log in.</div>;
   }
@@ -105,25 +105,17 @@ export default function CotizacionesMan() {
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarAdmin 
-      className="fixed top-0 w-full z-50" />
-      <div 
-      className="flex flex-row mt-16">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
-        <main 
-        className={`text-text ${poppins.className} flex-grow w-3/4`}>
-          <h1 
-          className={`text-4xl p-4 ${sofia.className}`}>
+        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>
             Mis cotizaciones
           </h1>
-          <div 
-          className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
-            <div 
-            className="overflow-x-auto w-full">
-              <table 
-              className="w-full text-sm text-left rtl:text-right text-text">
-                <thead 
-                className="text-xs uppercase bg-transparent dark:bg-transparent">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-sm text-left rtl:text-right text-text">
+                <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
                   <tr>
                     {[
                       "ID",
@@ -248,11 +240,8 @@ export default function CotizacionesMan() {
               </table>
             </div>
           </div>
-          <nav 
-          aria-label="Page navigation example" 
-          className="m-4">
-            <ul 
-            className="inline-flex -space-x-px text-sm ml-auto">
+          <nav aria-label="Page navigation example" className="m-4">
+            <ul className="inline-flex -space-x-px text-sm ml-auto">
               {["Previous", "1", "2", "3", "4", "5", "Next"].map(
                 (item, index) => (
                   <li key={item}>
@@ -278,8 +267,7 @@ export default function CotizacionesMan() {
             className="flex justify-center md:justify-end"
             href={"/dashboard/cotizaciones/cotizacionmanual"}
           >
-            <button 
-            className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center">
+            <button className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center">
               Crear cotización manual
             </button>
           </Link>

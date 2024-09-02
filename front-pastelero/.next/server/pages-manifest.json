@@ -2,7 +2,7 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/enduser/detallesolicitud/[id]": "pages/enduser/detallesolicitud/[id].js",
   "/": "pages/index.js",
-  "/cotizacion": "pages/cotizacion.js",
-  "/enduser/detallesolicitud/[id]": "pages/enduser/detallesolicitud/[id].js"
+  "/cotizacion": "pages/cotizacion.js"
 }
