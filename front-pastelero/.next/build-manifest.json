@@ -12,6 +12,11 @@
   ],
   "rootMainFiles": [],
   "pages": {
+    "/": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/index.js"
+    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -22,20 +27,20 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/dashboard/cotizaciones": [
+    "/cotizacion": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard/cotizaciones.js"
+      "static/chunks/pages/cotizacion.js"
     ],
-    "/dashboard/usuarios": [
+    "/enduser/detallesolicitud/[id]": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard/usuarios.js"
+      "static/chunks/pages/enduser/detallesolicitud/[id].js"
     ],
-    "/dashboard/usuarios/editarusuario/[id]": [
+    "/login": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard/usuarios/editarusuario/[id].js"
+      "static/chunks/pages/login.js"
     ]
   },
   "ampFirstPages": []
