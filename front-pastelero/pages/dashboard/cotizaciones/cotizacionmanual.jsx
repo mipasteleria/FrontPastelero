@@ -22,19 +22,19 @@ export default function Cotizacionmanual() {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch(`${API_BASE}/pricecake`, {
+            fetch( `${API_BASE}/pricecake/${id}`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch(`${API_BASE}/pricecupcake`, {
+            fetch("https://pasteleros-back.vercel.app/pricecupcake", {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch(`${API_BASE}/pricesnack`, {
+            fetch(`${API_BASE}/pricesnack/${id}`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,

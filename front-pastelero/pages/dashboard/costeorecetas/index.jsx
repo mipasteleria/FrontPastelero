@@ -7,7 +7,6 @@ import FooterDashboard from "@/src/components/footeradmin";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 export default function Costeorecetas({ recetas }) {
   return (
     <div className={`text-text ${poppins.className}`}>
@@ -195,7 +194,7 @@ export default function Costeorecetas({ recetas }) {
 // Fetching data for server-side rendering or static generation
 
 export async function getServerSideProps() {
-  const res = await fetch("http://localhost:3001/recetas/recetas", {
+  const res = await fetch(`${API_BASE}/recetas/recetas`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

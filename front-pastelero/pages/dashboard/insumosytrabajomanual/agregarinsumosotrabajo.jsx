@@ -20,7 +20,7 @@ export default function NuevaReceta() {
 
   const onSubmit = (data) => {
     console.log(data);
-    fetch( `${API_BASE}/insumos`, {
+    fetch(`${API_BASE}/insumos`, {
       method: "POST",
       body: JSON.stringify(data),
       headers: {

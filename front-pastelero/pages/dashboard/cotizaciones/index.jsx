@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
@@ -19,53 +20,36 @@ export default function Conocenuestrosproductos() {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch(`${API_BASE}/pricecake`, {
+            fetch("http://localhost:3001/pricecake", {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Corrección aquí
               },
             }),
             fetch(`${API_BASE}/pricecupcake`, {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Corrección aquí
               },
             }),
             fetch(`${API_BASE}/pricesnack`, {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`, // Corrección aquí
               },
             }),
           ]);
-
-          if (cakeRes.ok && cupcakeRes.ok && snackRes.ok) {
-            const [cakeData, cupcakeData, snackData] = await Promise.all([
-              cakeRes.json(),
-              cupcakeRes.json(),
-              snackRes.json(),
-            ]);
-
-            setUserCotizacion([
-              ...cakeData.data.map((item) => ({ ...item, type: "Pastel" })),
-              ...cupcakeData.data.map((item) => ({ ...item, type: "Cupcake" })),
-              ...snackData.data.map((item) => ({ ...item, type: "Snack" })),
-            ]);
-          } else {
-            throw new Error("Failed to fetch data");
-          }
+  
+          // Procesar las respuestas
         } catch (error) {
           console.error("Error fetching data:", error);
-          setIsAuthenticated(false);
         }
       };
-
+  
       fetchData();
-    } else {
-      setIsAuthenticated(false);
     }
   }, []);
-
+  
   if (!isAuthenticated) {
     return <div>You are not authenticated. Please log in.</div>;
   }

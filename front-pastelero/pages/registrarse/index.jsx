@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Login() {
   const router = useRouter();
   const {
@@ -18,7 +19,7 @@ export default function Login() {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const response = await fetch(`${API_BASE}:3001/users`, {
+      const response = await fetch(`${API_BASE}/users`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
