@@ -23,13 +23,13 @@ export default function EditarReceta() {
   const [total, setTotal] = useState(0);
   const router = useRouter();
   const { id } = router.query; // Obtén el ID de la receta del query string
-
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   useEffect(() => {
     if (id) {
       const fetchReceta = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:3001/recetas/recetas/${id}`
+            `${API_BASE}/recetas/recetas/${id}`
           );
           const receta = response.data.data;
 
@@ -132,7 +132,7 @@ const handleAddIngredient = () => {
   
     try {
       const response = await axios.put(
-        `http://localhost:3001/recetas/recetas/${id}`,
+        `${API_BASE}/recetas/recetas/${id}`,
         formattedData,
         {
           headers: {

@@ -11,6 +11,7 @@ import Image from 'next/image';
 
 const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
 const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Carrito() {
   const { userEmail } = useContext(AuthContext);
@@ -36,9 +37,9 @@ export default function Carrito() {
     const fetchData = async () => {
       try {
         const urls = [
-           `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecake/`,
-           `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecupcake/`,
-           `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricesnack/`,
+           `${API_BASE}/pricecake/`,
+           `${API_BASE}/pricecupcake/`,
+           `${API_BASE}/pricesnack/`,
         ];
         const requests = urls.map(url => fetch(url).then(res => res.json()));
         const responses = await Promise.all(requests);
@@ -97,7 +98,7 @@ export default function Carrito() {
   const handleClick = async () => {
     console.log(purchaseData);
     try {
-      const response = await fetch( `${process.env.NEXT_PUBLIC_API_BASE_URL}/checkout/create-checkout-session`, {
+      const response = await fetch( `${API_BASE}/checkout/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

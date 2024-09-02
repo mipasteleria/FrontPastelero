@@ -4,5 +4,11 @@
   "/_document": "pages/_document.js",
   "/enduser/detallesolicitud/[id]": "pages/enduser/detallesolicitud/[id].js",
   "/": "pages/index.js",
+<<<<<<< HEAD
   "/cotizacion": "pages/cotizacion.js"
+=======
+  "/login": "pages/login.js",
+  "/cotizacion": "pages/cotizacion.js",
+  "/enduser/detallesolicitud/[id]": "pages/enduser/detallesolicitud/[id].js"
+>>>>>>> 94fe99ee42a81e344c02ad67865b511d317ecad6
 }

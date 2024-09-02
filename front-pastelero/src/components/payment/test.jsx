@@ -1,8 +1,8 @@
-const YOUR_DOMAIN = process.env.YOUR_DOMAIN;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const testConnection = async () => {
   try {
-    const response = await fetch(`${YOUR_DOMAIN}/create-checkout-session`, {
+    const response = await fetch(`${API_BASE}/create-checkout-session`, {
       method: "POST",
     });
     if (response.ok) {
