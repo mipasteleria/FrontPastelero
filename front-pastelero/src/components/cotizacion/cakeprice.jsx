@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
@@ -44,20 +44,38 @@ export default function Cakeprice() {
           contactPhone: data.contactPhone,
           questionsOrComments: data.questionsOrComments,
           userId: userId,
+          status: "", // Inicialmente vacío
         }),
       });
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const json = await response.json();
       const id = json.data._id;
+      console.log("ID recibido:", id); // Verificación del ID
+  
+      const updateResponse = await fetch(`http://localhost:3001/updateStatus/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "aprobado",
+        }),
+      });
+  
+      if (!updateResponse.ok) {
+        throw new Error(`Failed to update status: ${updateResponse.status}`);
+      }
+  
       router.push(`/enduser/detallesolicitud/${id}?source=pastel`);
       console.log("Response data:", json);
     } catch (error) {
       console.error("Error en la solicitud:", error);
     }
   }
+  
+
   const handleClearFields = () => {
     reset({
       flavor: "",
@@ -85,6 +103,9 @@ export default function Cakeprice() {
       contactName: "",
       contactPhone: "",
       questionsOrComments: "",
+      status: "",
+      precio: "",
+      anticipo: "",
     });
   };
   return (
@@ -365,7 +386,7 @@ export default function Cakeprice() {
           <p>Presupuesto deseado</p>
           <input
             className="inputBudgetrCake bg-gray-50 -accent p-2.5bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-            type="text"
+            type="Number"
             {...register("budget")}
           />
           </div>
