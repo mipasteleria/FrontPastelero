@@ -65,7 +65,7 @@ export default function Cupcakeprice() {
   // Manejar envío del formulario principal
   async function onSubmit(data) {
     try {
-      const response = await fetch(`${API_BASE}/pricecupcake`, {
+      const response = await fetch(`http://localhost:3001/pricecupcake`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
