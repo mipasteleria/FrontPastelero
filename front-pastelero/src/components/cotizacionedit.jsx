@@ -4,6 +4,8 @@ import { Poppins as PoppinsFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const DetalleCotizacion = () => {
   const router = useRouter();
   const { id, source } = router.query;
@@ -19,13 +21,13 @@ const DetalleCotizacion = () => {
         
         switch (source) {
           case 'pastel':
-            url = `https://pasteleros-back.vercel.app/pricecake/${id}`;
+            url =  `${API_BASE}/pricecake/${id}`;
             break;
           case 'cupcake':
-            url = `https://pasteleros-back.vercel.app/pricecupcake/${id}`;
+            url =  `${API_BASE}/pricecupcake/${id}`;
             break;
           case 'snack':
-            url = `https://pasteleros-back.vercel.app/pricesnack/${id}`;
+            url =  `${API_BASE}/pricesnack/${id}`;
             break;
           default:
             console.error("Invalid source");
@@ -66,13 +68,13 @@ const DetalleCotizacion = () => {
 
       switch (source) {
         case 'pastel':
-          url = `https://pasteleros-back.vercel.app/pricecake/${id}`;
+          url =  `${API_BASE}/pricecake/${id}`;
           break;
         case 'cupcake':
-          url = `https://pasteleros-back.vercel.app/pricecupcake/${id}`;
+          url =  `${API_BASE}/pricecupcake/${id}`;
           break;
         case 'snack':
-          url = `https://pasteleros-back.vercel.app/pricesnack/${id}`;
+          url =  `${API_BASE}/pricesnack/${id}`;
           break;
         default:
           console.error("Invalid source");

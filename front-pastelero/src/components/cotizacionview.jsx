@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Poppins as PoppinsFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const VerCotizacion = () => {
   const router = useRouter();
   const { id, source } = router.query;
@@ -18,13 +18,13 @@ const VerCotizacion = () => {
         
         switch (source) {
           case 'pastel':
-            url = `http://localhost:3001/pricecake/${id}`;
+            url = `${API_BASE}/pricecake/${id}`;
             break;
           case 'cupcake':
-            url = `http://localhost:3001/pricecupcake/${id}`;
+            url = `${API_BASE}/pricecupcake/${id}`;
             break;
           case 'snack':
-            url = `http://localhost:3001/pricesnack/${id}`;
+            url = `${API_BASE}/pricesnack/${id}`;
             break;
           default:
             console.error("Invalid source");

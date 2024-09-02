@@ -8,7 +8,7 @@ import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function NuevaReceta() {
   const {
     register,
@@ -20,7 +20,7 @@ export default function NuevaReceta() {
 
   const onSubmit = (data) => {
     console.log(data);
-    fetch("http://localhost:3001/insumos", {
+    fetch( `${API_BASE}/insumos`, {
       method: "POST",
       body: JSON.stringify(data),
       headers: {

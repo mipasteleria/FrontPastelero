@@ -9,7 +9,7 @@ import Image from 'next/image';
 
 const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
 const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Carrito() {
   const { userId } = useAuth();
   const [data, setData] = useState(null);
@@ -20,9 +20,9 @@ export default function Carrito() {
     const fetchData = async () => {
       try {
         const urls = [
-          'http://localhost:3001/pricecake/',
-          'http://localhost:3001/pricecupcake/',
-          'http://localhost:3001/pricesnack/',
+          `${API_BASE}/pricecake/`,
+          `${API_BASE}/pricecupcake/`,
+          `${API_BASE}/pricesnack/`,
         ];
         const requests = urls.map(url => fetch(url).then(res => res.json()));
 

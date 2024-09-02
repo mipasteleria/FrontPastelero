@@ -15,8 +15,12 @@ export default function Price() {
   return (
     <>
       <NavbarAdmin />
-      <main className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}>
-        <h1 className={`text-4xl m-6 ${sofia.className}`}>Solicitar cotización</h1>
+      <main
+        className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}
+      >
+        <h1 className={`text-4xl m-6 ${sofia.className}`}>
+          Solicitar cotización
+        </h1>
         <p>
           Le pedimos que complete cada campo con la mayor cantidad de detalles
           posible para acelerar el proceso de cotización. Recuerda que somos una

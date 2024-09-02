@@ -9,6 +9,7 @@ import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function VerReceta() {
   const [receta, setReceta] = useState(null);
@@ -18,7 +19,7 @@ export default function VerReceta() {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:3001/recetas/recetas/${id}`)
+        .get(`${API_BASE}/recetas/recetas/${id}`)
         .then((response) => {
           const recetaData = response.data.data; // Ajuste aquí
           setReceta(recetaData);

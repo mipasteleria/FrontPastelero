@@ -6,6 +6,7 @@ import FooterDashboard from "@/src/components/footeradmin";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Costeorecetas({ recetas }) {
   return (
@@ -130,7 +131,7 @@ export default function Costeorecetas({ recetas }) {
                             ) {
                               try {
                                 const res = await fetch(
-                                  `http://localhost:3001/recetas/recetas/${receta._id}`,
+                                  `${API_BASE}/recetas/recetas/${receta._id}`,
                                   {
                                     method: "DELETE",
                                   }

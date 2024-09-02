@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function TablaDeInsumos() {
   const [insumos, setInsumos] = useState([]);
 
   useEffect(() => {
     const fetchInsumos = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/insumos");
+        const response = await axios.get(`${API_BASE}/insumos`);
         setInsumos(response.data);
       } catch (error) {
         console.error("Error fetching insumos:", error);
@@ -22,7 +22,7 @@ export default function TablaDeInsumos() {
   const handleDelete = async (id) => {
     if (confirm("¿Estás seguro de que quieres eliminar este insumo?")) {
       try {
-        await axios.delete(`https://pasteleros-back.vercel.app/insumos/${id}`);
+        await axios.delete(`${API_BASE}/insumos/${id}`);
         setInsumos(insumos.filter((insumo) => insumo._id !== id));
       } catch (error) {
         console.error("Error deleting insumo:", error);

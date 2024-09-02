@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Cotizacionmanual() {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -21,19 +22,19 @@ export default function Cotizacionmanual() {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch("https://pasteleros-back.vercel.app/pricecake", {
+            fetch(`${API_BASE}/pricecake`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("https://pasteleros-back.vercel.app/pricecupcake", {
+            fetch(`${API_BASE}/pricecupcake`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("https://pasteleros-back.vercel.app/pricesnack", {
+            fetch(`${API_BASE}/pricesnack`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,

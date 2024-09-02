@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Conocenuestrosproductos() {
   const [userCotizacion, setUserCotizacion] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -19,19 +19,19 @@ export default function Conocenuestrosproductos() {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch("http://localhost:3001/pricecake", {
+            fetch(`${API_BASE}/pricecake`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("http://localhost:3001/pricecupcake", {
+            fetch(`${API_BASE}/pricecupcake`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch("http://localhost:3001/pricesnack", {
+            fetch(`${API_BASE}/pricesnack`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
@@ -78,13 +78,13 @@ export default function Conocenuestrosproductos() {
       // Validar el valor de source y asignar la URL correspondiente
       switch (source) {
         case "cake":
-          url = `https://pasteleros-back.vercel.app/pricecake/${id}`;
+          url = `${API_BASE}/pricecake/${id}`;
           break;
         case "cupcake":
-          url = `https://pasteleros-back.vercel.app/pricecupcake/${id}`;
+          url = `${API_BASE}/pricecupcake/${id}`;
           break;
         case "snack":
-          url = `https://pasteleros-back.vercel.app/pricesnack/${id}`;
+          url = `${API_BASE}/pricesnack/${id}`;
           break;
         default:
           console.error("Invalid source: ", source);

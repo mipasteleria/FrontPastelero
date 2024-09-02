@@ -13,12 +13,12 @@ import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const stripePromise = loadStripe("pk_test_51PpLMA05NkS1u2DA81LiZRgfXzRPrk8hkDrlf3JnlqcxkGlOrbo9DXBPf78uimP3IC6xX3DJHVxp6DAOPqeNzSEz00P2FAWsMZ");
 
 export default function Payment() {
   const fetchClientSecret = useCallback(() => {
-    return fetch("http://localhost:3001/create-checkout-session", {
+    return fetch( `${API_BASE}/create-checkout-session`, {
       method: "POST",
     })
       .then((res) => res.json())
