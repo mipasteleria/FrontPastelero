@@ -1,9 +1,11 @@
-import UploadFormImage from "./imagenes";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import axios from "axios";
+import Image from "next/image";
+
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -13,31 +15,61 @@ export default function Cupcakeprice() {
   const { userId } = useAuth();
   const router = useRouter();
 
+  // Estado para las imágenes
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState([]);
+  const [imageUrls, setImageUrls] = useState([]);
+
+  // Manejar selección de archivos
+  const handleFileChange = (event) => {
+    setSelectedFiles(event.target.files);
+  };
+
+  // Manejar envío de archivos
+  const handleUploadSubmit = async () => {
+    if (selectedFiles.length === 0) {
+      setMessage(["Por favor, selecciona dos imágenes"]);
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      formData.append("files", selectedFiles[i]);
+      formData.append("fileOutputName", selectedFiles[i].name);
+    }
+
+    try {
+      // Enviar los archivos al backend
+      const uploadResponse = await axios.post(
+        "http://localhost:3001/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setMessage(["Files uploaded successfully!"]);
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      setMessage(["Error uploading files. Please try again."]);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Manejar envío del formulario principal
   async function onSubmit(data) {
     try {
       const response = await fetch(`${API_BASE}/pricecupcake`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          flavorBizcocho: data.flavorBizcocho,
-          stuffedFlavor: data.stuffedFlavor,
-          cover: data.cover,
-          portions: data.portions,
-          delivery: data.delivery,
-          deliveryAdress: data.deliveryAdress,
-          fondantCover: data.fondantCover,
-          deliveryDate: data.deliveryDate,
-          fondantDraw: data.fondantDraw,
-          buttercreamDraw: data.buttercreamDraw,
-          naturalFlowers: data.naturalFlowers,
-          sign: data.sign,
-          eatablePrint: data.eatablePrint,
-          sprinkles: data.sprinkles,
-          other: data.other,
-          budget: data.budget,
-          contactName: data.contactName,
-          contactPhone: data.contactPhone,
-          questionsOrComments: data.questionsOrComments,
+          ...data,
           userId: userId,
         }),
       });
@@ -53,6 +85,7 @@ export default function Cupcakeprice() {
       console.error("Error en la solicitud:", error);
     }
   }
+
   const handleClearFields = () => {
     reset({
       flavorBizcocho: "",
@@ -70,13 +103,13 @@ export default function Cupcakeprice() {
       eatablePrint: "",
       sprinkles: "",
       other: "",
-      image: "",
       budget: "",
       contactName: "",
       contactPhone: "",
       questionsOrComments: "",
     });
   };
+
   return (
     <main>
       <form
@@ -203,28 +236,17 @@ export default function Cupcakeprice() {
                 <input
                   className="inputDeliveryAdressCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
                   type="text"
-                  placeholder="Calle, número y colonia"
                   {...register("deliveryAdress")}
+                  required={isDelivery}
                   disabled={!isDelivery}
                 />
               </div>
-              {/* Forrado */}
+              {/* Fecha */}
               <div>
-                <label>
-                  <input
-                    className="inputFondantCoverCupcak m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                    type="checkbox"
-                    {...register("fondantCover")}
-                  />
-                  Forrado de Fondant
-                </label>
-              </div>
-              {/* Fecha y Hora */}
-              <div>
-                <p>Fecha y hora del evento</p>
+                <p>Fecha de entrega</p>
                 <input
                   className="inputDeliveryDateCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                  type="datetime-local"
+                  type="date"
                   {...register("deliveryDate")}
                   required
                 />
@@ -232,126 +254,166 @@ export default function Cupcakeprice() {
             </div>
           </div>
         </div>
-        {/* Decoraciones */}
+
         <div className="flex flex-col m-8 bg-rose-50 p-6 mb-6 rounded-lg">
           <h2 className={`text-xl m-4 ${sofia.className}`}>
             Elige las opciones de decoración que te gustaría que tengan tus
             Cupcakes
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  {...register("fondantCover")}
+                  className="checkboxFondantCoverCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+                Cubierta en Fondant
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  {...register("fondantDraw")}
+                  className="checkboxFondantDrawCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+                Dibujos en Fondant
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  {...register("buttercreamDraw")}
+                  className="checkboxButtercreamDrawCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+                Dibujos en Buttercream
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  {...register("naturalFlowers")}
+                  className="checkboxNaturalFlowersCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+                Flores Naturales
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  {...register("sign")}
+                  className="checkboxSignCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+                Toppers con texto
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  {...register("eatablePrint")}
+                  className="checkboxEatablePrintCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+                Impresion comestible
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  {...register("sprinkles")}
+                  className="checkboxSprinklesCupcake m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+                />
+                Sprinkles (Chispitas)
+              </label>
+            </div>
+          </div>
+          <div>
             <label>
               <input
-                className="inputDondantDrawCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("fondantDraw")}
+                type="text"
+                {...register("other")}
+                className="checkboxOtherCupcake  text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
               />
-              Dibujo a mano en Fondant
-            </label>
-            <label>
-              <input
-                className="inputButtercreamDrawCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("buttercreamDraw")}
-              />
-              Dibujo en Buttercream
-            </label>
-            <label>
-              <input
-                className="inputNaturalFlowersCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("naturalFlowers")}
-              />
-              Flores naturales
-            </label>
-            <label>
-              <input
-                className="inputNaturalSignCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("sign")}
-              />
-              Letrero
-            </label>
-            <label>
-              <input
-                className="inputNaturalEatablePrintCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("eatablePrint")}
-              />
-              Impresion comestible
-            </label>
-            <label>
-              <input
-                className="inputNaturalSprinklesCupcake m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("sprinkles")}
-              />
-              Sprinkles
+              Otra, por favor especificar en Comentarios
             </label>
           </div>
-          <p className="m-4">Otros</p>
+        </div>
+
+        <div>
+          <p className="my-2 m-6">
+            Por favor, sube dos imágenes de inspiración, como la temática, los
+            elementos que te gustaría ver en los cupcakes, la paleta de colores
+            u otras preferencias.
+          </p>
           <input
-            className="inputOtherCupcake m-2 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-            type="text"
-            {...register("other")}
+            type="file"
+            onChange={handleFileChange}
+            accept="image/*"
+            multiple
+          />
+          {message.length > 0 &&
+            message.map((msg, index) => <p key={index}>{msg}</p>)}
+          {imageUrls.length > 0 &&
+            imageUrls.map((url, index) => (
+              <div key={index}>
+                <h2>Uploaded Image:</h2>
+                <Image
+                  src={url}
+                  alt={`Uploaded image ${index}`}
+                  width={500}
+                  height={500}
+                  style={{ maxWidth: "100%" }}
+                />
+              </div>
+            ))}
+        </div>
+
+        <div className="m-8 text-sm font-medium text-secondary">
+          <p>Presupuesto máximo estimado</p>
+          <input
+            className="inputBudgetCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            type="number"
+            {...register("budget")}
+            required
           />
         </div>
-        <div>
-          {/* Presupuesto */}
-          <div className="flex flex-col md:flex-col m-6">
-            <p>
-              ¿Podrías informarnos si tienes un presupuesto específico para este
-              pedido? Nos sería de gran ayuda conocer la cantidad que tienes en
-              mente.
-            </p>
-            <p>Presupuesto deseado</p>
+
+        <div className="grid grid-cols-1 m-8 text-sm font-medium text-secondary md:grid-cols-2 gap-4">
+          <div>
+            <p>Nombre de contacto</p>
             <input
-              className="inputBudgetrCake bg-gray-50 border border-secondary text-sm  p-2.5"
+              className="inputContactNameCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
               type="text"
-              {...register("budget")}
+              {...register("contactName")}
+              required
+            />
+          </div>
+          <div>
+            <p>Teléfono de contacto</p>
+            <input
+              className="inputContactPhoneCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+              type="text"
+              {...register("contactPhone")}
+              required
             />
           </div>
         </div>
-        {/* Informacion de contacto */}
 
-        <div className="m-6">
-          <h2 className={`text-3xl m-4 ${sofia.className}`}>
-            Información de contacto
-          </h2>
-          <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
-            <div className="m-3">
-              <p>Nombre</p>
-              <input
-                className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                type="text"
-                placeholder="Escribe tu nombre"
-                required
-                {...register("contactName")}
-              />
-            </div>
-            <div className="m-3">
-              <p>Número de celular</p>
-              <input
-                className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                type="text"
-                placeholder="000-000-0000"
-                required
-                {...register("contactPhone")}
-              />
-            </div>
-            <div className="m-3">
-              <p>
-                Preguntas o comentarios, platicanos más acerca de tu idea o
-                tematica, nos especializamos en diseñar dulsuras a la medida
-              </p>
-              <input
-                className="inputQuestionsOrCommentsCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                type="text"
-                {...register("questionsOrComments")}
-              />
-            </div>
-          </div>
+        <div className="m-8 text-sm font-medium text-secondary">
+          <p>Preguntas o Comentarios</p>
+          <textarea
+            className="inputQuestionsOrCommentsCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+            type="textarea"
+            {...register("questionsOrComments")}
+            rows="5"
+          />
         </div>
-        {/* Botones */}
+
         <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
           <button
             type="button"
@@ -361,22 +423,13 @@ export default function Cupcakeprice() {
             Limpiar campos
           </button>
           <button
-            type="onsubmit"
+            type="submit"
             className="btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
           >
             Cotizar Cupcakes
           </button>
         </div>
       </form>
-      {/* Imagenes */}
-      <p className="my-2 m-6">
-        Por favor, sube dos imágenes de inspiración, como la temática, los
-        elementos que te gustaría ver en los cupcakes, la paleta de colores u
-        otras preferencias. <br /> Esto nos ayudará a crear un diseño
-        personalizado para ti. Puedes subir hasta 2 imágenes de hasta 10MB cada
-        una.
-      </p>
-      <UploadFormImage />
     </main>
   );
 }
