@@ -16,11 +16,11 @@ export default function Verdetallesolicitud() {
     if (id && source) {
       const type = source.toLocaleLowerCase();
       const url = `/dashboard/cotizaciones/generarcotizacion/${id}?source=${source}&type=${type}`;
-      
+
       console.log(`Navigating to: ${url}`);
       router.push(url);
     } else {
-      console.error('id or source is undefined');
+      console.error("id or source is undefined");
     }
   };
 
