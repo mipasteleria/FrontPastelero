@@ -9,7 +9,7 @@ import Image from "next/image";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   export default function Cupcakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
