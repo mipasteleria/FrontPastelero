@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^2.8.0",
-    "@stripe/stripe-js": "^4.3.0",
+    "@stripe/stripe-js": "^4.4.0",
     "axios": "^1.7.3",
     "date-fns": "^3.6.0",
     "flowbite": "^2.4.1",
