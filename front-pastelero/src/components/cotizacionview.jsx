@@ -17,13 +17,13 @@ const VerCotizacion = () => {
         const token = localStorage.getItem("token");
 
         switch (source) {
-          case 'pastel':
-            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecupcake/${id}`;
-            break;
-          case 'cupcake':
+          case "pastel":
             url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecake/${id}`;
             break;
-          case 'snack':
+          case "cupcake":
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecupcake/${id}`;
+            break;
+          case "snack":
             url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricesnack/${id}`;
             break;
           default:
