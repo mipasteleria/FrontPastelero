@@ -18,13 +18,13 @@ const VerCotizacion = () => {
         
         switch (source) {
           case 'pastel':
-            url = `http://localhost:3001/pricecake/${id}`;
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecupcake/${id}`;
             break;
           case 'cupcake':
-            url = `http://localhost:3001/pricecupcake/${id}`;
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecake/${id}`;
             break;
           case 'snack':
-            url = `http://localhost:3001/pricesnack/${id}`;
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricesnack/${id}`;
             break;
           default:
             console.error("Invalid source");
