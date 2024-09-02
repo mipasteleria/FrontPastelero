@@ -21,7 +21,7 @@ export default function UsuarioForm() {
   const [userData, setUserData] = useState(null);
   const router = useRouter();
   const { id } = router.query; // Obtén el ID desde la query de la URL
-
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   useEffect(() => {
     if (id) {
       const fetchUserData = async () => {

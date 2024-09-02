@@ -28,7 +28,7 @@ export default function Cotizacionmanual() {
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch(`${API_BASE}/pricecupcake/${id}`, {
+            fetch("https://pasteleros-back.vercel.app/pricecupcake", {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,

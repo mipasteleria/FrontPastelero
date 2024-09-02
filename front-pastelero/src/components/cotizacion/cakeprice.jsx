@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
+  const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Cakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);

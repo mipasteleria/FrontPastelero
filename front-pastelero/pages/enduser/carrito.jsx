@@ -37,9 +37,9 @@ export default function Carrito() {
     const fetchData = async () => {
       try {
         const urls = [
-           `${API_BASE}/pricecake/`,
-           `${API_BASE}/pricecupcake/`,
-           `${API_BASE}/pricesnack/`,
+          'http://localhost:3001/pricecake/',
+          'http://localhost:3001/pricecupcake/',
+          'http://localhost:3001/pricesnack/',
         ];
         const requests = urls.map(url => fetch(url).then(res => res.json()));
         const responses = await Promise.all(requests);
