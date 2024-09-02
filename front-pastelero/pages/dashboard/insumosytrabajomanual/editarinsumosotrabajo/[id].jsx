@@ -1,14 +1,15 @@
-import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import NavbarDashboard from "@/src/components/navbardashboard";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/router'; // Importa useRouter
+import { useRouter } from "next/router"; // Importa useRouter
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function EditarInsumo({ insumo }) {
   const {
@@ -22,8 +23,8 @@ export default function EditarInsumo({ insumo }) {
       name: insumo.name,
       amount: insumo.amount,
       cost: insumo.cost,
-      unit: insumo.unit
-    }
+      unit: insumo.unit,
+    },
   });
 
   const router = useRouter(); // Usa useRouter
@@ -58,7 +59,7 @@ export default function EditarInsumo({ insumo }) {
 
   const onSubmit = async (data) => {
     console.log("ID del insumo:", insumo._id);
-    await fetch(`http://localhost:3001/insumos/${insumo._id}`, {
+    await fetch(`${API_BASE}/insumos/${insumo._id}`, {
       method: "PUT",
       body: JSON.stringify(data),
       headers: {
@@ -70,8 +71,8 @@ export default function EditarInsumo({ insumo }) {
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
         <main className={`text-text ${poppins.className} flex-grow w-3/4`}>
           <h1 className={`text-4xl p-4 ${sofia.className}`}>
@@ -96,7 +97,9 @@ export default function EditarInsumo({ insumo }) {
                   className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                   placeholder="Pastel de vainilla"
                 />
-                {errors.name && <p className="text-red-600">{errors.name.message}</p>}
+                {errors.name && (
+                  <p className="text-red-600">{errors.name.message}</p>
+                )}
               </div>
               <div className="grid gap-6 mb-6">
                 <div>
@@ -109,12 +112,16 @@ export default function EditarInsumo({ insumo }) {
                   <input
                     type="number"
                     id="quantity"
-                    {...register("amount", { required: "Cantidad es requerida" })}
+                    {...register("amount", {
+                      required: "Cantidad es requerida",
+                    })}
                     className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                     placeholder="0.0"
                     onChange={handleQuantityChange}
                   />
-                  {errors.amount && <p className="text-red-600">{errors.amount.message}</p>}
+                  {errors.amount && (
+                    <p className="text-red-600">{errors.amount.message}</p>
+                  )}
                 </div>
                 <div>
                   <label
@@ -131,7 +138,9 @@ export default function EditarInsumo({ insumo }) {
                     placeholder="0.0"
                     onChange={handleCostChange}
                   />
-                  {errors.cost && <p className="text-red-600">{errors.cost.message}</p>}
+                  {errors.cost && (
+                    <p className="text-red-600">{errors.cost.message}</p>
+                  )}
                 </div>
                 <div className="flex items-end">
                   <div className="w-full">
@@ -149,7 +158,9 @@ export default function EditarInsumo({ insumo }) {
                       <option value="grams">gramos</option>
                       <option value="ml">mililitros</option>
                     </select>
-                    {errors.unit && <p className="text-red-600">{errors.unit.message}</p>}
+                    {errors.unit && (
+                      <p className="text-red-600">{errors.unit.message}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -157,20 +168,23 @@ export default function EditarInsumo({ insumo }) {
             <div className="m-4 w-3/4 mx-auto text-lg">
               Costo por unidad: {costPerUnit} por gramo/ml
             </div>
+            <div className="flex flex-col md:flex-row justify-center mb-20">
             <button
               type="submit"
-              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6"
+              className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-72 px-16 py-2.5 text-center ml-2 m-6"
             >
               Guardar cambios
             </button>
-          </form>
-          <Link href="/dashboard/insumosytrabajomanual">
-            <div className="flex justify-end mb-20">
-              <button className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+            <Link className="" href={"/dashboard/insumosytrabajomanual"}>
+              <button
+                type=""
+                className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-72 px-16 py-2.5 text-center ml-2 m-6"
+              >
                 Regresar
               </button>
+            </Link>
             </div>
-          </Link>
+          </form>
           <FooterDashboard />
         </main>
       </div>
@@ -179,7 +193,7 @@ export default function EditarInsumo({ insumo }) {
 }
 
 export async function getServerSideProps({ params }) {
-  const res = await fetch(`http://localhost:3001/insumos/${params.id}`);
+  const res = await fetch(`${API_BASE}/insumos/${params.id}`);
   const insumo = await res.json();
   return { props: { insumo } };
 }

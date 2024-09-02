@@ -2,7 +2,6 @@
 import { AuthProvider } from '../src/context';
 import "@/styles/globals.css";
 import 'react-calendar/dist/Calendar.css'; 
-import '../src/components/calendario/styles/datepicker.css'; 
 
 function MyApp({ Component, pageProps }) {
   return (

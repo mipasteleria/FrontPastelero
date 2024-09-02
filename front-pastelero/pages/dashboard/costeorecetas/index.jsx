@@ -1,26 +1,31 @@
 import Link from "next/link";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Costeorecetas({ recetas }) {
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex">
+      <NavbarAdmin 
+      className="fixed top-0 w-full z-50" />
+      <div 
+      className="flex flex-row mt-16">
         <Asideadmin />
         <main
           className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}
         >
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis recetas</h1>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-sm text-left rtl:text-right text-text">
-                <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
+            <div 
+            className="overflow-x-auto w-full">
+              <table 
+              className="w-full text-sm text-left rtl:text-right text-text">
+                <thead 
+                className="text-xs uppercase bg-transparent dark:bg-transparent">
                   <tr>
                     <th
                       scope="col"
@@ -72,12 +77,12 @@ export default function Costeorecetas({ recetas }) {
                         {new Date(receta.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 border-b border-secondary">
-                        {receta.total_cost || 'N/A'}
+                        {receta.total_cost || "N/A"}
                       </td>
                       <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-1">
                         <Link href={`/dashboard/costeorecetas/${receta._id}`}>
                           <svg
-                            className="w-6 h-6 text-accent dark:text-white"
+                            className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
                             aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -97,9 +102,11 @@ export default function Costeorecetas({ recetas }) {
                             />
                           </svg>
                         </Link>
-                        <Link href={`/dashboard/costeorecetas/editarreceta/${receta._id}`}>
+                        <Link
+                          href={`/dashboard/costeorecetas/editarreceta/${receta._id}`}
+                        >
                           <svg
-                            className="w-6 h-6 text-accent dark:text-white"
+                            className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
                             aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -116,40 +123,50 @@ export default function Costeorecetas({ recetas }) {
                         </Link>
                         <button
                           onClick={async () => {
-                            if (confirm('¿Estás seguro de que deseas eliminar esta receta?')) {
+                            if (
+                              confirm(
+                                "¿Estás seguro de que deseas eliminar esta receta?"
+                              )
+                            ) {
                               try {
-                                const res = await fetch(`http://localhost:3001/recetas/recetas/${receta._id}`, {
-                                  method: 'DELETE',
-                                });
+                                const res = await fetch(
+                                  `${API_BASE}/recetas/recetas/${receta._id}`,
+                                  {
+                                    method: "DELETE",
+                                  }
+                                );
                                 if (res.ok) {
-                                  alert('Receta eliminada');
-                                  // Optionally, you can refresh the page or remove the item from the UI
+                                  alert("Receta eliminada");
                                   window.location.reload();
                                 } else {
-                                  throw new Error('Error al eliminar la receta');
+                                  throw new Error(
+                                    "Error al eliminar la receta"
+                                  );
                                 }
                               } catch (error) {
                                 console.error(error);
-                                alert('No se pudo eliminar la receta');
+                                alert("No se pudo eliminar la receta");
                               }
                             }
                           }}
                         >
                           <svg
-                            className="w-6 h-6 text-accent dark:text-white"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4h1a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5Zm4 11a1 1 0 0 1-1-1v-4h8v4a1 1 0 0 1-1 1H9Z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                          className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
+                          />
+                        </svg>
                         </button>
                       </td>
                     </tr>
@@ -158,10 +175,12 @@ export default function Costeorecetas({ recetas }) {
               </table>
             </div>
           </div>
-          <Link className="flex justify-center md:justify-start" href={"/dashboard/costeorecetas/nuevareceta"}>
-            <button
-              className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center"
-            >
+          <Link
+            className="flex justify-center md:justify-start"
+            href={"/dashboard/costeorecetas/nuevareceta"}
+          >
+            <button 
+            className="m-10 mb-20 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center">
               Nueva Receta
             </button>
           </Link>
@@ -173,8 +192,14 @@ export default function Costeorecetas({ recetas }) {
 }
 
 // Fetching data for server-side rendering or static generation
+
 export async function getServerSideProps() {
-  const res = await fetch('http://localhost:3001/recetas/recetas');
+  const res = await fetch(`${API_BASE}/recetas/recetas`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   const data = await res.json();
 
   return {

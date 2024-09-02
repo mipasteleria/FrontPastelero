@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Login() {
   const router = useRouter();
   const {
@@ -18,28 +18,37 @@ export default function Login() {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const response = await fetch("http://localhost:3001/users", {
+      const response = await fetch(`${API_BASE}/users`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json; charset=UTF-8",
         },
       });
+    
       const json = await response.json();
-      console.log(json);
-      if (json.success) {
-        // Handle successful response
+    
+      if (response.ok) {
+        // Actualizar el estado global del usuario
+        //setUser(json.data);
+        // Redirigir al home en caso de éxito
+        router.push("/");
+      } else {
+        // Manejo del error en caso de que la respuesta no sea exitosa
+        console.error("Error en la creación del usuario:", json.message || "Unknown error");
       }
     } catch (error) {
-      console.error("Error:", error);
+      // Manejo de cualquier error que ocurra durante la solicitud
+      console.error("Error:", error.message || "An unexpected error occurred");
     }
   };
-
+  
   return (
     <main
       className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}
     >
-      <div className={`flex mt-6 justify-center rounded-xl ${sofia.className}`}>
+      <div 
+      className={`flex mt-6 justify-center rounded-xl ${sofia.className}`}>
         <Link href="/">
           <Image
             className="h-32 w-32"
@@ -49,20 +58,31 @@ export default function Login() {
             alt="Logo de Pastelería El Ruiseñor"
           />
         </Link>
-        <div className="px-2">
-          <div className="text-white text-3xl">Pastelería</div>
-          <div className="text-white text-4xl">El Ruiseñor</div>
+        <div 
+        className="px-2">
+          <div 
+          className="text-white text-3xl">
+            Pastelería
+          </div>
+          <div 
+          className="text-white text-4xl">
+            El Ruiseñor
+          </div>
         </div>
       </div>
-      <h1 className="text-text text-2xl mt-10">Registrarse</h1>
+      <h1 
+      className="text-text text-2xl mt-10">
+        Registrarse
+      </h1>
       <form
         className="w-11/12 md:w-10/12 lg:w-6/12 my-10 bg-rose-100 border border-accent p-6 rounded-xl shadow-xl"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="mb-5">
+        <div 
+        className="mb-5">
           <label
             htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            className="block mb-2 text-sm font-medium text-gray-900"
           >
             Correo electrónico
           </label>
@@ -81,7 +101,8 @@ export default function Login() {
             <p className="text-red-600 mt-1">{errors.email.message}</p>
           )}
         </div>
-        <div className="mb-5">
+        <div 
+        className="mb-5">
           <label
             htmlFor="password"
             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -101,7 +122,8 @@ export default function Login() {
             <p className="text-red-600 mt-1">{errors.password.message}</p>
           )}
         </div>
-        <div className="mb-5">
+        <div 
+        className="mb-5">
           <label
             htmlFor="floating_repeat_password"
             className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -125,7 +147,8 @@ export default function Login() {
             </p>
           )}
         </div>
-        <div className="grid md:grid-cols-2 md:gap-6 mb-5">
+        <div 
+        className="grid md:grid-cols-2 md:gap-6 mb-5">
           <div>
             <label
               htmlFor="name"
@@ -167,7 +190,8 @@ export default function Login() {
             )}
           </div>
         </div>
-        <div className="mb-5">
+        <div 
+        className="mb-5">
           <label
             htmlFor="phone"
             className="block mb-2 text-sm font-medium text-gray-900"

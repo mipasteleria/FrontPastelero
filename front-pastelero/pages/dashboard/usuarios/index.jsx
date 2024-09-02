@@ -1,28 +1,42 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function AdministradorUsuarios() {
   const [usersInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/users/list")
+    const token = localStorage.getItem("token");
+
+    fetch(`${API_BASE}/users/list`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((res) => res.json())
       .then((info) => setUserInfo(info.data || []));
   }, []);
 
   const handleDeleteUser = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3001/users/${id}`, {
+      const token = localStorage.getItem("token"); // Obtener el token
+  
+      const response = await fetch(`${API_BASE}/users/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Agregar el token en el encabezado
+        },
       });
-
+  
       if (response.ok) {
         alert("Usuario eliminado con éxito");
         setUserInfo(usersInfo.filter((user) => user._id !== id));
@@ -34,17 +48,26 @@ export default function AdministradorUsuarios() {
       alert("Error al eliminar el usuario");
     }
   };
+  
 
   return (
-    <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex flex-row">
+    <div 
+    className={`text-text ${poppins.className}`}>
+      <NavbarAdmin 
+      className="fixed top-0 w-full z-50" />
+      <div 
+      className="flex flex-row mt-16">
         <Asideadmin />
-        <main className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis usuarios</h1>
-          <div className="relative overflow-x-auto shadow-md sm:rounded-lg m-4">
-            <table className="w-full text-sm text-left rtl:text-right">
-              <thead className="text-xs uppercase bg-rose-50">
+        <main 
+        className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">
+          <h1 
+          className={`text-4xl p-4 ${sofia.className}`}>Mis usuarios</h1>
+          <div 
+          className="relative overflow-x-auto shadow-md sm:rounded-lg m-4">
+            <table 
+            className="w-full text-sm text-left rtl:text-right">
+              <thead 
+              className="text-xs uppercase bg-rose-50">
                 <tr>
                   <th className="p-4"></th>
                   <th className="px-6 py-3">Nombre</th>
@@ -69,10 +92,10 @@ export default function AdministradorUsuarios() {
                         <div className="font-normal">{userInfo.email}</div>
                       </div>
                     </th>
-                    <td className="px-6 py-4">
-                      {userInfo.role ? "Admin" : "User"}
-                    </td>
-                    <td className="px-6 py-4">
+                    <td 
+                    className="px-6 py-4">{userInfo.role}</td>
+                    <td 
+                    className="px-6 py-4">
                       <div className="flex flex-col gap-1">
                         {(Array.isArray(userInfo.permissions)
                           ? userInfo.permissions
@@ -82,7 +105,8 @@ export default function AdministradorUsuarios() {
                         ))}
                       </div>
                     </td>
-                    <td className="px-6 py-4 flex gap-2">
+                    <td 
+                    className="px-6 py-4 flex gap-2">
                       <Link
                         href={`/dashboard/usuarios/editarusuario/${userInfo._id}`}
                         className="font-medium text-accent hover:underline"
@@ -108,7 +132,7 @@ export default function AdministradorUsuarios() {
                         className="text-red-500 hover:underline"
                       >
                         <svg
-                          class="w-6 h-6 text-accent dark:text-white"
+                          className="w-6 h-6 text-accent dark:text-white"
                           aria-hidden="true"
                           xmlns="http://www.w3.org/2000/svg"
                           width="24"
@@ -118,9 +142,9 @@ export default function AdministradorUsuarios() {
                         >
                           <path
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
                             d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
                           />
                         </svg>

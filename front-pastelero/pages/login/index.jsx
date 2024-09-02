@@ -1,26 +1,35 @@
 import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 
+
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Login() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
   const router = useRouter();
   const [error, setError] = useState("");
-
+  
+  const navigate = () => {
+    router.push('/'); // Cambia la URL a /home
+    window.location.reload();
+  };
+  
+ 
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const response = await fetch("http://localhost:3001/users/login", {
+      const response = await fetch(`${API_BASE}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -30,10 +39,15 @@ export default function Login() {
       console.log(json);
       if (json.token) {
         localStorage.setItem("token", json.token);
+        window.location.reload();
         console.log(json.token);
-        router.push("/");
-        return;
-      } else {
+        navigate.call
+        
+        reset ()
+        return;   
+      }
+
+      else {
         setError("¡Usuario o contraseña incorrectos!");
       }
     } catch (error) {
@@ -42,12 +56,22 @@ export default function Login() {
     }
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/");
+    }
+  }, [router]);
+  
+  
   return (
     <main
       className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}
     >
       <div className="flex mt-6 justify-center rounded-xl">
-        <Link href="/">
+          <Link 
+          href="/" 
+          className="flex items-center">
           <Image
             className="h-32 w-32"
             src="/img/logo.JPG"
@@ -55,13 +79,17 @@ export default function Login() {
             height={400}
             alt="Logo de Pastelería El Ruiseñor"
           />
+          
+          <div className="flex flex-col items-center justify-center flex-grow px-2 m-6">
+            <div 
+            className={`text-white text-3xl ${sofia.className}`}>Pastelería</div>
+            <div 
+            className={`text-white text-4xl mt-3 ${sofia.className}`}>El Ruiseñor</div>
+          </div>
         </Link>
-        <div className="px-2">
-          <div className="text-white text-3xl">Pastelería</div>
-          <div className="text-white text-4xl">El Ruiseñor</div>
-        </div>
       </div>
-      <h1 className={`text-text text-2xl mt-10 ${sofia.className}`}>
+      
+      <h1 className={`text-text text-2xl mt-10 ${poppins.className}`}>
         Ingresar
       </h1>
       <form
@@ -90,7 +118,8 @@ export default function Login() {
             <p className="text-red-600 mt-1">{errors.email.message}</p>
           )}
         </div>
-        <div className="mb-5">
+        <div 
+        className="mb-5">
           <label
             htmlFor="password"
             className="block mb-2 text-sm font-medium text-gray-900"
@@ -109,7 +138,8 @@ export default function Login() {
             <p className="text-red-600 mt-1">{errors.password.message}</p>
           )}
         </div>
-        <div className="flex items-center mb-5">
+        <div 
+        className="flex items-center mb-5">
           <input
             id="remember"
             type="checkbox"

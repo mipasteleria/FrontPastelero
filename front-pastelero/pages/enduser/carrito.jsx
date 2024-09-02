@@ -1,81 +1,202 @@
-import Link from "next/link";
-import Image from "next/image";
-import NavbarAdmin from "@/src/components/navbar";
-import WebFooter from "@/src/components/WebFooter";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { useContext, useState, useEffect } from "react";
+import { AuthContext } from "@/src/context";
+import { useRouter } from 'next/router'; 
+import Link from 'next/link';
+import NavbarAdmin from '@/src/components/navbar';
+import WebFooter from '@/src/components/WebFooter';
+import { useAuth } from '@/src/context';
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from 'next/font/google';
+import Importante from '@/src/components/carritodetails';
+import Image from 'next/image';
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
+const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Carrito() {
+  const { userEmail } = useContext(AuthContext);
+  const { userId } = useAuth();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [anticipo, setAnticipo] = useState(0);
+  const [amount, setAmount] = useState(0);
+  const [Client, setClient] = useState(null)
+
+  const [purchaseData, setPurchaseData] = useState({
+    Items: 500,
+    amount: 1,
+    status: '',
+    userId: '',
+    quantity: 1,
+    email:userEmail,
+    
+  }); 
+  const router = useRouter();
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const urls = [
+           `${API_BASE}/pricecake/`,
+           `${API_BASE}/pricecupcake/`,
+           `${API_BASE}/pricesnack/`,
+        ];
+        const requests = urls.map(url => fetch(url).then(res => res.json()));
+        const responses = await Promise.all(requests);
+        let mostRecentData = null;
+
+        responses.forEach(response => {
+          const userData = response.data.filter(item => item.userId === userId);
+          if (userData.length > 0) {
+            const mostRecentItem = userData.reduce((latest, item) => {
+              return new Date(item.createdAt) > new Date(latest.createdAt) ? item : latest;
+            });
+            if (!mostRecentData || new Date(mostRecentItem.createdAt) > new Date(mostRecentData.createdAt)) {
+              mostRecentData = mostRecentItem;
+            }
+          }
+        });
+
+        if (mostRecentData) {
+          setData(mostRecentData);
+          setAnticipo(mostRecentData.anticipo);
+          setAmount(mostRecentData.precio);
+          console.log(mostRecentData);
+          setPurchaseData({
+            Items: 1,
+            amount: mostRecentData.precio,
+            status: mostRecentData.status,
+            userId: userId,
+            quantity: 1,
+            email:userEmail,
+            name:mostRecentData.priceType
+           
+          });
+        }
+      } catch (error) {
+        console.error('Error al obtener los datos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [userId, anticipo, data?.precio]);
+  
+  
+  const handleCheckboxChange = (event) => {
+    const { value } = event.target;
+    const newAmount = value === 'anticipo' ? anticipo : data.precio;
+    setAmount(newAmount);
+
+    setPurchaseData(prevState => ({
+      ...prevState,
+      amount: newAmount,
+    }));
+  };
+  
+  const handleClick = async () => {
+    console.log(purchaseData);
+    try {
+      const response = await fetch( `${API_BASE}/checkout/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(purchaseData),
+      });
+  
+      if (response.ok) {
+        const sessionData = await response.json();
+        console.log('Datos enviados con éxito:', sessionData);
+        
+        // Extrae correctamente el clientSecret de la respuesta del servidor
+        const clientSecret = sessionData.clientSecret;
+        
+        // Guarda el clientSecret en el localStorage
+        localStorage.setItem('clientSecret', clientSecret);
+        
+        // Actualiza el estado con el clientSecret
+        setClient(clientSecret);
+        
+        // Redirige a la página de pago
+        router.push('/enduser/pagar');
+      } else {
+        console.error('Error al enviar los datos al backend:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error al enviar los datos al backend:', error);
+    }
+  };
+
+
   return (
     <div className={`min-h-screen flex flex-col ${poppins.className}`}>
       <NavbarAdmin />
       <main className={`text-text ${poppins.className} md:mb-28 max-w-screen-lg mx-auto mt-24`}>
         <h1 className={`text-4xl m-4 ${sofia.className}`}>Su carrito</h1>
-        <div className="flex flex-col md:flex-row gap-8 bg-rose-50 p-6 justify-between w-full">
-          <figure className="max-w-lg m-6">
-            <Image
-              className="h-auto max-w-full rounded-lg"
-              width={500}
-              height={500}
-              src="/img/animalcrossing.jpg"
-              alt="Imagen del carrito"
-            />
-            <figcaption className="mt-2 text-sm text-center text-gray-500 dark:text-gray-400">
-              Ejemplo de imagen
-            </figcaption>
-          </figure>
-          <div className="flex flex-col gap-10 md:mr-64">
-            <p>Número de orden:</p>
-            <p>Costo total:</p>
+        {loading ? (
+          <p>Cargando...</p>
+        ) : data ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 shadow-md">
+            <div>
+              {data.image && (
+                <Image src={data.image} 
+                alt="Product"
+                width={500} // Valor por defecto o calculado
+                height={750} // Valor por defecto o calculado
+                layout="responsive" className="w-full h-auto mb-4 rounded-xl" />
+              )}
+              {data.status && (
+                <p className="text-2xl font-bold mb-4"><strong>Status:</strong> {data.status}</p>
+              )}
+            </div>
+            <div>
+              {Object.entries(data).filter(([key]) => !['image', 'status', 'anticipo'].includes(key)).map(([key, value]) => (
+                <div key={key} className="mb-2">
+                  <p><strong>{key}:</strong> {value}</p>
+                </div>
+              ))}
+              {/* Elegir pago */}
+              <div className="mb-4">
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    name="paymentOption"
+                    value="anticipo"
+                    onChange={handleCheckboxChange}
+                  />
+                  Pagar Anticipo (${anticipo})
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="paymentOption"
+                    value="total"
+                    onChange={handleCheckboxChange}
+                    defaultChecked // Iniciar con el total seleccionado
+                  />
+                  Pagar Total (${data.precio})
+                </label>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="mb-10">
-          <h2 className={`text-3xl m-4 ${sofia.className}`}>
-            Condiciones e información importante
-          </h2>
-          <div className="bg-rose-50 m-4 flex flex-col gap-4 p-4">
-            <p>
-              Para iniciar su pedido, se solicita un anticipo del 50% del total.
-              Favor de confirmar disponibilidad antes de hacer su pedido.
-            </p>
-            <p>
-              <strong>Vigencia:</strong> El presupuesto es válido por 30 días a partir de la
-              fecha estipulada en la orden.
-            </p>
-            <p>
-              <strong>Cancelaciones:</strong> Podrá cancelar su pedido hasta 5 días antes de
-              la fecha de entrega, llamando o enviando un mensaje de 9 am a 5 pm
-              de lunes a viernes. Se aplicará un cargo del 30% del total del
-              pedido; después de este plazo, el cargo será del 50%.
-            </p>
-            <p>
-              <strong>Cambios de diseño:</strong> Puede realizar cambios en el diseño hasta 5
-              días antes de la fecha de entrega, lo que podría modificar la
-              cotización.
-            </p>
-            <p>
-              <strong>Liquidar y recoger:</strong> Se solicita liquidar su pedido un día
-              antes de la entrega. Para recoger su pedido, por favor indique su
-              número de orden.
-            </p>
-          </div>
-        </div>
-        <p className="text-accent m-6">
-          Muchas gracias por tomarte el tiempo para leer toda la información,
-          quedamos al pendiente para cualquier duda o aclaración. Te recordamos
-          que el horario de atención es de lunes a viernes de 9 am a 6 pm.
-        </p>
+        ) : (
+          <p>No hay datos disponibles.</p>
+        )}
+        <Importante />
         <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
-          <Link href="/enduser/detallecotizacion">
-            <button className="shadow-lg text-text bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
-              Pagar
-            </button>
-          </Link>
-          <Link href="/enduser/carrito">
-            <button className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
-              Seguir comprando
+          <button
+            className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56"
+            type="button"
+            onClick={handleClick}
+          >
+            Pagar
+          </button>
+          <Link href="/">
+            <button
+              className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56">
+              Seguir explorando
             </button>
           </Link>
         </div>
