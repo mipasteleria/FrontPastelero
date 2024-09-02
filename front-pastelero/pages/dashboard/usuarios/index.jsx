@@ -7,14 +7,14 @@ import FooterDashboard from "@/src/components/footeradmin";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function AdministradorUsuarios() {
   const [usersInfo, setUserInfo] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch("http://localhost:3001/users/list", {
+    fetch(`${API_BASE}/users/list`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +29,7 @@ export default function AdministradorUsuarios() {
     try {
       const token = localStorage.getItem("token"); // Obtener el token
   
-      const response = await fetch(`http://localhost:3001/users/${id}`, {
+      const response = await fetch(`${API_BASE}/users/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

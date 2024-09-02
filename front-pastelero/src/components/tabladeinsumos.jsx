@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function TablaDeInsumos() {
   const [insumos, setInsumos] = useState([]);
 
   useEffect(() => {
     const fetchInsumos = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/insumos");
+        const response = await axios.get(`${API_BASE}/insumos`);
         setInsumos(response.data);
       } catch (error) {
         console.error("Error fetching insumos:", error);

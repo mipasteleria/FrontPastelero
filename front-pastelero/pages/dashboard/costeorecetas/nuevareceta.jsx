@@ -10,6 +10,7 @@ import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function NuevaReceta() {
   const {
@@ -78,7 +79,7 @@ export default function NuevaReceta() {
     console.log("Total Cost:", total);
   
     try {
-      const response = await axios.post("http://localhost:3001/recetas/recetas", data, {
+      const response = await axios.post(`${API_BASE}/recetas/recetas`, data, {
         headers: {
           'Content-Type': 'application/json',
         }

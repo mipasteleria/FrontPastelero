@@ -22,15 +22,20 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/cotizacion": [
+    "/dashboard/cotizaciones": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/cotizacion.js"
+      "static/chunks/pages/dashboard/cotizaciones.js"
     ],
-    "/enduser/detallesolicitud/[id]": [
+    "/dashboard/usuarios": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/enduser/detallesolicitud/[id].js"
+      "static/chunks/pages/dashboard/usuarios.js"
+    ],
+    "/dashboard/usuarios/editarusuario/[id]": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/dashboard/usuarios/editarusuario/[id].js"
     ]
   },
   "ampFirstPages": []
