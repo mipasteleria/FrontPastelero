@@ -1,90 +1,182 @@
-import Link from "next/link";
-import NavbarDashboard from "@/src/components/navbardashboard";
+import { useState } from "react";
+import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
+import { useForm, Controller } from "react-hook-form";
+import { useRouter } from "next/router";
+import axios from "axios";
+import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function NuevaReceta() {
+  const {
+    handleSubmit,
+    control,
+    getValues,
+    setValue,
+    formState: { errors }
+  } = useForm();
+  const [ingredientsList, setIngredientsList] = useState([]);
+  const [total, setTotal] = useState(0);
+  const router = useRouter();
+
+  const calculateTotal = () => {
+    const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
+    const { special_tax, additional_costs, fixed_costs, fixed_costs_hours, profit_margin } = getValues();
+  
+    const specialTaxValue = parseFloat(special_tax || 0);
+    const additionalCostsValue = parseFloat(additional_costs || 0);
+    const fixedCostsValue = parseFloat(fixed_costs || 0);
+    const fixedCostsHoursValue = parseFloat(fixed_costs_hours || 0);
+    const profitMarginValue = parseFloat(profit_margin || 0);
+  
+    const totalCost = ingredientTotal + specialTaxValue + additionalCostsValue + fixedCostsValue + fixedCostsHoursValue;
+    const totalWithProfit = totalCost + (totalCost * profitMarginValue / 100);
+  
+    setTotal(totalWithProfit);
+  };
+  
+
+  const handleAddIngredient = () => {
+    const { ingrediente, cantidad, precio, unidad } = getValues();
+    if (ingrediente.trim() && cantidad && precio) {
+      const total = (parseFloat(precio) || 0) / (parseFloat(cantidad) || 1);
+      const newIngredient = { ingrediente, cantidad, precio: parseFloat(precio), unidad, total: total.toFixed(2) };
+  
+      console.log("Form Data on Add:", getValues());
+      console.log("Ingredient to be Added:", newIngredient);
+  
+      setIngredientsList(prevIngredients => {
+        const newIngredients = [...prevIngredients, newIngredient];
+        calculateTotal();
+        return newIngredients;
+      });
+      setValue("ingrediente", "");
+      setValue("cantidad", "");
+      setValue("precio", "");
+      setValue("unidad", "gramos");
+    } else {
+      console.error("Faltan valores para agregar el ingrediente");
+    }
+  };
+  
+  
+  const handleDeleteIngredient = (index) => setIngredientsList(ingredientsList.filter((_, i) => i !== index));
+
+  const onInputChange = () => calculateTotal();
+
+  const onSubmit = async (data) => {
+    data.ingredientes = ingredientsList;
+    data.total_cost = total;
+  
+    // Verifica los datos antes de enviarlos
+    console.log("Ingredients List:", ingredientsList);
+    console.log("Form Data:", data);
+    console.log("Total Cost:", total);
+  
+    try {
+      const response = await axios.post(`${API_BASE}/recetas/recetas`, data, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      console.log("Receta guardada:", response.data);
+      router.push('/dashboard/costeorecetas');
+    } catch (error) {
+      console.error("Error al guardar la receta:", error);
+    }
+  };
+  
+  const renderInput = (id, label, type = "text", placeholder, validation) => (
+    <div className="w-full">
+      <label htmlFor={id} className="block text-sm font-medium dark:text-white">{label}</label>
+      <Controller
+        name={id}
+        control={control}
+        rules={{ required: validation }}
+        render={({ field }) => (
+          <input
+            type={type}
+            id={id}
+            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary"
+            placeholder={placeholder}
+            {...field}
+            onChange={(e) => {
+              field.onChange(e);
+              onInputChange(); 
+            }}
+          />
+        )}
+      />
+      {errors[id] && <p className="text-red-600">{errors[id].message}</p>}
+    </div>
+  );
+
   return (
-    <div className={`text-text ${poppins.className}`}>
-      <NavbarDashboard />
-      <div className="flex">
+    <div 
+    className={`text-text ${poppins.className}`}>
+      <NavbarAdmin 
+      className="fixed top-0 w-full z-50" />
+      <div 
+      className="flex flex-row mt-16">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>     
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Nueva Receta</h1>
-          <form className="m-4" onSubmit={(e) => e.preventDefault()}>
-            <div className="flex flex-wrap">
-              <div className="w-full md:w-1/2 pr-2">
-                <div className="mb-6">
-                  <label htmlFor="recipe_name" className="block mb-2 text-sm font-medium dark:text-white">
-                    Nombre de la receta
-                  </label>
-                  <input
-                    type="text"
-                    id="recipe_name"
-                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                    placeholder="Pastel de vainilla"
-                    required
-                  />
+        <main 
+        className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>
+          <h1 
+          className={`text-4xl p-4 ${sofia.className}`}>Nueva Receta</h1>
+          <form 
+          className="m-4" 
+          onSubmit={handleSubmit(onSubmit)}>
+            <div 
+            className="flex flex-wrap">
+              <div 
+              className="w-full md:w-1/2 px-2">
+                <div 
+                className="mb-4">
+                  {renderInput("nombre_receta", "Nombre de la receta", "text", "Pastel de vainilla", "El nombre de la receta es obligatorio")}
                 </div>
-                <div className="mb-6">
-                  <label htmlFor="description" className="block mb-2 text-sm font-medium dark:text-white">
-                    Descripción
-                  </label>
-                  <textarea
-                    id="description"
-                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                    placeholder="El clásico sabor favorito de las fiestas infantiles..."
-                    required
-                    rows="6"
-                    style={{ resize: 'none' }}
-                  />
+                <div 
+                className="mb-4">
+                  {renderInput("descripcion", "Descripción", "textarea", "El clásico sabor favorito de las fiestas infantiles...", "La descripción es obligatoria")}
                 </div>
               </div>
-              <div className="w-full md:w-1/2 pl-2">
-                <div className="grid gap-6 mb-6">
-                  <div>
-                    <label htmlFor="ingredient" className="block mb-2 text-sm font-medium dark:text-white">
-                      Ingrediente
-                    </label>
-                    <input
-                      type="text"
-                      id="ingredient"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="Vainilla"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Cantidad
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <div className="w-full">
-                      <label htmlFor="unit" className="block mb-2 text-sm font-medium dark:text-white">
-                        Unidad
-                      </label>
-                      <select
-                        id="unit"
-                        className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      >
-                        <option value="grams">gramos</option>
-                        <option value="ml">mililitros</option>
-                      </select>
+              <div 
+              className="w-full md:w-1/2 pl-2">
+                <div 
+                className="grid gap-6 mb-6">
+                  {renderInput("ingrediente", "Ingrediente", "text", "Vainilla", "")}
+                  {renderInput("cantidad", "Cantidad", "number", "0.0", "")}
+                  {renderInput("precio", "Precio", "number", "0.0", "")}
+                  <div 
+                  className="flex items-end">
+                    <div 
+                    className="w-full">
+                      <label 
+                      htmlFor="unidad" 
+                      className="block mb-2 text-sm font-medium dark:text-white">Unidad</label>
+                      <Controller
+                        name="unidad"
+                        control={control}
+                        defaultValue="gramos"
+                        render={({ field }) => (
+                          <select
+                            id="unidad"
+                            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                            {...field}
+                          >
+                            <option value="gramos">gramos</option>
+                            <option value="ml">mililitros</option>
+                          </select>
+                        )}
+                      />
                     </div>
                     <button
-                      type="submit"
+                      type="button"
+                      onClick={handleAddIngredient}
                       className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
                       Agregar
@@ -93,204 +185,120 @@ export default function NuevaReceta() {
                 </div>
               </div>
             </div>
-          </form>
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg bg-rose-100 p-4 m-4">
-          <div className="overflow-x-auto w-full">
-            <h2 className={`text-3xl p-4 ${sofia.className}`}>Lista de ingredientes</h2>
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
+            <div className="my-10 p-4 rounded-xl bg-rose-50 overflow-x-auto">
+              <h2 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>Lista de ingredientes</h2>
+              {ingredientsList.length === 0 ? (
+                <p className="text-center text-gray-500">Todavía no se han agregado ingredientes.</p>
+              ) : (
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="text-xs text-text uppercase bg-rose-50">
                     <tr>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Ingrediente
-                        </th>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Cantidad
-                        </th>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Unidad
-                        </th>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Precio
-                        </th>
-                        <th scope="col" className="px-6 py-3 border-b border-secondary">
-                            Total
-                        </th>
+                      <th className="px-6 py-3">Ingrediente</th>
+                      <th className="px-6 py-3">Cantidad</th>
+                      <th className="px-6 py-3">Precio</th>
+                      <th className="px-6 py-3">Unidad</th>
+                      <th className="px-6 py-3">Costo</th>
+                      <th className="px-6 py-3">Eliminar</th>
                     </tr>
-                </thead>
-                <tbody>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Mantequilla</span>
+                  </thead>
+                  <tbody>
+                    {ingredientsList.map((ingredient, index) => (
+                      <tr key={index} className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+                        <td className="px-6 py-4">{ingredient.ingrediente}</td>
+                        <td className="px-6 py-4">{ingredient.cantidad}</td>
+                        <td className="px-6 py-4">{ingredient.precio}</td>
+                        <td className="px-6 py-4">{ingredient.unidad}</td>
+                        <td className="px-6 py-4">{ingredient.total}</td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteIngredient(index)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-5 w-5" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor">
+                              <path 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round" 
+                              strokeWidth="2" 
+                              d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
                         </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            500
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.12
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $60.00
-                        </td>
-                    </tr>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Azucar refinada</span>
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            400
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.316
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $12.64
-                        </td>
-                    </tr>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Huevo</span>
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            500
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.66
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $33.00
-                        </td>
-                    </tr>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Harina</span>
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            500
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.22
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $11.00
-                        </td>
-                    </tr>
-                    <tr className="odd:bg-transparent odd:dark:bg-transparent even:bg-transparent even:dark:bg-transparent border-b dark:border-gray-700">
-                        <td className="px-6 py-4 border-b border-secondary">
-                            <input type="checkbox" className="form-checkbox h-4 w-4 text-accent focus:ring-accent dark:text-blue-500 dark:focus:ring-blue-500"/>
-                            <span className="ml-2 whitespace-nowrap font-medium dark:text-white">Polvo para hornear</span>
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            35
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            Gr
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $0.075
-                        </td>
-                        <td className="px-6 py-4 border-b border-secondary">
-                            $2.63
-                        </td>
-                    </tr>
+                      </tr>
+                    ))}
                   </tbody>
-              </table>
-          </div>
-
-          <div className="flex flex-col mt-4 gap-4 ml-4">
-                <button className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mb-2 md:mb-0 md:mr-2 w-56">
-                    Eliminar Producto
-                </button>
-                <button className="shadow-md text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-56">
-                    Cancelar
-                </button>
-            </div>  
-          </div>
-          <div className="m-4 gap-4 grid md:grid-cols-2">
-          <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Mano de obra en horas
-                    </label>
+                </table>
+              )}
+            </div>
+            <div 
+            className="grid gap-6 mb-6 md:grid-cols-2">
+            {renderInput("fixed_costs_hours", "Gastos fijos por hora", "number", "0.0", "Los gastos fijos por hora son obligatorios")}
+              {renderInput("fixed_costs", "Gastos fijos", "number", "0.0", "Los gastos fijos son obligatorios")}
+              {renderInput("special_tax", "IEPS", "number", "0.0", "El IEPS es obligatorio")}
+              {renderInput("additional_costs", "Costos adicionales", "number", "0.0", "Los costos adicionales son obligatorios")}
+              {renderInput("portions", "Porciones", "number", "0", "El número de porciones es obligatorio")}
+              <div 
+              className="w-full">
+                <label 
+                htmlFor="profit_margin" 
+                className="block text-sm font-medium dark:text-white">Margen de ganancia (%)</label>
+                <Controller
+                  name="profit_margin"
+                  control={control}
+                  rules={{ required: "El margen de ganancia es obligatorio" }}
+                  render={({ field }) => (
                     <input
                       type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
+                      id="profit_margin"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary"
+                      placeholder="10"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        onInputChange();
+                      }}
                     />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Porcentaje de ganancia esperada
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Porciones
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Gastos fijos en horas
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="quantity" className="block mb-2 text-sm font-medium dark:text-white">
-                      Porcentaje de impuestos (IEPS)
-                    </label>
-                    <input
-                      type="number"
-                      id="quantity"
-                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                      placeholder="0.0"
-                      required
-                    />
-                  </div>
-          </div>
-          <Link className="flex justify-end mb-20" href="/dashboard/costeorecetas">
-            <button type="submit" className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center ml-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 m-6">
+                  )}
+                />
+                {errors.profit_margin && <p className="text-red-600">{errors.profit_margin.message}</p>}
+              </div>
+            </div>
+            <div 
+            className="my-10 p-4 rounded-xl bg-rose-50">
+              <h2 
+              className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>
+                Costo total estimado
+              </h2>
+              <p 
+              className="text-center text-2xl">
+                {total.toFixed(2)} MXN
+              </p>
+            </div>
+            <div className="flex flex-col md:flex-row gap-10 justify-center">
+              <button
+                type="submit"
+                className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center md:mb-20"
+              >
                 Guardar Receta
-            </button>
-          </Link>
-          <FooterDashboard/>
+              </button>
+              <Link 
+              href={"/dashboard/costeorecetas"}>
+                <button
+                  className="shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-16 py-2.5 text-center mb-20"
+                >
+                  Regresar
+                </button>
+              </Link>
+            </div>
+          </form>
         </main>
       </div>
+      <FooterDashboard />
     </div>
   );
 }

@@ -28,58 +28,64 @@ export default function Galeria() {
               height={500}
               className="h-auto max-w-full rounded-lg object-contain"
               src={currentImage}
-              alt=""
+              alt="Imagen seleccionada"
               style={{ width: "600px", height: "400px" }}
             />
           </div>
-          <div className="grid grid-cols-5 gap-4">
-            <div onClick={() => handleImageClick("/img/animalcrossing.jpg")}>
+          <div 
+          className="grid grid-cols-5 gap-4">
+            <div 
+            onClick={() => handleImageClick("/img/animalcrossing.jpg")}>
               <Image
                 width={500}
                 height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/animalcrossing.jpg"
-                alt=""
+                alt="Animal Crossing"
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
-            <div onClick={() => handleImageClick("/img/coockies.jpg")}>
+            <div 
+            onClick={() => handleImageClick("/img/coockies.jpg")}>
               <Image
                 width={500}
                 height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/coockies.jpg"
-                alt=""
+                alt="Cookies"
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
-            <div onClick={() => handleImageClick("/img/yoda.jpg")}>
+            <div 
+            onClick={() => handleImageClick("/img/yoda.jpg")}>
               <Image
                 width={500}
                 height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/yoda.jpg"
-                alt=""
+                alt="Yoda"
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
-            <div onClick={() => handleImageClick("/img/galletas.jpg")}>
+            <div 
+            onClick={() => handleImageClick("/img/galletas.jpg")}>
               <Image
                 width={500}
                 height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/galletas.jpg"
-                alt=""
+                alt="Galletas"
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
-            <div onClick={() => handleImageClick("/img/pay.jpeg")}>
+            <div 
+            onClick={() => handleImageClick("/img/pay.jpeg")}>
               <Image
                 width={500}
                 height={500}
                 className="h-auto max-w-full rounded-lg cursor-pointer object-cover"
                 src="/img/pay.jpeg"
-                alt=""
+                alt="Pay"
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
