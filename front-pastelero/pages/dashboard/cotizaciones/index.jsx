@@ -8,11 +8,8 @@ import { useEffect, useState } from "react";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-
-export default function CotizacionesMan() {
+export default function Conocenuestrosproductos() {
   const [userCotizacion, setUserCotizacion] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
@@ -23,7 +20,7 @@ export default function CotizacionesMan() {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch(`${API_BASE}/pricecupcake/`, {
+            fetch("http://localhost:3001/pricecake", {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`, // Corrección aquí

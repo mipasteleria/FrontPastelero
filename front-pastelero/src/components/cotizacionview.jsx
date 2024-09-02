@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { Poppins as PoppinsFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const VerCotizacion = () => {
   const router = useRouter();
   const { id, source } = router.query;

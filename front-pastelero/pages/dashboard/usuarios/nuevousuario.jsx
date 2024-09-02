@@ -19,7 +19,7 @@ export default function Conocenuestrosproductos() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter(); // Agrega esta línea
-
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   const onSubmit = async (data) => {
     try {
       const response = await fetch(`${API_BASE}/users`, {

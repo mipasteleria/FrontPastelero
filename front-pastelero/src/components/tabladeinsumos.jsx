@@ -22,7 +22,7 @@ export default function TablaDeInsumos() {
   const handleDelete = async (id) => {
     if (confirm("¿Estás seguro de que quieres eliminar este insumo?")) {
       try {
-        await axios.delete(`https://pasteleros-back.vercel.app/insumos/${id}`);
+        await axios.delete(`${API_BASE}/insumos/${id}`);
         setInsumos(insumos.filter((insumo) => insumo._id !== id));
       } catch (error) {
         console.error("Error deleting insumo:", error);
