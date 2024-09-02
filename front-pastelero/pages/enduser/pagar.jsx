@@ -5,21 +5,9 @@ import Pay from '@/src/components/payment/checkoousession'; // Asegúrate de que
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-const stripePromise = loadStripe("pk_test_51PpLMA05NkS1u2DA81LiZRgfXzRPrk8hkDrlf3JnlqcxkGlOrbo9DXBPf78uimP3IC6xX3DJHVxp6DAOPqeNzSEz00P2FAWsMZ");
+const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
 
-export default function Payment() {
-  const fetchClientSecret = useCallback(() => {
-    return fetch("http://localhost:3001/create-checkout-session", {
-      method: "POST",
-    })
-      .then((res) => res.json())
-      .then((data) => data.clientSecret);
-  }, []);
-
-  const options = { fetchClientSecret };
-
+export default function Pagar() {
   return (
     <div className="min-h-screen flex flex-col">
       <NavbarAdmin />
@@ -33,4 +21,3 @@ export default function Payment() {
     </div>
   );
 }
-
