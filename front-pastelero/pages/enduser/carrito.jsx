@@ -9,9 +9,6 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from 'next/font/google';
 import Importante from '@/src/components/carritodetails';
 import Image from 'next/image';
 
-const FRONT_DOMAIN = process.env.FRONT_DOMAIN;
-const YOUR_DOMAIN = process.env.YOUR_DOMAIN;
-
 const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
 const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
 
@@ -39,9 +36,9 @@ export default function Carrito() {
     const fetchData = async () => {
       try {
         const urls = [
-          'http://localhost:3001/pricecake/',
-          'http://localhost:3001/pricecupcake/',
-          'http://localhost:3001/pricesnack/',
+           `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecake/`,
+           `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecupcake/`,
+           `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricesnack/`,
         ];
         const requests = urls.map(url => fetch(url).then(res => res.json()));
         const responses = await Promise.all(requests);
@@ -100,7 +97,7 @@ export default function Carrito() {
   const handleClick = async () => {
     console.log(purchaseData);
     try {
-      const response = await fetch('http://localhost:3001/checkout/create-checkout-session', {
+      const response = await fetch( `${process.env.NEXT_PUBLIC_API_BASE_URL}/checkout/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

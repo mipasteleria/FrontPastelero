@@ -11,7 +11,7 @@ export default function SuccessFail() {
         const urlParams = new URLSearchParams(queryString);
         const sessionId = urlParams.get("session_id");
 
-        fetch(`http://localhost:3001/checkout/session-status?session_id=${sessionId}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/checkout/session-status?session_id=${sessionId}`)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error('Network response was not ok');

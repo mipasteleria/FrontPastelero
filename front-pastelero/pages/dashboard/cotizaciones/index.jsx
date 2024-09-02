@@ -1,3 +1,4 @@
+require('dotenv').config();
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
@@ -8,30 +9,37 @@ import { useEffect, useState } from "react";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-export default function Conocenuestrosproductos() {
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+console.log('API_BASE:', API_BASE);  // Debería imprimir: http://localhost:3001
+
+if (!API_BASE) {
+  console.error("API_BASE is not defined! Check your .env configuration.");
+}
+
+export default function CotizacionesMan() {
   const [userCotizacion, setUserCotizacion] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-  
+
     if (token) {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch("http://localhost:3001/pricecake", {
+            fetch(`${API_BASE}/pricecupcake/`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`, // Corrección aquí
               },
             }),
-            fetch("http://localhost:3001/pricecupcake", {
+            fetch(`${API_BASE}/pricecupcake`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`, // Corrección aquí
               },
             }),
-            fetch("http://localhost:3001/pricesnack", {
+            fetch(`${API_BASE}/pricesnack`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`, // Corrección aquí
@@ -61,13 +69,13 @@ export default function Conocenuestrosproductos() {
       // Validar el valor de source y asignar la URL correspondiente
       switch (source) {
         case "cake":
-          url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecake/${id}`;
+          url = `${API_BASE}/pricecake/${id}`;
           break;
         case "cupcake":
-          url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecupcake/${id}`;
+          url = `${API_BASE}/pricecupcake/${id}`;
           break;
         case "snack":
-          url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricesnack/${id}`;
+          url = `${API_BASE}/pricesnack/${id}`;
           break;
         default:
           console.error("Invalid source: ", source);
