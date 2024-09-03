@@ -9,6 +9,7 @@ import { useRouter } from "next/router"; // Importa useRouter
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function EditarInsumo({ insumo }) {
   const {
@@ -58,7 +59,7 @@ export default function EditarInsumo({ insumo }) {
 
   const onSubmit = async (data) => {
     console.log("ID del insumo:", insumo._id);
-    await fetch(`http://localhost:3001/insumos/${insumo._id}`, {
+    await fetch(`${API_BASE}/insumos/${insumo._id}`, {
       method: "PUT",
       body: JSON.stringify(data),
       headers: {
@@ -192,7 +193,7 @@ export default function EditarInsumo({ insumo }) {
 }
 
 export async function getServerSideProps({ params }) {
-  const res = await fetch(`http://localhost:3001/insumos/${params.id}`);
+  const res = await fetch(`${API_BASE}/insumos/${params.id}`);
   const insumo = await res.json();
   return { props: { insumo } };
 }

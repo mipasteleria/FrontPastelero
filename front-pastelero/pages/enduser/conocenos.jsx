@@ -5,7 +5,6 @@ import WebFooter from "@/src/components/WebFooter";
 import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Conocenos() {
@@ -23,9 +22,12 @@ export default function Conocenos() {
   return (
     <div>
       <NavbarAdmin />
-      <main className="flex flex-col items-center gap-8 md:gap-30 pt-8 md:pt-30 max-w-screen-lg mx-auto mt-16">
-        <div className="flex flex-col md:flex-row items-center">
-          <div className="photoContainer w-full md:w-1/4 flex justify-center md:ml-6">
+      <main 
+      className="flex flex-col items-center gap-8 md:gap-30 pt-8 md:pt-30 max-w-screen-lg mx-auto mt-16">
+        <div 
+        className="flex flex-col md:flex-row items-center">
+          <div 
+          className="photoContainer w-full md:w-1/4 flex justify-center md:ml-6">
             <Image
               className="rounded-xl"
               src="/img/conocenosPastelera.png"
@@ -36,11 +38,15 @@ export default function Conocenos() {
               priority
             />
           </div>
-          <div className="textoConocenosContainer p-8 md:p-30 w-full md:w-3/4 bg-rose-50 rounded-lg text-text m-6">
-            <div className="titleConocenos text-4xl">
-              <h1 className={`text-4xl m-6 ${sofia.className}`}>Conocenos</h1>
+          <div 
+          className="textoConocenosContainer p-8 md:p-30 w-full md:w-3/4 bg-rose-50 rounded-lg text-text m-6">
+            <div 
+            className="titleConocenos text-4xl">
+              <h1 
+              className={`text-4xl m-6 ${sofia.className}`}>Conocenos</h1>
             </div>
-            <div className="descripcionTextoConocenos text-lg mt-6">
+            <div 
+            className="descripcionTextoConocenos text-lg mt-6">
               <p>
                 Pastelería El Ruiseñor nació en 2015, cuando nuestra fundadora,
                 Ana González, estaba cursando la carrera de Ingeniería
@@ -48,18 +54,21 @@ export default function Conocenos() {
                 encontrar un apoyo económico extra hicieron que un sueño se
                 convirtiera en realidad.
               </p>
-              <p className="mt-6">
+              <p 
+              className="mt-6">
                 Nos sentimos afortunados de estar en constante capacitación,
                 siempre aprendiendo y aplicando las técnicas más actuales y de
                 tendencia en el mundo pastelero.
               </p>
-              <p className="mt-6">
+              <p 
+              className="mt-6">
                 En lugar de copiar pasteles de una imagen, preferimos
                 personalizarlos especialmente para ti. Permítenos la oportunidad
                 de maravillar tu fiesta y a tus invitados con un diseño único y
                 hecho a tu medida.
               </p>
-              <p className="mt-6">
+              <p 
+              className="mt-6">
                 ¡Será un placer ser parte de tus momentos más dulces!
               </p>
             </div>
@@ -69,16 +78,19 @@ export default function Conocenos() {
           id="preguntasfrecuentes"
           className="flex flex-col md:flex-row gap-8 md:gap-30 p-6 mt-0"
         >
-          <div className="textoConocenosContainer md:p-30 w-full md:w-3/4 rounded-lg text-text">
+          <div 
+          className="textoConocenosContainer md:p-30 w-full md:w-3/4 rounded-lg text-text">
             <div
               className="accordion p-4"
               id="accordion-open"
               data-accordion="open"
             >
-              <h2 className={`text-4xl m-6 ${sofia.className}`}>
+              <h2 
+              className={`text-4xl m-6 ${sofia.className}`}>
                 Preguntas frecuentes
               </h2>
-              <h2 id="accordion-open-heading-1">
+              <h2 
+              id="accordion-open-heading-1">
                 <button
                   type="button"
                   className="flex items-center justify-between w-full p-5 font-medium rtl:text-right shadow-md rounded-t-xl bg-white hover:bg-accent hover:text-white gap-3"
@@ -403,7 +415,8 @@ export default function Conocenos() {
                   </p>
                 </div>
               </div>
-              <hr className="my-2 border-gray-200" />
+              <hr 
+              className="my-2 border-gray-200" />
             </div>
           </div>
           <div className="w-full md:w-1/4 flex flex-col items-center md:ml-6 mt-12">
@@ -415,7 +428,8 @@ export default function Conocenos() {
               }`}
               onClick={() => setActiveButton(1)}
             >
-              <Link href="/cotizacion">¡SOLICITA TU COTIZACIÓN AQUÍ!</Link>
+              <Link 
+              href="/cotizacion">¡SOLICITA TU COTIZACIÓN AQUÍ!</Link>
             </button>
             <Image
               className="rounded-xl mb-4"
@@ -433,7 +447,8 @@ export default function Conocenos() {
               }`}
               onClick={() => setActiveButton(2)}
             >
-              <Link href="/enduser/galeria">VER GALERÍA</Link>
+              <Link 
+              href="/enduser/galeria">VER GALERÍA</Link>
             </button>
             <Image
               className="rounded-xl mb-4"

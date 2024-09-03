@@ -8,7 +8,7 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function UsuarioForm() {
   const {
     register,
@@ -21,12 +21,20 @@ export default function UsuarioForm() {
   const [userData, setUserData] = useState(null);
   const router = useRouter();
   const { id } = router.query; // Obtén el ID desde la query de la URL
-
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   useEffect(() => {
     if (id) {
       const fetchUserData = async () => {
         try {
-          const response = await fetch(`http://localhost:3001/users/${id}`);
+          const response = await
+          fetch(`${API_BASE}/users/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          
           if (response.ok) {
             const result = await response.json();
             setUserData(result.data);
@@ -59,7 +67,7 @@ export default function UsuarioForm() {
   const onSubmit = async (data) => {
     try {
       // Usa PUT siempre, ya que solo se permite actualizar
-      const url = `http://localhost:3001/users/${id}`;
+      const url = `${API_BASE}/users/${id}`;
 
       // Elimina los campos de contraseña si están vacíos
       const updatedData = { ...data };

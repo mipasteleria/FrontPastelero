@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Login() {
   const {
@@ -29,7 +29,7 @@ export default function Login() {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const response = await fetch("http://localhost:3001/users/login", {
+      const response = await fetch(`${API_BASE}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -69,7 +69,9 @@ export default function Login() {
       className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}
     >
       <div className="flex mt-6 justify-center rounded-xl">
-          <Link href="/" className="flex items-center">
+          <Link 
+          href="/" 
+          className="flex items-center">
           <Image
             className="h-32 w-32"
             src="/img/logo.JPG"
@@ -79,8 +81,10 @@ export default function Login() {
           />
           
           <div className="flex flex-col items-center justify-center flex-grow px-2 m-6">
-            <div className={`text-white text-3xl ${sofia.className}`}>Pastelería</div>
-            <div className={`text-white text-4xl mt-3 ${sofia.className}`}>El Ruiseñor</div>
+            <div 
+            className={`text-white text-3xl ${sofia.className}`}>Pastelería</div>
+            <div 
+            className={`text-white text-4xl mt-3 ${sofia.className}`}>El Ruiseñor</div>
           </div>
         </Link>
       </div>
@@ -114,7 +118,8 @@ export default function Login() {
             <p className="text-red-600 mt-1">{errors.email.message}</p>
           )}
         </div>
-        <div className="mb-5">
+        <div 
+        className="mb-5">
           <label
             htmlFor="password"
             className="block mb-2 text-sm font-medium text-gray-900"
@@ -133,7 +138,8 @@ export default function Login() {
             <p className="text-red-600 mt-1">{errors.password.message}</p>
           )}
         </div>
-        <div className="flex items-center mb-5">
+        <div 
+        className="flex items-center mb-5">
           <input
             id="remember"
             type="checkbox"

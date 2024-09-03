@@ -8,7 +8,7 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Conocenuestrosproductos() {
   const {
     register,
@@ -19,10 +19,10 @@ export default function Conocenuestrosproductos() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter(); // Agrega esta línea
-
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   const onSubmit = async (data) => {
     try {
-      const response = await fetch("http://localhost:3001/users", {
+      const response = await fetch(`${API_BASE}/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,8 +109,10 @@ export default function Conocenuestrosproductos() {
   );
 
   return (
-    <div className={`text-text ${poppins.className}`}>
-      <NavbarAdmin className="fixed top-0 w-full z-50" />
+    <div 
+    className={`text-text ${poppins.className}`}>
+      <NavbarAdmin 
+      className="fixed top-0 w-full z-50" />
       <div className="flex flex-row mt-16">
         <Asideadmin />
         <main className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">

@@ -6,21 +6,26 @@ import FooterDashboard from "@/src/components/footeradmin";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Costeorecetas({ recetas }) {
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarAdmin className="fixed top-0 w-full z-50" />
-      <div className="flex flex-row mt-16">
+      <NavbarAdmin 
+      className="fixed top-0 w-full z-50" />
+      <div 
+      className="flex flex-row mt-16">
         <Asideadmin />
         <main
           className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}
         >
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis recetas</h1>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
-            <div className="overflow-x-auto w-full">
-              <table className="w-full text-sm text-left rtl:text-right text-text">
-                <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
+            <div 
+            className="overflow-x-auto w-full">
+              <table 
+              className="w-full text-sm text-left rtl:text-right text-text">
+                <thead 
+                className="text-xs uppercase bg-transparent dark:bg-transparent">
                   <tr>
                     <th
                       scope="col"
@@ -125,7 +130,7 @@ export default function Costeorecetas({ recetas }) {
                             ) {
                               try {
                                 const res = await fetch(
-                                  `http://localhost:3001/recetas/recetas/${receta._id}`,
+                                  `${API_BASE}/recetas/recetas/${receta._id}`,
                                   {
                                     method: "DELETE",
                                   }
@@ -146,7 +151,7 @@ export default function Costeorecetas({ recetas }) {
                           }}
                         >
                           <svg
-                          class="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
+                          className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
                           aria-hidden="true"
                           xmlns="http://www.w3.org/2000/svg"
                           width="24"
@@ -156,9 +161,9 @@ export default function Costeorecetas({ recetas }) {
                         >
                           <path
                             stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
                             d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"
                           />
                         </svg>
@@ -174,7 +179,8 @@ export default function Costeorecetas({ recetas }) {
             className="flex justify-center md:justify-start"
             href={"/dashboard/costeorecetas/nuevareceta"}
           >
-            <button className="m-10 mb-20 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center">
+            <button 
+            className="m-10 mb-20 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center">
               Nueva Receta
             </button>
           </Link>
@@ -188,7 +194,7 @@ export default function Costeorecetas({ recetas }) {
 // Fetching data for server-side rendering or static generation
 
 export async function getServerSideProps() {
-  const res = await fetch("http://localhost:3001/recetas/recetas", {
+  const res = await fetch(`${API_BASE}/recetas/recetas`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

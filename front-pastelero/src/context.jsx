@@ -11,26 +11,20 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token:", token);
 
     if (token) {
       try {
         const decodedToken = jwt.decode(token);
-        console.log("Decoded Token:", decodedToken);
 
         setIsLoggedIn(true);
         setIsAdmin(decodedToken.role === "admin");
         setUserId(decodedToken._id);
         setUserEmail(decodedToken.email);
 
-        console.log("isAdmin:", decodedToken.role === "admin");
-        console.log("isLoggedIn:", true);
       } catch (error) {
         console.error("Token decode failed:", error);
       }
-    } else {
-      console.log("No token found");
-    }
+    } 
   }, []);
 
   return (

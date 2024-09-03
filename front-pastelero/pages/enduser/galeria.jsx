@@ -32,8 +32,10 @@ export default function Galeria() {
               style={{ width: "600px", height: "400px" }}
             />
           </div>
-          <div className="grid grid-cols-5 gap-4">
-            <div onClick={() => handleImageClick("/img/animalcrossing.jpg")}>
+          <div 
+          className="grid grid-cols-5 gap-4">
+            <div 
+            onClick={() => handleImageClick("/img/animalcrossing.jpg")}>
               <Image
                 width={500}
                 height={500}
@@ -43,7 +45,8 @@ export default function Galeria() {
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
-            <div onClick={() => handleImageClick("/img/coockies.jpg")}>
+            <div 
+            onClick={() => handleImageClick("/img/coockies.jpg")}>
               <Image
                 width={500}
                 height={500}
@@ -53,7 +56,8 @@ export default function Galeria() {
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
-            <div onClick={() => handleImageClick("/img/yoda.jpg")}>
+            <div 
+            onClick={() => handleImageClick("/img/yoda.jpg")}>
               <Image
                 width={500}
                 height={500}
@@ -63,7 +67,8 @@ export default function Galeria() {
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
-            <div onClick={() => handleImageClick("/img/galletas.jpg")}>
+            <div 
+            onClick={() => handleImageClick("/img/galletas.jpg")}>
               <Image
                 width={500}
                 height={500}
@@ -73,7 +78,8 @@ export default function Galeria() {
                 style={{ width: "120px", height: "120px" }}
               />
             </div>
-            <div onClick={() => handleImageClick("/img/pay.jpeg")}>
+            <div 
+            onClick={() => handleImageClick("/img/pay.jpeg")}>
               <Image
                 width={500}
                 height={500}

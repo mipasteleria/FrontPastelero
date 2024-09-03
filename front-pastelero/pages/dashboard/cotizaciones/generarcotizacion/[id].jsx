@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function GenerarCotizacion() {
   const router = useRouter(); // Inicializa useRouter
   const { id, source } = router.query; // Obtén los parámetros de consulta
@@ -43,7 +43,7 @@ export default function GenerarCotizacion() {
 
   useEffect(() => {
     // Fetch recetas
-    fetch('http://localhost:3001/recetas/recetas', {
+    fetch(`${API_BASE}/recetas/recetas`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -60,7 +60,7 @@ export default function GenerarCotizacion() {
       .catch(error => console.error('Error fetching recetas:', error));
   
     // Fetch insumos
-    fetch('http://localhost:3001/insumos', {
+    fetch(`${API_BASE}/insumos`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -156,13 +156,13 @@ export default function GenerarCotizacion() {
     let url;
     switch (source) {
       case 'pastel':
-        url = `http://localhost:3001/pricecake/${id}`;
+        url = `${API_BASE}/pricecake/${id}`;
         break;
       case 'cupcake':
-        url = `http://localhost:3001/pricecupcake/${id}`;
+        url = `${API_BASE}/pricecupcake/${id}`;
         break;
       case 'snack':
-        url = `http://localhost:3001/pricesnack/${id}`;
+        url = `${API_BASE}/pricesnack/${id}`;
         break;
       default:
         console.error("Invalid source");
@@ -179,12 +179,12 @@ export default function GenerarCotizacion() {
         body: JSON.stringify({
           precio: formData.Total,
           anticipo: formData.Anticipo,
-          status: true
+          status: "aprobado"
         }),
       });
       console.log({precio: formData.Total,
         anticipo: formData.Anticipo,
-        status: aprobado})
+        status: ("")})
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { useState } from "react";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const NavbarDashboard = () => {
@@ -17,8 +16,10 @@ const NavbarDashboard = () => {
     <nav
       className={`bg-primary h-16 ${sofia.className} shadow-md z-50 sticky top-0`}
     >
-      <div className="w-full flex items-center justify-between mx-auto px-4">
-        <div className="flex items-center">
+      <div 
+      className="w-full flex items-center justify-between mx-auto px-4">
+        <div 
+        className="flex items-center">
           <Link href="/">
             <Image
               className="mx-2"
@@ -29,8 +30,14 @@ const NavbarDashboard = () => {
             />
           </Link>
           <div>
-            <div className="text-white px-2 text-xl">Pastelería</div>
-            <div className="text-white text-4xl px-2">El Ruiseñor</div>
+            <div 
+            className="text-white px-2 text-xl">
+              Pastelería
+            </div>
+            <div 
+            className="text-white text-4xl px-2">
+              El Ruiseñor
+            </div>
           </div>
         </div>
         <div className="relative flex items-center space-x-3 md:space-x-0 rtl:space-x-reverse">

@@ -8,7 +8,7 @@ import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function NuevaReceta() {
   const {
     register,
@@ -20,7 +20,7 @@ export default function NuevaReceta() {
 
   const onSubmit = (data) => {
     console.log(data);
-    fetch("http://localhost:3001/insumos", {
+    fetch(`${API_BASE}/insumos`, {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
@@ -91,7 +91,8 @@ export default function NuevaReceta() {
                   <p className="text-red-600">{errors.name.message}</p>
                 )}
               </div>
-              <div className="grid gap-6 mb-6">
+              <div 
+              className="grid gap-6 mb-6">
                 <div>
                   <label
                     htmlFor="quantity"
@@ -132,8 +133,10 @@ export default function NuevaReceta() {
                     <p className="text-red-600">{errors.cost.message}</p>
                   )}
                 </div>
-                <div className="flex items-end">
-                  <div className="w-full">
+                <div 
+                className="flex items-end">
+                  <div 
+                  className="w-full">
                     <label
                       htmlFor="unit"
                       className="block mb-2 text-sm font-medium dark:text-white"
@@ -155,17 +158,21 @@ export default function NuevaReceta() {
                 </div>
               </div>
             </div>
-            <div className="m-4 w-3/4 mx-auto text-lg">
+            <div 
+            className="m-4 w-3/4 mx-auto text-lg">
               Costo por unidad: {costPerUnit} por gramo/ml
             </div>
-            <div className="flex flex-col md:flex-row justify-center mb-20">
+            <div 
+            className="flex flex-col md:flex-row justify-center mb-20">
             <button
               type="submit"
               className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-72 px-16 py-2.5 text-center ml-2 m-6"
             >
               Agregar
             </button>
-            <Link className="" href={"/dashboard/insumosytrabajomanual"}>
+            <Link 
+            className="" 
+            href={"/dashboard/insumosytrabajomanual"}>
               <button
                 type=""
                 className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-72 px-16 py-2.5 text-center ml-2 m-6"
