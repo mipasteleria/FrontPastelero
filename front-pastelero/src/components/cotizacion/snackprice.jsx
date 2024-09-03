@@ -52,7 +52,8 @@ export default function Snackprice() {
 
       const json = await response.json();
       const id = json.data._id;
-      router.push(`/enduser/detallesolicitud/${id}?source=snack`);
+      //router.push(`/enduser/detallesolicitud/${id}?source=snack`);
+      setMessage('¡Gracias por tu pedido! Estamos emocionados de preparar tu cotizacion, automaticamente se agregaran los detalles de tu solicitud al carrito, y la cantidad aparecera una vez que tu cotizacion este lista');
       console.log("Response data:", json);
     } catch (error) {
       console.error("Error en la solicitud:", error);
