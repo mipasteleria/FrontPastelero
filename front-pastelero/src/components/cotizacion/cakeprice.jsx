@@ -51,8 +51,9 @@ export default function Cakeprice() {
 
       const json = await response.json();
       const id = json.data._id;
-      router.push(`/enduser/detallesolicitud/${id}?source=pastel`);
+      //router.push(`/enduser/detallesolicitud/${id}?source=pastel`);
       console.log("Response data:", json);
+      setMessage('¡Gracias por tu pedido! Estamos emocionados de preparar tu cotizacion, automaticamente se agregaran los detalles de tu solicitud al carrito, y la cantidad aparecera una vez que tu cotizacion este lista');
     } catch (error) {
       console.error("Error en la solicitud:", error);
     }
