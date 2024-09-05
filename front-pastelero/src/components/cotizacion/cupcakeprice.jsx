@@ -45,7 +45,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
     try {
       // Enviar los archivos al backend
       const uploadResponse = await axios.post(
-        "http://localhost:3001/upload",
+        `${API_BASE}/upload`,
         formData,
         {
           headers: {
@@ -80,7 +80,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
       const json = await response.json();
       const id = json.data._id;
-      //router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
+      router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
       setMessage('¡Gracias por tu pedido! Estamos emocionados de preparar tu cotizacion, automaticamente se agregaran los detalles de tu solicitud al carrito, y la cantidad aparecera una vez que tu cotizacion este lista');
       console.log("Response data:", json);
     } catch (error) {
