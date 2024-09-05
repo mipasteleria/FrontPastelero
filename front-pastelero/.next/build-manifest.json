@@ -22,15 +22,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/cotizacion": [
+    "/dashboard": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/cotizacion.js"
+      "static/chunks/pages/dashboard.js"
     ],
-    "/enduser/detallesolicitud/[id]": [
+    "/dashboard/cotizaciones": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/enduser/detallesolicitud/[id].js"
+      "static/chunks/pages/dashboard/cotizaciones.js"
     ]
   },
   "ampFirstPages": []

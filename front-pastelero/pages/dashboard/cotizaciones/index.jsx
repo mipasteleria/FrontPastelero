@@ -20,7 +20,7 @@ export default function Conocenuestrosproductos() {
       const fetchData = async () => {
         try {
           const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch("http://localhost:3001/pricecake", {
+            fetch(`${API_BASE}/pricecake`, {
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`, // Corrección aquí
