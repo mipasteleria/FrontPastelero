@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"pages":{"/dashboard":["static/media/eafabf029ad39a43-s.p.woff2","static/media/b957ea75a84b6ea7-s.p.woff2","static/media/de41c04a932b3e5c-s.p.woff2"],"/dashboard/cotizaciones":["static/media/eafabf029ad39a43-s.p.woff2","static/media/b957ea75a84b6ea7-s.p.woff2","static/media/de41c04a932b3e5c-s.p.woff2"]},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":true}
+=======
+{"pages":{"/enduser/detallesolicitud/[id]":["static/media/eafabf029ad39a43-s.p.woff2","static/media/b957ea75a84b6ea7-s.p.woff2","static/media/de41c04a932b3e5c-s.p.woff2"]},"app":{},"appUsingSizeAdjust":false,"pagesUsingSizeAdjust":true}
+>>>>>>> b49ea994f51f8792f43abb7197d658adac70ee0d
