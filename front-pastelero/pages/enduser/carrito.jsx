@@ -153,8 +153,8 @@ export default function Carrito() {
               {data.image && (
                 <Image src={data.image} 
                 alt="Product"
-                width={500} // Valor por defecto o calculado
-                height={750} // Valor por defecto o calculado
+                width={500} 
+                height={750} 
                 layout="responsive" className="w-full h-auto mb-4 rounded-xl" />
               )}
               {data.status && (
