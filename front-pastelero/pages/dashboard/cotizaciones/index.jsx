@@ -5,6 +5,7 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useEffect, useState } from "react";
+import { useRouter } from 'next/router'; 
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -12,6 +13,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function Conocenuestrosproductos() {
   const [userCotizacion, setUserCotizacion] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const router = useRouter();
 
   const fetchData = async () => {
     try {
@@ -69,6 +71,7 @@ export default function Conocenuestrosproductos() {
   
   if (!isAuthenticated) {
     return <div>You are not authenticated. Please log in.</div>;
+    router.push('/');
   }
 
   const deleteCotizacion = async (id, source) => {

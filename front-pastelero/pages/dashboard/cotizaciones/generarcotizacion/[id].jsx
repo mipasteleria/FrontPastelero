@@ -180,14 +180,13 @@ export default function GenerarCotizacion() {
         body: JSON.stringify({
           precio: formData.Total,
           anticipo: formData.Anticipo,
-          status: true,
+          status: "aprobado"
         }),
       });
       console.log({
         precio: formData.Total,
         anticipo: formData.Anticipo,
-        status: aprobado,
-      });
+        status: ("")})
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

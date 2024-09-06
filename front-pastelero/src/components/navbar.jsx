@@ -50,10 +50,9 @@ const NavbarAdmin = () => {
     const currentIsAdmin = isAdmin;
 
     localStorage.removeItem("token");
-  
-    setIsLoggedIn(false); 
-    setIsAdmin(false);
-  
+
+    setIsLoggedIn(false); //actualizar el estado
+    setIsAdmin(false); // Si es aplicable
     console.log("Token removed successfully!");
   
     if (currentIsAdmin) {
@@ -148,7 +147,7 @@ const NavbarAdmin = () => {
                   {userEmail}
                 </div>
                 <Link 
-                href="/enduser/mispedidos">
+                href="/enduser/detallesolicitud/mispedidos">
                   <button
                     className={`${poppins.className} m-4 hidden md:flex cursor-pointer`}
                   >

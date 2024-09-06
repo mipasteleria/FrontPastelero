@@ -53,6 +53,7 @@ export default function Cakeprice() {
       const id = json.data._id;
       router.push(`/enduser/detallesolicitud/${id}?source=pastel`);
       console.log("Response data:", json);
+     
     } catch (error) {
       console.error("Error en la solicitud:", error);
     }

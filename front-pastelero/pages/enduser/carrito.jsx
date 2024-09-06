@@ -9,10 +9,11 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from 'next/font/google';
 import Importante from '@/src/components/carritodetails';
 import Image from 'next/image';
 
+
+
 const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
 const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-
 export default function Carrito() {
   const { userEmail } = useContext(AuthContext);
   const { userId } = useAuth();
@@ -37,9 +38,9 @@ export default function Carrito() {
     const fetchData = async () => {
       try {
         const urls = [
-          'http://localhost:3001/pricecake/',
-          'http://localhost:3001/pricecupcake/',
-          'http://localhost:3001/pricesnack/',
+          `${API_BASE}/pricecake/`,
+          `${API_BASE}/pricecupcake/`,
+          `${API_BASE}/pricesnack/`,
         ];
         const requests = urls.map(url => fetch(url).then(res => res.json()));
         const responses = await Promise.all(requests);
@@ -97,13 +98,22 @@ export default function Carrito() {
   
   const handleClick = async () => {
     console.log(purchaseData);
+
     try {
-      const response = await fetch( `${API_BASE}/checkout/create-checkout-session`, {
+      const response = await fetch(`${API_BASE}/checkout/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(purchaseData),
+        body: JSON.stringify({
+          Items: 1,
+          amount: data.precio, 
+          status: data.status, 
+          userId: userId,
+          quantity: 1,
+          email: userEmail,
+          name: data.priceType 
+      }),
       });
   
       if (response.ok) {
@@ -143,8 +153,8 @@ export default function Carrito() {
               {data.image && (
                 <Image src={data.image} 
                 alt="Product"
-                width={500} // Valor por defecto o calculado
-                height={750} // Valor por defecto o calculado
+                width={500} 
+                height={750} 
                 layout="responsive" className="w-full h-auto mb-4 rounded-xl" />
               )}
               {data.status && (

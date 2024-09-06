@@ -24,13 +24,7 @@ export default function Verdetallesolicitud() {
                   <h3 className={`text-xl p-2 ${poppins.className}`}>
                     Diseño Solicitado o Imágenes de inspiración
                   </h3>
-                  <Image
-                    className="mx-2"
-                    src="/img/logo.JPG"
-                    width={164}
-                    height={164}
-                    alt="imagen"
-                  />
+                  
                 </div>
               </div>
               <EditarCotizacion/>
