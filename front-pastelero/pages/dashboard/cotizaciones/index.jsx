@@ -13,42 +13,59 @@ export default function Conocenuestrosproductos() {
   const [userCotizacion, setUserCotizacion] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      const fetchData = async () => {
-        try {
-          const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
-            fetch(`${API_BASE}/pricecake`, {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`, // Corrección aquí
-              },
-            }),
-            fetch(`${API_BASE}/pricecupcake`, {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`, // Corrección aquí
-              },
-            }),
-            fetch(`${API_BASE}/pricesnack`, {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`, // Corrección aquí
-              },
-            }),
-          ]);
+  const fetchData = async () => {
+    try {
+      const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
+        fetch(`${API_BASE}/pricecake`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        fetch(`${API_BASE}/pricecupcake`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        fetch(`${API_BASE}/pricesnack`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      ]);
   
-          // Procesar las respuestas
-        } catch (error) {
-          console.error("Error fetching data:", error);
+      if (cakeRes.ok && cupcakeRes.ok && snackRes.ok) {
+        const [cakeData, cupcakeData, snackData] = await Promise.all([
+          cakeRes.json(),
+          cupcakeRes.json(),
+          snackRes.json(),
+        ]);
+  
+        // Añadir logs para verificar el formato de los datos
+        console.log('cakeData:', cakeData);
+        console.log('cupcakeData:', cupcakeData);
+        console.log('snackData:', snackData);
+  
+        if (Array.isArray(cakeData) && Array.isArray(cupcakeData) && Array.isArray(snackData)) {
+          setUserCotizacion([...cakeData, ...cupcakeData, ...snackData]);
+        } else {
+          console.error('Los datos de la API no son arrays:', {
+            cakeData,
+            cupcakeData,
+            snackData,
+          });
         }
-      };
-  
-      fetchData();
+      } else {
+        console.error("Error en la respuesta de una o más solicitudes");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
-  }, []);
+  };
+  
+  
   
   if (!isAuthenticated) {
     return <div>You are not authenticated. Please log in.</div>;

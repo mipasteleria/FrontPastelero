@@ -12,6 +12,11 @@ const NavbarAdmin = () => {
   const { isAdmin, isLoggedIn, setIsAdmin, setIsLoggedIn, userEmail } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
+  const { asPath } = router;
+
+  const handleNavigation = () => {
+    router.push('/dashboard');
+  };
   
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -41,14 +46,21 @@ const NavbarAdmin = () => {
     router.push('/');
   };
 
-const handleLogout = () => {
+  const handleLogout = () => {
+    const currentIsAdmin = isAdmin;
+
     localStorage.removeItem("token");
-    
-    setIsLoggedIn(false); //actualizar el estado
-    setIsAdmin(false); // Si es aplicable
+  
+    setIsLoggedIn(false); 
+    setIsAdmin(false);
+  
     console.log("Token removed successfully!");
-    window.location.reload();
-    router.push("/"); // Redirigir a la página inicio
+  
+    if (currentIsAdmin) {
+      router.push("/");
+    } else {
+      window.location.reload();
+    }
   };
 
   return (
@@ -105,17 +117,23 @@ const handleLogout = () => {
         className="flex items-center gap-4">
           {isLoggedIn ? (
             isAdmin ? (
-              <div>
-                <Link 
-                href="/dashboard">
-                  <button
-                    className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
-                  >
-                    Dashboard
-                  </button>
-                </Link>
+              <div className="w-full hidden md:flex justify-end">
+                <div
+                  className={`${poppins.className} m-4 hidden lg:flex cursor-pointer`}
+                >
+                  {userEmail}
+                </div>
+                {asPath.startsWith("/dashboard") ? null : (
+                  <Link href="/dashboard">
+                    <button
+                      className={`${poppins.className} md:m-2 bg-text text-white rounded-xl p-2 m-2 md:px-3 md:py-2 cursor-pointer`}
+                    >
+                      Dashboard
+                    </button>
+                  </Link>
+                )}
                 <button
-                  className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
+                  className={`${poppins.className} mx-4 h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
                   onClick={handleLogout}
                 >
                   Logout
@@ -150,7 +168,7 @@ const handleLogout = () => {
                   </div>
                 </Link>
                 <button
-                  className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
+                  className={`${poppins.className} hidden md:flex h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
                   onClick={handleLogout}
                 >
                   Logout
@@ -274,7 +292,7 @@ const handleLogout = () => {
       {dropdownOpen && (
         <div
           id="dropdownMenu"
-          className="z-60 fixed left-0 top-0 bottom-0 w-4/5 h-full bg-primary/80 backdrop-blur-lg text-text rounded-lg shadow-2xl p-4 md:hidden"
+          className="z-60 fixed left-0 top-0 bottom-0 w-11/12 h-full bg-primary/80 backdrop-blur-lg text-text rounded-lg shadow-2xl p-4 md:hidden"
         >
           <button 
           className="absolute top-4 right-4" 
@@ -297,97 +315,116 @@ const handleLogout = () => {
           </button>
           {isLoggedIn ? (
             isAdmin ? (
-              <div>
-              <Link 
-              href="/admin/dashboard">
+              <div className="flex flex-col mt-10">
+                <div
+                  className={`${poppins.className} my-4 text-sm cursor-pointer`}
+                >
+                  {userEmail}
+                </div>
                 <button
-                  className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
+                onClick={handleNavigation}
+                className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 my-4 md:px-2 md:py-1 cursor-pointer`}
                 >
                   Dashboard
                 </button>
-              </Link>
-              <button
-                className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointercursor-pointer`}
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
+                <button
+                  className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 my-4 md:px-2 md:py-1 cursor-pointercursor-pointer`}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
             </div>
-            ) : (
+            ) : ( 
               <div 
               className="flex flex-col">
                 <Link 
-                href="/user/orders">
-                  <button
-                    className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
-                  >
-                    Mis Pedidos
-                  </button>
-                </Link>
-                <button
-                  className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
-                  onClick={handleLogout}                  
-                >
-                  LogOut
-                </button>
-                <Link 
-                href="/cotizacion">
-                  <button
-                    className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
-                  >
-                    ¡Cotizar ahora!
-                  </button>
-                </Link>
-                <div 
-                className="flex flex-row text-text mx-6">
-                  <Link 
-                  href="/enduser/carrito">
+                  href="/enduser/conocenuestrosproductos">
                     <button
-                      className={`${poppins.className} m-4 cursor-pointer`}
+                      className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
                     >
-                      <svg
-                        className="w-8 h-8"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"
-                        />
-                      </svg>
+                      Productos
                     </button>
                   </Link>
                   <Link 
-                  href="/enduser/conocenos#preguntasfrecuentes">
+                  href="/enduser/galeria">
                     <button
-                      className={`${poppins.className} m-4 cursor-pointer`}
+                      className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
                     >
-                      <svg
-                        className="w-8 h-8"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                        />
-                      </svg>
+                      Galería
                     </button>
                   </Link>
+                  <Link 
+                  href="/enduser/detallesolicitud">
+                    <button
+                      className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
+                    >
+                      Mis Pedidos
+                    </button>
+                  </Link>
+                  <button
+                    className={`${poppins.className} flex justify-start m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
+                    onClick={handleLogout}                  
+                  >
+                    LogOut
+                  </button>
+                  <Link 
+                  href="/cotizacion">
+                    <button
+                      className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
+                    >
+                      ¡Cotizar ahora!
+                    </button>
+                  </Link>
+                  <div 
+                  className="flex flex-row text-text mx-6">
+                    <Link 
+                    href="/enduser/carrito">
+                      <button
+                        className={`${poppins.className} m-4 cursor-pointer`}
+                      >
+                        <svg
+                          className="w-8 h-8"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"
+                          />
+                        </svg>
+                      </button>
+                    </Link>
+                    <Link 
+                    href="/enduser/conocenos#preguntasfrecuentes">
+                      <button
+                        className={`${poppins.className} m-4 cursor-pointer`}
+                      >
+                        <svg
+                          className="w-8 h-8"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                          />
+                        </svg>
+                      </button>
+                    </Link>
                 </div>
               </div>
             )

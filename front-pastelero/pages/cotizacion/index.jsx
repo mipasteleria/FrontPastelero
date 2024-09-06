@@ -33,7 +33,7 @@ export default function Price() {
           Selecciona el producto que deseas cotizar:
         </p>
 
-        <div className="flex justify-between items-center m-4 w-full text-secondary rounded focus:ring-accent focus:ring-2 focus:border-accent">
+        <div className="flex justify-between items-center m-4 w-full text-text text-xl rounded focus:ring-accent focus:ring-2 focus:border-accent">
           <label className="flex items-center justify-center w-full text-center">
             <input
               type="radio"
@@ -41,7 +41,7 @@ export default function Price() {
               value="cake"
               onChange={() => setSelectedProduct("cake")}
               defaultChecked
-              className="mr-2 bg-gray-100 text-secondary border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="mr-2 bg-gray-100 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
             />
             Pastel
           </label>
@@ -51,7 +51,7 @@ export default function Price() {
               name="product"
               value="snack"
               onChange={() => setSelectedProduct("snack")}
-              className="mr-2 bg-gray-100 text-secondary border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="mr-2 bg-gray-100 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
             />
             Mesa de postres
           </label>
@@ -61,7 +61,7 @@ export default function Price() {
               name="product"
               value="cupcake"
               onChange={() => setSelectedProduct("cupcake")}
-              className="mr-2 bg-gray-100 text-secondary border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="mr-2 bg-gray-100 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
             />
             Cupcakes
           </label>

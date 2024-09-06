@@ -62,7 +62,7 @@ export default function UsuarioForm() {
 
       fetchUserData();
     }
-  }, [id, reset]);
+  }, [id, reset, API_BASE]);
 
   const onSubmit = async (data) => {
     try {

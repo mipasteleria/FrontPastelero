@@ -2,12 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-<<<<<<< HEAD
-  "/dashboard": "pages/dashboard.js",
-  "/dashboard/cotizaciones": "pages/dashboard/cotizaciones.js",
-  "/dashboard/misfacturas": "pages/dashboard/misfacturas.js"
-=======
-  "/cotizacion": "pages/cotizacion.js",
-  "/enduser/detallesolicitud/[id]": "pages/enduser/detallesolicitud/[id].js"
->>>>>>> b49ea994f51f8792f43abb7197d658adac70ee0d
+  "/dashboard/costeorecetas": "pages/dashboard/costeorecetas.js",
+  "/dashboard/costeorecetas/nuevareceta": "pages/dashboard/costeorecetas/nuevareceta.js",
+  "/dashboard/costeorecetas/editarreceta/[id]": "pages/dashboard/costeorecetas/editarreceta/[id].js",
+  "/dashboard/insumosytrabajomanual": "pages/dashboard/insumosytrabajomanual.js",
+  "/dashboard/insumosytrabajomanual/editarinsumosotrabajo/[id]": "pages/dashboard/insumosytrabajomanual/editarinsumosotrabajo/[id].js"
 }

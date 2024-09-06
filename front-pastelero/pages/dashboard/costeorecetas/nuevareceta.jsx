@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
@@ -21,8 +21,23 @@ export default function NuevaReceta() {
     formState: { errors }
   } = useForm();
   const [ingredientsList, setIngredientsList] = useState([]);
+  const [ingredientOptions, setIngredientOptions] = useState([]);
+  const [selectedIngredient, setSelectedIngredient] = useState(null);
   const [total, setTotal] = useState(0);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      try {
+        const response = await axios.get('https://back-pastelero-gamma.vercel.app/insumos');
+        setIngredientOptions(response.data);
+      } catch (error) {
+        console.error("Error fetching ingredients:", error);
+      }
+    };
+
+    fetchIngredients();
+  }, []);
 
   const calculateTotal = () => {
     const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
@@ -55,17 +70,22 @@ export default function NuevaReceta() {
         calculateTotal();
         return newIngredients;
       });
-      setValue("ingrediente", "");
+      calculateTotal();
       setValue("cantidad", "");
-      setValue("precio", "");
-      setValue("unidad", "gramos");
+      setSelectedIngredient(null);
     } else {
       console.error("Faltan valores para agregar el ingrediente");
     }
   };
   
   
-  const handleDeleteIngredient = (index) => setIngredientsList(ingredientsList.filter((_, i) => i !== index));
+  const handleDeleteIngredient = (index) => {
+    setIngredientsList(prevIngredients => {
+      const newIngredients = prevIngredients.filter((_, i) => i !== index);
+      calculateTotal();
+      return newIngredients;
+    });
+  };  
 
   const onInputChange = () => calculateTotal();
 
@@ -148,16 +168,40 @@ export default function NuevaReceta() {
               className="w-full md:w-1/2 pl-2">
                 <div 
                 className="grid gap-6 mb-6">
-                  {renderInput("ingrediente", "Ingrediente", "text", "Vainilla", "")}
+                                    <div className="w-full">
+                    <label htmlFor="ingrediente" className="block text-sm font-medium dark:text-white">Ingrediente</label>
+                    <Controller
+                      name="ingrediente"
+                      control={control}
+                      render={({ field }) => (
+                        <select
+                          id="ingrediente"
+                          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setSelectedIngredient(e.target.value);
+                            const selectedIngredientData = ingredientOptions.find(option => option.name === e.target.value);
+                            if (selectedIngredientData) {
+                              setValue("precio", selectedIngredientData.cost);
+                              setValue("unidad", selectedIngredientData.unit);
+                            }
+                          }}
+                        >
+                          <option value="">Selecciona un ingrediente</option>
+                          {ingredientOptions.map(option => (
+                            <option key={option._id} value={option.name}>{option.name}</option>
+                          ))}
+                        </select>
+                      )}
+                    />
+                  </div>
                   {renderInput("cantidad", "Cantidad", "number", "0.0", "")}
                   {renderInput("precio", "Precio", "number", "0.0", "")}
                   <div 
                   className="flex items-end">
-                    <div 
-                    className="w-full">
-                      <label 
-                      htmlFor="unidad" 
-                      className="block mb-2 text-sm font-medium dark:text-white">Unidad</label>
+                    <div className="w-full">
+                      <label htmlFor="unidad" className="block mb-2 text-sm font-medium dark:text-white">Unidad</label>
                       <Controller
                         name="unidad"
                         control={control}

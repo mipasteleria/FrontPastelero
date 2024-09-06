@@ -21,13 +21,12 @@ export default function Login() {
   const [error, setError] = useState("");
   
   const navigate = () => {
-    router.push('/'); // Cambia la URL a /home
+    router.push('/');
     window.location.reload();
   };
   
  
   const onSubmit = async (data) => {
-    console.log(data);
     try {
       const response = await fetch(`${API_BASE}/users/login`, {
         method: "POST",
@@ -35,14 +34,11 @@ export default function Login() {
         body: JSON.stringify(data),
       });
       const json = await response.json();
-      console.log(response.json);
-      console.log(json);
       if (json.token) {
         localStorage.setItem("token", json.token);
         window.location.reload();
-        console.log(json.token);
         navigate.call
-        
+
         reset ()
         return;   
       }

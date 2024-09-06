@@ -22,19 +22,25 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-<<<<<<< HEAD
-    "/dashboard": [
+    "/dashboard/costeorecetas/editarreceta/[id]": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard.js"
+      "static/chunks/pages/dashboard/costeorecetas/editarreceta/[id].js"
     ],
-    "/dashboard/cotizaciones": [
-=======
-    "/enduser/detallesolicitud/[id]": [
->>>>>>> b49ea994f51f8792f43abb7197d658adac70ee0d
+    "/dashboard/costeorecetas/nuevareceta": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard/cotizaciones.js"
+      "static/chunks/pages/dashboard/costeorecetas/nuevareceta.js"
+    ],
+    "/dashboard/insumosytrabajomanual": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/dashboard/insumosytrabajomanual.js"
+    ],
+    "/dashboard/insumosytrabajomanual/editarinsumosotrabajo/[id]": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/dashboard/insumosytrabajomanual/editarinsumosotrabajo/[id].js"
     ]
   },
   "ampFirstPages": []
