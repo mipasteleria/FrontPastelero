@@ -43,7 +43,7 @@ const NavbarAdmin = () => {
 
 const handleLogout = () => {
     localStorage.removeItem("token");
-    
+
     setIsLoggedIn(false); //actualizar el estado
     setIsAdmin(false); // Si es aplicable
     console.log("Token removed successfully!");
@@ -130,7 +130,7 @@ const handleLogout = () => {
                   {userEmail}
                 </div>
                 <Link 
-                href="/enduser/mispedidos">
+                href="/enduser/detallesolicitud/mispedidos">
                   <button
                     className={`${poppins.className} m-4 hidden md:flex cursor-pointer`}
                   >
