@@ -23,39 +23,59 @@ export default function NuevaReceta() {
   const [ingredientsList, setIngredientsList] = useState([]);
   const [ingredientOptions, setIngredientOptions] = useState([]);
   const [selectedIngredient, setSelectedIngredient] = useState(null);
+  const [fixedCosts, setFixedCosts] = useState(0);
+  const [fixedCostsHours, setFixedCostsHours] = useState(0);
   const [total, setTotal] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await axios.get('https://back-pastelero-gamma.vercel.app/insumos');
+        const response = await axios.get(`${API_BASE}/insumos`);
         setIngredientOptions(response.data);
       } catch (error) {
         console.error("Error fetching ingredients:", error);
       }
     };
-
+  
+    const fetchCosts = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`);
+        const data = response.data;
+        setFixedCosts(data.fixedCosts);
+        setFixedCostsHours(data.laborCosts);
+  
+        // Inicializa el total con costos fijos y costos de mano de obra
+        const initialTotal = data.fixedCosts + data.laborCosts;
+        setTotal(initialTotal);
+      } catch (error) {
+        console.error("Error fetching costs:", error);
+      }
+    };
+  
     fetchIngredients();
+    fetchCosts();
   }, []);
+  
+  
+  useEffect(() => {
+    calculateTotal();
+  }, [fixedCosts, fixedCostsHours, ingredientsList]);
 
   const calculateTotal = () => {
     const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
-    const { special_tax, additional_costs, fixed_costs, fixed_costs_hours, profit_margin } = getValues();
+    const { special_tax, additional_costs, profit_margin } = getValues();
   
     const specialTaxValue = parseFloat(special_tax || 0);
     const additionalCostsValue = parseFloat(additional_costs || 0);
-    const fixedCostsValue = parseFloat(fixed_costs || 0);
-    const fixedCostsHoursValue = parseFloat(fixed_costs_hours || 0);
     const profitMarginValue = parseFloat(profit_margin || 0);
   
-    const totalCost = ingredientTotal + specialTaxValue + additionalCostsValue + fixedCostsValue + fixedCostsHoursValue;
+    const totalCost = ingredientTotal + fixedCosts + fixedCostsHours + specialTaxValue + additionalCostsValue;
     const totalWithProfit = totalCost + (totalCost * profitMarginValue / 100);
   
     setTotal(totalWithProfit);
-  };
+  };  
   
-
   const handleAddIngredient = () => {
     const { ingrediente, cantidad, precio, unidad } = getValues();
     if (ingrediente.trim() && cantidad && precio) {
@@ -70,13 +90,13 @@ export default function NuevaReceta() {
         calculateTotal();
         return newIngredients;
       });
-      calculateTotal();
       setValue("cantidad", "");
       setSelectedIngredient(null);
     } else {
       console.error("Faltan valores para agregar el ingrediente");
     }
   };
+  
   
   
   const handleDeleteIngredient = (index) => {
@@ -92,12 +112,14 @@ export default function NuevaReceta() {
   const onSubmit = async (data) => {
     data.ingredientes = ingredientsList;
     data.total_cost = total;
+    data.fixed_costs = fixedCosts;
+    data.fixed_costs_hours = fixedCostsHours;
   
     // Verifica los datos antes de enviarlos
     console.log("Ingredients List:", ingredientsList);
     console.log("Form Data:", data);
     console.log("Total Cost:", total);
-  
+    
     try {
       const response = await axios.post(`${API_BASE}/recetas/recetas`, data, {
         headers: {
@@ -168,7 +190,7 @@ export default function NuevaReceta() {
               className="w-full md:w-1/2 pl-2">
                 <div 
                 className="grid gap-6 mb-6">
-                                    <div className="w-full">
+                  <div className="w-full">
                     <label htmlFor="ingrediente" className="block text-sm font-medium dark:text-white">Ingrediente</label>
                     <Controller
                       name="ingrediente"
@@ -281,11 +303,31 @@ export default function NuevaReceta() {
             </div>
             <div 
             className="grid gap-6 mb-6 md:grid-cols-2">
-            {renderInput("fixed_costs_hours", "Gastos fijos por hora", "number", "0.0", "Los gastos fijos por hora son obligatorios")}
-              {renderInput("fixed_costs", "Gastos fijos", "number", "0.0", "Los gastos fijos son obligatorios")}
-              {renderInput("special_tax", "IEPS", "number", "0.0", "El IEPS es obligatorio")}
-              {renderInput("additional_costs", "Costos adicionales", "number", "0.0", "Los costos adicionales son obligatorios")}
-              {renderInput("portions", "Porciones", "number", "0", "El número de porciones es obligatorio")}
+              <div className="grid gap-6 mb-6 md:grid-cols-2">
+                <div className="w-full">
+                  <label htmlFor="fixed_costs" className="block text-sm font-medium dark:text-white">Mano de obra</label>
+                  <p id="fixed_costs" className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5">{(fixedCostsHours || 0).toFixed(2)}</p>
+                </div>
+                <div className="w-full">
+                  <label htmlFor="fixed_costs_hours" className="block text-sm font-medium dark:text-white">Costos fijos</label>
+                  <p id="fixed_costs_hours" className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5">{(fixedCosts || 0).toFixed(2)}</p>
+                </div>
+              </div>
+              {renderInput(
+                "special_tax", 
+                "IEPS", "number", 
+                "0.0", 
+                "El IEPS es obligatorio")}
+              {renderInput(
+                "additional_costs", 
+                "Costos adicionales", 
+                "number", "0.0", 
+                "Los costos adicionales son obligatorios")}
+              {renderInput(
+                "portions", 
+                "Porciones", 
+                "number", "0", 
+                "El número de porciones es obligatorio")}
               <div 
               className="w-full">
                 <label 

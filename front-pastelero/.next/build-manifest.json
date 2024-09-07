@@ -5,8 +5,8 @@
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/JVBasMUGdCnBeXa2sJvTK/_buildManifest.js",
-    "static/JVBasMUGdCnBeXa2sJvTK/_ssgManifest.js"
+    "static/n6GacIIbbBNA9pJ30NQA4/_buildManifest.js",
+    "static/n6GacIIbbBNA9pJ30NQA4/_ssgManifest.js"
   ],
   "rootMainFiles": [],
   "pages": {
@@ -24,7 +24,7 @@
       "static/chunks/webpack-59c5c889f52620d6.js",
       "static/chunks/framework-ecc4130bc7a58a64.js",
       "static/chunks/main-22c448dfb58825f6.js",
-      "static/css/3f6a374f1ad01317.css",
+      "static/css/9526b3f4020edb2c.css",
       "static/chunks/pages/_app-56c667514b2b0337.js"
     ],
     "/_error": [
@@ -42,9 +42,9 @@
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/205-180376fd3eec9921.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/991-86fc932637cd94de.js",
+      "static/chunks/991-d575cdff0fa612bc.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/cotizacion-fcc3e4ce71572688.js"
+      "static/chunks/pages/cotizacion-9c9949c7b3b890d1.js"
     ],
     "/dashboard": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -52,9 +52,8 @@
       "static/chunks/main-22c448dfb58825f6.js",
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard-37fc702f8fe88d99.js"
+      "static/chunks/pages/dashboard-d0aed39a682fdd41.js"
     ],
     "/dashboard/costeorecetas": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -62,9 +61,8 @@
       "static/chunks/main-22c448dfb58825f6.js",
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/costeorecetas-431c88b17ced7a0d.js"
+      "static/chunks/pages/dashboard/costeorecetas-001f00b790b24eee.js"
     ],
     "/dashboard/costeorecetas/[id]": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -73,9 +71,8 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/205-180376fd3eec9921.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/costeorecetas/[id]-40bd2d9031022162.js"
+      "static/chunks/pages/dashboard/costeorecetas/[id]-546ae8e4cd774e91.js"
     ],
     "/dashboard/costeorecetas/editarreceta/[id]": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -85,9 +82,8 @@
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/205-180376fd3eec9921.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/costeorecetas/editarreceta/[id]-db79480f88a2f53f.js"
+      "static/chunks/pages/dashboard/costeorecetas/editarreceta/[id]-0a79fcfd61a6f568.js"
     ],
     "/dashboard/costeorecetas/nuevareceta": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -97,9 +93,8 @@
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/205-180376fd3eec9921.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/costeorecetas/nuevareceta-aa9ade21188b0a43.js"
+      "static/chunks/pages/dashboard/costeorecetas/nuevareceta-ad10fd5eef981835.js"
     ],
     "/dashboard/cotizaciones": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -107,9 +102,8 @@
       "static/chunks/main-22c448dfb58825f6.js",
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/cotizaciones-071a9d814c71d6c9.js"
+      "static/chunks/pages/dashboard/cotizaciones-b85cc41d464a7092.js"
     ],
     "/dashboard/cotizaciones/[id]": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -117,9 +111,8 @@
       "static/chunks/main-22c448dfb58825f6.js",
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/992-b12467d19da3c8f0.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/cotizaciones/[id]-b9b034e50be63f62.js"
+      "static/chunks/pages/dashboard/cotizaciones/[id]-76f290f6cee839f0.js"
     ],
     "/dashboard/cotizaciones/cotizacionmanual": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -129,10 +122,9 @@
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/205-180376fd3eec9921.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
-      "static/chunks/991-86fc932637cd94de.js",
+      "static/chunks/991-d575cdff0fa612bc.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/cotizaciones/cotizacionmanual-542a6629bbde9e7a.js"
+      "static/chunks/pages/dashboard/cotizaciones/cotizacionmanual-68c7683d485af1b1.js"
     ],
     "/dashboard/cotizaciones/editarcotizacion/[id]": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -141,7 +133,7 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/cotizaciones/editarcotizacion/[id]-e1078ff5a434c907.js"
+      "static/chunks/pages/dashboard/cotizaciones/editarcotizacion/[id]-ee46dfec66ac2f87.js"
     ],
     "/dashboard/cotizaciones/generarcotizacion/[id]": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -149,9 +141,8 @@
       "static/chunks/main-22c448dfb58825f6.js",
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/992-b12467d19da3c8f0.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/cotizaciones/generarcotizacion/[id]-8d59b78ae1e03e7c.js"
+      "static/chunks/pages/dashboard/cotizaciones/generarcotizacion/[id]-0232b118055618cc.js"
     ],
     "/dashboard/gastosfijosymanodeobra": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -160,9 +151,8 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/gastosfijosymanodeobra-3cf703552ddedb0a.js"
+      "static/chunks/pages/dashboard/gastosfijosymanodeobra-dbe9b23bccb0357e.js"
     ],
     "/dashboard/insumosytrabajomanual": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -171,9 +161,8 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/205-180376fd3eec9921.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/insumosytrabajomanual-959e9bc33d94bc8c.js"
+      "static/chunks/pages/dashboard/insumosytrabajomanual-2f7037588efb7b75.js"
     ],
     "/dashboard/insumosytrabajomanual/agregarinsumosotrabajo": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -182,9 +171,8 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/insumosytrabajomanual/agregarinsumosotrabajo-dff1cb6d8dce3c6d.js"
+      "static/chunks/pages/dashboard/insumosytrabajomanual/agregarinsumosotrabajo-900aacc85e21342f.js"
     ],
     "/dashboard/insumosytrabajomanual/editarinsumosotrabajo/[id]": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -193,9 +181,8 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/insumosytrabajomanual/editarinsumosotrabajo/[id]-c77efb1868d0d412.js"
+      "static/chunks/pages/dashboard/insumosytrabajomanual/editarinsumosotrabajo/[id]-3cd2fc827adc684f.js"
     ],
     "/dashboard/misfacturas": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -203,9 +190,8 @@
       "static/chunks/main-22c448dfb58825f6.js",
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/misfacturas-2a2b9985e0210e16.js"
+      "static/chunks/pages/dashboard/misfacturas-59dcd704d7264252.js"
     ],
     "/dashboard/usuarios": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -213,9 +199,8 @@
       "static/chunks/main-22c448dfb58825f6.js",
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/usuarios-002e75d050d696d8.js"
+      "static/chunks/pages/dashboard/usuarios-33b4a3fccc01744d.js"
     ],
     "/dashboard/usuarios/editarusuario/[id]": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -224,9 +209,8 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/usuarios/editarusuario/[id]-0005cedc70d1076d.js"
+      "static/chunks/pages/dashboard/usuarios/editarusuario/[id]-5619b1a86026e353.js"
     ],
     "/dashboard/usuarios/nuevousuario": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -235,9 +219,8 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/536-299f658871fccb3d.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/dashboard/usuarios/nuevousuario-0f6e7d8c9d6a6b2a.js"
+      "static/chunks/pages/dashboard/usuarios/nuevousuario-07ac69853872241f.js"
     ],
     "/enduser/carrito": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -247,7 +230,7 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/enduser/carrito-98cf3bd95c531d2b.js"
+      "static/chunks/pages/enduser/carrito-3036d6bec466f5a4.js"
     ],
     "/enduser/conocenos": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -277,24 +260,29 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/enduser/detallesolicitud/[id]-8bfdbf2bca33f4f2.js"
+      "static/chunks/pages/enduser/detallesolicitud/[id]-5cd8ad35283196a4.js"
     ],
     "/enduser/detallesolicitud/detallemispedido": [
       "static/chunks/webpack-59c5c889f52620d6.js",
       "static/chunks/framework-ecc4130bc7a58a64.js",
       "static/chunks/main-22c448dfb58825f6.js",
-      "static/chunks/pages/enduser/detallesolicitud/detallemispedido-dce49efd5ec9dcaf.js"
+      "static/chunks/cb355538-e9a8f453c727c3ea.js",
+      "static/chunks/640-ef9942d764390cac.js",
+      "static/chunks/733-bfc32168c5cde1c0.js",
+      "static/chunks/798-b6c2e5895297e18d.js",
+      "static/css/e0244f56506fa7fe.css",
+      "static/chunks/pages/enduser/detallesolicitud/detallemispedido-f28da9de50d56f38.js"
     ],
     "/enduser/detallesolicitud/mispedidos": [
       "static/chunks/webpack-59c5c889f52620d6.js",
       "static/chunks/framework-ecc4130bc7a58a64.js",
       "static/chunks/main-22c448dfb58825f6.js",
-      "static/chunks/cb355538-b061690fd756e910.js",
+      "static/chunks/cb355538-e9a8f453c727c3ea.js",
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
-      "static/chunks/679-9fac608634218027.js",
+      "static/chunks/798-b6c2e5895297e18d.js",
       "static/css/e0244f56506fa7fe.css",
-      "static/chunks/pages/enduser/detallesolicitud/mispedidos-e06ce1364d3b44c9.js"
+      "static/chunks/pages/enduser/detallesolicitud/mispedidos-7a64db43c7c72e0c.js"
     ],
     "/enduser/galeria": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -305,6 +293,17 @@
       "static/chunks/733-bfc32168c5cde1c0.js",
       "static/css/9280646de48c09a8.css",
       "static/chunks/pages/enduser/galeria-028429a23e526ae7.js"
+    ],
+    "/enduser/mispedidos": [
+      "static/chunks/webpack-59c5c889f52620d6.js",
+      "static/chunks/framework-ecc4130bc7a58a64.js",
+      "static/chunks/main-22c448dfb58825f6.js",
+      "static/chunks/cb355538-e9a8f453c727c3ea.js",
+      "static/chunks/640-ef9942d764390cac.js",
+      "static/chunks/733-bfc32168c5cde1c0.js",
+      "static/chunks/798-b6c2e5895297e18d.js",
+      "static/css/e0244f56506fa7fe.css",
+      "static/chunks/pages/enduser/mispedidos-e749ee7b78e81f4b.js"
     ],
     "/enduser/pagar": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -317,6 +316,16 @@
       "static/css/9280646de48c09a8.css",
       "static/chunks/pages/enduser/pagar-735c106fa5cf724c.js"
     ],
+    "/enduser/pedidos/[id]": [
+      "static/chunks/webpack-59c5c889f52620d6.js",
+      "static/chunks/framework-ecc4130bc7a58a64.js",
+      "static/chunks/main-22c448dfb58825f6.js",
+      "static/chunks/cb355538-e9a8f453c727c3ea.js",
+      "static/chunks/640-ef9942d764390cac.js",
+      "static/chunks/733-bfc32168c5cde1c0.js",
+      "static/css/9280646de48c09a8.css",
+      "static/chunks/pages/enduser/pedidos/[id]-3dee317fbed22857.js"
+    ],
     "/enduser/return": [
       "static/chunks/webpack-59c5c889f52620d6.js",
       "static/chunks/framework-ecc4130bc7a58a64.js",
@@ -325,7 +334,7 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/733-bfc32168c5cde1c0.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/enduser/return-04b2d67445662546.js"
+      "static/chunks/pages/enduser/return-36610e459bb82b5b.js"
     ],
     "/login": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -334,7 +343,7 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/536-299f658871fccb3d.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/login-b8f03dac997b8b71.js"
+      "static/chunks/pages/login-d6f056bc8a95c662.js"
     ],
     "/registrarse": [
       "static/chunks/webpack-59c5c889f52620d6.js",
@@ -343,7 +352,7 @@
       "static/chunks/640-ef9942d764390cac.js",
       "static/chunks/536-299f658871fccb3d.js",
       "static/css/9280646de48c09a8.css",
-      "static/chunks/pages/registrarse-e027a4fb9944b657.js"
+      "static/chunks/pages/registrarse-fa4a784e0062de6d.js"
     ]
   },
   "ampFirstPages": []
