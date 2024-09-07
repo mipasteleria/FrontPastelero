@@ -18,7 +18,8 @@ export default function Pedidos() {
     const [totalPages, setTotalPages] = useState(1); // Total de páginas
     const router = useRouter();
     const { userId } = useContext(AuthContext); // Usa useContext para obtener el userId
-
+    
+    console.log(userId);
     useEffect(() => {
         const token = localStorage.getItem("token");
 
@@ -162,13 +163,20 @@ export default function Pedidos() {
                                 <tbody>
                                     {userCotizacion.map((cotizacion) => (
                                         <tr key={`cotizacion-${cotizacion._id}`} className="border-b dark:border-gray-700">
-                                            {["_id", "contactName", "createdAt", "priceType", "status"].map((field) => (
+                                            {["_id", "contactName", "createdAt", "priceType", "status","source"].map((field) => (
                                                 <td key={field} className="px-6 py-4 border-b border-secondary">
                                                     {cotizacion[field]}
                                                 </td>
                                             ))}
                                             <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
-                                                <Link href={`/enduser/detallemispedidos${cotizacion._id}?type=${cotizacion.type}&source=${cotizacion.type.toLowerCase()}`}
+                                                
+                                                
+                                                <Link href={`/enduser/pedidos/${
+                            cotizacion._id
+                          }?type=${
+                            cotizacion.type
+                          }&source=${cotizacion.type.toLowerCase()}`}
+                        
                                                 className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-rose-400">
                                                     <svg className="w-6 h-6 text-accent dark:text-white my-2 mx-.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                         <path stroke="currentColor" strokeWidth="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
@@ -178,14 +186,14 @@ export default function Pedidos() {
                                                 </Link>
                                                 {/* Botón de Agregar al Carrito */}
                                                 <button
-                                                    onClick={() => onAddToCart(cotizacion._id, cotizacion.type.toLowerCase())}
+                                                    onClick={() => onAddToCart(cotizacion._id)}
                                                     className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-green-300"
                                                 >
                                                     <FaShoppingCart size={20} /> {/* Icono del carrito */}
                                                     <span>Agregar al carrito</span>
                                                 </button>
                                                 <button
-                                                    onClick={() => CancelCotizacion(cotizacion._id, cotizacion.type.toLowerCase())}
+                                                    onClick={() => CancelCotizacion(cotizacion._id)}
                                                     className="bg-rose-200 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-red-600"
                                                 >
                                                     <FaTimes size={20} /> {/* Icono de cancelar */}
