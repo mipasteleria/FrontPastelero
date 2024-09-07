@@ -342,7 +342,7 @@ const handleAddIngredient = () => {
             <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
             {renderInput(
                 "fixed_costs_hours",
-                "Gastos fijos por hora",
+                "Mano de obra",
                 "number",
                 "0.0",
                 ""
@@ -379,7 +379,6 @@ const handleAddIngredient = () => {
                 "0.0",
                 ""
               )}
-              {renderInput("special_tax", "IEPS (%)", "number", "0.0", "")}
             </div>
             <div className="my-10 p-4 rounded-xl bg-rose-50">
               <label
