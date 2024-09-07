@@ -11,12 +11,13 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 export default function Conocenuestrosproductos() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [costData, setCostData] = useState({ fixedCosts: 0, laborCosts: 0 });
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   // Fetch data on component mount
   useEffect(() => {
     const fetchCostData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/costs/66dc00a6b33d98dd9e2b91a9');
+        const response = await fetch(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
