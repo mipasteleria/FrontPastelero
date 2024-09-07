@@ -4,6 +4,7 @@ import { Poppins as PoppinsFont } from "next/font/google";
 import Image from "next/image";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const VerCotizacion = () => {
   const router = useRouter();
@@ -15,7 +16,7 @@ const VerCotizacion = () => {
     console.log("enta entrando al fetch front");
     try {
       const response = await fetch(
-        `http://localhost:3001/image-url/${filename}`
+        `${API_BASE}/image-url/${filename}`
       );
 
       if (!response.ok) {
@@ -130,36 +131,36 @@ const VerCotizacion = () => {
   return (
     <div className={`flex flex-col ${poppins.className}`}>
       {source === "pastel" &&
-        renderParagraphs({
-          flavor: data.flavor,
-          levels: data.levels,
-          portions: data.portions,
-          delivery: data.delivery,
-          stuffedFlavor: data.stuffedFlavor,
-          cover: data.cover,
-          deliveryAdress: data.deliveryAdress,
-          fondantCover: data.fondantCover,
-          deliveryDate: data.deliveryDate,
-          buttercream: data.buttercream,
-          ganache: data.ganache,
-          fondant: data.fondant,
-          fondantDraw: data.fondantDraw,
-          buttercreamDraw: data.buttercreamDraw,
-          sugarcharacter3d: data.sugarcharacter3d,
-          naturalFlowers: data.naturalFlowers,
-          fondantFlowers: data.fondantFlowers,
-          sign: data.sign,
-          eatablePrint: data.eatablePrint,
-          character: data.character,
-          other: data.other,
-          image: data.image,
-          budget: data.budget,
-          contactName: data.contactName,
-          contactPhone: data.contactPhone,
-          questionsOrComments: data.questionsOrComments,
-          precio: data.precio,
-          anticipo: data.anticipo,
-          status: data.status,
+        renderFields({
+          Sabor: data.flavor,
+          Niveles: data.levels,
+          Porciones: data.portions,
+          Envio: data.delivery,
+          Relleno: data.stuffedFlavor,
+          Cobertura: data.cover,
+          DireccionDeEntrega: data.deliveryAdress,
+          CoberturaConFondant: data.fondantCover,
+          FechaDeEntrega: data.deliveryDate,
+          CremaMantequilla: data.buttercream,
+          Ganache: data.ganache,
+          Fondant: data.fondant,
+          DibujoEnFondant: data.fondantDraw,
+          DibujoEnButtercream: data.buttercreamDraw,
+          Figura3D: data.sugarcharacter3d,
+          FloresNaturales: data.naturalFlowers,
+         FloresDeFondants: data.fondantFlowers,
+          Letrero: data.sign,
+          ImpresionComestible: data.eatablePrint,
+          Personaje: data.character,
+          Otro: data.other,
+          Imagen: data.image,
+          Presupuesto: data.budget,
+          NumeroDeContacto: data.contactName,
+          TelefonoDeContacto: data.contactPhone,
+          PreguntasOComentarios: data.questionsOrComments,
+          Precio: data.precio,
+          Anticipo: data.anticipo,
+          Estatus: data.status,
         })}
 
         {source === "snack" &&
@@ -169,12 +170,12 @@ const VerCotizacion = () => {
             Envio: data.delivery,
             DireccionDeEntrega: data.deliveryAdress,
             FechaDeEntrega: data.deliveryDate,
-            pay: data.pay,
-            brownie: data.brownie,
+            Pay: data.pay,
+            Brownie: data.brownie,
             Galletas: data.coockie,
-            alfajores: data.alfajores,
-            macarrones: data.macaroni,
-            donas: data.donuts,
+            Alfajores: data.alfajores,
+            Macarrones: data.macaroni,
+            Donas: data.donuts,
             Cakepops: data.lollipops,
             cupcakes: data.cupcakes,
             PanDeNaranja: data.bread,
