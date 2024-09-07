@@ -16,11 +16,11 @@ export default function Verdetallesolicitud() {
     if (id && source) {
       const type = source.toLocaleLowerCase();
       const url = `/dashboard/cotizaciones/generarcotizacion/${id}?source=${source}&type=${type}`;
-
+      
       console.log(`Navigating to: ${url}`);
       router.push(url);
     } else {
-      console.error("id or source is undefined");
+      console.error('id or source is undefined');
     }
   };
 
@@ -35,11 +35,17 @@ export default function Verdetallesolicitud() {
           </h1>
           <form className="m-4">
             <div className="flex flex-wrap">
-              
+              <div className="w-full md:w-1/2 pr-2">
+                <div className="mb-6">
+                  <h3 className={`text-xl p-2 ${poppins.className}`}>
+                    Diseño Solicitado o Imágenes de inspiración
+                  </h3>
+                </div>
+              </div>
               <VerCotizacion />
               <button
                 type="button" // Asegúrate de especificar el tipo de botón
-                className="mt-4 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 h-12 px-16 py-2.5 text-center"
+                className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center"
                 onClick={handleButtonClick}
               >
                 Generar Cotización

@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const Detalle = () => {
   const router = useRouter();
@@ -23,7 +24,7 @@ const Detalle = () => {
     console.log(`Fetching image URL for file: ${filename}`);
     try {
       const response = await fetch(
-        `http://localhost:3001/image-url/${filename}`
+        `${API_BASE}/image-url/${filename}`
       );
       console.log("Response Status:", response.status);
 
