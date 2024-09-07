@@ -10,7 +10,6 @@ import Link from "next/link";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function EditarReceta() {
   const {
@@ -21,10 +20,26 @@ export default function EditarReceta() {
     formState: { errors },
   } = useForm();
   const [ingredientsList, setIngredientsList] = useState([]);
+  const [ingredientOptions, setIngredientOptions] = useState([]);
+  const [selectedIngredient, setSelectedIngredient] = useState(null);
   const [total, setTotal] = useState(0);
   const router = useRouter();
   const { id } = router.query; // Obtén el ID de la receta del query string
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      try {
+        const response = await axios.get('https://back-pastelero-gamma.vercel.app/insumos');
+        setIngredientOptions(response.data);
+      } catch (error) {
+        console.error("Error fetching ingredients:", error);
+      }
+    };
+
+    fetchIngredients();
+  }, []);
+
   useEffect(() => {
     if (id) {
       const fetchReceta = async () => {
@@ -59,7 +74,7 @@ export default function EditarReceta() {
 
       fetchReceta();
     }
-  }, [id, getValues, setValue]);
+  }, [id, getValues, setValue, API_BASE]);
 
   const calculateTotal = () => {
     const ingredientTotal = ingredientsList.reduce(
@@ -107,15 +122,13 @@ const handleAddIngredient = () => {
       calculateTotal();
       return newIngredients;
     });
-    setValue("ingrediente", "");
+    calculateTotal();
     setValue("cantidad", "");
-    setValue("precio", "");
-    setValue("unidad", "gramos");
+    setSelectedIngredient(null);
   } else {
     console.error("Faltan valores para agregar el ingrediente");
   }
 };
-
 
   const handleDeleteIngredient = (index) =>
     setIngredientsList(ingredientsList.filter((_, i) => i !== index));
@@ -210,23 +223,39 @@ const handleAddIngredient = () => {
               </div>
               <div className="w-full md:w-1/2 pl-2">
                 <div className="grid gap-6 mb-6">
-                  {renderInput(
-                    "ingrediente",
-                    "Ingrediente",
-                    "text",
-                    "Vainilla",
-                    ""
-                  )}
+                  <div className="w-full">
+                    <label htmlFor="ingrediente" className="block text-sm font-medium dark:text-white">Ingrediente</label>
+                    <Controller
+                      name="ingrediente"
+                      control={control}
+                      render={({ field }) => (
+                        <select
+                          id="ingrediente"
+                          className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setSelectedIngredient(e.target.value);
+                            const selectedIngredientData = ingredientOptions.find(option => option.name === e.target.value);
+                            if (selectedIngredientData) {
+                              setValue("precio", selectedIngredientData.cost);
+                              setValue("unidad", selectedIngredientData.unit);
+                            }
+                          }}
+                        >
+                          <option value="">Selecciona un ingrediente</option>
+                          {ingredientOptions.map(option => (
+                            <option key={option._id} value={option.name}>{option.name}</option>
+                          ))}
+                        </select>
+                      )}
+                    />
+                  </div>
                   {renderInput("cantidad", "Cantidad", "number", "0.0", "")}
                   {renderInput("precio", "Precio", "number", "0.0", "")}
                   <div className="flex items-end">
-                    <div className="w-full">
-                      <label
-                        htmlFor="unidad"
-                        className="block mb-2 text-sm font-medium dark:text-white"
-                      >
-                        Unidad
-                      </label>
+                  <div className="w-full">
+                      <label htmlFor="unidad" className="block mb-2 text-sm font-medium dark:text-white">Unidad</label>
                       <Controller
                         name="unidad"
                         control={control}
@@ -318,15 +347,31 @@ const handleAddIngredient = () => {
                 "0.0",
                 ""
               )}
-              {renderInput("special_tax", "IEPS (%)", "number", "0.0", "")}
-              {renderInput(
+            {renderInput(
+              "fixed_costs", 
+              "Costos fijos", 
+              "number", 
+              "0.0", 
+              "")}
+            {renderInput(
+              "special_tax", 
+              "IEPS (%)", 
+              "number", 
+              "0.0", 
+              "")}
+            {renderInput(
                 "additional_costs",
                 "Costos adicionales",
                 "number",
                 "0.0",
                 ""
               )}
-              {renderInput("portions", "Porciones", "number", "0", "El número de porciones es obligatorio")}
+              {renderInput(
+                "portions", 
+                "Porciones", 
+                "number", 
+                "0", 
+                "El número de porciones es obligatorio")}
               {renderInput(
                 "profit_margin",
                 "Margen de ganancia (%)",
@@ -334,7 +379,6 @@ const handleAddIngredient = () => {
                 "0.0",
                 ""
               )}
-              {renderInput("fixed_costs", "Costos fijos", "number", "0.0", "")}
               {renderInput("special_tax", "IEPS (%)", "number", "0.0", "")}
             </div>
             <div className="my-10 p-4 rounded-xl bg-rose-50">

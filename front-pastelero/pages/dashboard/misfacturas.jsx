@@ -174,7 +174,7 @@ export default function Conocenuestrosproductos() {
                         href="/dashboard/costeorecetas/verreceta"
                           >
                             <svg
-                              class="w-6 h-6 text-accent dark:text-white"
+                              className="w-6 h-6 text-accent dark:text-white"
                               aria-hidden="true"
                               xmlns="http://www.w3.org/2000/svg"
                               width="1"

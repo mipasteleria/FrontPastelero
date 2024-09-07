@@ -82,7 +82,7 @@ export default function Carrito() {
     };
     
     fetchData();
-  }, [userId, anticipo, data?.precio]);
+  }, [userId, anticipo, data?.precio, userEmail]);
   
   
   const handleCheckboxChange = (event) => {

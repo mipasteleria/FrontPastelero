@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Poppins as PoppinsFont } from "next/font/google";
+import Image from "next/image";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -8,11 +9,29 @@ const VerCotizacion = () => {
   const router = useRouter();
   const { id, source } = router.query;
   const [data, setData] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+
+  const fetchImageUrl = async (filename) => {
+    console.log("enta entrando al fetch front");
+    try {
+      const response = await fetch(
+        `http://localhost:3001/image-url/${filename}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Error fetching image URL");
+      }
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error("Error fetching image URL:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       if (id && source) {
-        console.log("Source:", source);
         let url;
         const token = localStorage.getItem("token");
 
@@ -44,8 +63,12 @@ const VerCotizacion = () => {
           }
 
           const result = await response.json();
-          console.log("Fetched data:", result.data); // Verifica los datos obtenidos
-          setData(result.data); // Ajusta aquí para acceder a `result.data`
+          setData(result.data);
+
+          if (result.data.image) {
+            const imageUrl = await fetchImageUrl(result.data.image);
+            setImageUrl(imageUrl);
+          }
         } catch (error) {
           console.error("Error fetching data:", error);
         }
@@ -105,39 +128,39 @@ const VerCotizacion = () => {
   };
 
   return (
-    <div className={`flex flex-col p-8 ${poppins.className}`}>
-      <div className="grid gap-4 md:grid-cols-2">
-        {source === "pastel" &&
-          renderFields({
-            Sabor: data.flavor,
-            Niveles: data.levels,
-            Porciones: data.portions,
-            Envio: data.delivery,
-            Relleno: data.stuffedFlavor,
-            Cobertura: data.cover,
-            DireccionDeEntrega: data.deliveryAdress,
-            Fondant: data.fondantCover,
-            FechaDeEntrega: data.deliveryDate,
-            Buttercream: data.buttercream,
-            Ganache: data.ganache,
-            FondantFlores: data.fondantFlowers,
-            DibujoEnFondant: data.fondantDraw,
-            DibujoEnButtercream: data.buttercreamDraw,
-            FlorDeAzucar3d: data.sugarcharacter3d,
-            FloresNaturales: data.naturalFlowers,
-            Letrero: data.sign,
-            ImpresionComestible: data.eatablePrint,
-            Personaje: data.character,
-            Otro: data.other,
-            Imagen: data.image,
-            Presupuesto: data.budget,
-            NombreDeContacto: data.contactName,
-            TelefonoDeContacto: data.contactPhone,
-            PreguntasOComentarios: data.questionsOrComments,
-            Precio: data.precio,
-            Anticipo: data.anticipo,
-            Estado: data.status,
-          })}
+    <div className={`flex flex-col ${poppins.className}`}>
+      {source === "pastel" &&
+        renderParagraphs({
+          flavor: data.flavor,
+          levels: data.levels,
+          portions: data.portions,
+          delivery: data.delivery,
+          stuffedFlavor: data.stuffedFlavor,
+          cover: data.cover,
+          deliveryAdress: data.deliveryAdress,
+          fondantCover: data.fondantCover,
+          deliveryDate: data.deliveryDate,
+          buttercream: data.buttercream,
+          ganache: data.ganache,
+          fondant: data.fondant,
+          fondantDraw: data.fondantDraw,
+          buttercreamDraw: data.buttercreamDraw,
+          sugarcharacter3d: data.sugarcharacter3d,
+          naturalFlowers: data.naturalFlowers,
+          fondantFlowers: data.fondantFlowers,
+          sign: data.sign,
+          eatablePrint: data.eatablePrint,
+          character: data.character,
+          other: data.other,
+          image: data.image,
+          budget: data.budget,
+          contactName: data.contactName,
+          contactPhone: data.contactPhone,
+          questionsOrComments: data.questionsOrComments,
+          precio: data.precio,
+          anticipo: data.anticipo,
+          status: data.status,
+        })}
 
         {source === "snack" &&
           renderFields({
@@ -196,7 +219,6 @@ const VerCotizacion = () => {
             Estado: data.status,
           })}
       </div>
-    </div>
   );
 };
 
