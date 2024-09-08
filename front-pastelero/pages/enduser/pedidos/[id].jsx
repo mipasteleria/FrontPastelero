@@ -9,7 +9,7 @@ import { useState } from "react";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-export default function pedidos() {
+export default function Pedidos() {
   const router = useRouter();
   const { id, source } = router.query;
   
