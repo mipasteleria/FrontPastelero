@@ -18,7 +18,6 @@ export default function Snackprice() {
   async function onSubmit(data) {
     try {
       const response = await fetch(`${API_BASE}/pricesnack`, {
-      
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -47,20 +46,45 @@ export default function Snackprice() {
           userId: userId,
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const json = await response.json();
       const id = json.data._id;
-      router.push(`/enduser/detallesolicitud/${id}?source=snack`);
-
+  
+      // Mostrar alerta de éxito con SweetAlert2
+      Swal.fire({
+        title: "¡Cotización Enviada!",
+        text: "Solicitud de cotización para mesa de postres enviada correctamente.",
+        icon: "success",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      }).then(() => {
+        // Redirigir después de mostrar la alerta
+        router.push(`/enduser/detallesolicitud/${id}?source=snack`);
+      });
+  
       console.log("Response data:", json);
     } catch (error) {
       console.error("Error en la solicitud:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Error al enviar la solicitud de cotización. Por favor, inténtelo de nuevo.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     }
   }
+  
   const handleClearFields = () => {
     reset({
       people: "",

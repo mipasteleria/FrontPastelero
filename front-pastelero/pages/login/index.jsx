@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-
+import Swal from 'sweetalert2';
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -19,13 +20,13 @@ export default function Login() {
   } = useForm();
   const router = useRouter();
   const [error, setError] = useState("");
+  const { login } = useAuth();
   
   const navigate = () => {
     router.push('/');
     window.location.reload();
   };
   
- 
   const onSubmit = async (data) => {
     try {
       const response = await fetch(`${API_BASE}/users/login`, {
@@ -34,32 +35,46 @@ export default function Login() {
         body: JSON.stringify(data),
       });
       const json = await response.json();
+  
       if (json.token) {
-        localStorage.setItem("token", json.token);
-        window.location.reload();
-        navigate.call
-
-        reset ()
-        return;   
-      }
-
-      else {
-        setError("¡Usuario o contraseña incorrectos!");
+        Swal.fire({
+          title: '¡Inicio de sesión exitoso!',
+          text: 'Has iniciado sesión correctamente.',
+          icon: 'success',
+          background: '#fff1f2',
+          color: '#540027', 
+          timer: 2000,
+          timerProgressBar: true,
+        }).then(() => {
+          login(json.token);
+          router.push("/")
+        });
+      } else {
+        Swal.fire({
+          title: '¡Error!',
+          text: 'Usuario o contraseña incorrectos.',
+          icon: 'error',
+          background: '#fff1f2',
+          color: '#540027', 
+          timer: 2000, // Tiempo en milisegundos
+          timerProgressBar: true,
+          showConfirmButton: false
+        });
       }
     } catch (error) {
       console.error("Login error: ", error);
-      setError("Error al iniciar sesión, por favor intente nuevamente.");
+      // Muestra una alerta de error cuando hay un problema con la solicitud
+      Swal.fire({
+        title: 'Error',
+        text: 'Error al iniciar sesión, por favor intente nuevamente.',
+        icon: 'error',
+        timer: 2000, // Tiempo en milisegundos
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      router.push("/");
-    }
-  }, [router]);
-  
-  
   return (
     <main
       className={`bg-primary min-h-screen flex flex-col justify-center items-center ${poppins.className}`}

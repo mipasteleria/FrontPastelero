@@ -16,10 +16,10 @@ export default function Price() {
   const { isLoggedIn } = useContext(AuthContext);
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <NavbarAdmin />
       <main
-        className={`text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}
+        className={`flex-grow text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}
       >
         <h1 className={`text-4xl m-6 ${sofia.className}`}>
           Solicitar cotización
@@ -34,19 +34,19 @@ export default function Price() {
               Por favor, inicia sesión o regístrate para continuar con el
               proceso de cotización. También puedes volver al inicio.
             </p>
-            <div className="flex justify-around mt-6">
+            <div className="flex flex-col md:flex-row items-center md:justify-around mt-6">
               <Link href="/registrarse">
-                <button className="bg-accent text-white px-4 py-2 rounded hover:bg-accent-dark">
+                <button className="bg-accent text-white px-4 py-2 rounded hover:bg-accent-dark my-6">
                   Registrarse
                 </button>
               </Link>
               <Link href="/login">
-                <button className="bg-accent text-white px-4 py-2 rounded hover:bg-accent-dark">
+                <button className="bg-accent text-white px-4 py-2 rounded hover:bg-accent-dark my-6">
                   Iniciar sesión
                 </button>
               </Link>
               <Link href="/">
-                <button className="bg-secondary text-text px-4 py-2 rounded hover:bg-gray-400">
+                <button className="bg-secondary text-text px-4 py-2 rounded hover:bg-gray-400 my-6">
                   Volver al inicio
                 </button>
               </Link>
@@ -107,6 +107,6 @@ export default function Price() {
         )}
       </main>
       <WebFooter />
-    </>
+    </div>
   );
 }

@@ -3,61 +3,87 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import Swal from "sweetalert2";
+
   const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
   const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function Cakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
   const { userId } = useAuth();
   const router = useRouter();
 
-  async function onSubmit(data) {
-    try {
-      const response = await fetch(`${API_BASE}/pricecake`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          flavor: data.flavor,
-          levels: data.levels,
-          portions: data.portions,
-          delivery: data.delivery,
-          stuffedFlavor: data.stuffedFlavor,
-          cover: data.cover,
-          deliveryAdress: data.deliveryAdress,
-          fondantCover: data.fondantCover,
-          deliveryDate: data.deliveryDate,
-          buttercream: data.buttercream,
-          ganache: data.ganache,
-          fondant: data.fondant,
-          fondantDraw: data.fondantDraw,
-          buttercreamDraw: data.buttercreamDraw,
-          naturalFlowers: data.naturalFlowers,
-          sign: data.sign,
-          eatablePrint: data.eatablePrint,
-          sugarcharacter3d: data.sugarcharacter3d,
-          character: data.character,
-          other: data.other,
-          budget: data.budget,
-          contactName: data.contactName,
-          contactPhone: data.contactPhone,
-          questionsOrComments: data.questionsOrComments,
-          userId: userId,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const json = await response.json();
-      const id = json.data._id;
-      router.push(`/enduser/detallesolicitud/${id}?source=pastel`);
-      console.log("Response data:", json);
-     
-    } catch (error) {
-      console.error("Error en la solicitud:", error);
+async function onSubmit(data) {
+  try {
+    const response = await fetch(`${API_BASE}/pricecake`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        flavor: data.flavor,
+        levels: data.levels,
+        portions: data.portions,
+        delivery: data.delivery,
+        stuffedFlavor: data.stuffedFlavor,
+        cover: data.cover,
+        deliveryAdress: data.deliveryAdress,
+        fondantCover: data.fondantCover,
+        deliveryDate: data.deliveryDate,
+        buttercream: data.buttercream,
+        ganache: data.ganache,
+        fondant: data.fondant,
+        fondantDraw: data.fondantDraw,
+        buttercreamDraw: data.buttercreamDraw,
+        naturalFlowers: data.naturalFlowers,
+        sign: data.sign,
+        eatablePrint: data.eatablePrint,
+        sugarcharacter3d: data.sugarcharacter3d,
+        character: data.character,
+        other: data.other,
+        budget: data.budget,
+        contactName: data.contactName,
+        contactPhone: data.contactPhone,
+        questionsOrComments: data.questionsOrComments,
+        userId: userId,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const json = await response.json();
+    const id = json.data._id;
+
+    Swal.fire({
+      title: "¡Cotización Enviada!",
+      text: "Solicitud de cotización para pastel correctamente enviada.",
+      icon: "success",
+      timer: 2000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      background: "#fff1f2",
+      color: "#540027",
+    }).then(() => {
+      router.push(`/enduser/detallesolicitud/${id}?source=pastel`);
+    });
+
+    console.log("Response data:", json);
+  } catch (error) {
+    console.error("Error en la solicitud:", error);
+    Swal.fire({
+      title: "Error",
+      text: "Error al enviar la solicitud de cotización. Por favor, inténtelo de nuevo.",
+      icon: "error",
+      timer: 2000,
+      timerProgressBar: true,
+      showConfirmButton: false,
+      background: "#fff1f2",
+      color: "#540027",
+    });
   }
+}
+
   const handleClearFields = () => {
     reset({
       flavor: "",
