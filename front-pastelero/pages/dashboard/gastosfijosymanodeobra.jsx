@@ -29,7 +29,7 @@ export default function Conocenuestrosproductos() {
     };
 
     fetchCostData();
-  }, []);
+  }, [API_BASE]);
 
   const onSubmit = async (data) => {
     try {

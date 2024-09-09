@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
@@ -54,12 +54,12 @@ export default function NuevaReceta() {
     fetchCosts();
   }, []);
   
-  
+
   useEffect(() => {
     calculateTotal();
-  }, [fixedCosts, fixedCostsHours, ingredientsList]);
+  }, [calculateTotal]);
 
-  const calculateTotal = () => {
+  const calculateTotal = useCallback(() => {
     const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
     const { special_tax, additional_costs, profit_margin } = getValues();
   
@@ -68,10 +68,10 @@ export default function NuevaReceta() {
     const profitMarginValue = parseFloat(profit_margin || 0);
     const totalCost = ingredientTotal + fixedCosts + fixedCostsHours + additionalCostsValue;
   
-    const totalWithProfit = totalCost + (totalCost * profitMarginValue / 100) + (totalCost * specialTaxValue / 100) ;
+    const totalWithProfit = totalCost + (totalCost * profitMarginValue / 100) + (totalCost * specialTaxValue / 100);
   
     setTotal(totalWithProfit);
-  };
+  }, [ingredientsList, getValues, fixedCosts, fixedCostsHours]);
   
   const handleAddIngredient = () => {
     const { ingrediente, cantidad, precio, unidad } = getValues();

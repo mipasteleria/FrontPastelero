@@ -52,7 +52,7 @@ export default function EditarReceta() {
   };
 
     fetchIngredients();
-  }, []);
+  }, [API_BASE]);
 
   useEffect(() => {
     if (id) {
