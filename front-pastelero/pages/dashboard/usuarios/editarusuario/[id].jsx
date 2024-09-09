@@ -4,11 +4,14 @@ import { useRouter } from "next/router";
 import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
+import Swal from "sweetalert2";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function UsuarioForm() {
   const {
     register,
@@ -18,86 +21,187 @@ export default function UsuarioForm() {
   } = useForm();
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [userData, setUserData] = useState(null);
   const router = useRouter();
-  const { id } = router.query; // Obtén el ID desde la query de la URL
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const { id } = router.query;
+  const { userToken, logout } = useAuth(); // Obtener el token y la función de logout desde el contexto
+
   useEffect(() => {
     if (id) {
       const fetchUserData = async () => {
+        if (!userToken) {
+          Swal.fire({
+            title: "Error de autenticación",
+            text: "No se encontró el token de autenticación. Por favor, inicia sesión de nuevo.",
+            icon: "warning",
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            background: "#fff1f2",
+            color: "#540027",
+          });
+          return;
+        }
+
         try {
-          const response = await
-          fetch(`${API_BASE}/users/${id}`, {
-            method: "PUT",
+          const response = await fetch(`${API_BASE}/users/${id}`, {
+            method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${userToken}`,
             },
-          })
-          
+          });
+
           if (response.ok) {
             const result = await response.json();
-            setUserData(result.data);
             reset({
               name: result.data.name || "",
               lastname: result.data.lastname || "",
               email: result.data.email || "",
               phone: result.data.phone || "",
-              permissions: result.data.permissions || "",
-              billing_name: result.data.billing_name || "",
-              rfc: result.data.rfc || "",
-              address: result.data.address || "",
-              billing_email: result.data.billing_email || "",
-              password: "", // Mantén vacíos los campos de contraseña
+              role: result.data.role || "",
+              password: "",
               repeat_password: "",
             });
           } else {
             const errorResult = await response.json();
             setErrorMessage(errorResult.message);
+            Swal.fire({
+              title: "Error",
+              text: errorResult.message || "Error al cargar los datos del usuario.",
+              icon: "error",
+              timer: 2000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+              background: "#fff1f2",
+              color: "#540027",
+            });
           }
         } catch (error) {
           setErrorMessage("Error al conectar con el servidor.");
+          Swal.fire({
+            title: "Error",
+            text: "Error al conectar con el servidor.",
+            icon: "error",
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            background: "#fff1f2",
+            color: "#540027",
+          });
         }
       };
 
       fetchUserData();
     }
-  }, [id, reset, API_BASE]);
+  }, [id, reset, userToken]); // Añadir 'userToken' como dependencia
 
   const onSubmit = async (data) => {
+    console.log("onSubmit function triggered with data:", data);
+    if (!userToken) {
+      Swal.fire({
+        title: "Error de autenticación",
+        text: "No se encontró el token de autenticación. Por favor, inicia sesión de nuevo.",
+        icon: "warning",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
+      return;
+    }
+
     try {
-      // Usa PUT siempre, ya que solo se permite actualizar
       const url = `${API_BASE}/users/${id}`;
 
-      // Elimina los campos de contraseña si están vacíos
-      const updatedData = { ...data };
-      if (!updatedData.password) delete updatedData.password;
-      if (!updatedData.repeat_password) delete updatedData.repeat_password;
+      // Filtrar los datos a enviar
+      const updatedData = {
+        email: data.email,
+        lastname: data.lastname,
+        name: data.name,
+        phone: data.phone,
+        role: data.role,
+      };
+
+      // Remover los campos de contraseña si están vacíos
+      if (!data.password) delete updatedData.password;
+      if (!data.repeat_password) delete updatedData.repeat_password;
+
+      // Logs para verificar los datos enviados
+      console.log("URL de la solicitud:", url);
+      console.log("Datos enviados al servidor:", updatedData);
+      console.log("Token de autenticación:", userToken);
 
       const response = await fetch(url, {
-        method: "PUT", // Solo PUT
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
         },
         body: JSON.stringify(updatedData),
       });
 
       if (response.ok) {
         const result = await response.json();
-        setSuccessMessage(result.message);
-        reset();
-        router.push("/dashboard/usuarios");
+        Swal.fire({
+          title: "Usuario actualizado",
+          text: "El usuario ha sido actualizado correctamente.",
+          icon: "success",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        }).then(() => {
+          reset();
+          router.push("/dashboard/usuarios");
+        });
+      } else if (response.status === 401) {
+        Swal.fire({
+          title: "Sesión expirada",
+          text: "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
+          icon: "warning",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        }).then(() => {
+          logout();
+          router.push("/login");
+        });
       } else {
         const errorResult = await response.json();
+        Swal.fire({
+          title: "Error",
+          text: errorResult.message || "Error al actualizar el usuario.",
+          icon: "error",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
         setErrorMessage(errorResult.message);
       }
     } catch (error) {
+      console.error("Error de conexión:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Error al conectar con el servidor.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
       setErrorMessage("Error al conectar con el servidor.");
     }
   };
 
   const handleCancel = () => {
-    router.push("/dashboard/usuarios"); // Redirige a la página de usuarios
+    router.push("/dashboard/usuarios");
   };
 
   const SelectField = ({ id, label, register, errors, options }) => (
@@ -110,7 +214,9 @@ export default function UsuarioForm() {
       </label>
       <select
         id={id}
-        {...register}
+        {...register(id, {
+          required: "El campo es obligatorio",
+        })}
         className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
       >
         {options.map((option) => (
@@ -121,17 +227,6 @@ export default function UsuarioForm() {
       </select>
       {errors && <p className="text-red-600 text-sm mt-2">{errors.message}</p>}
     </div>
-  );
-
-  const ActionButton = ({ text, onClick, disabled }) => (
-    <button
-      type="button"
-      className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm w-64 px-8 py-2.5 text-center ml-2 m-4"
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {text}
-    </button>
   );
 
   const InputField = ({
@@ -153,10 +248,15 @@ export default function UsuarioForm() {
       <input
         type={type}
         id={id}
-        {...register}
+        {...register(id, {
+          required: `El campo ${label.toLowerCase()} es obligatorio`,
+          pattern: pattern && {
+            value: pattern,
+            message: "Formato no válido",
+          },
+        })}
         className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
         placeholder={placeholder}
-        pattern={pattern}
       />
       {errors && <p className="text-red-600 text-sm mt-2">{errors.message}</p>}
     </div>
@@ -171,37 +271,32 @@ export default function UsuarioForm() {
           <h1 className={`text-4xl p-4 ${sofia.className}`}>
             {id ? "Editar Usuario" : "Nuevo Usuario"}
           </h1>
-          <div className="flex flex-col md:flex-row justify-around">
+          <div className="flex flex-col md:flex-row justify-star">
             <div className="flex flex-col">
-              <h2 className={`text-2xl p-4 ${sofia.className}`}>
-                Datos del Usuario
-              </h2>
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="p-4 m-4 rounded-xl shadow-xl"
+                className="p-4 m-4 rounded-xl shadow-xl w-full"
               >
                 <InputField
                   id="email"
                   type="email"
                   label="Correo electrónico"
                   placeholder="nombre@dominio.com"
-                  register={register("email", {
-                    required: "El correo electrónico es obligatorio",
-                  })}
+                  register={register}
                   errors={errors.email}
                 />
                 <InputField
                   id="password"
                   type="password"
                   label="Contraseña"
-                  register={register("password")}
+                  register={register}
                   errors={errors.password}
                 />
                 <InputField
                   id="repeat_password"
                   type="password"
                   label="Confirmar Contraseña"
-                  register={register("repeat_password")}
+                  register={register}
                   errors={errors.repeat_password}
                 />
                 <div className="grid md:grid-cols-2 md:gap-6 mb-5">
@@ -209,18 +304,14 @@ export default function UsuarioForm() {
                     id="name"
                     type="text"
                     label="Nombre"
-                    register={register("name", {
-                      required: "El nombre es obligatorio",
-                    })}
+                    register={register}
                     errors={errors.name}
                   />
                   <InputField
                     id="lastname"
                     type="text"
                     label="Apellido"
-                    register={register("lastname", {
-                      required: "El apellido es obligatorio",
-                    })}
+                    register={register}
                     errors={errors.lastname}
                   />
                 </div>
@@ -228,61 +319,34 @@ export default function UsuarioForm() {
                   id="phone"
                   type="tel"
                   label="Número de teléfono (961-456-7890)"
-                  placeholder=" "
-                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-                  register={register("phone", {
-                    required: "El número de teléfono es obligatorio",
-                  })}
+                  placeholder="961-456-7890"
+                  pattern={/^\d{3}-\d{3}-\d{4}$/}
+                  register={register}
                   errors={errors.phone}
                 />
                 <SelectField
-                  id="permissions"
-                  label="Permisos"
-                  register={register("permissions", {
-                    required: "El permiso es obligatorio",
-                  })}
-                  errors={errors.permissions}
-                  options={["Admin", "Standard", "End user"]}
+                  id="role"
+                  label="Rol"
+                  register={register}
+                  errors={errors.role}
+                  options={["user", "admin"]}
                 />
-              </form>
-            </div>
-            <div className="flex flex-col">
-              <h2 className={`text-2xl p-4 ${sofia.className}`}>
-                Datos de Facturación
-              </h2>
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="p-4 m-4 rounded-xl shadow-xl"
-              >
-                <InputField
-                  id="billing_name"
-                  type="text"
-                  label="Nombre"
-                  register={register("billing_name")}
-                  errors={errors.billing_name}
-                />
-                <InputField
-                  id="rfc"
-                  type="text"
-                  label="RFC"
-                  register={register("rfc")}
-                  errors={errors.rfc}
-                />
-                <InputField
-                  id="address"
-                  type="text"
-                  label="Dirección"
-                  register={register("address")}
-                  errors={errors.address}
-                />
-                <div className="grid md:grid-cols-2 md:gap-6 mb-5">
-                  <InputField
-                    id="billing_email"
-                    type="email"
-                    label="Correo electrónico"
-                    register={register("billing_email")}
-                    errors={errors.billing_email}
-                  />
+                <div className="flex justify-star">
+                  <button
+                    type="button"
+                    className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm w-64 px-8 py-2.5 text-center ml-2 m-4"
+                    onClick={handleCancel}
+                    disabled={isSubmitting}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm w-64 px-8 py-2.5 text-center ml-2 m-4"
+                    disabled={isSubmitting}
+                  >
+                    Guardar
+                  </button>
                 </div>
               </form>
             </div>
@@ -293,18 +357,6 @@ export default function UsuarioForm() {
           {errorMessage && (
             <p className="text-red-600 text-sm mt-4">{errorMessage}</p>
           )}
-          <div className="flex justify-center">
-            <ActionButton
-              text="Cancelar"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-            />
-            <ActionButton
-              text="Guardar"
-              onClick={handleSubmit(onSubmit)}
-              disabled={isSubmitting}
-            />
-          </div>
         </main>
       </div>
       <FooterDashboard />

@@ -5,6 +5,7 @@ import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import axios from "axios";
 import Image from "next/image";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -74,20 +75,46 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
           userId: userId,
         }),
       });
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const json = await response.json();
       const id = json.data._id;
-      router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
-      setMessage('¡Gracias por tu pedido! Estamos emocionados de preparar tu cotizacion, automaticamente se agregaran los detalles de tu solicitud al carrito, y la cantidad aparecera una vez que tu cotizacion este lista');
+  
+      // Mostrar alerta de éxito con SweetAlert2
+      Swal.fire({
+        title: "¡Cotización Enviada!",
+        text: "Solicitud de cotización para cupcakes enviada correctamente.",
+        icon: "success",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      }).then(() => {
+        // Redirigir después de mostrar la alerta
+        router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
+      });
+  
+      // Configuración de mensaje
       console.log("Response data:", json);
     } catch (error) {
       console.error("Error en la solicitud:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Error al enviar la solicitud de cotización. Por favor, inténtelo de nuevo.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     }
   }
-
+  
   const handleClearFields = () => {
     reset({
       flavorBizcocho: "",

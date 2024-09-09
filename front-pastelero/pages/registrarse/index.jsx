@@ -3,6 +3,8 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
+import { useAuth } from "@/src/context";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -15,32 +17,84 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const { login } = useAuth();
 
   const onSubmit = async (data) => {
-    console.log(data);
     try {
-      const response = await fetch(`${API_BASE}/users`, {
+      // Realiza la solicitud de registro
+      const registerResponse = await fetch(`${API_BASE}/users`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json; charset=UTF-8",
         },
       });
-    
-      const json = await response.json();
-    
-      if (response.ok) {
-        // Actualizar el estado global del usuario
-        //setUser(json.data);
-        // Redirigir al home en caso de éxito
-        router.push("/");
+      
+      const registerJson = await registerResponse.json();
+  
+      if (registerResponse.ok) {
+        // Si el registro es exitoso, proceder con el login automático
+        const loginResponse = await fetch(`${API_BASE}/users/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+  
+        const loginJson = await loginResponse.json();
+  
+        if (loginResponse.ok && loginJson.token) {
+          // Muestra el SweetAlert de éxito
+          Swal.fire({
+            title: '¡Registro e inicio de sesión exitosos!',
+            text: 'Has sido registrado e iniciado sesión correctamente.',
+            icon: 'success',
+            background: '#fff1f2',
+            color: '#540027',
+            timer: 2000,
+            timerProgressBar: true,
+          }).then(() => {
+            login(loginJson.token); // Actualiza el estado de autenticación global
+            router.push("/"); // Redirige al home
+          });
+        } else {
+          // Maneja el error si el login falla después del registro
+          Swal.fire({
+            title: '¡Error al iniciar sesión!',
+            text: 'Usuario o contraseña incorrectos.',
+            icon: 'error',
+            background: '#fff1f2',
+            color: '#540027',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false
+          });
+        }
       } else {
-        // Manejo del error en caso de que la respuesta no sea exitosa
-        console.error("Error en la creación del usuario:", json.message || "Unknown error");
+        // Maneja el error si el registro falla
+        Swal.fire({
+          title: '¡Error al registrarse!',
+          text: registerJson.message || 'Ocurrió un error desconocido.',
+          icon: 'error',
+          background: '#fff1f2',
+          color: '#540027',
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false
+        });
       }
     } catch (error) {
-      // Manejo de cualquier error que ocurra durante la solicitud
+      // Maneja cualquier error de red o solicitud
       console.error("Error:", error.message || "An unexpected error occurred");
+      Swal.fire({
+        title: 'Error',
+        text: 'Error al procesar la solicitud, por favor intente nuevamente.',
+        icon: 'error',
+        background: '#fff1f2',
+        color: '#540027',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
     }
   };
   

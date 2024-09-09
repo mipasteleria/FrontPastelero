@@ -5,7 +5,8 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router"; // Importa useRouter
+import { useRouter } from "next/router"; 
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -59,15 +60,54 @@ export default function EditarInsumo({ insumo }) {
 
   const onSubmit = async (data) => {
     console.log("ID del insumo:", insumo._id);
-    await fetch(`${API_BASE}/insumos/${insumo._id}`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
-    });
-    router.push("/dashboard/insumosytrabajomanual"); // Redirige después de guardar
-  };
+  
+    try {
+      const response = await fetch(`${API_BASE}/insumos/${insumo._id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8",
+        },
+      });
+  
+      if (response.ok) {
+        Swal.fire({
+          title: "¡Insumo Actualizado!",
+          text: "Insumo o trabajo manual editado correctamente.",
+          icon: "success",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
+      } else {
+        const errorData = await response.json();
+        Swal.fire({
+          title: "Error",
+          text: errorData.message || "No se pudo editar el insumo o trabajo.",
+          icon: "error",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Error al conectar con el servidor.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
+    }
+  };  
 
   return (
     <div className={`text-text ${poppins.className}`}>
@@ -155,7 +195,7 @@ export default function EditarInsumo({ insumo }) {
                       {...register("unit", { required: "Unidad es requerida" })}
                       className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                     >
-                      <option value="grams">gramos</option>
+                      <option value="gr">gramos</option>
                       <option value="ml">mililitros</option>
                     </select>
                     {errors.unit && (
@@ -168,7 +208,7 @@ export default function EditarInsumo({ insumo }) {
             <div className="m-4 w-3/4 mx-auto text-lg">
               Costo por unidad: {costPerUnit} por gramo/ml
             </div>
-            <div className="flex flex-col md:flex-row justify-center mb-20">
+            <div className="flex flex-col md:flex-row justify-center mb-10">
             <button
               type="submit"
               className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-72 px-16 py-2.5 text-center ml-2 m-6"

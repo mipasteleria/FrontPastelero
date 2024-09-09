@@ -7,6 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -30,12 +31,25 @@ export default function EditarReceta() {
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await axios.get('https://back-pastelero-gamma.vercel.app/insumos');
+        const response = await axios.get(`${API_BASE}/insumos`);
         setIngredientOptions(response.data);
       } catch (error) {
         console.error("Error fetching ingredients:", error);
       }
     };
+  
+  const fetchCosts = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`);
+      const data = response.data;
+      setFixedCosts(data.fixedCosts);
+      setFixedCostsHours(data.laborCosts);
+      const initialTotal = data.fixedCosts + data.laborCosts;
+      setTotal(initialTotal);
+      } catch (error) {
+        console.error("Error fetching costs:", error);
+    }
+  };
 
     fetchIngredients();
   }, []);
@@ -49,7 +63,6 @@ export default function EditarReceta() {
           );
           const receta = response.data.data;
 
-          // Carga los datos en el formulario
           setValue("nombre_receta", receta.nombre_receta);
           setValue("descripcion", receta.descripcion);
           setValue("profit_margin", receta.profit_margin);
@@ -139,11 +152,9 @@ const handleAddIngredient = () => {
     const formattedData = {
       ...data,
       ingredientes: ingredientsList, // Asegúrate de que ingredientsList esté en el formato correcto
-      total_cost: total
+      total_cost: total,
     };
-  
-    console.log("Datos enviados:", formattedData);
-  
+
     try {
       const response = await axios.put(
         `${API_BASE}/recetas/recetas/${id}`,
@@ -154,15 +165,38 @@ const handleAddIngredient = () => {
           },
         }
       );
-      console.log("Receta guardada:", response.data);
-      router.push("/dashboard/costeorecetas");
+  
+      if (response.status === 200) {
+        // Alerta de éxito
+        Swal.fire({
+          title: "¡Receta Actualizada!",
+          text: "Receta guardada correctamente.",
+          icon: "success",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
+      } else {
+        throw new Error("Error al guardar la receta.");
+      }
     } catch (error) {
       console.error("Error al guardar la receta:", error);
-      // Considera agregar una notificación o mensaje al usuario en caso de error
+      // Alerta de error
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo guardar la receta. Por favor, inténtalo de nuevo.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     }
   };
   
-
   const renderInput = (id, label, type = "text", placeholder, validation) => (
     <div className="w-full">
       <label htmlFor={id} className="block text-sm font-medium">

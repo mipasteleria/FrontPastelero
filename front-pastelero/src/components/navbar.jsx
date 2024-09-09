@@ -1,15 +1,16 @@
-import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "../context";
+import { useState, useEffect } from "react";
+import { useAuth } from "../context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const NavbarAdmin = () => {
-  const { isAdmin, isLoggedIn, setIsAdmin, setIsLoggedIn, userEmail } = useContext(AuthContext);
+  const { isAdmin, setIsAdmin, isLoggedIn, setIsLoggedIn, userEmail, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const { asPath } = router;
@@ -47,21 +48,29 @@ const NavbarAdmin = () => {
   };
 
   const handleLogout = () => {
-    const currentIsAdmin = isAdmin;
-
-    localStorage.removeItem("token");
-
-    setIsLoggedIn(false); //actualizar el estado
-    setIsAdmin(false); // Si es aplicable
-    console.log("Token removed successfully!");
+    const currentIsAdmin = isAdmin; 
   
-    if (currentIsAdmin) {
-      router.push("/");
-    } else {
-      window.location.reload();
-    }
-  };
+    logout("token");
+  
+    Swal.fire({
+      title: 'Sesión cerrada',
+      text: 'Has salido de tu cuenta correctamente.',
+      icon: 'success',
+      background: '#fff1f2',
+      color: '#540027',
+      confirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    }).then(() => {
+      setIsLoggedIn(false);
+      setIsAdmin(false);
 
+      if (currentIsAdmin) {
+        router.push("/");
+      }
+    });
+  };
+  
   return (
     <nav
       className={`fixed top-0 left-0 w-full bg-primary h-16 ${sofia.className} text-text z-50 shadow-lg`}

@@ -4,6 +4,7 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -13,7 +14,6 @@ export default function Conocenuestrosproductos() {
   const [costData, setCostData] = useState({ fixedCosts: 0, laborCosts: 0 });
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  // Fetch data on component mount
   useEffect(() => {
     const fetchCostData = async () => {
       try {
@@ -33,7 +33,7 @@ export default function Conocenuestrosproductos() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await fetch('http://localhost:3001/costs/66dc00a6b33d98dd9e2b91a9', {
+      const response = await fetch(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -43,20 +43,42 @@ export default function Conocenuestrosproductos() {
           laborCosts: data.laborCosts,
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const result = await response.json();
       console.log('Costo actualizado exitosamente:', result);
-      
-      // Refresh the cost data after update
+  
       setCostData(result);
+  
+      Swal.fire({
+        title: 'Costos actualizados',
+        text: 'Los costos han sido actualizados correctamente.',
+        icon: 'success',
+        timer: 2000, 
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: '#fff1f2', 
+        color: '#540027', 
+      });
     } catch (error) {
       console.error('Error al actualizar el costo:', error);
+
+      Swal.fire({
+        title: 'Error',
+        text: 'Error al actualizar los costos. Por favor, intente nuevamente.',
+        icon: 'error',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: '#fff1f2',
+        color: '#540027',
+      });
     }
   };
+  
 
   return (
     <div className={`text-text ${poppins.className}`}>
@@ -107,7 +129,7 @@ export default function Conocenuestrosproductos() {
               </button>
             </div>
           </form>
-          <div className="mt-8">
+          <div className="m-4">
             <p className="text-lg font-semibold">Costos actuales:</p>
             <p className="text-md">Costos fijos: {costData.fixedCosts} MXN</p>
             <p className="text-md">Mano de obra: {costData.laborCosts} MXN</p>

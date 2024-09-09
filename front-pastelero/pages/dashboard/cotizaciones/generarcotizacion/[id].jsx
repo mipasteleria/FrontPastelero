@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import NavbarAdmin from "@/src/components/navbar";
 import VerCotizacion from "@/src/components/cotizacionview";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -153,7 +153,7 @@ export default function GenerarCotizacion() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-
+  
     let url;
     switch (source) {
       case "pastel":
@@ -169,7 +169,7 @@ export default function GenerarCotizacion() {
         console.error("Invalid source");
         return;
     }
-
+  
     try {
       const response = await fetch(url, {
         method: "PUT",
@@ -180,23 +180,47 @@ export default function GenerarCotizacion() {
         body: JSON.stringify({
           precio: formData.Total,
           anticipo: formData.Anticipo,
-          status: "aprobado"
+          status: "aprobado",
         }),
       });
+  
       console.log({
         precio: formData.Total,
         anticipo: formData.Anticipo,
-        status: ("")})
+        status: "aprobado",
+      });
+  
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
-      // Redirigir a /dashboard/cotizaciones
-      router.push("/dashboard/cotizaciones");
+  
+      Swal.fire({
+        title: "¡Cotización Generada!",
+        text: "La cotización se ha enviado al usuario.",
+        icon: "success",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      }).then(() => {
+        // Redirigir a /dashboard/cotizaciones después de mostrar la alerta
+        router.push("/dashboard/cotizaciones");
+      });
     } catch (error) {
       console.error("Error updating data:", error);
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo generar la cotización. Por favor, inténtalo de nuevo.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     }
-  };
+  };  
 
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
