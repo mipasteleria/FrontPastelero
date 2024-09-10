@@ -5,6 +5,7 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import Link from "next/link";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -20,6 +21,7 @@ export default function NuevaReceta() {
 
   const onSubmit = (data) => {
     console.log(data);
+  
     fetch(`${API_BASE}/insumos`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -29,16 +31,54 @@ export default function NuevaReceta() {
     })
       .then((response) => {
         if (response.ok) {
-          window.location.href = "/dashboard/insumosytrabajomanual";
+          Swal.fire({
+            title: "¡Éxito!",
+            text: "Insumo agregado correctamente.",
+            icon: "success",
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            background: "#fff1f2",
+            color: "#540027",
+          }).then(() => {
+            // Limpiar todos los campos manualmente
+            setValue("name", "");
+            setValue("amount", "");
+            setValue("cost", "");
+            setValue("unit", "");
+            setCostPerUnit(0); // Reiniciar el costo por unidad
+          });
         } else {
           return response.json().then((json) => {
             console.error("Error:", json.message);
+            Swal.fire({
+              title: "Error",
+              text: json.message || "No se pudo agregar el insumo.",
+              icon: "error",
+              timer: 2000,
+              timerProgressBar: true,
+              showConfirmButton: false,
+              background: "#fff1f2",
+              color: "#540027",
+            });
           });
         }
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => {
+        console.error("Error:", error);
+        Swal.fire({
+          title: "Error",
+          text: "Error al conectar con el servidor.",
+          icon: "error",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
+      });
   };
-
+  
   const handleQuantityChange = (e) => {
     const value = e.target.value;
     setValue("amount", value);
@@ -163,7 +203,7 @@ export default function NuevaReceta() {
               Costo por unidad: {costPerUnit} por gramo/ml
             </div>
             <div 
-            className="flex flex-col md:flex-row justify-center mb-20">
+            className="flex flex-col md:flex-row justify-center mb-10">
             <button
               type="submit"
               className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-72 px-16 py-2.5 text-center ml-2 m-6"

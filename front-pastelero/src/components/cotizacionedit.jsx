@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Poppins as PoppinsFont } from "next/font/google";
+import Swal from 'sweetalert2';
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 
@@ -60,28 +61,28 @@ const DetalleCotizacion = () => {
   const handleSave = async () => {
     setIsSaving(true);
     setError(null);
-    
+  
     if (id && source) {
       let url;
       const token = localStorage.getItem("token");
       const updatedData = { ...data };
-
+  
       switch (source) {
         case 'pastel':
-          url =  `${API_BASE}/pricecake/${id}`;
+          url = `${API_BASE}/pricecake/${id}`;
           break;
         case 'cupcake':
-          url =  `${API_BASE}/pricecupcake/${id}`;
+          url = `${API_BASE}/pricecupcake/${id}`;
           break;
         case 'snack':
-          url =  `${API_BASE}/pricesnack/${id}`;
+          url = `${API_BASE}/pricesnack/${id}`;
           break;
         default:
           console.error("Invalid source");
           setIsSaving(false);
           return;
       }
-
+  
       try {
         const response = await fetch(url, {
           method: 'PUT',
@@ -91,23 +92,48 @@ const DetalleCotizacion = () => {
           },
           body: JSON.stringify(updatedData),
         });
-
+  
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-
+  
         const result = await response.json();
         console.log('Update successful:', result);
-        router.push('/dashboard/cotizaciones');
+  
+        // Mostrar alerta de éxito con SweetAlert2
+        Swal.fire({
+          title: "¡Cotización Actualizada!",
+          text: "Esta cotización ha sido editada correctamente.",
+          icon: "success",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        }).then(() => {
+          // Redirigir después de mostrar la alerta
+          router.push('/dashboard/cotizaciones');
+        });
+  
       } catch (error) {
         console.error("Error updating data:", error);
         setError("Error updating data. Please try again.");
+        Swal.fire({
+          title: "Error",
+          text: "Error al actualizar la cotización. Por favor, inténtelo de nuevo.",
+          icon: "error",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
       } finally {
         setIsSaving(false);
       }
     }
   };
-
+  
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
