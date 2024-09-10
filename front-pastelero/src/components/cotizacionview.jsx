@@ -6,7 +6,7 @@ import Image from "next/image";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const VerCotizacion = () => {
+const VerCotizacion = ({ onCotizacionLoaded }) => {
   const router = useRouter();
   const { id, source } = router.query;
   const [data, setData] = useState(null);
@@ -65,6 +65,15 @@ const VerCotizacion = () => {
 
           const result = await response.json();
           setData(result.data);
+
+          if (onCotizacionLoaded) {
+            onCotizacionLoaded({
+              precio: result.data.precio,
+              anticipo: result.data.anticipo,
+              status:result.data.status,
+              name:result.data.priceType
+            });
+          }
 
           if (result.data.image) {
             const imageUrl = await fetchImageUrl(result.data.image);

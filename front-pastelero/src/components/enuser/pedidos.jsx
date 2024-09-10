@@ -4,7 +4,7 @@ import { AuthContext } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { useRouter } from 'next/router'; 
 import { FaShoppingCart, FaTimes } from "react-icons/fa"; // Importar iconos
-import React from "react";
+import { CartContext } from "@/src/components/enuser/carritocontext";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
@@ -19,14 +19,14 @@ export default function Pedidos() {
     const router = useRouter();
     const { userId } = useContext(AuthContext); // Usa useContext para obtener el userId
     
-    console.log(userId);
+    const cart = useContext(CartContext);
+    
     useEffect(() => {
         const token = localStorage.getItem("token");
 
         if (token) {
             const fetchData = async () => {
                 try {
-                    console.log('Fetching data...');
                     const [cakeRes, cupcakeRes, snackRes] = await Promise.all([
                         fetch(`${API_BASE}/pricecake?page=${currentPage}&limit=${limit}`, {
                             headers: {
@@ -99,13 +99,13 @@ export default function Pedidos() {
             let url;
 
             switch (source) {
-                case "pastel":
+                case "Pastel":
                     url = `${API_BASE}/pricecake/${id}`;
                     break;
-                case "cupcake":
+                case "Cupcake":
                     url = `${API_BASE}/pricecupcake/${id}`;
                     break;
-                case "snack":
+                case "Snack":
                     url = `${API_BASE}/pricesnack/${id}`;
                     break;
                 default:
@@ -136,9 +136,17 @@ export default function Pedidos() {
         }
     };
 
-    const onAddToCart = async (id, source) => {
-        // Implementar lógica para agregar al carrito
-        console.log(`Agregar al carrito: ID ${id}, source ${source}`);
+    const handleAddToCart = (id, source) => {
+        const amount = 0; // Aquí deberías definir el monto basado en tus datos
+        const paymentType = "total"; // Aquí defines el tipo de pago como "total" o "anticipo"
+        
+        cart.addOneToCart({
+            id: id,
+            source: source.toLowerCase(),
+            paymentType: paymentType,
+            amount: amount,
+        });
+        console.log("Agregado al carrito:", id, source);
     };
 
     if (!isAuthenticated) {
@@ -163,37 +171,29 @@ export default function Pedidos() {
                                 <tbody>
                                     {userCotizacion.map((cotizacion) => (
                                         <tr key={`cotizacion-${cotizacion._id}`} className="border-b dark:border-gray-700">
-                                            {["_id", "contactName", "createdAt", "priceType", "status","source"].map((field) => (
+                                            {["_id", "contactName", "createdAt", "priceType", "status", "source"].map((field) => (
                                                 <td key={field} className="px-6 py-4 border-b border-secondary">
                                                     {cotizacion[field]}
                                                 </td>
                                             ))}
                                             <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
-                                                
-                                                
-                                                <Link href={`/enduser/pedidos/${
-                            cotizacion._id
-                          }?type=${
-                            cotizacion.type
-                          }&source=${cotizacion.type.toLowerCase()}`}
-                        
-                                                className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-rose-400">
+                                                <Link href={`/enduser/pedidos/${cotizacion._id}?type=${cotizacion.type}&source=${cotizacion.type.toLowerCase()}`}
+                                                    className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-rose-400">
                                                     <svg className="w-6 h-6 text-accent dark:text-white my-2 mx-.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                                         <path stroke="currentColor" strokeWidth="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
                                                         <path stroke="currentColor" strokeWidth="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                                                     </svg>
                                                     <span>Ver detalles</span>
                                                 </Link>
-                                                {/* Botón de Agregar al Carrito */}
                                                 <button
-                                                    onClick={() => onAddToCart(cotizacion._id)}
+                                                    onClick={() => handleAddToCart(cotizacion._id, cotizacion.type)}
                                                     className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-green-300"
                                                 >
                                                     <FaShoppingCart size={20} /> {/* Icono del carrito */}
                                                     <span>Agregar al carrito</span>
                                                 </button>
                                                 <button
-                                                    onClick={() => CancelCotizacion(cotizacion._id)}
+                                                    onClick={() => CancelCotizacion(cotizacion._id, cotizacion.type)}
                                                     className="bg-rose-200 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-red-600"
                                                 >
                                                     <FaTimes size={20} /> {/* Icono de cancelar */}

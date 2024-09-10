@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "../context";
+import { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../context";
+import { CartContext } from "./enuser/carritocontext";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,11 +10,18 @@ import Swal from "sweetalert2";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
+
+
 const NavbarAdmin = () => {
   const { isAdmin, setIsAdmin, isLoggedIn, setIsLoggedIn, userEmail, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const { asPath } = router;
+
+const cart = useContext(CartContext);
+const productsCount = cart.items.reduce((sum, product) => sum + product.quantity, 0);
+console.log(cart.items);
+console.log("product count" & productsCount);
 
   const handleNavigation = () => {
     router.push('/dashboard');
@@ -156,7 +164,7 @@ const NavbarAdmin = () => {
                   {userEmail}
                 </div>
                 <Link 
-                href="/enduser/detallesolicitud/mispedidos">
+                href="/enduser/mispedidos">
                   <button
                     className={`${poppins.className} m-4 hidden md:flex cursor-pointer`}
                   >
@@ -182,9 +190,11 @@ const NavbarAdmin = () => {
                   Logout
                 </button>
                 <Link href="/enduser/carrito">
-                  <button
+                <button 
+                   
                     className={`${poppins.className} m-4 hidden md:flex cursor-pointer text-text`}
                   >
+                     ({productsCount})
                     <svg
                       className="w-8 h-8"
                       aria-hidden="true"
@@ -387,9 +397,11 @@ const NavbarAdmin = () => {
                   className="flex flex-row text-text mx-6">
                     <Link 
                     href="/enduser/carrito">
-                      <button
-                        className={`${poppins.className} m-4 cursor-pointer`}
-                      >
+                      <button 
+                    
+                    className={`${poppins.className} m-4 hidden md:flex cursor-pointer text-text`}
+                  >
+                     ({productsCount})
                         <svg
                           className="w-8 h-8"
                           aria-hidden="true"
