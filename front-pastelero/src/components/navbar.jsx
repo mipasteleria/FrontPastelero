@@ -13,7 +13,8 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 
 const NavbarAdmin = () => {
-  const { isAdmin, setIsAdmin, isLoggedIn, setIsLoggedIn, userEmail, logout } = useAuth();
+  
+  const { isAdmin, setIsAdmin, isLoggedIn, setIsLoggedIn, userEmail, logout } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const { asPath } = router;
