@@ -73,7 +73,7 @@ export default function EditarReceta() {
 
     fetchIngredients();
     fetchCosts();
-  }, [API_BASE]);
+  }, [ingredientsList, API_BASE, getValues]);
 
   useEffect(() => {
     if (id) {
