@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { AuthContext } from "@/src/context";
+import { useAuth } from "@/src/context";
 import Cakeprice from "../../src/components/cotizacion/cakeprice";
 import Snackprice from "@/src/components/cotizacion/snackprice";
 import Cupcakeprice from "@/src/components/cotizacion/cupcakeprice";
@@ -13,7 +13,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Price() {
   const [selectedProduct, setSelectedProduct] = useState("cake");
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn } = useAuth()
 
   return (
     <div className="flex flex-col min-h-screen">

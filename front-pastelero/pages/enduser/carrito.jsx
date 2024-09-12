@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { CartContext } from "@/src/components/enuser/carritocontext"; 
-import { AuthContext } from "@/src/context";
+import { useAuth } from "@/src/context";
 import NavbarAdmin from '@/src/components/navbar';
 import WebFooter from '@/src/components/WebFooter';
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from 'next/font/google';
@@ -13,8 +13,8 @@ const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Carrito() {
-  const { userEmail } = useContext(AuthContext);
-  const { userId } = useContext(AuthContext);
+  const { userEmail } = useAuth();
+  const { userId } = useAuth();
   const { totalAmount, items } = useContext(CartContext); // Obtén items y totalAmount del contexto
   const [Client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
