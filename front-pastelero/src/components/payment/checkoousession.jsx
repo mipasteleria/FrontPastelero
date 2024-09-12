@@ -4,10 +4,11 @@ import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout
 } from '@stripe/react-stripe-js';
+const key=process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY
+// Mueve stripePromise fuera del componente
+const stripePromise = loadStripe(key);
 
-const stripePromise = loadStripe("pk_test_51Pu6rHLAsMKHQoNSFIc643grwYeDdIV98CIXoKgmUh5hZ25eTIoleYJOI7PI4zhr3Uj9Zx0p0x5bvzv9ISv1kYRg00sbj1Oc6z");
-
-const CheckoutForm = ({ Items, amount, status, userID, quantity, email}) => {
+const CheckoutForm = () => {
   const [clientSecret, setClientSecret] = useState(null);
 
   useEffect(() => {
@@ -32,6 +33,6 @@ const CheckoutForm = ({ Items, amount, status, userID, quantity, email}) => {
       </EmbeddedCheckoutProvider>
     </div>
   );
-}
+};
 
 export default CheckoutForm;
