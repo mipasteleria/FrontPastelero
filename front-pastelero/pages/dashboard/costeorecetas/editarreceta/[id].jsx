@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
@@ -23,6 +23,8 @@ export default function EditarReceta() {
   const [ingredientsList, setIngredientsList] = useState([]);
   const [ingredientOptions, setIngredientOptions] = useState([]);
   const [selectedIngredient, setSelectedIngredient] = useState(null);
+  const [fixedCosts, setFixedCosts] = useState(0);
+  const [fixedCostsHours, setFixedCostsHours] = useState(0);
   const [total, setTotal] = useState(0);
   const router = useRouter();
   const { id } = router.query; // Obtén el ID de la receta del query string
@@ -38,20 +40,39 @@ export default function EditarReceta() {
       }
     };
   
-  const fetchCosts = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`);
-      const data = response.data;
-      setFixedCosts(data.fixedCosts);
-      setFixedCostsHours(data.laborCosts);
-      const initialTotal = data.fixedCosts + data.laborCosts;
-      setTotal(initialTotal);
+    const fetchCosts = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`);
+        const data = response.data;
+        setFixedCosts(data.fixedCosts);
+        setFixedCostsHours(data.laborCosts);
+    
+        // Calcula el total inicial con los costos obtenidos
+        const ingredientTotal = ingredientsList.reduce(
+          (acc, ingredient) => acc + parseFloat(ingredient.precio || 0),
+          0
+        );
+    
+        const specialTaxValue = parseFloat(getValues("special_tax") || 0);
+        const additionalCostsValue = parseFloat(getValues("additional_costs") || 0);
+        const profitMarginValue = parseFloat(getValues("profit_margin") || 0);
+    
+        const totalCost =
+          ingredientTotal + data.fixedCosts + data.laborCosts + additionalCostsValue;
+    
+        const initialTotal =
+          totalCost +
+          (totalCost * profitMarginValue) / 100 +
+          (totalCost * specialTaxValue) / 100;
+    
+        setTotal(initialTotal);
       } catch (error) {
         console.error("Error fetching costs:", error);
-    }
-  };
+      }
+    };    
 
     fetchIngredients();
+    fetchCosts();
   }, [API_BASE]);
 
   useEffect(() => {
@@ -67,16 +88,11 @@ export default function EditarReceta() {
           setValue("descripcion", receta.descripcion);
           setValue("profit_margin", receta.profit_margin);
           setValue("portions", receta.portions);
-          setValue("fixed_costs_hours", receta.fixed_costs_hours);
-          setValue("fixed_costs", receta.fixed_costs);
           setValue("special_tax", receta.special_tax);
           setValue("additional_costs", receta.additional_costs);
           setValue("total_cost", receta.total_cost);
-
-          // Carga el total desde la base de datos
           setTotal(receta.total_cost);
 
-          // Carga los ingredientes si hay
           if (receta.ingredientes.length > 0) {
             setIngredientsList(receta.ingredientes);
           }
@@ -89,37 +105,34 @@ export default function EditarReceta() {
     }
   }, [id, getValues, setValue, API_BASE]);
 
-  const calculateTotal = () => {
-    const ingredientTotal = ingredientsList.reduce(
-      (acc, ingredient) => acc + parseFloat(ingredient.precio || 0),
-      0
-    );
-    
-    const {
-      special_tax,
-      additional_costs,
-      fixed_costs,
-      fixed_costs_hours,
-      profit_margin,
+  const calculateTotal = useCallback(() => {
+    const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
+    const { 
+      special_tax, 
+      additional_costs, 
+      profit_margin 
     } = getValues();
   
     const specialTaxValue = parseFloat(special_tax || 0);
     const additionalCostsValue = parseFloat(additional_costs || 0);
-    const fixedCostsValue = parseFloat(fixed_costs || 0);
-    const fixedCostsHoursValue = parseFloat(fixed_costs_hours || 0);
     const profitMarginValue = parseFloat(profit_margin || 0);
+    const totalCost = 
+    ingredientTotal + 
+    fixedCosts + 
+    fixedCostsHours + 
+    additionalCostsValue;
   
-    const totalCost =
-      ingredientTotal +
-      specialTaxValue +
-      additionalCostsValue +
-      fixedCostsValue +
-      fixedCostsHoursValue;
-    
-    const totalWithProfit = totalCost + (totalCost * profitMarginValue) / 100;
+    const totalWithProfit = 
+    totalCost + 
+    (totalCost * profitMarginValue / 100) + 
+    (totalCost * specialTaxValue / 100);
   
     setTotal(totalWithProfit);
-  };
+  }, [ingredientsList, getValues, fixedCosts, fixedCostsHours]);
+
+  useEffect(() => {
+    calculateTotal();
+  }, [calculateTotal]);
 
 const handleAddIngredient = () => {
   const { ingrediente, cantidad, precio, unidad } = getValues();
@@ -135,7 +148,6 @@ const handleAddIngredient = () => {
       calculateTotal();
       return newIngredients;
     });
-    calculateTotal();
     setValue("cantidad", "");
     setSelectedIngredient(null);
   } else {
@@ -143,22 +155,26 @@ const handleAddIngredient = () => {
   }
 };
 
-  const handleDeleteIngredient = (index) =>
-    setIngredientsList(ingredientsList.filter((_, i) => i !== index));
+const handleDeleteIngredient = (index) => {
+  setIngredientsList(prevIngredients => {
+    const newIngredients = prevIngredients.filter((_, i) => i !== index);
+    calculateTotal();
+    return newIngredients;
+  });
+};  
 
   const onInputChange = () => calculateTotal();
 
   const onSubmit = async (data) => {
-    const formattedData = {
-      ...data,
-      ingredientes: ingredientsList, // Asegúrate de que ingredientsList esté en el formato correcto
-      total_cost: total,
-    };
+    data.ingredientes = ingredientsList;
+    data.total_cost = total;
+    data.fixed_costs = fixedCosts;
+    data.fixed_costs_hours = fixedCostsHours;
 
     try {
       const response = await axios.put(
         `${API_BASE}/recetas/recetas/${id}`,
-        formattedData,
+        data,
         {
           headers: {
             "Content-Type": "application/json",
@@ -167,7 +183,6 @@ const handleAddIngredient = () => {
       );
   
       if (response.status === 200) {
-        // Alerta de éxito
         Swal.fire({
           title: "¡Receta Actualizada!",
           text: "Receta guardada correctamente.",
@@ -215,7 +230,7 @@ const handleAddIngredient = () => {
             {...field}
             onChange={(e) => {
               field.onChange(e);
-              onInputChange(); // Calcula el total en tiempo real
+              onInputChange();
             }}
           />
         )}
@@ -233,7 +248,9 @@ const handleAddIngredient = () => {
           className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}
         >
           <h1 className={`text-4xl p-4 ${sofia.className}`}>Editar Receta</h1>
-          <form className="m-4" onSubmit={handleSubmit(onSubmit)}>
+          <form 
+          className="m-4" 
+          onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 px-2">
                 <div className="mb-4">
@@ -374,19 +391,14 @@ const handleAddIngredient = () => {
               )}
             </div>
             <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-            {renderInput(
-                "fixed_costs_hours",
-                "Mano de obra",
-                "number",
-                "0.0",
-                ""
-              )}
-            {renderInput(
-              "fixed_costs", 
-              "Costos fijos", 
-              "number", 
-              "0.0", 
-              "")}
+                <div className="w-full">
+                  <label htmlFor="fixed_costs" className="block text-sm font-medium dark:text-white">Mano de obra</label>
+                  <p id="fixed_costs" className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5">{(fixedCostsHours || 0).toFixed(2)}</p>
+                </div>
+                <div className="w-full">
+                  <label htmlFor="fixed_costs_hours" className="block text-sm font-medium dark:text-white">Gastos fijos</label>
+                  <p id="fixed_costs_hours" className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5">{(fixedCosts || 0).toFixed(2)}</p>
+                </div>
             {renderInput(
               "special_tax", 
               "IEPS (%)", 
@@ -406,13 +418,31 @@ const handleAddIngredient = () => {
                 "number", 
                 "0", 
                 "El número de porciones es obligatorio")}
-              {renderInput(
-                "profit_margin",
-                "Margen de ganancia (%)",
-                "number",
-                "0.0",
-                ""
-              )}
+              <div 
+              className="w-full">
+                <label 
+                htmlFor="profit_margin" 
+                className="block text-sm font-medium dark:text-white">Margen de ganancia (%)</label>
+                <Controller
+                  name="profit_margin"
+                  control={control}
+                  rules={{ required: "El margen de ganancia es obligatorio" }}
+                  render={({ field }) => (
+                    <input
+                      type="number"
+                      id="profit_margin"
+                      className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary"
+                      placeholder="10"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        onInputChange();
+                      }}
+                    />
+                  )}
+                />
+                {errors.profit_margin && <p className="text-red-600">{errors.profit_margin.message}</p>}
+              </div>
             </div>
             <div className="my-10 p-4 rounded-xl bg-rose-50">
               <label

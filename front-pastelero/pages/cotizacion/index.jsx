@@ -54,7 +54,7 @@ export default function Price() {
           </div>
         ) : (
           <>
-            <p>
+            <p className=" mx-4">
               Le pedimos que complete cada campo con la mayor cantidad de
               detalles posible para acelerar el proceso de cotización. Recuerda
               que somos una empresa pequeña que realiza pocos pasteles a la

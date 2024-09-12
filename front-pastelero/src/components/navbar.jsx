@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "../context";
+import { useAuth } from "../context";
 import { CartContext } from "./enuser/carritocontext";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Link from "next/link";
@@ -20,8 +20,6 @@ const NavbarAdmin = () => {
 
 const cart = useContext(CartContext);
 const productsCount = cart.items.reduce((sum, product) => sum + product.quantity, 0);
-console.log(cart.items);
-console.log("product count" & productsCount);
 
   const handleNavigation = () => {
     router.push('/dashboard');

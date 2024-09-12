@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Poppins as PoppinsFont } from "next/font/google";
-import Image from "next/image";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -86,7 +85,7 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
     };
 
     fetchData();
-  }, [id, source]);
+  }, [id, source, onCotizacionLoaded]);
 
   if (!data) return <div>Loading...</div>;
 
