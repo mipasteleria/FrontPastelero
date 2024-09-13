@@ -10,23 +10,25 @@ import Swal from "sweetalert2";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
-
-
 const NavbarAdmin = () => {
-  const { isAdmin, setIsAdmin, isLoggedIn, setIsLoggedIn, userEmail, logout } = useAuth();
+  const { isAdmin, setIsAdmin, isLoggedIn, setIsLoggedIn, userEmail, logout } =
+    useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const { asPath } = router;
 
-const cart = useContext(CartContext);
-const productsCount = cart.items.reduce((sum, product) => sum + product.quantity, 0);
-console.log(cart.items);
-console.log("product count" & productsCount);
+  const cart = useContext(CartContext);
+  const productsCount = cart.items.reduce(
+    (sum, product) => sum + product.quantity,
+    0
+  );
+  console.log(cart.items);
+  console.log("product count" & productsCount);
 
   const handleNavigation = () => {
-    router.push('/dashboard');
+    router.push("/dashboard");
   };
-  
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -52,20 +54,20 @@ console.log("product count" & productsCount);
     };
   }, [dropdownOpen]);
   const navigate = () => {
-    router.push('/');
+    router.push("/");
   };
 
   const handleLogout = () => {
-    const currentIsAdmin = isAdmin; 
-  
+    const currentIsAdmin = isAdmin;
+
     logout("token");
-  
+
     Swal.fire({
-      title: 'Sesión cerrada',
-      text: 'Has salido de tu cuenta correctamente.',
-      icon: 'success',
-      background: '#fff1f2',
-      color: '#540027',
+      title: "Sesión cerrada",
+      text: "Has salido de tu cuenta correctamente.",
+      icon: "success",
+      background: "#fff1f2",
+      color: "#540027",
       confirmButton: false,
       timer: 2000,
       timerProgressBar: true,
@@ -78,15 +80,13 @@ console.log("product count" & productsCount);
       }
     });
   };
-  
+
   return (
     <nav
       className={`fixed top-0 left-0 w-full bg-primary h-16 ${sofia.className} text-text z-50 shadow-lg`}
     >
-      <div 
-      className="flex flex-row justify-between items-center">
-        <div 
-        className="flex">
+      <div className="flex flex-row justify-between items-center">
+        <div className="flex">
           <button
             id="menuButton"
             className="block md:hidden"
@@ -109,10 +109,8 @@ console.log("product count" & productsCount);
               />
             </svg>
           </button>
-          <Link 
-          href="/">
-            <button 
-            className="mx-2 cursor-pointer">
+          <Link href="/">
+            <button className="mx-2 cursor-pointer">
               <Image
                 src="/img/logo.JPG"
                 width={64}
@@ -121,16 +119,12 @@ console.log("product count" & productsCount);
               />
             </button>
           </Link>
-          <div 
-          className="hidden md:block">
-            <div 
-            className="text-white px-2">Pastelería</div>
-            <div 
-            className="text-white text-4xl px-2">El Ruiseñor</div>
+          <div className="hidden md:block">
+            <div className="text-white px-2">Pastelería</div>
+            <div className="text-white text-4xl px-2">El Ruiseñor</div>
           </div>
         </div>
-        <div 
-        className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
           {isLoggedIn ? (
             isAdmin ? (
               <div className="w-full hidden md:flex justify-end">
@@ -154,25 +148,22 @@ console.log("product count" & productsCount);
                 >
                   Logout
                 </button>
-            </div>
+              </div>
             ) : (
-              <div 
-              className="flex">
+              <div className="flex">
                 <div
                   className={`${poppins.className} m-4 hidden lg:flex cursor-pointer`}
                 >
                   {userEmail}
                 </div>
-                <Link 
-                href="/enduser/mispedidos">
+                <Link href="/enduser/mispedidos">
                   <button
                     className={`${poppins.className} m-4 hidden md:flex cursor-pointer`}
                   >
                     Mis Pedidos
                   </button>
                 </Link>
-                <Link 
-                href="/cotizacion">
+                <Link href="/cotizacion">
                   <div
                     className={`${
                       poppins.className
@@ -190,11 +181,10 @@ console.log("product count" & productsCount);
                   Logout
                 </button>
                 <Link href="/enduser/carrito">
-                <button 
-                   
+                  <button
                     className={`${poppins.className} m-4 hidden md:flex cursor-pointer text-text`}
                   >
-                     ({productsCount})
+                    ({productsCount})
                     <svg
                       className="w-8 h-8"
                       aria-hidden="true"
@@ -312,9 +302,7 @@ console.log("product count" & productsCount);
           id="dropdownMenu"
           className="z-60 fixed left-0 top-0 bottom-0 w-11/12 h-full bg-primary/80 backdrop-blur-lg text-text rounded-lg shadow-2xl p-4 md:hidden"
         >
-          <button 
-          className="absolute top-4 right-4" 
-          onClick={toggleDropdown}>
+          <button className="absolute top-4 right-4" onClick={toggleDropdown}>
             <svg
               className="w-8 h-8 text-text"
               aria-hidden="true"
@@ -340,8 +328,8 @@ console.log("product count" & productsCount);
                   {userEmail}
                 </div>
                 <button
-                onClick={handleNavigation}
-                className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 my-4 md:px-2 md:py-1 cursor-pointer`}
+                  onClick={handleNavigation}
+                  className={`${poppins.className} h-10 bg-text text-white rounded-xl p-1 my-4 md:px-2 md:py-1 cursor-pointer`}
                 >
                   Dashboard
                 </button>
@@ -351,148 +339,132 @@ console.log("product count" & productsCount);
                 >
                   Logout
                 </button>
-            </div>
-            ) : ( 
-              <div 
-              className="flex flex-col">
-                <Link 
-                  href="/enduser/conocenuestrosproductos">
-                    <button
-                      className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
-                    >
-                      Productos
-                    </button>
-                  </Link>
-                  <Link 
-                  href="/enduser/galeria">
-                    <button
-                      className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
-                    >
-                      Galería
-                    </button>
-                  </Link>
-                  <Link 
-                  href="/enduser/detallesolicitud">
-                    <button
-                      className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
-                    >
-                      Mis Pedidos
-                    </button>
-                  </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col">
+                <Link href="/enduser/conocenuestrosproductos">
                   <button
-                    className={`${poppins.className} flex justify-start m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
-                    onClick={handleLogout}                  
+                    className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
                   >
-                    LogOut
+                    Productos
                   </button>
-                  <Link 
-                  href="/cotizacion">
+                </Link>
+                <Link href="/enduser/galeria">
+                  <button
+                    className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
+                  >
+                    Galería
+                  </button>
+                </Link>
+                <Link href="/enduser/detallesolicitud">
+                  <button
+                    className={`${poppins.className} m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
+                  >
+                    Mis Pedidos
+                  </button>
+                </Link>
+                <button
+                  className={`${poppins.className} flex justify-start m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
+                  onClick={handleLogout}
+                >
+                  LogOut
+                </button>
+                <Link href="/cotizacion">
+                  <button
+                    className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
+                  >
+                    ¡Cotizar ahora!
+                  </button>
+                </Link>
+                <div className="flex flex-row text-text mx-6">
+                  <Link href="/enduser/carrito">
                     <button
-                      className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer`}
+                      className={`${poppins.className} m-4 hidden md:flex cursor-pointer text-text`}
                     >
-                      ¡Cotizar ahora!
+                      ({productsCount})
+                      <svg
+                        className="w-8 h-8"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"
+                        />
+                      </svg>
                     </button>
                   </Link>
-                  <div 
-                  className="flex flex-row text-text mx-6">
-                    <Link 
-                    href="/enduser/carrito">
-                      <button 
-                    
-                    className={`${poppins.className} m-4 hidden md:flex cursor-pointer text-text`}
-                  >
-                     ({productsCount})
-                        <svg
-                          className="w-8 h-8"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 4h1.5L9 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-8.5-3h9.25L19 7H7.312"
-                          />
-                        </svg>
-                      </button>
-                    </Link>
-                    <Link 
-                    href="/enduser/conocenos#preguntasfrecuentes">
-                      <button
-                        className={`${poppins.className} m-4 cursor-pointer`}
+                  <Link href="/enduser/conocenos#preguntasfrecuentes">
+                    <button
+                      className={`${poppins.className} m-4 cursor-pointer`}
+                    >
+                      <svg
+                        className="w-8 h-8"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
                       >
-                        <svg
-                          className="w-8 h-8"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                          />
-                        </svg>
-                      </button>
-                    </Link>
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                        />
+                      </svg>
+                    </button>
+                  </Link>
                 </div>
               </div>
             )
           ) : (
-            <div 
-            className="flex flex-col font-bold">
-              <Link 
-              href="/registrarse">
+            <div className="flex flex-col font-bold">
+              <Link href="/registrarse">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Registrarse
                 </button>
               </Link>
-              <Link 
-              href="/enduser/conocenuestrosproductos">
+              <Link href="/enduser/conocenuestrosproductos">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Productos
                 </button>
               </Link>
-              <Link 
-              href="/enduser/galeria">
+              <Link href="/enduser/galeria">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Galería
                 </button>
               </Link>
-              <Link 
-              href="/login">
+              <Link href="/login">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Log In
                 </button>
               </Link>
-              <Link 
-              href="/enduser/conocenos#preguntasfrecuentes">
+              <Link href="/enduser/conocenos#preguntasfrecuentes">
                 <button
                   className={`${poppins.className} m-6 text-lg cursor-pointer`}
                 >
                   Preguntas frecuentes
                 </button>
               </Link>
-              <Link 
-              href="/cotizacion">
+              <Link href="/cotizacion">
                 <button
                   className={`${poppins.className} m-6 bg-text text-white rounded-xl p-2 text-lg cursor-pointer font-normal`}
                 >
