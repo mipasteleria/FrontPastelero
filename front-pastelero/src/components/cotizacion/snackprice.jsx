@@ -12,7 +12,7 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 export default function Snackprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
-  const { userId } = useAuth();
+  const { userId, userName, userPhone } = useAuth();
   const router = useRouter();
 
   async function onSubmit(data) {
@@ -356,14 +356,14 @@ export default function Snackprice() {
             Información de contacto
           </h2>
           <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
-            <div className="m-3">
-              <p>Nombre</p>
+          <div className="m-3">
+            <p>Nombre</p>
               <input
                 className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
                 type="text"
                 placeholder="Escribe tu nombre"
-                required
-                {...register("contactName")}
+                defaultValue={userName} 
+                {...register("contactName", { value: userName })} 
               />
             </div>
             <div className="m-3">
@@ -372,8 +372,8 @@ export default function Snackprice() {
                 className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
                 type="text"
                 placeholder="000-000-0000"
-                required
-                {...register("contactPhone")}
+                defaultValue={userPhone}
+                {...register("contactPhone", { value: userPhone })}
               />
             </div>
             <div className="m-3">

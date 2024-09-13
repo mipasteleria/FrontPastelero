@@ -99,21 +99,15 @@ export default function VerReceta() {
             </h2>
             <div className="my-10 grid grid-cols-2 gap-6 p-4 rounded-xl">
               <div className="mb-4">
-                <p className="block text-sm font-bold">Costos fijos</p>
-                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
-                  {receta.fixed_costs}
-                </p>
-              </div>
-              <div className="mb-4">
-                <p className="block text-sm font-bold">Porciones</p>
-                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
-                  {receta.portions}
-                </p>
-              </div>
-              <div className="mb-4">
-                <p className="block text-sm font-bold">Costos por horas</p>
+                <p className="block text-sm font-bold">Mano de Obra</p>
                 <p className="bg-gray-50 text-sm rounded-lg p-2.5">
                   {receta.fixed_costs_hours}
+                </p>
+              </div>
+              <div className="mb-4">
+                <p className="block text-sm font-bold">Gastos fijos</p>
+                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
+                  {receta.fixed_costs}
                 </p>
               </div>
               <div className="mb-4">
@@ -128,6 +122,12 @@ export default function VerReceta() {
                 <p className="block text-sm font-bold">Costos adicionales</p>
                 <p className="bg-gray-50 text-sm rounded-lg p-2.5">
                   {receta.additional_costs}
+                </p>
+              </div>
+              <div className="mb-4">
+                <p className="block text-sm font-bold">Porciones</p>
+                <p className="bg-gray-50 text-sm rounded-lg p-2.5">
+                  {receta.portions}
                 </p>
               </div>
               <div className="mb-4">

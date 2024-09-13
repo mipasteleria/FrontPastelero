@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Swal from "sweetalert2";
+import { io } from 'socket.io-client';
 
   const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
   const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -12,8 +13,9 @@ import Swal from "sweetalert2";
 export default function Cakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
-  const { userId } = useAuth();
+  const { userId, userName, userPhone } = useAuth();
   const router = useRouter();
+  const socket = io(`${API_BASE}`);
 
 async function onSubmit(data) {
   try {
@@ -112,7 +114,13 @@ async function onSubmit(data) {
       contactPhone: "",
       questionsOrComments: "",
     });
+
+    socket.emit('solicitarCotizacion', {
+      nombreUsuario: userName, // Asegúrate de usar 'nombreUsuario' aquí
+      mensaje: 'Cotización de pastel'
+    });
   };
+
   return (
     <main>
       <form
@@ -431,13 +439,13 @@ async function onSubmit(data) {
           </h2>
           <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
             <div className="m-3">
-              <p>Nombre</p>
+            <p>Nombre</p>
               <input
                 className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
                 type="text"
                 placeholder="Escribe tu nombre"
-                required
-                {...register("contactName")}
+                defaultValue={userName} 
+                {...register("contactName", { value: userName })} 
               />
             </div>
             <div className="m-3">
@@ -446,8 +454,8 @@ async function onSubmit(data) {
                 className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
                 type="text"
                 placeholder="000-000-0000"
-                required
-                {...register("contactPhone")}
+                defaultValue={userPhone}
+                {...register("contactPhone", { value: userPhone })}
               />
             </div>
             <div className="m-3">

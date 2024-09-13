@@ -12,6 +12,7 @@ export const CartContext = createContext({
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
 
+  // Obtener cantidad del producto en el carrito
   function getProductQuantity(id, source, paymentOption) {
     const product = cart.find(
       (item) =>
@@ -22,6 +23,7 @@ export function CartProvider({ children }) {
     return product ? product.quantity : 0;
   }
 
+  // Agregar un producto al carrito
   function addOneToCart({ id, source, paymentOption, amount, status, name }) {
     const quantity = getProductQuantity(id, source, paymentOption);
 
@@ -29,13 +31,13 @@ export function CartProvider({ children }) {
       setCart((prevCart) => [
         ...prevCart,
         {
-          id,
-          source,
-          paymentOption,
-          amount,
-          status,
-          name,
-          quantity: 1,
+          id: id,
+          source: source.toLowerCase(),
+          amount: amount, // Monto seleccionado
+          paymentOption: paymentOption, // Tipo de pago (anticipo o total)
+          status: status, // Agregar estado
+          name: name, // Agregar nombre
+          quantity: 1, // Inicializar con cantidad 1
         },
       ]);
     } else {
@@ -51,6 +53,7 @@ export function CartProvider({ children }) {
     }
   }
 
+  // Quitar un producto del carrito
   function removeOneFromCart(id, source, paymentOption) {
     const quantity = getProductQuantity(id, source, paymentOption);
     if (quantity === 1) {
@@ -68,6 +71,7 @@ export function CartProvider({ children }) {
     }
   }
 
+  // Eliminar un producto completamente del carrito
   function deleteFromCart(id, source, paymentOption) {
     setCart((prevCart) =>
       prevCart.filter(
@@ -79,6 +83,7 @@ export function CartProvider({ children }) {
     );
   }
 
+  // Calcular el costo total del carrito
   function getTotalCost() {
     return cart.reduce((totalCost, cartItem) => {
       return totalCost + cartItem.amount * cartItem.quantity;
