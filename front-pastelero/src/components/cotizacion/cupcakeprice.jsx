@@ -14,7 +14,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
   export default function Cupcakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
-  const { userId } = useAuth();
+  const { userId, userName, userPhone } = useAuth();
   const router = useRouter();
 
   // Estado para las imágenes
@@ -402,7 +402,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
             ))}
         </div>
 
-        <div className="m-8 text-sm font-medium text-secondary">
+        <div className="m-8 text-sm font-medium">
           <p>Presupuesto máximo estimado</p>
           <input
             className="inputBudgetCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
@@ -412,28 +412,30 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
           />
         </div>
 
-        <div className="grid grid-cols-1 m-8 text-sm font-medium text-secondary md:grid-cols-2 gap-4">
-          <div>
-            <p>Nombre de contacto</p>
-            <input
-              className="inputContactNameCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-              type="text"
-              {...register("contactName")}
-              required
-            />
-          </div>
-          <div>
-            <p>Teléfono de contacto</p>
-            <input
-              className="inputContactPhoneCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-              type="text"
-              {...register("contactPhone")}
-              required
-            />
-          </div>
+        <div className="grid grid-cols-1 m-8 text-sm font-medium md:grid-cols-2 gap-4">
+          <div className="m-3">
+            <p>Nombre</p>
+              <input
+                className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+                type="text"
+                placeholder="Escribe tu nombre"
+                defaultValue={userName} 
+                {...register("contactName", { value: userName })} 
+              />
+            </div>
+            <div className="m-3">
+              <p>Número de celular</p>
+              <input
+                className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+                type="text"
+                placeholder="000-000-0000"
+                defaultValue={userPhone}
+                {...register("contactPhone", { value: userPhone })}
+              />
+            </div>
         </div>
 
-        <div className="m-8 text-sm font-medium text-secondary">
+        <div className="m-8 text-sm font-medium">
           <p>Preguntas o Comentarios</p>
           <textarea
             className="inputQuestionsOrCommentsCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"

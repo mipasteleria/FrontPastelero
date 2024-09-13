@@ -9,6 +9,8 @@ export function AuthProvider({ children }) {
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const [userToken, setUserToken] = useState(null);
+  const [userName, setUserName] = useState(null);
+  const [userPhone, setUserPhone] = useState(null);
 
   const updateAuthState = (token) => {
     if (token) {
@@ -18,6 +20,8 @@ export function AuthProvider({ children }) {
         setIsAdmin(decodedToken.role === "admin");
         setUserId(decodedToken._id);
         setUserEmail(decodedToken.email);
+        setUserName(decodedToken.name);
+        setUserPhone(decodedToken.phone);
         setUserToken(token);
       } catch (error) {
         console.error("Token decode failed:", error);
@@ -27,12 +31,13 @@ export function AuthProvider({ children }) {
       setIsAdmin(false);
       setUserId(null);
       setUserEmail(null);
+      setUserName(null);
+      setUserPhone(null);
     }
   };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log(token)
     updateAuthState(token);
   }, []);
 
@@ -53,6 +58,8 @@ export function AuthProvider({ children }) {
         isAdmin,
         userId,
         userEmail,
+        userName,
+        userPhone,
         login,
         logout,
         setIsLoggedIn,

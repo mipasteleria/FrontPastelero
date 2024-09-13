@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+
 export default function SuccessFail() {
     const [status, setStatus] = useState(null);
     const [customerEmail, setCustomerEmail] = useState("");
@@ -12,7 +14,7 @@ export default function SuccessFail() {
         const urlParams = new URLSearchParams(queryString);
         const sessionId = urlParams.get("session_id");
 
-        fetch( `${API_BASE}/checkout/session-status?session_id=${sessionId}`)
+        fetch(`${API_BASE}/checkout/session-status?session_id=${sessionId}`)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error('Network response was not ok');

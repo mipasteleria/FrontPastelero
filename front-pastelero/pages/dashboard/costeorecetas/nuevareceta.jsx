@@ -10,7 +10,6 @@ import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function NuevaReceta() {
   const { 
@@ -26,6 +25,7 @@ export default function NuevaReceta() {
   const [fixedCosts, setFixedCosts] = useState(0);
   const [fixedCostsHours, setFixedCostsHours] = useState(0);
   const [total, setTotal] = useState(0);
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -52,26 +52,35 @@ export default function NuevaReceta() {
   
     fetchIngredients();
     fetchCosts();
-  }, []);
-  
-
-  useEffect(() => {
-    calculateTotal();
-  }, [calculateTotal]);
+  }, [API_BASE]);
 
   const calculateTotal = useCallback(() => {
     const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
-    const { special_tax, additional_costs, profit_margin } = getValues();
+    const { 
+      special_tax, 
+      additional_costs, 
+      profit_margin 
+    } = getValues();
   
     const specialTaxValue = parseFloat(special_tax || 0);
     const additionalCostsValue = parseFloat(additional_costs || 0);
     const profitMarginValue = parseFloat(profit_margin || 0);
-    const totalCost = ingredientTotal + fixedCosts + fixedCostsHours + additionalCostsValue;
+    const totalCost = 
+    ingredientTotal + 
+    fixedCosts + 
+    fixedCostsHours + 
+    additionalCostsValue;
   
-    const totalWithProfit = totalCost + (totalCost * profitMarginValue / 100) + (totalCost * specialTaxValue / 100);
+    const totalWithProfit = totalCost + 
+    (totalCost * profitMarginValue / 100) + 
+    (totalCost * specialTaxValue / 100);
   
     setTotal(totalWithProfit);
   }, [ingredientsList, getValues, fixedCosts, fixedCostsHours]);
+
+  useEffect(() => {
+    calculateTotal();
+  }, [calculateTotal]);
   
   const handleAddIngredient = () => {
     const { ingrediente, cantidad, precio, unidad } = getValues();
@@ -106,39 +115,51 @@ export default function NuevaReceta() {
     data.total_cost = total;
     data.fixed_costs = fixedCosts;
     data.fixed_costs_hours = fixedCostsHours;
-    
+  
     try {
       const response = await axios.post(`${API_BASE}/recetas/recetas`, data, {
         headers: {
           'Content-Type': 'application/json',
         }
       });
-      
-      console.log("Receta guardada:", response.data);
 
-      Swal.fire({
-        title: '¡Receta Creada!',
-        text: 'La nueva receta ha sido guardada',
-        icon: 'success',
-        background: '#fff1f2',
-        color: '#540027',
-        timer: 2000,
-        timerProgressBar: true,
-        showConfirmButton: false
-      }).then(() => {
-        setValue('nombre_receta', '');
-        setValue('descripcion', '');
-        setValue('ingrediente', '');
-        setValue('cantidad', '');
-        setValue('precio', '');
-        setValue('unidad', '');
-        setValue('special_tax', '');
-        setValue('additional_costs', '');
-        setValue('portions', '');
-        setValue('profit_margin', '');
-        setIngredientsList([]);
-        setTotal(0)
-      });
+      if (response.status === 200 || response.status === 201) {
+        Swal.fire({
+          title: '¡Receta Creada!',
+          text: 'La nueva receta ha sido guardada',
+          icon: 'success',
+          background: '#fff1f2',
+          color: '#540027',
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false
+        }).then(() => {
+          // Restablece los valores del formulario
+          setValue('nombre_receta', '');
+          setValue('descripcion', '');
+          setValue('ingrediente', '');
+          setValue('cantidad', '');
+          setValue('precio', '');
+          setValue('unidad', '');
+          setValue('special_tax', '');
+          setValue('additional_costs', '');
+          setValue('portions', '');
+          setValue('profit_margin', '');
+          setIngredientsList([]);
+          setTotal(0);
+        });
+      } else {
+        Swal.fire({
+          title: 'Error al guardar la receta',
+          text: 'Ocurrió un problema al guardar la receta. Por favor, intenta nuevamente.',
+          icon: 'error',
+          background: '#fff1f2',
+          color: '#540027',
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false
+        });
+      }
     } catch (error) {
       console.error("Error al guardar la receta:", error);
       Swal.fire({
@@ -152,7 +173,7 @@ export default function NuevaReceta() {
         showConfirmButton: false
       });
     }
-  };
+  };  
   
   const renderInput = (id, label, type = "text", placeholder, validation) => (
     <div className="w-full">
@@ -324,7 +345,6 @@ export default function NuevaReceta() {
             </div>
             <div 
             className="grid gap-6 mb-6 md:grid-cols-2">
-              <div className="grid gap-6 mb-6 md:grid-cols-2">
                 <div className="w-full">
                   <label htmlFor="fixed_costs" className="block text-sm font-medium dark:text-white">Mano de obra</label>
                   <p id="fixed_costs" className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5">{(fixedCostsHours || 0).toFixed(2)}</p>
@@ -333,7 +353,6 @@ export default function NuevaReceta() {
                   <label htmlFor="fixed_costs_hours" className="block text-sm font-medium dark:text-white">Costos fijos</label>
                   <p id="fixed_costs_hours" className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5">{(fixedCosts || 0).toFixed(2)}</p>
                 </div>
-              </div>
               {renderInput(
                 "special_tax", 
                 "IEPS", "number", 

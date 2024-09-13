@@ -16,21 +16,22 @@ export default function Pedidos() {
   const [paymentOption, setPaymentOption] = useState("total");
   const cart = useContext(CartContext);
   
-
   const [anticipo, setAnticipo] = useState(0);
   const [precio, setPrecio] = useState(0);
-  const[status,setStatus] = useState("");
-  const[name,setName] = useState("");
+  const [status, setStatus] = useState("");  // Inicializa el estado correctamente
+  const [name, setName] = useState("");  // Inicializa el estado correctamente
 
-  const productQuantity = cart.getProductQuantity(id, source, paymentOption, status, name); // Pasar id, source, paymentOption, status y name
+  const productQuantity = cart.getProductQuantity(id, source, paymentOption); // Pasar solo los valores necesarios
   
-  const handleCotizacionLoaded = ({ precio, anticipo }) => {
+  const handleCotizacionLoaded = ({ precio, anticipo, status, name }) => {
     setPrecio(precio);
     setAnticipo(anticipo);
-    status(status);
-    name(name);
+    setStatus(status);  // Actualizar el estado correctamente
+    setName(name);  // Actualizar el estado correctamente
   };
 
+  const amount = paymentOption === "anticipo" ? anticipo : precio; // Seleccionar monto basado en la opción
+  
   const CancelCotizacion = async (id, source) => {
     try {
       const token = localStorage.getItem("token");
@@ -72,6 +73,11 @@ export default function Pedidos() {
     }
   };
 
+  const handleCheckboxChange = (e) => {
+    setPaymentOption(e.target.value);
+    console.log(`Antes de agregar al carrito ${id},"source" ${source},"amount" ${amount},"paymenOption" ${paymentOption}`);
+  };
+
   const handleAddToCart = (e) => {
     e.preventDefault(); // Evita cualquier comportamiento predeterminado que cambie la URL
 
@@ -81,19 +87,16 @@ export default function Pedidos() {
       return; // No agregar si ya está en el carrito
     }
 
-    const amount = paymentOption === "anticipo" ? anticipo : precio; // Seleccionar monto basado en la opción
     cart.addOneToCart({
       id: id,
       source: source.toLowerCase(),
       amount: amount, // Monto seleccionado
-      paymentType: paymentOption, // Tipo de pago (anticipo o total)
+      paymentOption: paymentOption, // Tipo de pago (anticipo o total)
+      status: status, // Estado
+      name: name, // Nombre del producto
     });
 
-    console.log(`Agregado al carrito: ${id}, ${source}, ${amount}, ${paymentOption}`); // Verificar en consola
-  };
-
-  const handleCheckboxChange = (e) => {
-    setPaymentOption(e.target.value);
+    console.log(`Agregado al carrito: ${id},"source" ${source},"amount" ${amount},"paymenOption" ${paymentOption}`);
   };
 
   return (

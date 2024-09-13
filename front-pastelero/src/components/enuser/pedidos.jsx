@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "@/src/context";
+import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { useRouter } from 'next/router'; 
 import { FaShoppingCart, FaTimes } from "react-icons/fa"; // Importar iconos
@@ -17,7 +17,7 @@ export default function Pedidos() {
     const [limit, setLimit] = useState(10); // Límite de cotizaciones por página
     const [totalPages, setTotalPages] = useState(1); // Total de páginas
     const router = useRouter();
-    const { userId } = useContext(AuthContext); // Usa useContext para obtener el userId
+    const { userId } = useAuth() // Usa useContext para obtener el userId
     
     const cart = useContext(CartContext);
     
