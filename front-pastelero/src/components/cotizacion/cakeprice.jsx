@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
@@ -13,9 +13,22 @@ import { io } from 'socket.io-client';
 export default function Cakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
-  const { userId, userName, userPhone } = useAuth();
+  const { userId, userName, userPhone, isLoggedIn } = useAuth();
   const router = useRouter();
-  const socket = io(`${API_BASE}`);
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      const newSocket = io(API_BASE); // Crear una nueva instancia del socket
+      setSocket(newSocket);
+
+      newSocket.emit('registrarUsuario', userId); // Emitir el ID del usuario cuando el socket se conecte
+
+      return () => {
+        newSocket.disconnect(); // Desconectar socket al desmontar
+      };
+    }
+  }, [isLoggedIn, userId]);
 
 async function onSubmit(data) {
   try {
@@ -56,6 +69,14 @@ async function onSubmit(data) {
 
     const json = await response.json();
     const id = json.data._id;
+
+    if (socket) {
+      socket.emit('solicitarCotizacion', {
+        nombreUsuario: userName,
+        mensaje: 'Cotización de pastel',
+        userId: 'No'
+      });
+    }
 
     Swal.fire({
       title: "¡Cotización Enviada!",
@@ -113,11 +134,6 @@ async function onSubmit(data) {
       contactName: "",
       contactPhone: "",
       questionsOrComments: "",
-    });
-
-    socket.emit('solicitarCotizacion', {
-      nombreUsuario: userName, // Asegúrate de usar 'nombreUsuario' aquí
-      mensaje: 'Cotización de pastel'
     });
   };
 

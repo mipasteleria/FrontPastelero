@@ -1,9 +1,10 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
-
+import Swal from "sweetalert2";
+import { io } from 'socket.io-client';
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
   const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -12,8 +13,22 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 export default function Snackprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
-  const { userId, userName, userPhone } = useAuth();
+  const { userId, userName, userPhone, isLoggedIn } = useAuth();
   const router = useRouter();
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      const newSocket = io(API_BASE); // Crear una nueva instancia del socket
+      setSocket(newSocket);
+
+      newSocket.emit('registrarUsuario', userId); // Emitir el ID del usuario cuando el socket se conecte
+
+      return () => {
+        newSocket.disconnect(); // Desconectar socket al desmontar
+      };
+    }
+  }, [isLoggedIn, userId]);
 
   async function onSubmit(data) {
     try {
@@ -53,6 +68,13 @@ export default function Snackprice() {
   
       const json = await response.json();
       const id = json.data._id;
+
+      if (socket) {
+        socket.emit('solicitarCotizacion', {
+          nombreUsuario: userName,
+          mensaje: 'cotización de snacks'
+        });
+      }
   
       // Mostrar alerta de éxito con SweetAlert2
       Swal.fire({
