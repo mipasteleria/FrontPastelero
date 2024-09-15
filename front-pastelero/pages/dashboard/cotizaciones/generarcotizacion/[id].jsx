@@ -5,10 +5,13 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
+import { io } from "socket.io-client";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const socket = io(API_BASE);
+
 export default function GenerarCotizacion() {
   const router = useRouter(); // Inicializa useRouter
   const { id, source } = router.query; // Obtén los parámetros de consulta
@@ -76,6 +79,24 @@ export default function GenerarCotizacion() {
       })
       .catch((error) => console.error("Error fetching insumos:", error));
   }, []);
+
+    // Configurar Socket.IO solo una vez al montar el componente
+    useEffect(() => {
+      // Registrar el usuario en el socket
+      socket.on("connect", () => {
+        console.log("Conectado a Socket.IO con id:", socket.id);
+      });
+  
+      socket.on("disconnect", () => {
+        console.log("Desconectado de Socket.IO");
+      });
+  
+      return () => {
+        // Limpiar la conexión al desmontar el componente
+        socket.off("connect");
+        socket.off("disconnect");
+      };
+    }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -171,6 +192,34 @@ export default function GenerarCotizacion() {
     }
   
     try {
+      // Obtener userId y nombreUsuario del usuario solicitante
+      const responseUser = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    
+      // Verifica si la respuesta es exitosa
+      if (!responseUser.ok) {
+        throw new Error(`Error ${responseUser.status}: ${responseUser.statusText}`);
+      }
+    
+      // Obtén los datos en formato JSON
+      const userData = await responseUser.json();
+    
+      // Verifica si los datos contienen la propiedad 'data'
+      if (!userData.data) {
+        throw new Error('Datos de usuario no encontrados o incompletos');
+      }
+    
+      // Extrae 'userId' y 'contactName' del objeto 'data'
+      const { userId, contactName, priceType } = userData.data;
+    
+      if (!userId || !contactName) {
+        throw new Error('Datos de usuario incompletos recibidos');
+      }
+        
       const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -193,6 +242,12 @@ export default function GenerarCotizacion() {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
+
+      socket.emit("aprobarCotizacion", {
+        userId: userId,
+        nombreUsuario: contactName,
+        priceType: priceType
+      });
   
       Swal.fire({
         title: "¡Cotización Generada!",

@@ -1,27 +1,42 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import axios from "axios";
 import Image from "next/image";
 import Swal from "sweetalert2";
+import { io } from 'socket.io-client';
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   export default function Cupcakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
-  const { userId, userName, userPhone } = useAuth();
+  const { userId, userName, userPhone, isLoggedIn } = useAuth();
   const router = useRouter();
+  const [socket, setSocket] = useState(null);
 
   // Estado para las imágenes
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState([]);
   const [imageUrls, setImageUrls] = useState([]);
+
+  useEffect(() => {
+    if (isLoggedIn && userId) {
+      const newSocket = io(API_BASE); // Crear una nueva instancia del socket
+      setSocket(newSocket);
+
+      newSocket.emit('registrarUsuario', userId); // Emitir el ID del usuario cuando el socket se conecte
+
+      return () => {
+        newSocket.disconnect(); // Desconectar socket al desmontar
+      };
+    }
+  }, [isLoggedIn, userId]);
 
   // Manejar selección de archivos
   const handleFileChange = (event) => {
@@ -82,7 +97,16 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
   
       const json = await response.json();
       const id = json.data._id;
-  
+
+      if (socket && socket.connected) {
+        socket.emit('solicitarCotizacion', {
+          nombreUsuario: userName,
+          mensaje: 'cotización de cupcakes'
+        });
+      } else {
+        console.error('Socket no está conectado');
+      }      
+
       // Mostrar alerta de éxito con SweetAlert2
       Swal.fire({
         title: "¡Cotización Enviada!",
