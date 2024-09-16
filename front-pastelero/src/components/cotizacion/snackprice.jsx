@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import Swal from 'sweetalert2';
 
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });

@@ -5,6 +5,7 @@ import WebFooter from "@/src/components/WebFooter";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import VerCotizacion from "@/src/components/cotizacionview";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -116,109 +117,11 @@ const Detalle = () => {
         <h1 className={`text-4xl m-4 ${sofia.className}`}>
           Detalle de Solicitud
         </h1>
-        <div className="flex flex-col gap-8 bg-rose-50 p-6 justify-between w-full">
-          {/* Render paragraphs based on source */}
-          {source === "pastel" &&
-            renderParagraphs({
-              flavor: data.flavor,
-              levels: data.levels,
-              portions: data.portions,
-              delivery: data.delivery,
-              stuffedFlavor: data.stuffedFlavor,
-              cover: data.cover,
-              deliveryAdress: data.deliveryAdress,
-              fondantCover: data.fondantCover,
-              deliveryDate: data.deliveryDate,
-              buttercream: data.buttercream,
-              ganache: data.ganache,
-              fondant: data.fondant,
-              fondantDraw: data.fondantDraw,
-              buttercreamDraw: data.buttercreamDraw,
-              sugarcharacter3d: data.sugarcharacter3d,
-              naturalFlowers: data.naturalFlowers,
-              fondantFlowers: data.fondantFlowers,
-              sign: data.sign,
-              eatablePrint: data.eatablePrint,
-              character: data.character,
-              other: data.other,
-              budget: data.budget,
-              contactName: data.contactName,
-              contactPhone: data.contactPhone,
-              questionsOrComments: data.questionsOrComments,
-              precio: data.precio,
-              anticipo: data.anticipo,
-              status: data.status,
-            })}
-
-          {source === "snack" &&
-            renderParagraphs({
-              people: data.people,
-              portionsPerPerson: data.portionsPerPerson,
-              delivery: data.delivery,
-              deliveryAdress: data.deliveryAdress,
-              deliveryDate: data.deliveryDate,
-              pay: data.pay,
-              brownie: data.brownie,
-              coockie: data.coockie,
-              alfajores: data.alfajores,
-              macaroni: data.macaroni,
-              donuts: data.donuts,
-              lollipops: data.lollipops,
-              cupcakes: data.cupcakes,
-              bread: data.bread,
-              tortaFruts: data.tortaFruts,
-              americanCoockies: data.americanCoockies,
-              tortaApple: data.tortaApple,
-              other: data.other,
-              image: data.image,
-              budget: data.budget,
-              contactName: data.contactName,
-              contactPhone: data.contactPhone,
-              questionsOrComments: data.questionsOrComments,
-              precio: data.precio,
-              anticipo: data.anticipo,
-              status: data.status,
-            })}
-
-          {source === "cupcake" &&
-            renderParagraphs({
-              Sabor: data.flavorBizcocho,
-              Relleno: data.stuffedFlavor,
-              Cobertura: data.cover,
-              porciones: data.portions,
-              coberturaFondant: data.fondantCover,
-              aDomicilio: data.delivery,
-              dirección: data.deliveryAdress,
-              fechaEntrega: data.deliveryDate,
-              dibujoFondant: data.fondantDraw,
-              dibujoCremaDeMani: data.buttercreamDraw,
-              floresNaturales: data.naturalFlowers,
-              letrero: data.sign,
-              impresionComible: data.eatablePrint,
-              sprinkles: data.sprinkles,
-              otros: data.other,
-              presupuesto: data.budget,
-              aNombreDe: data.contactName,
-              numeroDeContacto: data.contactPhone,
-              preguntaOComentarioRealizado: data.questionsOrComments,
-              precio: data.precio,
-              anticipo: data.anticipo,
-              Estado: data.status,
-            })}
-
-          {/* Render image if available */}
-          {imageUrl && (
-            <div className="mt-4">
-              <Image
-                src={imageUrl}
-                width={500}
-                height={500}
-                alt="Fetched from Cloud Storage"
-                className="max-w-full h-auto"
-              />
-            </div>
-          )}
-        </div>
+        <p>
+        ¡Gracias por tu paciencia! Una vez que tu cotización esté lista, podrás consultarla en la sección "Mis pedidos", y su estatus cambiará a "Aceptado". 
+        </p><p>Somos una pastelería pequeña y valoramos enormemente tu comprensión y apoyo durante este proceso. ¡Te agradecemos mucho!
+        </p>
+        <VerCotizacion  />
       </main>
       <WebFooter />
     </div>

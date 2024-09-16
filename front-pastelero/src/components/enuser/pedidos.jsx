@@ -185,13 +185,7 @@ export default function Pedidos() {
                                                     </svg>
                                                     <span>Ver detalles</span>
                                                 </Link>
-                                                <button
-                                                    onClick={() => handleAddToCart(cotizacion._id, cotizacion.type)}
-                                                    className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-green-300"
-                                                >
-                                                    <FaShoppingCart size={20} /> {/* Icono del carrito */}
-                                                    <span>Agregar al carrito</span>
-                                                </button>
+
                                                 <button
                                                     onClick={() => CancelCotizacion(cotizacion._id, cotizacion.type)}
                                                     className="bg-rose-200 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-red-600"
