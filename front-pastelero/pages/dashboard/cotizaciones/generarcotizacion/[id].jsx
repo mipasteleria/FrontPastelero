@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function GenerarCotizacion() {
   const router = useRouter(); // Inicializa useRouter
   const { id, source } = router.query; // Obtén los parámetros de consulta
@@ -150,6 +151,30 @@ export default function GenerarCotizacion() {
     setSelectedType(e.target.value);
   };
 
+  const enviarNotificacion = async (userName, userId, priceType) => {
+    try {
+      const response = await fetch(`${API_BASE}/notificaciones`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mensaje: `${userName} tu cotización de ${priceType} ha sido aprobada`,
+          userId: userId
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al enviar la notificación');
+      }
+  
+      const data = await response.json();
+      console.log('Notificación enviada con éxito:', data);
+    } catch (error) {
+      console.error('Error al enviar la notificación:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -171,6 +196,34 @@ export default function GenerarCotizacion() {
     }
   
     try {
+      // Obtener userId y nombreUsuario del usuario solicitante
+      const responseUser = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    
+      // Verifica si la respuesta es exitosa
+      if (!responseUser.ok) {
+        throw new Error(`Error ${responseUser.status}: ${responseUser.statusText}`);
+      }
+    
+      // Obtén los datos en formato JSON
+      const userData = await responseUser.json();
+    
+      // Verifica si los datos contienen la propiedad 'data'
+      if (!userData.data) {
+        throw new Error('Datos de usuario no encontrados o incompletos');
+      }
+    
+      // Extrae 'userId' y 'contactName' del objeto 'data'
+      const { userId, contactName, priceType } = userData.data;
+    
+      if (!userId || !contactName) {
+        throw new Error('Datos de usuario incompletos recibidos');
+      }
+        
       const response = await fetch(url, {
         method: "PUT",
         headers: {
@@ -193,6 +246,9 @@ export default function GenerarCotizacion() {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
+
+      await enviarNotificacion(contactName, userId, priceType)
+
   
       Swal.fire({
         title: "¡Cotización Generada!",

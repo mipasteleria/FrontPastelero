@@ -96,7 +96,7 @@ export default function Conocenuestrosproductos() {
   
         // Validar el valor de source y asignar la URL correspondiente
         switch (source) {
-          case "cake":
+          case "pastel":
             url = `${API_BASE}/pricecake/${id}`;
             break;
           case "cupcake":

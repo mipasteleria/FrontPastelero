@@ -19,7 +19,7 @@ export default function Price() {
     <div className="flex flex-col min-h-screen">
       <NavbarAdmin />
       <main
-        className={`flex-grow text-text ${poppins.className} mt-24 max-w-screen-lg mx-auto`}
+        className={`flex-grow text-text ${poppins.className} mt-20 max-w-screen-lg mx-auto`}
       >
         <h1 className={`text-4xl m-6 ${sofia.className}`}>
           Solicitar cotización
