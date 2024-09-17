@@ -4,7 +4,6 @@ import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Swal from "sweetalert2";
-import { io } from 'socket.io-client';
 
   const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
   const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -15,20 +14,29 @@ export default function Cakeprice() {
   const [isDelivery, setIsDelivery] = useState(false);
   const { userId, userName, userPhone, isLoggedIn } = useAuth();
   const router = useRouter();
-  const [socket, setSocket] = useState(null);
 
-  useEffect(() => {
-    if (isLoggedIn && userId) {
-      const newSocket = io(API_BASE); // Crear una nueva instancia del socket
-      setSocket(newSocket);
+const enviarNotificacion = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/notificaciones`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        mensaje: `${userName} te ha enviado una solicitud de Pastel`,
+      }),
+    });
 
-      newSocket.emit('registrarUsuario', userId); // Emitir el ID del usuario cuando el socket se conecte
-
-      return () => {
-        newSocket.disconnect(); // Desconectar socket al desmontar
-      };
+    if (!response.ok) {
+      throw new Error('Error al enviar la notificación');
     }
-  }, [isLoggedIn, userId]);
+
+    const data = await response.json();
+    console.log('Notificación enviada con éxito:', data);
+  } catch (error) {
+    console.error('Error al enviar la notificación:', error);
+  }
+};
 
 async function onSubmit(data) {
   try {
@@ -70,13 +78,7 @@ async function onSubmit(data) {
     const json = await response.json();
     const id = json.data._id;
 
-    if (socket) {
-      socket.emit('solicitarCotizacion', {
-        nombreUsuario: userName,
-        mensaje: 'Cotización de pastel',
-        userId: 'No'
-      });
-    }
+    await enviarNotificacion();
 
     Swal.fire({
       title: "¡Cotización Enviada!",

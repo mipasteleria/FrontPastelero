@@ -5,12 +5,10 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-import { io } from "socket.io-client";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-const socket = io(API_BASE);
 
 export default function GenerarCotizacion() {
   const router = useRouter(); // Inicializa useRouter
@@ -79,24 +77,6 @@ export default function GenerarCotizacion() {
       })
       .catch((error) => console.error("Error fetching insumos:", error));
   }, []);
-
-    // Configurar Socket.IO solo una vez al montar el componente
-    useEffect(() => {
-      // Registrar el usuario en el socket
-      socket.on("connect", () => {
-        console.log("Conectado a Socket.IO con id:", socket.id);
-      });
-  
-      socket.on("disconnect", () => {
-        console.log("Desconectado de Socket.IO");
-      });
-  
-      return () => {
-        // Limpiar la conexión al desmontar el componente
-        socket.off("connect");
-        socket.off("disconnect");
-      };
-    }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -171,6 +151,30 @@ export default function GenerarCotizacion() {
     setSelectedType(e.target.value);
   };
 
+  const enviarNotificacion = async (userName, userId, priceType) => {
+    try {
+      const response = await fetch(`${API_BASE}/notificaciones`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mensaje: `${userName} tu cotización de ${priceType} ha sido aprobada`,
+          userId: userId
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al enviar la notificación');
+      }
+  
+      const data = await response.json();
+      console.log('Notificación enviada con éxito:', data);
+    } catch (error) {
+      console.error('Error al enviar la notificación:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -243,11 +247,8 @@ export default function GenerarCotizacion() {
         throw new Error("Network response was not ok");
       }
 
-      socket.emit("aprobarCotizacion", {
-        userId: userId,
-        nombreUsuario: contactName,
-        priceType: priceType
-      });
+      await enviarNotificacion(contactName, userId, priceType)
+
   
       Swal.fire({
         title: "¡Cotización Generada!",
