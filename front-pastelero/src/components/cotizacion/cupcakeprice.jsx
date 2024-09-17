@@ -6,7 +6,6 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import axios from "axios";
 import Image from "next/image";
 import Swal from "sweetalert2";
-import { io } from 'socket.io-client';
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -15,9 +14,8 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   export default function Cupcakeprice() {
   const { register, handleSubmit, reset } = useForm();
   const [isDelivery, setIsDelivery] = useState(false);
-  const { userId, userName, userPhone, isLoggedIn } = useAuth();
+  const { userId, userName, userPhone, } = useAuth();
   const router = useRouter();
-  const [socket, setSocket] = useState(null);
 
   // Estado para las imágenes
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -25,18 +23,28 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   const [message, setMessage] = useState([]);
   const [imageUrls, setImageUrls] = useState([]);
 
-  useEffect(() => {
-    if (isLoggedIn && userId) {
-      const newSocket = io(API_BASE); // Crear una nueva instancia del socket
-      setSocket(newSocket);
-
-      newSocket.emit('registrarUsuario', userId); // Emitir el ID del usuario cuando el socket se conecte
-
-      return () => {
-        newSocket.disconnect(); // Desconectar socket al desmontar
-      };
+  const enviarNotificacion = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/notificaciones`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mensaje: `${userName} te ha enviado una solicitud de Cupcakes`,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al enviar la notificación');
+      }
+  
+      const data = await response.json();
+      console.log('Notificación enviada con éxito:', data);
+    } catch (error) {
+      console.error('Error al enviar la notificación:', error);
     }
-  }, [isLoggedIn, userId]);
+  };
 
   // Manejar selección de archivos
   const handleFileChange = (event) => {
@@ -98,14 +106,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
       const json = await response.json();
       const id = json.data._id;
 
-      if (socket && socket.connected) {
-        socket.emit('solicitarCotizacion', {
-          nombreUsuario: userName,
-          mensaje: 'cotización de cupcakes'
-        });
-      } else {
-        console.error('Socket no está conectado');
-      }      
+      await enviarNotificacion()  
 
       // Mostrar alerta de éxito con SweetAlert2
       Swal.fire({

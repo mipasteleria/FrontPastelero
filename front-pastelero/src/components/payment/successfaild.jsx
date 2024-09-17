@@ -10,6 +10,30 @@ export default function SuccessFail() {
     const [paymentOption, setPaymentOption] = useState("");
     const [id, setId] = useState("");
     const [source, setSource] = useState("");
+    console.log(paymentOption, source, customerEmail)
+
+    const enviarNotificacion = async () => {
+        try {
+            const response = await fetch(`${API_BASE}/notificaciones`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    mensaje: `${customerEmail} ha realizado un pago`,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al enviar la notificación');
+            }
+
+            const data = await response.json();
+            console.log('Notificación enviada con éxito:', data);
+        } catch (error) {
+            console.error('Error al enviar la notificación:', error);
+        }
+    };
 
     useEffect(() => {
         const queryString = window.location.search;
@@ -133,6 +157,10 @@ export default function SuccessFail() {
     useEffect(() => {
         if (status === "open") {
             router.push("/checkout");
+        }
+
+        if (status === "complete") {
+            enviarNotificacion(); // Enviar la notificación siempre que el pago se complete
         }
     }, [status, router]);
 

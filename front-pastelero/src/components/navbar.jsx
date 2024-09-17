@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-import { io } from "socket.io-client";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -41,35 +40,39 @@ const NavbarAdmin = () => {
   };
 
   const toggleNotificaciones = () => {
-    setShowNotificaciones(!showNotificaciones);
+    setShowNotificaciones((prev) => !prev); // Cambia el estado de visibilidad
   };
-
+  
   const toggleNotificacionesUsuario = () => {
-    setShowNotificacionesUsuario(!showNotificacionesUsuario);
+    setShowNotificacionesUsuario((prev) => !prev); // Cambia el estado de visibilidad
     if (!showNotificacionesUsuario) {
       setMarkAsReadOnClose(true);
     }
-  };
+  };  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Cerrar dropdown de admin si se hace clic fuera de él
+      // Verifica si se hace clic fuera del menú de notificaciones de admin
       if (
         showNotificaciones &&
         notificacionesRef.current &&
-        !notificacionesRef.current.contains(event.target)
+        !notificacionesRef.current.contains(event.target) &&
+        !event.target.closest('.toggle-notificaciones-admin')
       ) {
         setShowNotificaciones(false);
       }
-      // Cerrar dropdown de usuario si se hace clic fuera de él
+  
+      // Verifica si se hace clic fuera del menú de notificaciones de usuario
       if (
         showNotificacionesUsuario &&
         notificacionesUsuarioRef.current &&
-        !notificacionesUsuarioRef.current.contains(event.target)
+        !notificacionesUsuarioRef.current.contains(event.target) &&
+        !event.target.closest('.toggle-notificaciones-usuario')
       ) {
         setShowNotificacionesUsuario(false);
       }
-      // Cerrar menú de dropdown si se hace clic fuera
+  
+      // Verifica si se hace clic fuera del menú de dropdown
       if (
         dropdownOpen &&
         !event.target.closest("#dropdownMenu") &&
@@ -78,12 +81,13 @@ const NavbarAdmin = () => {
         closeDropdown();
       }
     };
-
+  
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownOpen, showNotificaciones, showNotificacionesUsuario]);
+  
 
   useEffect(() => {
     if (markAsReadOnClose && !showNotificacionesUsuario) {
@@ -128,12 +132,11 @@ const NavbarAdmin = () => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      const socket = io(API_BASE);
-
       const obtenerNotificaciones = async () => {
         try {
           const response = await fetch(`${API_BASE}/notificaciones`);
           let data = await response.json();
+          console.log(data)
 
           data = data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
@@ -150,18 +153,6 @@ const NavbarAdmin = () => {
       };
 
       obtenerNotificaciones();
-
-      socket.on("nuevaNotificacion", (nuevaNotificacion) => {
-        if (isAdmin && !nuevaNotificacion.userId) {
-          setNotificaciones((prevNotificaciones) => [nuevaNotificacion, ...prevNotificaciones]);
-        } else if (!isAdmin && nuevaNotificacion.userId === userId) {
-          setNotificacionesUsuario((prevNotificaciones) => [nuevaNotificacion, ...prevNotificaciones]);
-        }
-      });
-
-      return () => {
-        socket.disconnect();
-      };
     }
   }, [isLoggedIn, isAdmin, userId]);
 
@@ -420,7 +411,7 @@ const NavbarAdmin = () => {
         {isLoggedIn && isAdmin && (
             <div className="relative">
               {/* Ícono de Campana para Notificaciones */}
-              <button className="relative m-4" onClick={toggleNotificaciones}>
+              <button className="relative m-4 toggle-notificaciones-admin" onClick={toggleNotificaciones}>
                 <svg
                   className="w-8 h-8"
                   aria-hidden="true"
@@ -442,7 +433,6 @@ const NavbarAdmin = () => {
                   </span>
                 )}
               </button>
-
               {/* Dropdown de Notificaciones */}
               {showNotificaciones && (
                 <div 
@@ -456,7 +446,7 @@ const NavbarAdmin = () => {
                   ) : (
                     <ul className="max-h-60 overflow-y-auto p-2">
                       {notificaciones.map((notificacion) => (
-                        <li
+                        <Link href={"/dashboard/cotizaciones"}
                           key={notificacion._id}
                           className={`flex justify-between items-center p-2 border-b ${notificacion.leida ? "bg-gray-100" : "bg-white"}`}
                         >
@@ -486,7 +476,7 @@ const NavbarAdmin = () => {
                               />
                             </svg>
                           </button>
-                        </li>
+                        </Link>
                       ))}
                     </ul>
                   )}
@@ -497,7 +487,8 @@ const NavbarAdmin = () => {
               {/* Campanita de Notificaciones para Usuarios No Admin */}
       {isLoggedIn && !isAdmin && (
         <div className="relative">
-          <button className="relative my-4 mr-4" onClick={toggleNotificacionesUsuario}>
+          {/* Ícono de Campana para Notificaciones */}
+          <button className="relative m-4 toggle-notificaciones-usuario" onClick={toggleNotificacionesUsuario}>
             <svg
               className="w-8 h-8"
               aria-hidden="true"
@@ -519,7 +510,6 @@ const NavbarAdmin = () => {
               </span>
             )}
           </button>
-
           {/* Dropdown de Notificaciones para Usuarios No Admin */}
           {showNotificacionesUsuario && (
             <div className={`${poppins.className} border border-accent absolute right-0 w-80 bg-white shadow-lg rounded-lg overflow-hidden z-50`}
@@ -532,7 +522,7 @@ const NavbarAdmin = () => {
               ) : (
                 <ul className="max-h-60 overflow-y-auto p-2">
                   {notificacionesUsuario.map((notificacion) => (
-                    <li
+                    <Link href={"/enduser/mispedidos"}
                       key={notificacion._id}
                       className={`flex justify-between items-center p-2 border-b ${
                         notificacion.leida ? "bg-gray-100" : "bg-white"
@@ -564,7 +554,7 @@ const NavbarAdmin = () => {
                           />
                         </svg>
                       </button>
-                    </li>
+                    </Link>
                   ))}
                 </ul>
               )}
