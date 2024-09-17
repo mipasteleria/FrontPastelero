@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import Image from "next/image";
 import NavbarAdmin from "@/src/components/navbar";
 import VerCotizacion from "@/src/components/cotizacionview";
-import { CartContext } from "@/src/components/enuser/carritocontext"
+import { CartContext } from "@/src/components/enuser/carritocontext";
 import { useRouter } from "next/router";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { FaShoppingCart, FaTimes, FaArrowLeft } from "react-icons/fa";
@@ -15,23 +15,23 @@ export default function Pedidos() {
   const { id, source } = router.query;
   const [paymentOption, setPaymentOption] = useState("total");
   const cart = useContext(CartContext);
-  
+
   const [anticipo, setAnticipo] = useState(0);
   const [precio, setPrecio] = useState(0);
-  const [status, setStatus] = useState("");  // Inicializa el estado correctamente
-  const [name, setName] = useState("");  // Inicializa el estado correctamente
+  const [status, setStatus] = useState(""); // Inicializa el estado correctamente
+  const [name, setName] = useState(""); // Inicializa el estado correctamente
 
   const productQuantity = cart.getProductQuantity(id, source, paymentOption); // Pasar solo los valores necesarios
-  
+
   const handleCotizacionLoaded = ({ precio, anticipo, status, name }) => {
     setPrecio(precio);
     setAnticipo(anticipo);
-    setStatus(status);  // Actualizar el estado correctamente
-    setName(name);  // Actualizar el estado correctamente
+    setStatus(status); // Actualizar el estado correctamente
+    setName(name); // Actualizar el estado correctamente
   };
 
   const amount = paymentOption === "anticipo" ? anticipo : precio; // Seleccionar monto basado en la opción
-  
+
   const CancelCotizacion = async (id, source) => {
     try {
       const token = localStorage.getItem("token");
@@ -75,7 +75,9 @@ export default function Pedidos() {
 
   const handleCheckboxChange = (e) => {
     setPaymentOption(e.target.value);
-    console.log(`Antes de agregar al carrito ${id},"source" ${source},"amount" ${amount},"paymenOption" ${paymentOption}`);
+    console.log(
+      `Antes de agregar al carrito ${id},"source" ${source},"amount" ${amount},"paymenOption" ${paymentOption}`
+    );
   };
 
   const handleAddToCart = (e) => {
@@ -96,7 +98,9 @@ export default function Pedidos() {
       name: name, // Nombre del producto
     });
 
-    console.log(`Agregado al carrito: ${id},"source" ${source},"amount" ${amount},"paymenOption" ${paymentOption}`);
+    console.log(
+      `Agregado al carrito: ${id},"source" ${source},"amount" ${amount},"paymenOption" ${paymentOption}`
+    );
   };
 
   return (
