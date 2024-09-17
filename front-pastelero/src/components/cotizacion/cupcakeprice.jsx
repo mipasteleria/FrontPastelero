@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
