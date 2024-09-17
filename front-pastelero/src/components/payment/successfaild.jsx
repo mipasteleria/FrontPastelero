@@ -6,7 +6,6 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export default function SuccessFail() {
     const [status, setStatus] = useState(null);
     const [customerEmail, setCustomerEmail] = useState("");
-    const [notificacionEnviada, setNotificacionEnviada] = useState(false); // Estado para rastrear si la notificación se ha enviado
     const router = useRouter();
 
     const enviarNotificacion = async () => {
@@ -27,20 +26,12 @@ export default function SuccessFail() {
 
             const data = await response.json();
             console.log('Notificación enviada con éxito:', data);
-            setNotificacionEnviada(true); // Marcar la notificación como enviada
-            sessionStorage.setItem('notificacionEnviada', 'true'); // Guardar en sessionStorage
         } catch (error) {
             console.error('Error al enviar la notificación:', error);
         }
     };
 
     useEffect(() => {
-        // Revisar si la notificación ya se envió en esta sesión
-        const notificacionEnviadaStorage = sessionStorage.getItem('notificacionEnviada');
-        if (notificacionEnviadaStorage === 'true') {
-            setNotificacionEnviada(true);
-        }
-
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const sessionId = urlParams.get("session_id");
@@ -66,10 +57,10 @@ export default function SuccessFail() {
             router.push("/checkout");
         }
 
-        if (status === "complete" && !notificacionEnviada) {
-            enviarNotificacion(); // Enviar la notificación si el pago se completó y no se ha enviado antes
+        if (status === "complete") {
+            enviarNotificacion(); // Enviar la notificación siempre que el pago se complete
         }
-    }, [status, router, notificacionEnviada]);
+    }, [status, router]);
 
     if (status === "complete") {
         return (
