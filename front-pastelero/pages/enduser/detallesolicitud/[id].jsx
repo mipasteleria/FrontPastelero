@@ -1,9 +1,9 @@
 import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import VerCotizacion from "@/src/components/cotizacionview";
-import Link from "next/link";
-
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -18,21 +18,11 @@ const Detalle = () => {
         <h1 className={`text-4xl m-4 ${sofia.className}`}>
           Detalle de Solicitud
         </h1>
-        <VerCotizacion/>
-        <div className="flex flex-col md:flex-row">
-          <Link href="/">
-              <button className="bg-accent text-white px-4 py-2 rounded hover:bg-accent-dark m-6">
-                Volver a Inicio
-              </button>
-            </Link>
-            <Link href="/cotizacion">
-              <button className="bg-accent text-white px-4 py-2 rounded hover:bg-accent-dark m-6">
-                Hacer otra cotizacion
-              </button>
-            </Link>
-        </div>
-          
-              
+        <p>
+        ¡Gracias por tu paciencia! Una vez que tu cotización esté lista, podrás consultarla en la sección "Mis pedidos", y su estatus cambiará a "Aceptado". 
+        </p><p>Somos una pastelería pequeña y valoramos enormemente tu comprensión y apoyo durante este proceso. ¡Te agradecemos mucho!
+        </p>
+        <VerCotizacion  />
       </main>
       <WebFooter />
     </div>

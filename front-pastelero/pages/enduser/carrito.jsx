@@ -43,7 +43,7 @@ export default function Carrito() {
     console.log('Datos que se enviarán al backend:', dataToSend);
   
     try {
-      const response = await fetch(`http://localhost:3001/checkout/create-checkout-session`, {
+      const response = await fetch(`${API_BASE}/checkout/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
