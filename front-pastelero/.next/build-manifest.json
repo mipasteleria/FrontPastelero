@@ -27,15 +27,20 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/dashboard": [
+    "/enduser/carrito": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard.js"
+      "static/chunks/pages/enduser/carrito.js"
     ],
-    "/dashboard/cotizaciones": [
+    "/enduser/pagar": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/dashboard/cotizaciones.js"
+      "static/chunks/pages/enduser/pagar.js"
+    ],
+    "/enduser/pedidos/[id]": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/enduser/pedidos/[id].js"
     ]
   },
   "ampFirstPages": []

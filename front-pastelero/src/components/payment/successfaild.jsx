@@ -10,6 +10,7 @@ export default function SuccessFail() {
     const [paymentOption, setPaymentOption] = useState("");
     const [id, setId] = useState("");
     const [source, setSource] = useState("");
+    console.log(paymentOption, source, customerEmail)
 
     const enviarNotificacion = async () => {
         try {
@@ -19,7 +20,7 @@ export default function SuccessFail() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    mensaje: `${customerEmail} ha realizado un pago de ${paymentOption} por su cotizacion de ${source}`,
+                    mensaje: `${customerEmail} ha realizado un pago`,
                 }),
             });
 
