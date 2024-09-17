@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
-import axios from "axios";
 import Image from "next/image";
 import Swal from "sweetalert2";
 
@@ -11,120 +10,96 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  export default function Cupcakeprice() {
-  const { register, handleSubmit, reset } = useForm();
-  const [isDelivery, setIsDelivery] = useState(false);
-  const { userId, userName, userPhone, } = useAuth();
+export default function Cupcakeprice() {
+  const { register, handleSubmit, reset, watch } = useForm();
+  const { userId, userName, userPhone } = useAuth();
   const router = useRouter();
+  const [isDelivery, setIsDelivery] = useState(false);
+  const [preview1, setPreview1] = useState(null);
+  const [preview2, setPreview2] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const file1 = watch("file1");
+  const file2 = watch("file2");
 
-  // Estado para las imágenes
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState([]);
-  const [imageUrls, setImageUrls] = useState([]);
+  useEffect(() => {
+    if (file1) handlePreview(file1, setPreview1);
+    if (file2) handlePreview(file2, setPreview2);
+  }, [file1, file2]);
 
-  const enviarNotificacion = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/notificaciones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mensaje: `${userName} te ha enviado una solicitud de Cupcakes`,
-        }),
-      });
-  
-      if (!response.ok) {
-        throw new Error('Error al enviar la notificación');
-      }
-  
-      const data = await response.json();
-      console.log('Notificación enviada con éxito:', data);
-    } catch (error) {
-      console.error('Error al enviar la notificación:', error);
+  const handlePreview = (file, setPreview) => {
+    if (file && file.length > 0) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file[0]);
+    } else {
+      setPreview(null);
     }
   };
 
-  // Manejar selección de archivos
-  const handleFileChange = (event) => {
-    setSelectedFiles(event.target.files);
-  };
-
-  // Manejar envío de archivos
-  const handleUploadSubmit = async () => {
-    if (selectedFiles.length === 0) {
-      setMessage(["Por favor, selecciona dos imágenes"]);
-      return;
-    }
-
-    setUploading(true);
+  const uploadFiles = async (data) => {
     const formData = new FormData();
-
-    for (let i = 0; i < selectedFiles.length; i++) {
-      formData.append("files", selectedFiles[i]);
-      formData.append("fileOutputName", selectedFiles[i].name);
-    }
+    formData.append("file1", data.file1[0]);
+    if (data.file2) formData.append("file2", data.file2[0]);
 
     try {
-      // Enviar los archivos al backend
-      const uploadResponse = await axios.post(
-        `${API_BASE}/upload`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE}/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
-      setMessage(["Files uploaded successfully!"]);
+      if (res.ok) {
+        const responseData = await res.json();
+        setUploadStatus("¡Imágenes subidas correctamente!");
+        return responseData.files;
+      } else {
+        throw new Error("Error en la subida de imágenes");
+      }
     } catch (error) {
-      console.error("Error uploading files:", error);
-      setMessage(["Error uploading files. Please try again."]);
-    } finally {
-      setUploading(false);
+      setUploadStatus("Error al subir las imágenes");
+      console.error(error);
+      return null;
     }
   };
 
-  // Manejar envío del formulario principal
   async function onSubmit(data) {
     try {
-      const response = await fetch(`${API_BASE}/pricecupcake`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          userId: userId,
-        }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const imageUrls = await uploadFiles(data);
+
+      if (imageUrls) {
+        const response = await fetch(`${API_BASE}/pricecupcake`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...data,
+            userId: userId,
+            images: imageUrls,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const json = await response.json();
+        const id = json.data._id;
+
+        Swal.fire({
+          title: "¡Cotización Enviada!",
+          text: "Solicitud de cotización para cupcakes enviada correctamente.",
+          icon: "success",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        }).then(() => {
+          router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
+        });
+
+        console.log("Response data:", json);
       }
-  
-      const json = await response.json();
-      const id = json.data._id;
-
-      await enviarNotificacion()  
-
-      // Mostrar alerta de éxito con SweetAlert2
-      Swal.fire({
-        title: "¡Cotización Enviada!",
-        text: "Solicitud de cotización para cupcakes enviada correctamente.",
-        icon: "success",
-        timer: 2000,
-        timerProgressBar: true,
-        showConfirmButton: false,
-        background: "#fff1f2",
-        color: "#540027",
-      }).then(() => {
-        // Redirigir después de mostrar la alerta
-        router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
-      });
-  
-      // Configuración de mensaje
-      console.log("Response data:", json);
     } catch (error) {
       console.error("Error en la solicitud:", error);
       Swal.fire({
@@ -139,7 +114,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
       });
     }
   }
-  
+
   const handleClearFields = () => {
     reset({
       flavorBizcocho: "",
@@ -162,6 +137,8 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
       contactPhone: "",
       questionsOrComments: "",
     });
+    setPreview1(null);
+    setPreview2(null);
   };
 
   return (
@@ -404,27 +381,37 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
             elementos que te gustaría ver en los cupcakes, la paleta de colores
             u otras preferencias.
           </p>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            accept="image/*"
-            multiple
-          />
-          {message.length > 0 &&
-            message.map((msg, index) => <p key={index}>{msg}</p>)}
-          {imageUrls.length > 0 &&
-            imageUrls.map((url, index) => (
-              <div key={index}>
-                <h2>Uploaded Image:</h2>
-                <Image
-                  src={url}
-                  alt={`Uploaded image ${index}`}
-                  width={500}
-                  height={500}
-                  style={{ maxWidth: "100%" }}
-                />
-              </div>
-            ))}
+          <div>
+            <label>Image 1</label>
+            <input
+              type="file"
+              {...register("file1")}
+              accept="image/*"
+              required
+            />
+            {preview1 && (
+              <Image
+                src={preview1}
+                width={500}
+                height={500}
+                alt="Preview 1"
+                style={{ width: "200px", marginTop: "10px" }}
+              />
+            )}
+          </div>
+          <div>
+            <label>Image 2 (optional)</label>
+            <input type="file" {...register("file2")} accept="image/*" />
+            {preview2 && (
+              <Image
+                width={500}
+                height={500}
+                src={preview2}
+                alt="Preview 2"
+                style={{ width: "200px", marginTop: "10px" }}
+              />
+            )}
+          </div>
         </div>
 
         <div className="m-8 text-sm font-medium">
@@ -440,24 +427,24 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
         <div className="grid grid-cols-1 m-8 text-sm font-medium md:grid-cols-2 gap-4">
           <div className="m-3">
             <p>Nombre</p>
-              <input
-                className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                type="text"
-                placeholder="Escribe tu nombre"
-                defaultValue={userName} 
-                {...register("contactName", { value: userName })} 
-              />
-            </div>
-            <div className="m-3">
-              <p>Número de celular</p>
-              <input
-                className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                type="text"
-                placeholder="000-000-0000"
-                defaultValue={userPhone}
-                {...register("contactPhone", { value: userPhone })}
-              />
-            </div>
+            <input
+              className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+              type="text"
+              placeholder="Escribe tu nombre"
+              defaultValue={userName}
+              {...register("contactName", { value: userName })}
+            />
+          </div>
+          <div className="m-3">
+            <p>Número de celular</p>
+            <input
+              className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
+              type="text"
+              placeholder="000-000-0000"
+              defaultValue={userPhone}
+              {...register("contactPhone", { value: userPhone })}
+            />
+          </div>
         </div>
 
         <div className="m-8 text-sm font-medium">

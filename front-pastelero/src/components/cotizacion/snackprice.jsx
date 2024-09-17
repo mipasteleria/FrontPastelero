@@ -3,100 +3,103 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
-import Swal from 'sweetalert2';
-
+import Image from "next/image";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-  const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Snackprice() {
-  const { register, handleSubmit, reset } = useForm();
-  const [isDelivery, setIsDelivery] = useState(false);
-  const { userId, userName, userPhone, isLoggedIn } = useAuth();
+  const { register, handleSubmit, reset, watch } = useForm();
+  const { userId, userName, userPhone } = useAuth();
   const router = useRouter();
-  const [socket, setSocket] = useState(null);
+  const [isDelivery, setIsDelivery] = useState(false);
+  const [preview1, setPreview1] = useState(null);
+  const [preview2, setPreview2] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const file1 = watch("file1");
+  const file2 = watch("file2");
 
-  const enviarNotificacion = async () => {
+  useEffect(() => {
+    if (file1) handlePreview(file1, setPreview1);
+    if (file2) handlePreview(file2, setPreview2);
+  }, [file1, file2]);
+
+  const handlePreview = (file, setPreview) => {
+    if (file && file.length > 0) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file[0]);
+    } else {
+      setPreview(null);
+    }
+  };
+
+  const uploadFiles = async (data) => {
+    const formData = new FormData();
+    formData.append("file1", data.file1[0]);
+    if (data.file2) formData.append("file2", data.file2[0]);
+
     try {
-      const response = await fetch(`${API_BASE}/notificaciones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mensaje: `${userName} te ha enviado una solicitud de Snacks`,
-        }),
+      const res = await fetch(`${API_BASE}/upload`, {
+        method: "POST",
+        body: formData,
       });
-  
-      if (!response.ok) {
-        throw new Error('Error al enviar la notificación');
+
+      if (res.ok) {
+        const responseData = await res.json();
+        setUploadStatus("¡Imágenes subidas correctamente!");
+        return responseData.files;
+      } else {
+        throw new Error("Error en la subida de imágenes");
       }
-  
-      const data = await response.json();
-      console.log('Notificación enviada con éxito:', data);
     } catch (error) {
-      console.error('Error al enviar la notificación:', error);
+      setUploadStatus("Error al subir las imágenes");
+      console.error(error);
+      return null;
     }
   };
 
   async function onSubmit(data) {
     try {
-      const response = await fetch(`${API_BASE}/pricesnack`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          people: data.people,
-          portionsPerPerson: data.portionsPerPerson,
-          delivery: data.delivery,
-          deliveryAdress: data.deliveryAdress,
-          deliveryDate: data.deliveryDate,
-          pay: data.pay,
-          brownie: data.brownie,
-          coockie: data.coockie,
-          alfajores: data.alfajores,
-          macaroni: data.macaroni,
-          donuts: data.donuts,
-          lollipops: data.lollipops,
-          cupcakes: data.cupcakes,
-          bread: data.bread,
-          tortaFruts: data.tortaFruts,
-          americanCoockies: data.americanCoockies,
-          tortaApple: data.tortaApple,
-          other: data.other,
-          budget: data.budget,
-          contactName: data.contactName,
-          contactPhone: data.contactPhone,
-          questionsOrComments: data.questionsOrComments,
-          userId: userId,
-        }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const json = await response.json();
-      const id = json.data._id;
+      const imageUrls = await uploadFiles(data);
 
-      await enviarNotificacion()
-  
-      // Mostrar alerta de éxito con SweetAlert2
-      Swal.fire({
-        title: "¡Cotización Enviada!",
-        text: "Solicitud de cotización para mesa de postres enviada correctamente.",
-        icon: "success",
-        timer: 2000,
-        timerProgressBar: true,
-        showConfirmButton: false,
-        background: "#fff1f2",
-        color: "#540027",
-      }).then(() => {
-        // Redirigir después de mostrar la alerta
-        router.push(`/enduser/detallesolicitud/${id}?source=snack`);
-      });
-  
-      console.log("Response data:", json);
+      if (imageUrls) {
+        const response = await fetch(`${API_BASE}/pricesnack`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...data,
+            userId: userId,
+            images: imageUrls,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const json = await response.json();
+        const id = json.data._id;
+
+        Swal.fire({
+          title: "¡Cotización Enviada!",
+          text: "Solicitud de cotización para cupcakes enviada correctamente.",
+          icon: "success",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        }).then(() => {
+          router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
+        });
+
+        console.log("Response data:", json);
+      }
     } catch (error) {
       console.error("Error en la solicitud:", error);
       Swal.fire({
@@ -111,7 +114,7 @@ export default function Snackprice() {
       });
     }
   }
-  
+
   const handleClearFields = () => {
     reset({
       people: "",
@@ -138,7 +141,10 @@ export default function Snackprice() {
       contactPhone: "",
       questionsOrComments: "",
     });
+    setPreview1(null);
+    setPreview2(null);
   };
+
   return (
     <main>
       <form
@@ -352,13 +358,37 @@ export default function Snackprice() {
             Esto nos ayudará a crear un diseño personalizado para ti. Puedes
             subir hasta 5 imágenes de hasta 10MB cada una.
           </p>
-          <input
-            className="inputImageSnack m-6 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-            type="text"
-            placeholder="Copia aquí la url de la imagen a subir"
-            required
-            {...register("image")}
-          />
+          <div>
+            <label>Image 1</label>
+            <input
+              type="file"
+              {...register("file1")}
+              accept="image/*"
+              required
+            />
+            {preview1 && (
+              <Image
+                src={preview1}
+                width={500}
+                height={500}
+                alt="Preview 1"
+                style={{ width: "200px", marginTop: "10px" }}
+              />
+            )}
+          </div>
+          <div>
+            <label>Image 2 (optional)</label>
+            <input type="file" {...register("file2")} accept="image/*" />
+            {preview2 && (
+              <Image
+                width={500}
+                height={500}
+                src={preview2}
+                alt="Preview 2"
+                style={{ width: "200px", marginTop: "10px" }}
+              />
+            )}
+          </div>
         </div>
         {/* Presupuesto */}
         <div className="flex flex-col md:flex-col m-6">
@@ -383,14 +413,14 @@ export default function Snackprice() {
             Información de contacto
           </h2>
           <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
-          <div className="m-3">
-            <p>Nombre</p>
+            <div className="m-3">
+              <p>Nombre</p>
               <input
                 className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
                 type="text"
                 placeholder="Escribe tu nombre"
-                defaultValue={userName} 
-                {...register("contactName", { value: userName })} 
+                defaultValue={userName}
+                {...register("contactName", { value: userName })}
               />
             </div>
             <div className="m-3">
@@ -427,7 +457,7 @@ export default function Snackprice() {
             Limpiar campos
           </button>
           <button
-            type="onsubmit"
+            type="submit"
             className="btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
           >
             Cotizar Mesa de Postres
