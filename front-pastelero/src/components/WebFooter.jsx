@@ -7,7 +7,7 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 export default function WebFooter() {
   return (
     <footer 
-    className={`bg-rose-100 py-4 ${sofia.className} shadow-md z-50 sticky top-0`}>
+    className={`bg-rose-100 py-4 ${sofia.className} shadow-md z-50 sticky top-0 text-text`}>
       <div 
       className="text-center mb-4 text-text">
         <p>
@@ -75,7 +75,17 @@ export default function WebFooter() {
         <IoLogoTiktok 
         className="w-7 h-7 text-accent m-2"/>
         </Link>
-        
+      </div>
+      <div className="flex flex-row items-center justify-center gap-10 my-2">
+        <Link href={"/enduser/avisodeprivacidad"}>
+          Aviso de privacidad
+        </Link>
+        <Link href={"/enduser/terminosycondiciones"}>
+          Terminos y condiciones
+        </Link>
+      </div >
+      <div className="flex items-center justify-center">
+        Derechos de autor © 2024 Pastelería el Ruiseñor
       </div>
     </footer>
   );

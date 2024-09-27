@@ -92,7 +92,6 @@ const FooterDashboard = () => {
               </svg>
             </svg>
         </Link>
-        
       </div>
     </nav>
   );
