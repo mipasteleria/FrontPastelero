@@ -109,12 +109,36 @@ export default function Pedidos() {
       <div className="flex flex-row mt-16">
         <main className="w-3/4 p-4">
           <h1 className={`text-4xl p-4 ${sofia.className}`}>
-            Ver detalle de Solicitud de cotización
+            Detalle de Solicitud de cotización
           </h1>
           <form className="m-4">
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 pr-2">
                 <div className="mb-6">
+                   {/* Elegir pago */}
+              <div className="mb-4">
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    className="mr-2 text-rose-300 focus:ring-rose-300" 
+                    name="paymentOption"
+                    value="anticipo"
+                    onChange={handleCheckboxChange}
+                  />
+                  Pagar Anticipo (${anticipo})
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    className="mr-2 text-rose-300 focus:ring-rose-300" 
+                    name="paymentOption"
+                    value="total"
+                    onChange={handleCheckboxChange}
+                    defaultChecked // Iniciar con el total seleccionado
+                  />
+                  Pagar Total (${precio})
+                </label>
+              </div>
                   <button
                     onClick={handleAddToCart}
                     className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-green-300"
@@ -148,28 +172,7 @@ export default function Pedidos() {
 
               <VerCotizacion onCotizacionLoaded={handleCotizacionLoaded} />
 
-              {/* Elegir pago */}
-              <div className="mb-4">
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="paymentOption"
-                    value="anticipo"
-                    onChange={handleCheckboxChange}
-                  />
-                  Pagar Anticipo (${anticipo})
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="paymentOption"
-                    value="total"
-                    onChange={handleCheckboxChange}
-                    defaultChecked // Iniciar con el total seleccionado
-                  />
-                  Pagar Total (${precio})
-                </label>
-              </div>
+             
             </div>
           </form>
         </main>

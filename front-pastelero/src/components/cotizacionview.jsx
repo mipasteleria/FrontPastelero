@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Poppins as PoppinsFont } from "next/font/google";
-import Image from "next/image";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -10,6 +9,25 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
   const router = useRouter();
   const { id, source } = router.query;
   const [data, setData] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+
+  const fetchImageUrl = async (filename) => {
+    console.log("enta entrando al fetch front");
+    try {
+      const response = await fetch(
+        `${API_BASE}/image-url/${filename}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Error fetching image URL");
+      }
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error("Error fetching image URL:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,9 +69,14 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
             onCotizacionLoaded({
               precio: result.data.precio,
               anticipo: result.data.anticipo,
-              status: result.data.status,
-              name: result.data.priceType,
+              status:result.data.status,
+              name:result.data.priceType
             });
+          }
+
+          if (result.data.image) {
+            const imageUrl = await fetchImageUrl(result.data.image);
+            setImageUrl(imageUrl);
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -68,52 +91,45 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
 
   const renderFields = (items) => {
     return Object.entries(items).map(([key, value]) => {
+      // Verifica si el valor es nulo, indefinido, falso, una cadena vacía o NaN
       if (
-        value === null ||
-        value === undefined ||
-        value === false ||
-        value === "" ||
-        value === "false" ||
-        value === "null" ||
-        Number.isNaN(value) ||
+        value === null || 
+        value === undefined || 
+        value === false || 
+        value === "" || 
+        value === "false" || // Filtra valores de texto "false"
+        value === "null" ||  // Filtra valores de texto "null"
+        Number.isNaN(value) || 
         (Array.isArray(value) && value.length === 0)
       ) {
-        return null;
+        return null; // No renderiza este campo si cumple alguna de estas condiciones
       }
-
+  
       return (
         <div key={key} className="mb-4">
-          <label htmlFor={key} className="block text-center mb-2">
-            <strong>{key.replace(/([A-Z])/g, " $1")}:</strong>
-          </label>
-          {typeof value === "string" && value.startsWith("http") ? (
-            <div className="text-center">
-              <a
-                href={value}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block mb-2 text-blue-500"
-              >
-                {value}
-              </a>
-              <div className="mx-auto mt-2" style={{ maxWidth: "200px" }}>
-                <Image
-                  src={value}
-                  alt={key}
-                  width={200}
-                  height={200}
-                  layout="intrinsic"
-                />
-              </div>
-            </div>
+          {(typeof value === "boolean" && value === true) || value === "true" ? (
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={true} // Marca el checkbox solo si es true o "true"
+                readOnly
+                className="mr-2 text-rose-300 focus:ring-rose-300" 
+              />
+              {key.replace(/([A-Z])/g, " $1")}
+            </label>
           ) : (
-            <input
-              id={key}
-              type="text"
-              value={value || ""}
-              readOnly
-              className="border p-2 rounded w-1/2 mx-auto block"
-            />
+            <div className="flex items-center">
+              <label htmlFor={key} className="w-1/2">
+                <strong>{key.replace(/([A-Z])/g, " $1")}:</strong>
+              </label>
+              <input
+                id={key}
+                type="text"
+                value={value || ""} // Previene mostrar `undefined` o `null`
+                readOnly
+                className="border p-2 rounded w-1/2"
+              />
+            </div>
           )}
         </div>
       );
@@ -140,13 +156,12 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
           DibujoEnButtercream: data.buttercreamDraw,
           Figura3D: data.sugarcharacter3d,
           FloresNaturales: data.naturalFlowers,
-          FloresDeFondants: data.fondantFlowers,
+         FloresDeFondants: data.fondantFlowers,
           Letrero: data.sign,
           ImpresionComestible: data.eatablePrint,
           Personaje: data.character,
           Otro: data.other,
-          ImagenUno: data.images[0],
-          ImagenDos: data.images[1],
+          Imagen: data.image,
           Presupuesto: data.budget,
           NumeroDeContacto: data.contactName,
           TelefonoDeContacto: data.contactPhone,
@@ -156,65 +171,63 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
           Estatus: data.status,
         })}
 
-      {source === "snack" &&
-        renderFields({
-          NumeroDePersonas: data.people,
-          PorcionesPorPersona: data.portionsPerPerson,
-          Envio: data.delivery,
-          DireccionDeEntrega: data.deliveryAdress,
-          FechaDeEntrega: data.deliveryDate,
-          Pay: data.pay,
-          Brownie: data.brownie,
-          Galletas: data.coockie,
-          Alfajores: data.alfajores,
-          Macarrones: data.macaroni,
-          Donas: data.donuts,
-          Cakepops: data.lollipops,
-          cupcakes: data.cupcakes,
-          PanDeNaranja: data.bread,
-          TartaDeFrutas: data.tortaFruts,
-          GalletasAmericanas: data.americanCoockies,
-          TartaDeManzana: data.tortaApple,
-          Otro: data.other,
-          ImagenUno: data.images[0],
-          ImagenDos: data.images[1],
-          Presupuesto: data.budget,
-          NombreDeContacto: data.contactName,
-          TelefonoDeContacto: data.contactPhone,
-          PreguntasOComentarios: data.questionsOrComments,
-          Precio: data.precio,
-          Anticipo: data.anticipo,
-          Estado: data.status,
-        })}
+        {source === "snack" &&
+          renderFields({
+            NumeroDePersonas: data.people,
+            PorcionesPorPersona: data.portionsPerPerson,
+            Envio: data.delivery,
+            DireccionDeEntrega: data.deliveryAdress,
+            FechaDeEntrega: data.deliveryDate,
+            Pay: data.pay,
+            Brownie: data.brownie,
+            Galletas: data.coockie,
+            Alfajores: data.alfajores,
+            Macarrones: data.macaroni,
+            Donas: data.donuts,
+            Cakepops: data.lollipops,
+            cupcakes: data.cupcakes,
+            PanDeNaranja: data.bread,
+            TartaDeFrutas: data.tortaFruts,
+            GalletasAmericanas: data.americanCoockies,
+            TartaDeManzana: data.tortaApple,
+            Otro: data.other,
+            Imagen: data.image,
+            Presupuesto: data.budget,
+            NombreDeContacto: data.contactName,
+            TelefonoDeContacto: data.contactPhone,
+            PreguntasOComentarios: data.questionsOrComments,
+            Precio: data.precio,
+            Anticipo: data.anticipo,
+            Estado: data.status,
+          })}
 
-      {source === "cupcake" &&
-        renderFields({
-          SaborDeBizcocho: data.flavorBizcocho,
-          Relleno: data.stuffedFlavor,
-          Cobertura: data.cover,
-          Porciones: data.portions,
-          CoberturaConFondant: data.fondantCover,
-          Envio: data.delivery,
-          DireccionDeEntrega: data.deliveryAdress,
-          FechaDeEntrega: data.deliveryDate,
-          DibujoEnFondant: data.fondantDraw,
-          DibujoEnButtercream: data.buttercreamDraw,
-          FloresNaturales: data.naturalFlowers,
-          Letrero: data.sign,
-          ImpresionComestible: data.eatablePrint,
-          Sprinkles: data.sprinkles,
-          Otro: data.other,
-          ImagenUno: data.images[0],
-          ImagenDos: data.images[1],
-          Presupuesto: data.budget,
-          NombreDeContacto: data.contactName,
-          TelefonoDeContacto: data.contactPhone,
-          PreguntasOComentarios: data.questionsOrComments,
-          Precio: data.precio,
-          Anticipo: data.anticipo,
-          Estado: data.status,
-        })}
-    </div>
+        {source === "cupcake" &&
+          renderFields({
+            SaborDeBizcocho: data.flavorBizcocho,
+            Relleno: data.stuffedFlavor,
+            Cobertura: data.cover,
+            Porciones: data.portions,
+            CoberturaConFondant: data.fondantCover,
+            Envio: data.delivery,
+            DireccionDeEntrega: data.deliveryAdress,
+            FechaDeEntrega: data.deliveryDate,
+            DibujoEnFondant: data.fondantDraw,
+            DibujoEnButtercream: data.buttercreamDraw,
+            FloresNaturales: data.naturalFlowers,
+            Letrero: data.sign,
+            ImpresionComestible: data.eatablePrint,
+            Sprinkles: data.sprinkles,
+            Otro: data.other,
+            Imagen: data.image,
+            Presupuesto: data.budget,
+            NombreDeContacto: data.contactName,
+            TelefonoDeContacto: data.contactPhone,
+            PreguntasOComentarios: data.questionsOrComments,
+            Precio: data.precio,
+            Anticipo: data.anticipo,
+            Estado: data.status,
+          })}
+      </div>
   );
 };
 

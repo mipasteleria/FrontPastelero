@@ -164,14 +164,14 @@ export default function Pedidos() {
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <div className="flex flex-row mt-16">
-        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>
+      <div className="flex flex-col mt-16 items-center justify-center">
+        <main className={`text-text ${poppins.className} flex-grow w-full max-w-10xl mx-auto`}>
           <h1 className={`text-4xl p-4 ${sofia.className}`}>
             Mis cotizaciones
           </h1>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
             <div className="overflow-x-auto w-full">
-              <table className="w-full text-sm text-left rtl:text-right text-text">
+              <table className="w-full text-sm text-center rtl:text-right text-text">
                 <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
                   <tr>
                     {[
@@ -217,7 +217,7 @@ export default function Pedidos() {
                           href={`/enduser/pedidos/${cotizacion._id}?type=${
                             cotizacion.type
                           }&source=${cotizacion.type.toLowerCase()}`}
-                          className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-rose-400"
+                          className="bg-rose-200 text-white p-2 w-full md:w-auto text-center rounded-lg flex items-center space-x-2 hover:bg-green-400 transition-all"
                         >
                           <svg
                             className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
@@ -241,20 +241,12 @@ export default function Pedidos() {
                           </svg>
                           <span>Ver detalles</span>
                         </Link>
-                        <button
-                          onClick={() =>
-                            handleAddToCart(cotizacion._id, cotizacion.type)
-                          }
-                          className="bg-rose-300 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-green-300"
-                        >
-                          <FaShoppingCart size={20} /> {/* Icono del carrito */}
-                          <span>Agregar al carrito</span>
-                        </button>
+                        
                         <button
                           onClick={() =>
                             CancelCotizacion(cotizacion._id, cotizacion.type)
                           }
-                          className="bg-rose-200 text-white p-2 rounded-lg flex items-center space-x-2 hover:bg-red-600"
+                          className="bg-rose-200 text-white p-2 w-full md:w-auto text-center rounded-lg flex items-center space-x-2 hover:bg-red-600 transition-all"
                         >
                           <FaTimes size={20} /> {/* Icono de cancelar */}
                           <span>Cancelar</span>

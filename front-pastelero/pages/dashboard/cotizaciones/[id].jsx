@@ -36,20 +36,16 @@ export default function Verdetallesolicitud() {
           <form className="m-4">
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 pr-2">
-                <div className="mb-6">
-                  <h3 className={`text-xl p-2 ${poppins.className}`}>
-                    Diseño Solicitado o Imágenes de inspiración
-                  </h3>
-                </div>
+                
               </div>
               <VerCotizacion />
               <button
-                type="button" // Asegúrate de especificar el tipo de botón
-                className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center"
-                onClick={handleButtonClick}
-              >
-                Generar Cotización
-              </button>
+  type="button"
+  className="m-10 shadow-md text-white bg-accent hover:bg-secondary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-64 sm:w-auto px-16 py-2.5 text-center h-10" // Agregada la clase h-10
+  onClick={handleButtonClick}
+>
+  Generar Cotización
+</button>
             </div>
           </form>
         </main>

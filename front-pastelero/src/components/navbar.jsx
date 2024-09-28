@@ -251,7 +251,7 @@ const NavbarAdmin = () => {
                   </Link>
                 )}
                 <button
-                  className={`${poppins.className} mx-4 h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
+                  className={`${poppins.className} mx-4 h-10 bg-text text-center text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
                   onClick={handleLogout}
                 >
                   Logout
@@ -286,7 +286,7 @@ const NavbarAdmin = () => {
                   </div>
                 </Link>
                 <button
-                  className={`${poppins.className} hidden md:flex h-10 bg-text text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
+                  className={`${poppins.className} hidden md:flex h-10 bg-text text-center text-white rounded-xl p-1 mt-2 md:px-2 md:py-1 cursor-pointer`}
                   onClick={handleLogout}
                 >
                   Logout
@@ -637,10 +637,10 @@ const NavbarAdmin = () => {
                     </button>
                   </Link>
                   <button
-                    className={`${poppins.className} flex justify-start m-6 font-bold rounded-xl p-2 text-lg cursor-pointer`}
+                    className={`${poppins.className} flex justify-start m-6 font-bold rounded-xl p-2 text-lg text-center cursor-pointer`}
                     onClick={handleLogout}                  
                   >
-                    LogOut
+                    Logout
                   </button>
                   <Link 
                   href="/cotizacion">
