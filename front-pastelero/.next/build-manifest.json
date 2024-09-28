@@ -12,6 +12,11 @@
   ],
   "rootMainFiles": [],
   "pages": {
+    "/": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/index.js"
+    ],
     "/_app": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
@@ -22,25 +27,10 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/cotizacion": [
+    "/enduser/avisodeprivacidad": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/cotizacion.js"
-    ],
-    "/enduser/detallesolicitud/[id]": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/enduser/detallesolicitud/[id].js"
-    ],
-    "/enduser/mispedidos": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/enduser/mispedidos.js"
-    ],
-    "/enduser/pedidos/[id]": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/enduser/pedidos/[id].js"
+      "static/chunks/pages/enduser/avisodeprivacidad.js"
     ]
   },
   "ampFirstPages": []
