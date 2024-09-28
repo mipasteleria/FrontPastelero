@@ -318,7 +318,7 @@ export default function Cakeprice() {
               <div>
                 <p>Fecha y hora del evento</p>
                 <input
-                  className="inputDeliveryDateCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  className="inputDeliveryDateSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
                   type="datetime-local"
                   {...register("deliveryDate")}
                   required
@@ -423,20 +423,34 @@ export default function Cakeprice() {
         </div>
 
         {/* Imagenes */}
+        <div className="flex flex-col m-8 p-6 mb-6 rounded-lg">
         <div>
           <p className="my-2 m-6">
             Por favor, sube imágenes de inspiración, como la temática, los
-            elementos que te gustaría ver en la mesa de postres, la paleta de
+            elementos que te gustaría ver en la tu pastel, la paleta de
             colores u otras preferencias.
           </p>
-          <div>
-            <label>Image 1</label>
+          <p className="my-2 m-6">
+    Esto nos ayudará a crear un diseño personalizado para ti. Puedes
+    subir hasta 2 imágenes de hasta 10MB cada una.
+  </p>
+          
+            {/* Contenedor flex para alinear horizontalmente */}
+          <div className="flex flex-row justify-between space-x-8 w-full">
+            {/* Imagen 1 */}
+          <div className="flex flex-col w-1/2 relative">
+          <label className="mb-2 text-center">Image 1</label>
+            <div className="relative w-full">
             <input
               type="file"
               {...register("file1")}
               accept="image/*"
               required
-            />
+               className="absolute inset-0 opacity-0 cursor-pointer"
+            /><button className="rounded-full bg-rose-200 text-white p-2 w-full cursor-pointer">
+            Seleccionar archivo
+          </button>
+            </div>
             {preview1 && (
               <Image
                 src={preview1}
@@ -447,9 +461,18 @@ export default function Cakeprice() {
               />
             )}
           </div>
-          <div>
-            <label>Image 2 (optional)</label>
-            <input type="file" {...register("file2")} accept="image/*" />
+          
+          <div className="flex flex-col w-1/2 relative">
+             <label className="mb-2 text-center">Image 2 (optional)</label>
+            <div className="relative w-full">
+            <input 
+            type="file" {...register("file2")} 
+            accept="image/*"  
+            className="absolute inset-0 opacity-0 cursor-pointer"/>
+            <button className="rounded-full bg-rose-200 text-white p-2 w-full cursor-pointer">
+          Seleccionar archivo
+        </button>
+            </div>
             {preview2 && (
               <Image
                 width={500}
@@ -460,7 +483,9 @@ export default function Cakeprice() {
               />
             )}
           </div>
-        </div>
+          </div>
+          </div>
+          </div>
         {/* Presupuesto */}
         <div className="flex flex-col md:flex-col m-6">
           <p>

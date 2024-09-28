@@ -276,8 +276,8 @@ export default function Cupcakeprice() {
               <div>
                 <p>Fecha de entrega</p>
                 <input
-                  className="inputDeliveryDateCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                  type="date"
+                  className="inputDeliveryDateSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  type="datetime-local"
                   {...register("deliveryDate")}
                   required
                 />
@@ -375,45 +375,74 @@ export default function Cupcakeprice() {
           </div>
         </div>
 
-        <div>
-          <p className="my-2 m-6">
-            Por favor, sube dos imágenes de inspiración, como la temática, los
-            elementos que te gustaría ver en los cupcakes, la paleta de colores
-            u otras preferencias.
-          </p>
-          <div>
-            <label>Image 1</label>
-            <input
-              type="file"
-              {...register("file1")}
-              accept="image/*"
-              required
-            />
-            {preview1 && (
-              <Image
-                src={preview1}
-                width={500}
-                height={500}
-                alt="Preview 1"
-                style={{ width: "200px", marginTop: "10px" }}
-              />
-            )}
-          </div>
-          <div>
-            <label>Image 2 (optional)</label>
-            <input type="file" {...register("file2")} accept="image/*" />
-            {preview2 && (
-              <Image
-                width={500}
-                height={500}
-                src={preview2}
-                alt="Preview 2"
-                style={{ width: "200px", marginTop: "10px" }}
-              />
-            )}
-          </div>
-        </div>
+        <div className="flex flex-col m-8 p-6 mb-6 rounded-lg">
+  <p className="my-2 m-6">
+    Por favor, sube imágenes de inspiración, como la temática,
+    los elementos que te gustaría ver en tus cupcakes, la paleta
+    de colores u otras preferencias.
+  </p>
+  <p className="my-2 m-6">
+    Esto nos ayudará a crear un diseño personalizado para ti. Puedes
+    subir hasta 2 imágenes de hasta 10MB cada una.
+  </p>
 
+  {/* Contenedor flex para alinear horizontalmente */}
+  <div className="flex flex-row justify-between space-x-8 w-full">
+    {/* Imagen 1 */}
+    <div className="flex flex-col w-1/2 relative">
+      <label className="mb-2 text-center">Imagen 1</label>
+      <div className="relative w-full">
+        <input
+          type="file"
+          {...register("file1")}
+          accept="image/*"
+          required
+          className="absolute inset-0 opacity-0 cursor-pointer"
+        />
+        <button className="rounded-full bg-rose-200 text-white p-2 w-full cursor-pointer">
+          Seleccionar archivo
+        </button>
+      </div>
+      {preview1 && (
+        <Image
+          src={preview1}
+          width={500}
+          height={500}
+          alt="Preview 1"
+          className="mt-4"
+          style={{ width: "200px", marginTop: "10px" }}
+        />
+      )}
+    </div>
+
+    {/* Imagen 2 */}
+    <div className="flex flex-col w-1/2 relative">
+      <label className="mb-2 text-center">Imagen 2 (opcional)</label>
+      <div className="relative w-full">
+        <input
+          type="file"
+          {...register("file2")}
+          accept="image/*"
+          className="absolute inset-0 opacity-0 cursor-pointer"
+        />
+        <button className="rounded-full bg-rose-200 text-white p-2 w-full cursor-pointer">
+          Seleccionar archivo
+        </button>
+      </div>
+      {preview2 && (
+        <Image
+          src={preview2}
+          width={500}
+          height={500}
+          alt="Preview 2"
+          className="mt-4"
+          style={{ width: "200px", marginTop: "10px" }}
+        />
+      )}
+    </div>
+  </div>
+</div>
+ {/* Presupuesto */}
         <div className="m-8 text-sm font-medium">
           <p>Presupuesto máximo estimado</p>
           <input
@@ -423,9 +452,13 @@ export default function Cupcakeprice() {
             required
           />
         </div>
-
-        <div className="grid grid-cols-1 m-8 text-sm font-medium md:grid-cols-2 gap-4">
-          <div className="m-3">
+{/* Informacion de contacto */}
+<div className="m-6">
+          <h2 className={`text-3xl m-4 ${sofia.className}`}>
+            Información de contacto
+          </h2>
+          <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
+            <div className="m-3">
             <p>Nombre</p>
             <input
               className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
@@ -445,16 +478,21 @@ export default function Cupcakeprice() {
               {...register("contactPhone", { value: userPhone })}
             />
           </div>
-        </div>
+        
 
         <div className="m-8 text-sm font-medium">
-          <p>Preguntas o Comentarios</p>
+              <p>
+                Preguntas o comentarios, platicanos más acerca de tu idea o
+                tematica, nos especializamos en diseñar dulsuras a la medida
+              </p>
           <textarea
             className="inputQuestionsOrCommentsCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="textarea"
             {...register("questionsOrComments")}
-            rows="5"
+            rows="2"
           />
+          </div>
+        </div>
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
