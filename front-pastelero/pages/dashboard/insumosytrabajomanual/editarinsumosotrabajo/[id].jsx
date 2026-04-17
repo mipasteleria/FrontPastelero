@@ -5,8 +5,9 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router"; 
+import { useRouter } from "next/router";
 import Swal from "sweetalert2";
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -29,6 +30,7 @@ export default function EditarInsumo({ insumo }) {
   });
 
   const router = useRouter(); // Usa useRouter
+  const { userToken } = useAuth();
 
   const quantity = watch("amount");
   const cost = watch("cost");
@@ -67,6 +69,7 @@ export default function EditarInsumo({ insumo }) {
         body: JSON.stringify(data),
         headers: {
           "Content-type": "application/json; charset=UTF-8",
+          Authorization: `Bearer ${userToken}`,
         },
       });
   

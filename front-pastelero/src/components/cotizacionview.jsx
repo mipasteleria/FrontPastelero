@@ -69,8 +69,9 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
             onCotizacionLoaded({
               precio: result.data.precio,
               anticipo: result.data.anticipo,
-              status:result.data.status,
-              name:result.data.priceType
+              status: result.data.status,
+              name: result.data.priceType,
+              saldoPendiente: result.data.saldoPendiente ?? 0,
             });
           }
 

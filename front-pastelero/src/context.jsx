@@ -1,8 +1,18 @@
-import { createContext, useState, useContext, useEffect } from "react";
-import jwt from "jsonwebtoken";
+import { createContext, useState, useContext, useEffect, useCallback } from "react";
 
-const AuthContext = createContext(); 
+const AuthContext = createContext();
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+/**
+ * AuthProvider
+ *
+ * Nunca confía en el payload del JWT leído en el cliente: cada vez que
+ * carga la app o cambia el token, pregunta a `GET /users/me` (endpoint
+ * protegido). El backend verifica la firma del token y devuelve el
+ * usuario tal como está en la BD — incluyendo el `role` real. Así un
+ * atacante que edite su localStorage no puede ganar rol de admin.
+ */
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -11,44 +21,68 @@ export function AuthProvider({ children }) {
   const [userToken, setUserToken] = useState(null);
   const [userName, setUserName] = useState(null);
   const [userPhone, setUserPhone] = useState(null);
+  // Mientras loading sea true, los route-guards deben esperar antes de
+  // redirigir; así evitamos un "parpadeo" hacia /login en el primer render.
+  const [loading, setLoading] = useState(true);
 
-  const updateAuthState = (token) => {
-    if (token) {
-      try {
-        const decodedToken = jwt.decode(token);
-        setIsLoggedIn(true);
-        setIsAdmin(decodedToken.role === "admin");
-        setUserId(decodedToken._id);
-        setUserEmail(decodedToken.email);
-        setUserName(decodedToken.name);
-        setUserPhone(decodedToken.phone);
-        setUserToken(token);
-      } catch (error) {
-        console.error("Token decode failed:", error);
-      }
-    } else {
-      setIsLoggedIn(false);
-      setIsAdmin(false);
-      setUserId(null);
-      setUserEmail(null);
-      setUserName(null);
-      setUserPhone(null);
-    }
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    updateAuthState(token);
+  const clearAuth = useCallback(() => {
+    setIsLoggedIn(false);
+    setIsAdmin(false);
+    setUserId(null);
+    setUserEmail(null);
+    setUserName(null);
+    setUserPhone(null);
+    setUserToken(null);
   }, []);
 
-  const login = (token) => {
+  const fetchMe = useCallback(async (token) => {
+    if (!token) {
+      clearAuth();
+      setLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        // Token inválido/expirado: limpiamos localStorage y tratamos como logged out.
+        localStorage.removeItem("token");
+        clearAuth();
+        return;
+      }
+      const { data } = await res.json();
+      setIsLoggedIn(true);
+      setIsAdmin(data.role === "admin");
+      setUserId(data._id);
+      setUserEmail(data.email);
+      setUserName(data.name);
+      setUserPhone(data.phone);
+      setUserToken(token);
+    } catch (err) {
+      console.error("Error validando sesión:", err);
+      clearAuth();
+    } finally {
+      setLoading(false);
+    }
+  }, [clearAuth]);
+
+  useEffect(() => {
+    const token = typeof window !== "undefined"
+      ? localStorage.getItem("token")
+      : null;
+    fetchMe(token);
+  }, [fetchMe]);
+
+  const login = async (token) => {
     localStorage.setItem("token", token);
-    updateAuthState(token);
+    setLoading(true);
+    await fetchMe(token);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    updateAuthState(null);
+    clearAuth();
   };
 
   return (
@@ -60,11 +94,12 @@ export function AuthProvider({ children }) {
         userEmail,
         userName,
         userPhone,
+        userToken,
+        loading,
         login,
         logout,
         setIsLoggedIn,
-        setIsAdmin, 
-        userToken
+        setIsAdmin,
       }}
     >
       {children}
@@ -72,7 +107,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Hook personalizado para usar el contexto
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

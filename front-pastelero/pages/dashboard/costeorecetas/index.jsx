@@ -5,6 +5,7 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import Swal from "sweetalert2";
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -20,6 +21,7 @@ export default function Costeorecetas() {
   const [recetas, setRecetas] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
+  const { userToken } = useAuth();
 
   // Obtener recetas desde la API al montar el componente
   useEffect(() => {
@@ -57,6 +59,9 @@ export default function Costeorecetas() {
       try {
         const res = await fetch(`${API_BASE}/recetas/recetas/${recetaId}`, {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
         });
 
         if (res.ok) {

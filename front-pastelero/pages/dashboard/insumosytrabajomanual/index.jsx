@@ -6,6 +6,7 @@ import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -15,11 +16,13 @@ export default function InsumosyTrabajoManual() {
   const [insumos, setInsumos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const { userToken } = useAuth();
+  const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
 
   useEffect(() => {
     const fetchInsumos = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/insumos`);
+        const response = await axios.get(`${API_BASE}/insumos`, { headers: authHeader });
         setInsumos(response.data);
       } catch (error) {
         console.error("Error fetching insumos:", error);
@@ -27,7 +30,7 @@ export default function InsumosyTrabajoManual() {
     };
 
     fetchInsumos();
-  }, []);
+  }, [userToken]);
 
   const handleDelete = async (id) => {
     try {
@@ -41,9 +44,9 @@ export default function InsumosyTrabajoManual() {
         confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
       });
-  
+
       if (result.isConfirmed) {
-        await axios.delete(`${API_BASE}/insumos/${id}`);
+        await axios.delete(`${API_BASE}/insumos/${id}`, { headers: authHeader });
   
         Swal.fire({
           title: "Eliminado",
