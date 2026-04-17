@@ -1,11 +1,11 @@
 import { useContext, useState, useEffect } from "react";
-import { CartContext } from "@/src/components/enuser/carritocontext"; 
+import { CartContext } from "@/src/components/enuser/carritocontext";
 import { useAuth } from "@/src/context";
 import NavbarAdmin from '@/src/components/navbar';
 import WebFooter from '@/src/components/WebFooter';
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from 'next/font/google';
 import Link from 'next/link';
-import CartProduct from '@/src/components/enuser/carritocart'; 
+import CartProduct from '@/src/components/enuser/carritocart';
 import { useRouter } from 'next/router';
 
 const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
@@ -13,64 +13,50 @@ const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Carrito() {
-  const { userEmail } = useAuth();
-  const { userId } = useAuth();
-  const { totalAmount, items } = useContext(CartContext); // Obtén items y totalAmount del contexto
-  const [Client, setClient] = useState(null);
+  const { userToken } = useAuth();
+  const { items } = useContext(CartContext);
+  const [checkoutError, setCheckoutError] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Asegúrate de que loading cambie cuando los datos estén disponibles
   useEffect(() => {
-    if (items) {
-      setLoading(false);
-    }
+    if (items) setLoading(false);
   }, [items]);
 
   const handleClick = async () => {
-    // Estructurando purchaseData para enviar los datos correctamente
-    const dataToSend = {
-      Items: items.length, // Cantidad de items en el carrito
-      amount: items.reduce((total, item) => total + item.amount, 0)|| 100, // Total del monto a pagar
-      status: items[0]?.status || "No Aprobado", // El valor inicial de status
-      userId: userId, // El ID del usuario desde el contexto de AuthContext
-      email: userEmail, // El email del usuario desde el contexto de AuthContext
-      quantity:items.reduce((total, item) => total + item.quantity, 0), // Sumar todas las cantidades de los items
-      name: items[0]?.name || "Sin nombre", // Puedes ajustar si deseas más detalles de nombre
-      paymentOption: items[0]?.paymentOption || "Sin opción", // Ajusta si cada item tiene diferentes opciones de pago
-    };
-  
-    console.log('Datos que se enviarán al backend:', dataToSend);
-  
+    if (!items || items.length === 0) return;
+    setCheckoutError(null);
+
+    const item = items[0];
+    // source se guarda en minúsculas ("pastel"), el backend espera capitalizado ("Pastel")
+    const cotizacionType = item.source.charAt(0).toUpperCase() + item.source.slice(1);
+
     try {
       const response = await fetch(`${API_BASE}/checkout/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userToken}`,
         },
-        body: JSON.stringify(dataToSend), // Envía los datos correctamente formateados
+        body: JSON.stringify({
+          cotizacionId: item.id,
+          cotizacionType,
+          paymentOption: item.paymentOption,
+        }),
       });
-  
-      if (response.ok) {
-        const sessionData = await response.json();
-        console.log('Datos enviados con éxito:', sessionData);
-        
-        // Extrae correctamente el clientSecret de la respuesta del servidor
-        const clientSecret = sessionData.clientSecret;
-        
-        // Guarda el clientSecret en el localStorage
-        localStorage.setItem('clientSecret', clientSecret);
-        
-        // Actualiza el estado con el clientSecret
-        setClient(clientSecret);
-        
-        // Redirige a la página de pago
-        router.push('/enduser/pagar');
-      } else {
-        console.error('Error al enviar los datos al backend:', response.statusText);
+
+      const sessionData = await response.json();
+
+      if (!response.ok) {
+        setCheckoutError(sessionData.message || 'Error al iniciar el pago');
+        return;
       }
+
+      localStorage.setItem('clientSecret', sessionData.clientSecret);
+      router.push('/enduser/pagar');
     } catch (error) {
-      console.error('Error al enviar los datos al backend:', error);
+      console.error('Error al crear sesión de pago:', error);
+      setCheckoutError('No se pudo conectar con el servidor. Intenta de nuevo.');
     }
   };
 
@@ -101,6 +87,9 @@ export default function Carrito() {
               ))}
             </div>
 
+            {checkoutError && (
+              <p className="text-red-600 text-sm text-center mx-6 mt-4">{checkoutError}</p>
+            )}
             <div className="flex flex-col m-6 md:m-20 md:flex-row justify-center items-center gap-4">
               <button
                 className="shadow-lg text-text bg-primary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm px-6 py-4 w-56"

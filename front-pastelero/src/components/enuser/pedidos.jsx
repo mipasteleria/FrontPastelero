@@ -197,14 +197,7 @@ export default function Pedidos() {
                       key={`cotizacion-${cotizacion._id}`}
                       className="border-b dark:border-gray-700"
                     >
-                      {[
-                        "_id",
-                        "contactName",
-                        "createdAt",
-                        "priceType",
-                        "status",
-                        "source",
-                      ].map((field) => (
+                      {["_id", "contactName", "createdAt", "priceType"].map((field) => (
                         <td
                           key={field}
                           className="px-6 py-4 border-b border-secondary"
@@ -212,6 +205,15 @@ export default function Pedidos() {
                           {cotizacion[field]}
                         </td>
                       ))}
+                      {/* Columna Estado con badge de saldo pendiente */}
+                      <td className="px-6 py-4 border-b border-secondary">
+                        <span>{cotizacion.status}</span>
+                        {cotizacion.saldoPendiente > 0 && (
+                          <span className="ml-2 inline-block bg-amber-100 text-amber-800 text-xs font-semibold px-2 py-0.5 rounded">
+                            Saldo: ${cotizacion.saldoPendiente} MXN
+                          </span>
+                        )}
+                      </td>
                       <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
                         <Link
                           href={`/enduser/pedidos/${cotizacion._id}?type=${
