@@ -52,8 +52,8 @@ export default function Login() {
             color: '#540027',
             timer: 2000,
             timerProgressBar: true,
-          }).then(() => {
-            login(loginJson.token); // Actualiza el estado de autenticación global
+          }).then(async () => {
+            await login(loginJson.token); // Valida sesión contra /users/me antes de redirigir
             router.push("/"); // Redirige al home
           });
         } else {

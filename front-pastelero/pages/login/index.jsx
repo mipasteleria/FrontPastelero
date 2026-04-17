@@ -45,9 +45,9 @@ export default function Login() {
           color: '#540027', 
           timer: 2000,
           timerProgressBar: true,
-        }).then(() => {
-          login(json.token);
-          router.push("/")
+        }).then(async () => {
+          await login(json.token);
+          router.push("/");
         });
       } else {
         Swal.fire({

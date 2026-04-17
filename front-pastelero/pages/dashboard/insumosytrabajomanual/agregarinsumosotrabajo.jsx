@@ -6,6 +6,7 @@ import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import Link from "next/link";
 import Swal from "sweetalert2";
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -18,15 +19,17 @@ export default function NuevaReceta() {
     setValue,
   } = useForm();
   const [costPerUnit, setCostPerUnit] = useState(0);
+  const { userToken } = useAuth();
 
   const onSubmit = (data) => {
     console.log(data);
-  
+
     fetch(`${API_BASE}/insumos`, {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
+        Authorization: `Bearer ${userToken}`,
       },
     })
       .then((response) => {

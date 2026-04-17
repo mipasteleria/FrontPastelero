@@ -8,11 +8,13 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Link from "next/link";
 import Swal from "sweetalert2";
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function EditarReceta() {
+  const { userToken } = useAuth();
   const {
     handleSubmit,
     control,
@@ -178,6 +180,7 @@ const handleDeleteIngredient = (index) => {
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`,
           },
         }
       );

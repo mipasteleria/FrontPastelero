@@ -5,6 +5,7 @@ import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -13,6 +14,7 @@ export default function Conocenuestrosproductos() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [costData, setCostData] = useState({ fixedCosts: 0, laborCosts: 0 });
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const { userToken } = useAuth();
 
   useEffect(() => {
     const fetchCostData = async () => {
@@ -37,6 +39,7 @@ export default function Conocenuestrosproductos() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
         },
         body: JSON.stringify({
           fixedCosts: data.fixedCosts,

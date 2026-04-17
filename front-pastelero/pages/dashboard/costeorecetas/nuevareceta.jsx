@@ -7,17 +7,19 @@ import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import Link from "next/link";
 import Swal from "sweetalert2";
+import { useAuth } from "@/src/context";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function NuevaReceta() {
-  const { 
-    handleSubmit, 
-    control, 
-    getValues, 
-    setValue, 
+  const {
+    handleSubmit,
+    control,
+    getValues,
+    setValue,
     formState: { errors } } = useForm();
+  const { userToken } = useAuth();
 
   const [ingredientsList, setIngredientsList] = useState([]);
   const [ingredientOptions, setIngredientOptions] = useState([]);
@@ -120,6 +122,7 @@ export default function NuevaReceta() {
       const response = await axios.post(`${API_BASE}/recetas/recetas`, data, {
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
         }
       });
 
