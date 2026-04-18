@@ -13,8 +13,8 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function Cotizacionmanual() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState("cake");
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -59,24 +59,16 @@ export default function Cotizacionmanual() {
           }
         } catch (error) {
           console.error("Error fetching data:", error);
-          setIsAuthenticated(false);
         }
       };
 
       fetchData();
     } else {
-      setIsAuthenticated(false);
     }
   }, []);
 
-  if (!isAuthenticated) {
-    return <div>You are not authenticated. Please log in.</div>;
-  }
-
-
-  
   return (
-    <div className={`text-text ${poppins.className}`}>
+    <div className={`text-text ${poppins.className} mb-20`}>
       <NavbarAdmin className="fixed top-0 w-full z-50" />
       <div className="flex flex-row mt-16">
         <Asideadmin />
@@ -86,7 +78,7 @@ export default function Cotizacionmanual() {
           Selecciona el producto que deseas cotizar:
         </p>
 
-        <div className="flex justify-between items-center m-4 w-full text-secondary rounded focus:ring-accent focus:ring-2 focus:border-accent">
+        <div className="flex justify-between items-center m-4 w-full rounded focus:ring-accent focus:ring-2 focus:border-accent">
           <label className="flex items-center justify-center w-full text-center">
             <input
               type="radio"
@@ -94,7 +86,7 @@ export default function Cotizacionmanual() {
               value="cake"
               onChange={() => setSelectedProduct("cake")}
               defaultChecked
-              className="mr-2 bg-gray-100 text-secondary border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="mr-2 bg-gray-100 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
             />
             Pastel
           </label>
@@ -104,7 +96,7 @@ export default function Cotizacionmanual() {
               name="product"
               value="snack"
               onChange={() => setSelectedProduct("snack")}
-              className="mr-2 bg-gray-100 text-secondary border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
+              className="mr-2 bg-gray-100 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
             />
             Mesa de postres
           </label>

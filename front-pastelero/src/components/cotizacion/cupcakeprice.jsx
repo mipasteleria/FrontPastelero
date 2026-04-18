@@ -1,115 +1,173 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
-import axios from "axios";
 import Image from "next/image";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  export default function Cupcakeprice() {
-  const { register, handleSubmit, reset } = useForm();
-  const [isDelivery, setIsDelivery] = useState(false);
-  const { userId } = useAuth();
+export default function Cupcakeprice() {
+  const { register, handleSubmit, reset, watch, setValue } = useForm();
+  const { userId, userName, userPhone } = useAuth();
   const router = useRouter();
+  const [isDelivery, setIsDelivery] = useState(false);
+  const [preview1, setPreview1] = useState(null);
+  const [preview2, setPreview2] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [phoneValue, setPhoneValue] = useState(userPhone || "");
+  const [dateValue, setDateValue] = useState("");
+  const [timeValue, setTimeValue] = useState("");
+  const file1 = watch("file1");
+  const file2 = watch("file2");
 
-  // Estado para las imágenes
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState([]);
-  const [imageUrls, setImageUrls] = useState([]);
+  const minDate = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().split("T")[0];
+  })();
 
-  // Manejar selección de archivos
-  const handleFileChange = (event) => {
-    setSelectedFiles(event.target.files);
+  const TIME_OPTIONS = [];
+  for (let h = 9; h <= 18; h++) {
+    TIME_OPTIONS.push(`${String(h).padStart(2, "0")}:00`);
+    if (h < 18) TIME_OPTIONS.push(`${String(h).padStart(2, "0")}:30`);
+  }
+
+  function formatPhone(raw) {
+    const digits = raw.replace(/\D/g, "").slice(0, 10);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+
+  useEffect(() => {
+    if (file1) handlePreview(file1, setPreview1);
+    if (file2) handlePreview(file2, setPreview2);
+  }, [file1, file2]);
+
+  useEffect(() => {
+    if (dateValue && timeValue) {
+      const [year, month, day] = dateValue.split("-");
+      setValue("deliveryDate", `${day}/${month}/${year} ${timeValue}`);
+    }
+  }, [dateValue, timeValue, setValue]);
+
+  const handlePreview = (file, setPreview) => {
+    if (file && file.length > 0) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file[0]);
+    } else {
+      setPreview(null);
+    }
   };
 
-  // Manejar envío de archivos
-  const handleUploadSubmit = async () => {
-    if (selectedFiles.length === 0) {
-      setMessage(["Por favor, selecciona dos imágenes"]);
-      return;
-    }
-
-    setUploading(true);
+  const uploadFiles = async (data) => {
     const formData = new FormData();
+    formData.append("files", data.file1[0]);
+    if (data.file2 && data.file2.length > 0) formData.append("files", data.file2[0]);
 
-    for (let i = 0; i < selectedFiles.length; i++) {
-      formData.append("files", selectedFiles[i]);
-      formData.append("fileOutputName", selectedFiles[i].name);
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API_BASE}/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Error al subir imágenes");
     }
 
-    try {
-      // Enviar los archivos al backend
-      const uploadResponse = await axios.post(
-        "http://localhost:3001/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setMessage(["Files uploaded successfully!"]);
-    } catch (error) {
-      console.error("Error uploading files:", error);
-      setMessage(["Error uploading files. Please try again."]);
-    } finally {
-      setUploading(false);
-    }
+    setUploadStatus("¡Imágenes subidas correctamente!");
+    return await res.json();
   };
 
-  // Manejar envío del formulario principal
   async function onSubmit(data) {
+    let imageUrls = [];
+    if (data.file1 && data.file1.length > 0) {
+      try {
+        imageUrls = await uploadFiles(data);
+      } catch (uploadErr) {
+        setUploadStatus("Error al subir las imágenes");
+        Swal.fire({
+          title: "Error al subir imágenes",
+          text: uploadErr.message,
+          icon: "error",
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
+        return;
+      }
+    }
+
     try {
       const response = await fetch(`${API_BASE}/pricecupcake`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
+          contactPhone: phoneValue,
           userId: userId,
+          images: imageUrls.map((f) => f.fileName),
         }),
       });
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const json = await response.json();
       const id = json.data._id;
-      //router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
-      setMessage('¡Gracias por tu pedido! Estamos emocionados de preparar tu cotizacion, automaticamente se agregaran los detalles de tu solicitud al carrito, y la cantidad aparecera una vez que tu cotizacion este lista');
-      console.log("Response data:", json);
+
+      Swal.fire({
+        title: "¡Cotización Enviada!",
+        text: "Solicitud de cotización para cupcakes enviada correctamente.",
+        icon: "success",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      }).then(() => {
+        router.push(`/enduser/detallesolicitud/${id}?source=cupcake`);
+      });
     } catch (error) {
       console.error("Error en la solicitud:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Error al enviar la solicitud de cotización. Por favor, inténtelo de nuevo.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     }
   }
 
   const handleClearFields = () => {
     reset({
-      flavorBizcocho: "",
-      stuffedFlavor: "",
-      cover: "",
-      portions: "",
-      delivery: "",
-      deliveryAdress: "",
-      fondantCover: "",
-      deliveryDate: "",
-      fondantDraw: "",
-      buttercreamDraw: "",
-      naturalFlowers: "",
-      sign: "",
-      eatablePrint: "",
-      sprinkles: "",
-      other: "",
-      budget: "",
-      contactName: "",
-      contactPhone: "",
-      questionsOrComments: "",
+      flavorBizcocho: "", stuffedFlavor: "", cover: "", portions: "",
+      delivery: "", deliveryAdress: "", fondantCover: "", deliveryDate: "",
+      fondantDraw: "", buttercreamDraw: "", naturalFlowers: "", sign: "",
+      eatablePrint: "", sprinkles: "", other: "", budget: "",
+      contactName: "", contactPhone: "", questionsOrComments: "",
     });
+    setPreview1(null);
+    setPreview2(null);
+    setPhoneValue("");
+    setDateValue("");
+    setTimeValue("");
   };
 
   return (
@@ -242,16 +300,37 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
                   required={isDelivery}
                   disabled={!isDelivery}
                 />
+                {!isDelivery && (
+                  <p className="text-xs text-gray-500 mt-1">El pedido se recogerá en sucursal.</p>
+                )}
               </div>
               {/* Fecha */}
               <div>
                 <p>Fecha de entrega</p>
                 <input
-                  className="inputDeliveryDateCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
                   type="date"
-                  {...register("deliveryDate")}
+                  min={minDate}
+                  value={dateValue}
+                  onChange={(e) => setDateValue(e.target.value)}
                   required
                 />
+              </div>
+              {/* Hora */}
+              <div>
+                <p>Hora de entrega</p>
+                <select
+                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                  value={timeValue}
+                  onChange={(e) => setTimeValue(e.target.value)}
+                  required
+                >
+                  <option value="">Selecciona una hora</option>
+                  {TIME_OPTIONS.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+                <input type="hidden" {...register("deliveryDate")} />
               </div>
             </div>
           </div>
@@ -346,36 +425,74 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
           </div>
         </div>
 
-        <div>
-          <p className="my-2 m-6">
-            Por favor, sube dos imágenes de inspiración, como la temática, los
-            elementos que te gustaría ver en los cupcakes, la paleta de colores
-            u otras preferencias.
-          </p>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            accept="image/*"
-            multiple
-          />
-          {message.length > 0 &&
-            message.map((msg, index) => <p key={index}>{msg}</p>)}
-          {imageUrls.length > 0 &&
-            imageUrls.map((url, index) => (
-              <div key={index}>
-                <h2>Uploaded Image:</h2>
-                <Image
-                  src={url}
-                  alt={`Uploaded image ${index}`}
-                  width={500}
-                  height={500}
-                  style={{ maxWidth: "100%" }}
-                />
-              </div>
-            ))}
-        </div>
+        <div className="flex flex-col m-8 p-6 mb-6 rounded-lg">
+  <p className="my-2 m-6">
+    Por favor, sube imágenes de inspiración, como la temática,
+    los elementos que te gustaría ver en tus cupcakes, la paleta
+    de colores u otras preferencias.
+  </p>
+  <p className="my-2 m-6">
+    Esto nos ayudará a crear un diseño personalizado para ti. Puedes
+    subir hasta 2 imágenes de hasta 10MB cada una.
+  </p>
 
-        <div className="m-8 text-sm font-medium text-secondary">
+  {/* Contenedor flex para alinear horizontalmente */}
+  <div className="flex flex-row justify-between space-x-8 w-full">
+    {/* Imagen 1 */}
+    <div className="flex flex-col w-1/2 relative">
+      <label className="mb-2 text-center">Imagen 1</label>
+      <div className="relative w-full">
+        <input
+          type="file"
+          {...register("file1")}
+          accept="image/*"
+          className="absolute inset-0 opacity-0 cursor-pointer"
+        />
+        <button className="rounded-full bg-rose-200 text-white p-2 w-full cursor-pointer">
+          Seleccionar archivo
+        </button>
+      </div>
+      {preview1 && (
+        <Image
+          src={preview1}
+          width={500}
+          height={500}
+          alt="Preview 1"
+          className="mt-4"
+          style={{ width: "200px", marginTop: "10px" }}
+        />
+      )}
+    </div>
+
+    {/* Imagen 2 */}
+    <div className="flex flex-col w-1/2 relative">
+      <label className="mb-2 text-center">Imagen 2 (opcional)</label>
+      <div className="relative w-full">
+        <input
+          type="file"
+          {...register("file2")}
+          accept="image/*"
+          className="absolute inset-0 opacity-0 cursor-pointer"
+        />
+        <button className="rounded-full bg-rose-200 text-white p-2 w-full cursor-pointer">
+          Seleccionar archivo
+        </button>
+      </div>
+      {preview2 && (
+        <Image
+          src={preview2}
+          width={500}
+          height={500}
+          alt="Preview 2"
+          className="mt-4"
+          style={{ width: "200px", marginTop: "10px" }}
+        />
+      )}
+    </div>
+  </div>
+</div>
+ {/* Presupuesto */}
+        <div className="m-8 text-sm font-medium">
           <p>Presupuesto máximo estimado</p>
           <input
             className="inputBudgetCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
@@ -384,36 +501,47 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
             required
           />
         </div>
-
-        <div className="grid grid-cols-1 m-8 text-sm font-medium text-secondary md:grid-cols-2 gap-4">
-          <div>
-            <p>Nombre de contacto</p>
+{/* Informacion de contacto */}
+<div className="m-6">
+          <h2 className={`text-3xl m-4 ${sofia.className}`}>
+            Información de contacto
+          </h2>
+          <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
+            <div className="m-3">
+            <p>Nombre</p>
             <input
-              className="inputContactNameCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+              className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
               type="text"
-              {...register("contactName")}
-              required
+              placeholder="Escribe tu nombre"
+              defaultValue={userName}
+              {...register("contactName", { value: userName })}
             />
           </div>
-          <div>
-            <p>Teléfono de contacto</p>
+          <div className="m-3">
+            <p>Número de celular</p>
             <input
-              className="inputContactPhoneCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+              className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
               type="text"
-              {...register("contactPhone")}
-              required
+              placeholder="000-000-0000"
+              value={phoneValue}
+              onChange={(e) => setPhoneValue(formatPhone(e.target.value))}
             />
           </div>
-        </div>
+        
 
-        <div className="m-8 text-sm font-medium text-secondary">
-          <p>Preguntas o Comentarios</p>
+        <div className="m-8 text-sm font-medium">
+              <p>
+                Preguntas o comentarios, platicanos más acerca de tu idea o
+                tematica, nos especializamos en diseñar dulsuras a la medida
+              </p>
           <textarea
             className="inputQuestionsOrCommentsCupcake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             type="textarea"
             {...register("questionsOrComments")}
-            rows="5"
+            rows="2"
           />
+          </div>
+        </div>
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">

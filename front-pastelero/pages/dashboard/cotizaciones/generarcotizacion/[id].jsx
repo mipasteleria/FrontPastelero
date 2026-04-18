@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import NavbarAdmin from "@/src/components/navbar";
 import VerCotizacion from "@/src/components/cotizacionview";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function GenerarCotizacion() {
   const router = useRouter(); // Inicializa useRouter
   const { id, source } = router.query; // Obtén los parámetros de consulta
@@ -19,8 +20,8 @@ export default function GenerarCotizacion() {
     {
       Elemento: "Un piso",
       Unidad: "Porcion",
-      PrecioUnidad: 50
-    }
+      PrecioUnidad: 50,
+    },
   ]);
 
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ export default function GenerarCotizacion() {
     FecExp: "",
     Total: 0,
     Anticipo: 0,
-    Extras: ""
+    Extras: "",
   });
 
   const [selectedType, setSelectedType] = useState("precargado");
@@ -36,7 +37,7 @@ export default function GenerarCotizacion() {
     Elemento: "",
     Cantidad: 0,
     Unidad: "",
-    PrecioUnidad: 0
+    PrecioUnidad: 0,
   });
   const [selectedElement, setSelectedElement] = useState(null);
   const [addedElements, setAddedElements] = useState([]);
@@ -45,44 +46,43 @@ export default function GenerarCotizacion() {
     // Fetch recetas
     fetch(`${API_BASE}/recetas/recetas`, {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     })
-      .then(response => response.json())
-      .then(data => {
-        const recetasData = data.data.map(item => ({
+      .then((response) => response.json())
+      .then((data) => {
+        const recetasData = data.data.map((item) => ({
           Elemento: item.nombre_receta,
           Unidad: "Porcion", // Ajusta según la unidad de medida en tus datos
-          PrecioUnidad: item.total_cost
+          PrecioUnidad: item.total_cost,
         }));
         setRecetas(recetasData);
       })
-      .catch(error => console.error('Error fetching recetas:', error));
-  
+      .catch((error) => console.error("Error fetching recetas:", error));
+
     // Fetch insumos
     fetch(`${API_BASE}/insumos`, {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        "Content-Type": "application/json",
+      },
     })
-      .then(response => response.json())
-      .then(data => {
-        const insumosData = data.map(item => ({
+      .then((response) => response.json())
+      .then((data) => {
+        const insumosData = data.map((item) => ({
           Elemento: item.name,
           Unidad: "gr", // Ajusta según la unidad de medida en tus datos
-          PrecioUnidad: item.cost
+          PrecioUnidad: item.cost,
         }));
         setInsumos(insumosData);
       })
-      .catch(error => console.error('Error fetching insumos:', error));
+      .catch((error) => console.error("Error fetching insumos:", error));
   }, []);
-  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -90,7 +90,7 @@ export default function GenerarCotizacion() {
     const { name, value } = e.target;
     setCustomElement((prevElement) => ({
       ...prevElement,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -102,12 +102,14 @@ export default function GenerarCotizacion() {
   };
 
   const handleAddElement = () => {
-    const element = selectedType === "precargado" ? selectedElement : customElement;
+    const element =
+      selectedType === "precargado" ? selectedElement : customElement;
     setAddedElements((prevElements) => [...prevElements, element]);
     setFormData((prevFormData) => ({
       ...prevFormData,
       Total: prevFormData.Total + element.PrecioUnidad * element.Cantidad,
-      Anticipo: (prevFormData.Total + element.PrecioUnidad * element.Cantidad) / 2
+      Anticipo:
+        (prevFormData.Total + element.PrecioUnidad * element.Cantidad) / 2,
     }));
   };
 
@@ -119,7 +121,7 @@ export default function GenerarCotizacion() {
     setFormData((prevFormData) => ({
       ...prevFormData,
       Total: newTotal,
-      Anticipo: newTotal / 2
+      Anticipo: newTotal / 2,
     }));
   };
 
@@ -132,12 +134,12 @@ export default function GenerarCotizacion() {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-      hour12: true
+      hour12: true,
     });
 
     setFormData((prevFormData) => ({
       ...prevFormData,
-      FecExp: date
+      FecExp: date,
     }));
   }, []);
 
@@ -149,19 +151,43 @@ export default function GenerarCotizacion() {
     setSelectedType(e.target.value);
   };
 
+  const enviarNotificacion = async (userName, userId, priceType) => {
+    try {
+      const response = await fetch(`${API_BASE}/notificaciones`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mensaje: `${userName} tu cotización de ${priceType} ha sido aprobada`,
+          userId: userId
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al enviar la notificación');
+      }
+  
+      const data = await response.json();
+      console.log('Notificación enviada con éxito:', data);
+    } catch (error) {
+      console.error('Error al enviar la notificación:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
   
     let url;
     switch (source) {
-      case 'pastel':
+      case "pastel":
         url = `${API_BASE}/pricecake/${id}`;
         break;
-      case 'cupcake':
+      case "cupcake":
         url = `${API_BASE}/pricecupcake/${id}`;
         break;
-      case 'snack':
+      case "snack":
         url = `${API_BASE}/pricesnack/${id}`;
         break;
       default:
@@ -170,8 +196,36 @@ export default function GenerarCotizacion() {
     }
   
     try {
+      // Obtener userId y nombreUsuario del usuario solicitante
+      const responseUser = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    
+      // Verifica si la respuesta es exitosa
+      if (!responseUser.ok) {
+        throw new Error(`Error ${responseUser.status}: ${responseUser.statusText}`);
+      }
+    
+      // Obtén los datos en formato JSON
+      const userData = await responseUser.json();
+    
+      // Verifica si los datos contienen la propiedad 'data'
+      if (!userData.data) {
+        throw new Error('Datos de usuario no encontrados o incompletos');
+      }
+    
+      // Extrae 'userId' y 'contactName' del objeto 'data'
+      const { userId, contactName, priceType } = userData.data;
+    
+      if (!userId || !contactName) {
+        throw new Error('Datos de usuario incompletos recibidos');
+      }
+        
       const response = await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -179,23 +233,50 @@ export default function GenerarCotizacion() {
         body: JSON.stringify({
           precio: formData.Total,
           anticipo: formData.Anticipo,
-          status: "aprobado"
+          status: "aprobado",
         }),
       });
-      console.log({precio: formData.Total,
+  
+      console.log({
+        precio: formData.Total,
         anticipo: formData.Anticipo,
-        status: ("")})
+        status: "aprobado",
+      });
+  
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
+
+      await enviarNotificacion(contactName, userId, priceType)
+
   
-      // Redirigir a /dashboard/cotizaciones
-      router.push("/dashboard/cotizaciones");
+      Swal.fire({
+        title: "¡Cotización Generada!",
+        text: "La cotización se ha enviado al usuario.",
+        icon: "success",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      }).then(() => {
+        // Redirigir a /dashboard/cotizaciones después de mostrar la alerta
+        router.push("/dashboard/cotizaciones");
+      });
     } catch (error) {
       console.error("Error updating data:", error);
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo generar la cotización. Por favor, inténtalo de nuevo.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     }
-  };
-  
+  };  
 
   return (
     <div className={`text-text min-h-screen ${poppins.className}`}>
@@ -203,13 +284,18 @@ export default function GenerarCotizacion() {
       <div className="flex flex-row mt-16">
         <Asideadmin className="w-1/4" />
         <main className="w-full md:w-3/4 p-4">
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Generar Cotizacion</h1>
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>
+            Generar Cotizacion
+          </h1>
           <form className="m-4" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-wrap">
               <div className="w-full md:w-1/2 pr-2">
                 <div className="grid gap-6 mb-6">
                   <div className="flex items-center mb-4">
-                    <label htmlFor="noOrden" className="block w-1/4 text-sm font-medium dark:text-white">
+                    <label
+                      htmlFor="noOrden"
+                      className="block w-1/4 text-sm font-medium dark:text-white"
+                    >
                       Número de orden
                     </label>
                     <input
@@ -224,7 +310,10 @@ export default function GenerarCotizacion() {
                     />
                   </div>
                   <div className="flex items-center mb-4">
-                    <label htmlFor="FecExp" className="block w-1/4 text-sm font-medium dark:text-white">
+                    <label
+                      htmlFor="FecExp"
+                      className="block w-1/4 text-sm font-medium dark:text-white"
+                    >
                       Fecha de expedición
                     </label>
                     <input
@@ -243,180 +332,192 @@ export default function GenerarCotizacion() {
               </div>
             </div>
 
-          <VerCotizacion />
+            <VerCotizacion />
 
-          <div className="mt-8">
-            <div className="my-6">
-              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Seleccionar tipo de elemento:
-              </label>
-              <div className="flex">
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="elementType"
-                    value="precargado"
-                    checked={selectedType === "precargado"}
-                    onChange={handleTypeSelection}
-                    className="mr-1"
-                  />
-                  Elemento precargado
-                </label>
-                <label className="mr-4">
-                  <input
-                    type="radio"
-                    name="elementType"
-                    value="personalizado"
-                    checked={selectedType === "personalizado"}
-                    onChange={handleTypeSelection}
-                    className="mr-1"
-                  />
-                  Elemento personalizado
-                </label>
-              </div>
-            </div>
-
-            {selectedType === "precargado" && (
-              <div className="mb-6">
+            <div className="mt-8">
+              <div className="my-6">
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Seleccionar elemento:
+                  Seleccionar tipo de elemento:
                 </label>
-                <select
-                  className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                  onChange={handleSelectElement}
-                >
-                  <option value="">Selecciona un elemento</option>
-                  {[...recetas, ...trabajoManual, ...insumos].map((el, idx) => (
-                    <option key={idx} value={el.Elemento || "Elemento no definido"}>
-                    {el.Elemento || "Elemento sin nombre"}
-                  </option>                  
-                  ))}
-                </select>
-                {selectedElement && (
-                  <div className="mt-4">
-                    <p>Unidad: {selectedElement.Unidad}</p>
-                    <p>Precio por unidad: {selectedElement.PrecioUnidad}</p>
+                <div className="flex">
+                  <label className="mr-4">
                     <input
-                      type="number"
-                      name="Cantidad"
-                      placeholder="Cantidad"
-                      onChange={(e) =>
-                        setSelectedElement((prevElement) => ({
-                          ...prevElement,
-                          Cantidad: e.target.value
-                        }))
-                      }
-                      className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mt-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                      type="radio"
+                      name="elementType"
+                      value="precargado"
+                      checked={selectedType === "precargado"}
+                      onChange={handleTypeSelection}
+                      className="mr-1"
                     />
-                  </div>
-                )}
+                    Elemento precargado
+                  </label>
+                  <label className="mr-4">
+                    <input
+                      type="radio"
+                      name="elementType"
+                      value="personalizado"
+                      checked={selectedType === "personalizado"}
+                      onChange={handleTypeSelection}
+                      className="mr-1"
+                    />
+                    Elemento personalizado
+                  </label>
+                </div>
               </div>
-            )}
 
-            {selectedType === "personalizado" && (
-              <div className="mb-6">
-                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Elemento personalizado:
-                </label>
-                <input
-                  type="text"
-                  name="Elemento"
-                  placeholder="Nombre del elemento"
-                  onChange={handleElementChange}
-                  className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mb-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                />
-                <input
-                  type="number"
-                  name="Cantidad"
-                  placeholder="Cantidad"
-                  onChange={handleElementChange}
-                  className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mb-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                />
-                <select
-                  name="Unidad"
-                  onChange={handleElementChange}
-                  className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mb-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                >
-                  <option value="">Selecciona la unidad</option>
-                  {units.map((unit, idx) => (
-                    <option key={idx} value={unit}>
-                      {unit}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  name="PrecioUnidad"
-                  placeholder="Precio por unidad"
-                  onChange={handleElementChange}
-                  className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mb-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                />
-              </div>
-              
-            )}
-
-            <button
-              type="button"
-              onClick={handleAddElement}
-              className="bg-accent text-white px-4 py-2 rounded-lg"
-            >
-              Agregar
-            </button>
-
-            <div className="overflow-x-auto mt-6">
-              <h2 className="text-2xl">Elementos agregados</h2>
-              <table className="w-full my-8 bg-white rounded-lg shadow-md">
-                <thead>
-                  <tr>
-                    <th className="py-2 px-4 border-b">Elemento</th>
-                    <th className="py-2 px-4 border-b">Cantidad</th>
-                    <th className="py-2 px-4 border-b">Unidad</th>
-                    <th className="py-2 px-4 border-b">Precio por unidad</th>
-                    <th className="py-2 px-4 border-b">Total</th>
-                    <th className="py-2 px-4 border-b">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {addedElements.map((el, idx) => (
-                    <tr key={idx}>
-                      <td className="py-2 px-4 border-b">{el.Elemento}</td>
-                      <td className="py-2 px-4 border-b">{el.Cantidad}</td>
-                      <td className="py-2 px-4 border-b">{el.Unidad}</td>
-                      <td className="py-2 px-4 border-b">{el.PrecioUnidad}</td>
-                      <td className="py-2 px-4 border-b">{el.PrecioUnidad * el.Cantidad}</td>
-                      <td className="py-2 px-4 border-b">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteElement(idx)}
-                          className="bg-red-500 text-white px-2 py-1 rounded-lg mr-2"
+              {selectedType === "precargado" && (
+                <div className="mb-6">
+                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Seleccionar elemento:
+                  </label>
+                  <select
+                    className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                    onChange={handleSelectElement}
+                  >
+                    <option value="">Selecciona un elemento</option>
+                    {[...recetas, ...trabajoManual, ...insumos].map(
+                      (el, idx) => (
+                        <option
+                          key={idx}
+                          value={el.Elemento || "Elemento no definido"}
                         >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="flex mt-4  items-start mb-4">
-                      <label htmlFor="Extras" className="w-1/4 text-sm font-medium dark:text-white">
-                      Agregar texto a la seccion de Extras en la cotizacion del cliente
-                      </label>
+                          {el.Elemento || "Elemento sin nombre"}
+                        </option>
+                      )
+                    )}
+                  </select>
+                  {selectedElement && (
+                    <div className="mt-4">
+                      <p>Unidad: {selectedElement.Unidad}</p>
+                      <p>Precio por unidad: {selectedElement.PrecioUnidad}</p>
                       <input
-                        type="Extras"
-                        id="Extras"
-                        className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                        placeholder="agrega la informacion importante que desees compartir"
-                        required
+                        type="number"
+                        name="Cantidad"
+                        placeholder="Cantidad"
+                        onChange={(e) =>
+                          setSelectedElement((prevElement) => ({
+                            ...prevElement,
+                            Cantidad: e.target.value,
+                          }))
+                        }
+                        className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mt-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
                       />
                     </div>
-              <div className="mt-4">
-                <p>Total: {formData.Total}</p>
-                <p>Anticipo (50%): {formData.Anticipo}</p>
+                  )}
+                </div>
+              )}
+
+              {selectedType === "personalizado" && (
+                <div className="mb-6">
+                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Elemento personalizado:
+                  </label>
+                  <input
+                    type="text"
+                    name="Elemento"
+                    placeholder="Nombre del elemento"
+                    onChange={handleElementChange}
+                    className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mb-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                  />
+                  <input
+                    type="number"
+                    name="Cantidad"
+                    placeholder="Cantidad"
+                    onChange={handleElementChange}
+                    className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mb-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                  />
+                  <select
+                    name="Unidad"
+                    onChange={handleElementChange}
+                    className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mb-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                  >
+                    <option value="">Selecciona la unidad</option>
+                    {units.map((unit, idx) => (
+                      <option key={idx} value={unit}>
+                        {unit}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    name="PrecioUnidad"
+                    placeholder="Precio por unidad"
+                    onChange={handleElementChange}
+                    className="w-full bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 mb-2 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                  />
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleAddElement}
+                className="bg-accent text-white px-4 py-2 rounded-lg"
+              >
+                Agregar
+              </button>
+
+              <div className="overflow-x-auto mt-6">
+                <h2 className="text-2xl">Elementos agregados</h2>
+                <table className="w-full my-8 bg-white rounded-lg shadow-md">
+                  <thead>
+                    <tr>
+                      <th className="py-2 px-4 border-b">Elemento</th>
+                      <th className="py-2 px-4 border-b">Cantidad</th>
+                      <th className="py-2 px-4 border-b">Unidad</th>
+                      <th className="py-2 px-4 border-b">Precio por unidad</th>
+                      <th className="py-2 px-4 border-b">Total</th>
+                      <th className="py-2 px-4 border-b">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {addedElements.map((el, idx) => (
+                      <tr key={idx}>
+                        <td className="py-2 px-4 border-b">{el.Elemento}</td>
+                        <td className="py-2 px-4 border-b">{el.Cantidad}</td>
+                        <td className="py-2 px-4 border-b">{el.Unidad}</td>
+                        <td className="py-2 px-4 border-b">
+                          {el.PrecioUnidad}
+                        </td>
+                        <td className="py-2 px-4 border-b">
+                          {el.PrecioUnidad * el.Cantidad}
+                        </td>
+                        <td className="py-2 px-4 border-b">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteElement(idx)}
+                            className="bg-red-500 text-white px-2 py-1 rounded-lg mr-2"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="flex mt-4  items-start mb-4">
+                  <label
+                    htmlFor="Extras"
+                    className="w-1/4 text-sm font-medium dark:text-white"
+                  >
+                    Agregar texto a la seccion de Extras en la cotizacion del
+                    cliente
+                  </label>
+                  <input
+                    type="Extras"
+                    id="Extras"
+                    className="w-3/4 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                    placeholder="agrega la informacion importante que desees compartir"
+                    required
+                  />
+                </div>
+                <div className="mt-4">
+                  <p>Total: {formData.Total}</p>
+                  <p>Anticipo (50%): {formData.Anticipo}</p>
+                </div>
               </div>
             </div>
-            </div>
             <div className="flex flex-col md:flex-row justify-between mt-4">
-                <button
+              <button
                 onClick={handleAddElement}
                 className="bg-primary text-text rounded-lg px-16 py-2 mt-4"
               >
@@ -429,7 +530,7 @@ export default function GenerarCotizacion() {
               >
                 Guardar y Enviar
               </button>
-                </div>
+            </div>
           </form>
         </main>
       </div>

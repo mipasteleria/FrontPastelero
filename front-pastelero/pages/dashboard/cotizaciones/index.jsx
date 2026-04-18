@@ -4,6 +4,9 @@ import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useEffect, useState } from "react";
+import { useRouter } from 'next/router'; 
+import Swal from "sweetalert2";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -11,6 +14,9 @@ const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 export default function Conocenuestrosproductos() {
   const [userCotizacion, setUserCotizacion] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+  const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -68,71 +74,114 @@ export default function Conocenuestrosproductos() {
 
   if (!isAuthenticated) {
     return <div>You are not authenticated. Please log in.</div>;
+    router.push('/');
   }
 
   const deleteCotizacion = async (id, source) => {
     try {
-      const token = localStorage.getItem("token");
-      let url;
-
-      // Validar el valor de source y asignar la URL correspondiente
-      switch (source) {
-        case "cake":
-          url = `${API_BASE}/pricecake/${id}`;
-          break;
-        case "cupcake":
-          url = `${API_BASE}/pricecupcake/${id}`;
-          break;
-        case "snack":
-          url = `${API_BASE}/pricesnack/${id}`;
-          break;
-        default:
-          console.error("Invalid source: ", source);
-          return;
-      }
-
-      const response = await fetch(url, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      const result = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "Esta acción eliminará la cotización de manera permanente.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#FF6F7D",
+        cancelButtonColor: "#D6A7BC",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
       });
-
-      if (response.ok) {
-        // Actualizar el estado después de la eliminación
-        setUserCotizacion(
-          userCotizacion.filter((cotizacion) => cotizacion._id !== id)
-        );
-      } else {
-        console.error("Failed to delete the item. Status:", response.status);
+  
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
+        let url;
+  
+        // Validar el valor de source y asignar la URL correspondiente
+        switch (source) {
+          case "pastel":
+            url = `${API_BASE}/pricecake/${id}`;
+            break;
+          case "cupcake":
+            url = `${API_BASE}/pricecupcake/${id}`;
+            break;
+          case "snack":
+            url = `${API_BASE}/pricesnack/${id}`;
+            break;
+          default:
+            console.error("Invalid source: ", source);
+            return;
+        }
+  
+        const response = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (response.ok) {
+          Swal.fire({
+            title: "Eliminado",
+            text: "Cotización eliminada con éxito.",
+            icon: "success",
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            background: "#fff1f2",
+            color: "#540027",
+          }).then(() => {
+            setUserCotizacion((prevCotizaciones) =>
+              prevCotizaciones.filter((cotizacion) => cotizacion._id !== id)
+            );
+          });
+        } else {
+          Swal.fire({
+            title: "Error",
+            text: "Error al eliminar la cotización.",
+            icon: "error",
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            background: "#fff1f2",
+            color: "#540027",
+          });
+        }
       }
     } catch (error) {
       console.error("An error occurred while deleting the item:", error);
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo eliminar la cotización. Por favor, inténtalo de nuevo.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     }
+  };
+  
+  // Lógica de paginación
+  const totalPages = Math.ceil(userCotizacion.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentCotizaciones = userCotizacion.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
     <div className={`text-text ${poppins.className}`}>
-      <NavbarAdmin 
-      className="fixed top-0 w-full z-50" />
-      <div 
-      className="flex flex-row mt-16">
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
-        <main 
-        className={`text-text ${poppins.className} flex-grow w-3/4`}>
-          <h1 
-          className={`text-4xl p-4 ${sofia.className}`}>
-            Mis cotizaciones
-          </h1>
-          <div 
-          className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
-            <div 
-            className="overflow-x-auto w-full">
-              <table 
-              className="w-full text-sm text-left rtl:text-right text-text">
-                <thead 
-                className="text-xs uppercase bg-transparent dark:bg-transparent">
+        <main className={`text-text ${poppins.className} flex-grow w-3/4`}>
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis cotizaciones</h1>
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-sm text-left rtl:text-right text-text">
+                <thead className="text-xs uppercase bg-transparent dark:bg-transparent">
                   <tr>
                     {[
                       "ID",
@@ -152,7 +201,7 @@ export default function Conocenuestrosproductos() {
                   </tr>
                 </thead>
                 <tbody>
-                  {userCotizacion.map((cotizacion) => (
+                  {currentCotizaciones.map((cotizacion) => (
                     <tr
                       key={`cotizacion-${cotizacion._id}`}
                       className="border-b dark:border-gray-700"
@@ -171,7 +220,7 @@ export default function Conocenuestrosproductos() {
                           {cotizacion[field]}
                         </td>
                       ))}
-                      <td className="px-6 py-4 border-b border-secondary grid grid-cols-3 gap-6">
+                      <td className="px-6 py-4 border-b border-secondary grid grid-cols-4 gap-6">
                         <Link
                           href={`/dashboard/cotizaciones/${
                             cotizacion._id
@@ -179,6 +228,7 @@ export default function Conocenuestrosproductos() {
                             cotizacion.type
                           }&source=${cotizacion.type.toLowerCase()}`}
                         >
+                          {/* SVG para ver */}
                           <svg
                             className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
                             aria-hidden="true"
@@ -207,6 +257,7 @@ export default function Conocenuestrosproductos() {
                             cotizacion.type
                           }&source=${cotizacion.type.toLowerCase()}`}
                         >
+                          {/* SVG para editar */}
                           <svg
                             className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
                             aria-hidden="true"
@@ -223,6 +274,31 @@ export default function Conocenuestrosproductos() {
                             />
                           </svg>
                         </Link>
+                        <Link
+                          href={`/dashboard/cotizaciones/costeo/${
+                            cotizacion._id
+                          }?source=${cotizacion.type.toLowerCase()}`}
+                          title="Calcular costeo"
+                        >
+                          {/* Icono calculadora / costeo */}
+                          <svg
+                            className="w-6 h-6 text-accent dark:text-white my-2 mx-.5"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                            />
+                          </svg>
+                        </Link>
                         <button
                           onClick={() =>
                             deleteCotizacion(
@@ -232,6 +308,7 @@ export default function Conocenuestrosproductos() {
                           }
                           className="text-red-600 hover:text-red-800 my-2 mx-.5"
                         >
+                          {/* SVG para eliminar */}
                           <svg
                             className="w-6 h-6 text-accent dark:text-white"
                             aria-hidden="true"
@@ -257,30 +334,39 @@ export default function Conocenuestrosproductos() {
               </table>
             </div>
           </div>
-          <nav 
-          aria-label="Page navigation example" 
-          className="m-4">
-            <ul 
-            className="inline-flex -space-x-px text-sm ml-auto">
-              {["Previous", "1", "2", "3", "4", "5", "Next"].map(
-                (item, index) => (
-                  <li key={item}>
-                    <Link
-                      href="#"
-                      className={`flex items-center justify-center px-3 h-8 leading-tight text-text bg-white border border-secondary ${
-                        index === 0 ? "rounded-s-lg" : ""
-                      } ${index === 6 ? "rounded-e-lg" : ""} ${
-                        item === "3"
-                          ? "text-accent bg-blue-50"
-                          : "hover:bg-gray-100 hover:text-accent"
-                      }`}
-                      aria-current={item === "3" ? "page" : undefined}
-                    >
-                      {item}
-                    </Link>
-                  </li>
-                )
-              )}
+          {/* Paginación */}
+          <nav aria-label="Page navigation example" className="m-4">
+            <ul className="inline-flex -space-x-px text-sm ml-auto">
+              <li>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-text bg-white border border-e-0 border-secondary rounded-s-lg hover:bg-gray-100 hover:text-accent dark:bg-gray-800 dark:border-secondary dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  Anterior
+                </button>
+              </li>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => handlePageChange(index + 1)}
+                    className={`flex items-center justify-center px-3 h-8 leading-tight text-text bg-white border border-secondary hover:bg-gray-100 hover:text-accent dark:bg-gray-800 dark:border-secondary dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${
+                      currentPage === index + 1 ? "bg-blue-50 text-accent" : ""
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center justify-center px-3 h-8 leading-tight text-text bg-white border border-secondary rounded-e-lg hover:bg-gray-100 hover:text-accent dark:bg-gray-800 dark:border-secondary dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  Siguiente
+                </button>
+              </li>
             </ul>
           </nav>
           <Link

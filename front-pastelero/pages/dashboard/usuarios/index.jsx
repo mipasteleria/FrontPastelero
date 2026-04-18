@@ -4,12 +4,16 @@ import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
+import Swal from "sweetalert2";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function AdministradorUsuarios() {
   const [usersInfo, setUserInfo] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,49 +31,90 @@ export default function AdministradorUsuarios() {
 
   const handleDeleteUser = async (id) => {
     try {
-      const token = localStorage.getItem("token"); // Obtener el token
-  
-      const response = await fetch(`${API_BASE}/users/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Agregar el token en el encabezado
-        },
+      const result = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "Esta acción eliminará el usuario de manera permanente.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#FF6F7D",
+        cancelButtonColor: "#D6A7BC",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
       });
-  
-      if (response.ok) {
-        alert("Usuario eliminado con éxito");
-        setUserInfo(usersInfo.filter((user) => user._id !== id));
-      } else {
-        alert("Error al eliminar el usuario");
+
+      if (result.isConfirmed) {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(`${API_BASE}/users/${id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          Swal.fire({
+            title: "Eliminado",
+            text: "Usuario eliminado con éxito.",
+            icon: "success",
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            background: "#fff1f2",
+            color: "#540027",
+          }).then(() => {
+            setUserInfo((prevUsers) => prevUsers.filter((user) => user._id !== id));
+          });
+        } else {
+          Swal.fire({
+            title: "Error",
+            text: "Error al eliminar el usuario.",
+            icon: "error",
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            background: "#fff1f2",
+            color: "#540027",
+          });
+        }
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Error al eliminar el usuario");
+      Swal.fire({
+        title: "Error",
+        text: "Error al eliminar el usuario.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     }
   };
-  
+
+  const totalPages = Math.ceil(usersInfo.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentUsers = usersInfo.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
-    <div 
-    className={`text-text ${poppins.className}`}>
-      <NavbarAdmin 
-      className="fixed top-0 w-full z-50" />
-      <div 
-      className="flex flex-row mt-16">
+    <div className={`text-text ${poppins.className}`}>
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
         <Asideadmin />
-        <main 
-        className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">
-          <h1 
-          className={`text-4xl p-4 ${sofia.className}`}>Mis usuarios</h1>
-          <div 
-          className="relative overflow-x-auto shadow-md sm:rounded-lg m-4">
-            <table 
-            className="w-full text-sm text-left rtl:text-right">
-              <thead 
-              className="text-xs uppercase bg-rose-50">
+        <main className="flex-grow w-3/4 max-w-screen-lg mx-auto mb-16">
+          <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis usuarios</h1>
+          <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table className="w-full text-sm text-left rtl:text-right">
+              <thead className="text-xs uppercase bg-rose-50">
                 <tr>
-                  <th className="p-4"></th>
+                  <th className="p-1"></th>
                   <th className="px-6 py-3">Nombre</th>
                   <th className="px-6 py-3">Rol</th>
                   <th className="px-6 py-3">Permisos</th>
@@ -77,12 +122,12 @@ export default function AdministradorUsuarios() {
                 </tr>
               </thead>
               <tbody>
-                {usersInfo.map((userInfo) => (
+                {currentUsers.map((userInfo) => (
                   <tr key={`userInfo-${userInfo._id}`} className="bg-white">
-                    <td className="w-4 p-4"></td>
+                    <td className="w-4 p-2"></td>
                     <th
                       scope="row"
-                      className="flex items-center px-6 py-4 whitespace-nowrap"
+                      className="flex items-center px-6 py-2 whitespace-nowrap"
                     >
                       <div className="ps-3">
                         <div className="text-base font-semibold">
@@ -92,10 +137,8 @@ export default function AdministradorUsuarios() {
                         <div className="font-normal">{userInfo.email}</div>
                       </div>
                     </th>
-                    <td 
-                    className="px-6 py-4">{userInfo.role}</td>
-                    <td 
-                    className="px-6 py-4">
+                    <td className="px-6 py-2">{userInfo.role}</td>
+                    <td className="px-6 py-2">
                       <div className="flex flex-col gap-1">
                         {(Array.isArray(userInfo.permissions)
                           ? userInfo.permissions
@@ -105,12 +148,12 @@ export default function AdministradorUsuarios() {
                         ))}
                       </div>
                     </td>
-                    <td 
-                    className="px-6 py-4 flex gap-2">
+                    <td className="px-6 py-4 flex gap-2">
                       <Link
                         href={`/dashboard/usuarios/editarusuario/${userInfo._id}`}
                         className="font-medium text-accent hover:underline"
                       >
+                        {/* SVG para editar */}
                         <svg
                           className="w-6 h-6 text-accent dark:text-white"
                           aria-hidden="true"
@@ -131,6 +174,7 @@ export default function AdministradorUsuarios() {
                         onClick={() => handleDeleteUser(userInfo._id)}
                         className="text-red-500 hover:underline"
                       >
+                        {/* SVG para eliminar */}
                         <svg
                           className="w-6 h-6 text-accent dark:text-white"
                           aria-hidden="true"
@@ -155,9 +199,44 @@ export default function AdministradorUsuarios() {
               </tbody>
             </table>
           </div>
+          {/* Paginación */}
+          <nav aria-label="Page navigation example" className="m-4">
+            <ul className="inline-flex -space-x-px text-sm ml-auto">
+              <li>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-text bg-white border border-e-0 border-secondary rounded-s-lg hover:bg-gray-100 hover:text-accent dark:bg-gray-800 dark:border-secondary dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  Anterior
+                </button>
+              </li>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => handlePageChange(index + 1)}
+                    className={`flex items-center justify-center px-3 h-8 leading-tight text-text bg-white border border-secondary hover:bg-gray-100 hover:text-accent dark:bg-gray-800 dark:border-secondary dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${
+                      currentPage === index + 1 ? "bg-blue-50 text-accent" : ""
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center justify-center px-3 h-8 leading-tight text-text bg-white border border-secondary rounded-e-lg hover:bg-gray-100 hover:text-accent dark:bg-gray-800 dark:border-secondary dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  Siguiente
+                </button>
+              </li>
+            </ul>
+          </nav>
           <Link
             href="/dashboard/usuarios/nuevousuario"
-            className="flex justify-end mb-20"
+            className="flex justify-end mb-8"
           >
             <button
               type="button"
