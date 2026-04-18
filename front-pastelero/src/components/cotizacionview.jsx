@@ -9,22 +9,15 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
   const router = useRouter();
   const { id, source } = router.query;
   const [data, setData] = useState(null);
-  const [imageUrl, setImageUrl] = useState(null);
+  const [imageUrls, setImageUrls] = useState([]);
 
   const fetchImageUrl = async (filename) => {
-    console.log("enta entrando al fetch front");
     try {
-      const response = await fetch(
-        `${API_BASE}/image-url/${filename}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Error fetching image URL");
-      }
-      const data = await response.json();
-      return data.url;
-    } catch (error) {
-      console.error("Error fetching image URL:", error);
+      const response = await fetch(`${API_BASE}/image-url/${encodeURIComponent(filename)}`);
+      if (!response.ok) return null;
+      const json = await response.json();
+      return json.url;
+    } catch {
       return null;
     }
   };
@@ -37,13 +30,13 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
 
         switch (source) {
           case "pastel":
-            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecake/${id}`;
+            url = `${API_BASE}/pricecake/${id}`;
             break;
           case "cupcake":
-            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricecupcake/${id}`;
+            url = `${API_BASE}/pricecupcake/${id}`;
             break;
           case "snack":
-            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/pricesnack/${id}`;
+            url = `${API_BASE}/pricesnack/${id}`;
             break;
           default:
             console.error("Invalid source");
@@ -58,9 +51,7 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
             },
           });
 
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
+          if (!response.ok) throw new Error("Network response was not ok");
 
           const result = await response.json();
           setData(result.data);
@@ -75,9 +66,10 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
             });
           }
 
-          if (result.data.image) {
-            const imageUrl = await fetchImageUrl(result.data.image);
-            setImageUrl(imageUrl);
+          const imgs = result.data.images;
+          if (Array.isArray(imgs) && imgs.length > 0) {
+            const urls = await Promise.all(imgs.map(fetchImageUrl));
+            setImageUrls(urls.filter(Boolean));
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -139,6 +131,22 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
 
   return (
     <div className={`flex flex-col ${poppins.className}`}>
+      {imageUrls.length > 0 && (
+        <div className="mb-6">
+          <p className="font-bold mb-2">Imagen(es) de referencia:</p>
+          <div className="flex flex-wrap gap-3">
+            {imageUrls.map((url, i) => (
+              <img
+                key={i}
+                src={url}
+                alt={`Referencia ${i + 1}`}
+                className="w-40 h-40 object-cover rounded-lg border border-secondary"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {source === "pastel" &&
         renderFields({
           Sabor: data.flavor,
@@ -157,12 +165,11 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
           DibujoEnButtercream: data.buttercreamDraw,
           Figura3D: data.sugarcharacter3d,
           FloresNaturales: data.naturalFlowers,
-         FloresDeFondants: data.fondantFlowers,
+          FloresDeFondants: data.fondantFlowers,
           Letrero: data.sign,
           ImpresionComestible: data.eatablePrint,
           Personaje: data.character,
           Otro: data.other,
-          Imagen: data.image,
           Presupuesto: data.budget,
           NumeroDeContacto: data.contactName,
           TelefonoDeContacto: data.contactPhone,
@@ -192,7 +199,6 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
             GalletasAmericanas: data.americanCoockies,
             TartaDeManzana: data.tortaApple,
             Otro: data.other,
-            Imagen: data.image,
             Presupuesto: data.budget,
             NombreDeContacto: data.contactName,
             TelefonoDeContacto: data.contactPhone,
@@ -219,7 +225,6 @@ const VerCotizacion = ({ onCotizacionLoaded }) => {
             ImpresionComestible: data.eatablePrint,
             Sprinkles: data.sprinkles,
             Otro: data.other,
-            Imagen: data.image,
             Presupuesto: data.budget,
             NombreDeContacto: data.contactName,
             TelefonoDeContacto: data.contactPhone,

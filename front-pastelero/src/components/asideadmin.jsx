@@ -143,6 +143,60 @@ const Asideadmin = () => {
             </li>
             <li>
               <Link
+                href="/dashboard/tecnicas"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <svg
+                  className="w-5 h-5 text-text transition duration-75 dark:text-gray-400 group-hover:text-accent dark:group-hover:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9.5 11.5 11 13l4-3.5M12 20a16.405 16.405 0 0 1-5.092-5.804A16.694 16.694 0 0 1 5 6.666L12 4l7 2.667a16.695 16.695 0 0 1-1.908 7.529A16.406 16.406 0 0 1 12 20Z"
+                  />
+                </svg>
+                <span className="flex-1 ms-2 whitespace-nowrap text-text">
+                  Técnicas Creativas
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/dashboard/productos"
+                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              >
+                <svg
+                  className="w-5 h-5 text-text transition duration-75 dark:text-gray-400 group-hover:text-accent dark:group-hover:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 6h18M3 12h18M3 18h18"
+                  />
+                </svg>
+                <span className="flex-1 ms-2 whitespace-nowrap text-text">
+                  Productos del Home
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/dashboard/cotizaciones"
                 className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
               >
