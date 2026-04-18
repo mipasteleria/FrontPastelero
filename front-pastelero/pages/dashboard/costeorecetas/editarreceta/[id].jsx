@@ -44,7 +44,7 @@ export default function EditarReceta() {
   
     const fetchCosts = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`);
+        const response = await axios.get(`${API_BASE}/costs`);
         const data = response.data;
         setFixedCosts(data.fixedCosts);
         setFixedCostsHours(data.laborCosts);
