@@ -45,8 +45,6 @@ export default function NuevaReceta() {
       const data = response.data;
       setFixedCosts(data.fixedCosts);
       setFixedCostsHours(data.laborCosts);
-      const initialTotal = data.fixedCosts + data.laborCosts;
-      setTotal(initialTotal);
       } catch (error) {
         console.error("Error fetching costs:", error);
       }
@@ -58,27 +56,13 @@ export default function NuevaReceta() {
 
   const calculateTotal = useCallback(() => {
     const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
-    const { 
-      special_tax, 
-      additional_costs, 
-      profit_margin 
-    } = getValues();
-  
+    const { special_tax, additional_costs } = getValues();
     const specialTaxValue = parseFloat(special_tax || 0);
     const additionalCostsValue = parseFloat(additional_costs || 0);
-    const profitMarginValue = parseFloat(profit_margin || 0);
-    const totalCost = 
-    ingredientTotal + 
-    fixedCosts + 
-    fixedCostsHours + 
-    additionalCostsValue;
-  
-    const totalWithProfit = totalCost + 
-    (totalCost * profitMarginValue / 100) + 
-    (totalCost * specialTaxValue / 100);
-  
-    setTotal(totalWithProfit);
-  }, [ingredientsList, getValues, fixedCosts, fixedCostsHours]);
+    // Solo costo puro de materiales + IEPS; el overhead y el margen los aplica costeoHandler
+    const rawCost = ingredientTotal + additionalCostsValue;
+    setTotal(rawCost + (rawCost * specialTaxValue / 100));
+  }, [ingredientsList, getValues]);
 
   useEffect(() => {
     calculateTotal();
@@ -399,13 +383,13 @@ export default function NuevaReceta() {
             </div>
             <div 
             className="my-10 p-4 rounded-xl bg-rose-50">
-              <h2 
+              <h2
               className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}>
-                Costo total estimado
+                Costo por lote de ingredientes
               </h2>
-              <p 
-              className="text-center text-2xl">
-                {total.toFixed(2)} MXN
+              <p className="text-center text-2xl">{total.toFixed(2)} MXN</p>
+              <p className="text-center text-xs text-gray-400 mt-1">
+                Solo ingredientes + costos adicionales + IEPS. El overhead y el margen se calculan en el costeo de cotización.
               </p>
             </div>
             <div className="flex flex-col md:flex-row gap-10 justify-center">
