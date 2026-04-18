@@ -115,24 +115,33 @@ export default function EditarReceta() {
   }, [calculateTotal]);
 
 const handleAddIngredient = () => {
-  const { ingrediente, cantidad, precio, unidad } = getValues();
-  if (ingrediente.trim() && cantidad && precio) {
-    const total = (parseFloat(precio) || 0) / (parseFloat(cantidad) || 1);
-    const newIngredient = { ingrediente, cantidad, precio: parseFloat(precio), unidad, total: total.toFixed(2) };
+  const { ingrediente, unidad } = getValues();
+  const cantidadRaw = parseFloat(getValues("cantidad") || 0);
+  if (!ingrediente?.trim() || !cantidadRaw) return;
 
-    console.log("Form Data on Add:", getValues());
-    console.log("Ingredient to be Added:", newIngredient);
-
-    setIngredientsList(prevIngredients => {
-      const newIngredients = [...prevIngredients, newIngredient];
-      calculateTotal();
-      return newIngredients;
-    });
-    setValue("cantidad", "");
-    setSelectedIngredient(null);
+  let precio, total;
+  if (selectedIngredient?.cost && selectedIngredient?.amount) {
+    const unitCost = selectedIngredient.cost / selectedIngredient.amount;
+    precio = Math.round(unitCost * cantidadRaw * 100) / 100;
+    total  = Math.round(unitCost * 100) / 100;
   } else {
-    console.error("Faltan valores para agregar el ingrediente");
+    precio = parseFloat(getValues("precio") || 0);
+    total  = cantidadRaw ? Math.round((precio / cantidadRaw) * 100) / 100 : 0;
   }
+
+  const newIngredient = {
+    insumoId: selectedIngredient?._id || null,
+    ingrediente,
+    cantidad: cantidadRaw,
+    precio,
+    unidad,
+    total,
+  };
+
+  setIngredientsList(prev => [...prev, newIngredient]);
+  setValue("cantidad", "");
+  setValue("precio", "");
+  setSelectedIngredient(null);
 };
 
 const handleDeleteIngredient = (index) => {
@@ -267,17 +276,14 @@ const handleDeleteIngredient = (index) => {
                           {...field}
                           onChange={(e) => {
                             field.onChange(e);
-                            setSelectedIngredient(e.target.value);
-                            const selectedIngredientData = ingredientOptions.find(option => option.name === e.target.value);
-                            if (selectedIngredientData) {
-                              setValue("precio", selectedIngredientData.cost);
-                              setValue("unidad", selectedIngredientData.unit);
-                            }
+                            const found = ingredientOptions.find(o => o.name === e.target.value);
+                            setSelectedIngredient(found || null);
+                            if (found) setValue("unidad", found.unit);
                           }}
                         >
                           <option value="">Selecciona un ingrediente</option>
                           {ingredientOptions.map(option => (
-                            <option key={option._id} value={option.name}>{option.name}</option>
+                            <option key={option._id} value={option.name}>{option.name} — ${option.cost}/{option.amount}{option.unit}</option>
                           ))}
                         </select>
                       )}
