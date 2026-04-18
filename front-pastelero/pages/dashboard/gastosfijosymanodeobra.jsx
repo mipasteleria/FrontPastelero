@@ -19,7 +19,7 @@ export default function Conocenuestrosproductos() {
   useEffect(() => {
     const fetchCostData = async () => {
       try {
-        const response = await fetch(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`);
+        const response = await fetch(`${API_BASE}/costs`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -35,7 +35,7 @@ export default function Conocenuestrosproductos() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await fetch(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`, {
+      const response = await fetch(`${API_BASE}/costs`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

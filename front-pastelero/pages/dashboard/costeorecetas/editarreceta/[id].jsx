@@ -44,7 +44,7 @@ export default function EditarReceta() {
   
     const fetchCosts = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/costs/66dc00a6b33d98dd9e2b91a9`);
+        const response = await axios.get(`${API_BASE}/costs`);
         const data = response.data;
         setFixedCosts(data.fixedCosts);
         setFixedCostsHours(data.laborCosts);
@@ -59,15 +59,9 @@ export default function EditarReceta() {
         const additionalCostsValue = parseFloat(getValues("additional_costs") || 0);
         const profitMarginValue = parseFloat(getValues("profit_margin") || 0);
     
-        const totalCost =
-          ingredientTotal + data.fixedCosts + data.laborCosts + additionalCostsValue;
-    
-        const initialTotal =
-          totalCost +
-          (totalCost * profitMarginValue) / 100 +
-          (totalCost * specialTaxValue) / 100;
-    
-        setTotal(initialTotal);
+        // No incluir overhead ni margen en total_cost; eso lo hace costeoHandler
+        const rawCost = ingredientTotal + additionalCostsValue;
+        setTotal(rawCost + (rawCost * specialTaxValue) / 100);
       } catch (error) {
         console.error("Error fetching costs:", error);
       }
@@ -109,52 +103,45 @@ export default function EditarReceta() {
 
   const calculateTotal = useCallback(() => {
     const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
-    const { 
-      special_tax, 
-      additional_costs, 
-      profit_margin 
-    } = getValues();
-  
+    const { special_tax, additional_costs } = getValues();
     const specialTaxValue = parseFloat(special_tax || 0);
     const additionalCostsValue = parseFloat(additional_costs || 0);
-    const profitMarginValue = parseFloat(profit_margin || 0);
-    const totalCost = 
-    ingredientTotal + 
-    fixedCosts + 
-    fixedCostsHours + 
-    additionalCostsValue;
-  
-    const totalWithProfit = 
-    totalCost + 
-    (totalCost * profitMarginValue / 100) + 
-    (totalCost * specialTaxValue / 100);
-  
-    setTotal(totalWithProfit);
-  }, [ingredientsList, getValues, fixedCosts, fixedCostsHours]);
+    const rawCost = ingredientTotal + additionalCostsValue;
+    setTotal(rawCost + (rawCost * specialTaxValue / 100));
+  }, [ingredientsList, getValues]);
 
   useEffect(() => {
     calculateTotal();
   }, [calculateTotal]);
 
 const handleAddIngredient = () => {
-  const { ingrediente, cantidad, precio, unidad } = getValues();
-  if (ingrediente.trim() && cantidad && precio) {
-    const total = (parseFloat(precio) || 0) / (parseFloat(cantidad) || 1);
-    const newIngredient = { ingrediente, cantidad, precio: parseFloat(precio), unidad, total: total.toFixed(2) };
+  const { ingrediente, unidad } = getValues();
+  const cantidadRaw = parseFloat(getValues("cantidad") || 0);
+  if (!ingrediente?.trim() || !cantidadRaw) return;
 
-    console.log("Form Data on Add:", getValues());
-    console.log("Ingredient to be Added:", newIngredient);
-
-    setIngredientsList(prevIngredients => {
-      const newIngredients = [...prevIngredients, newIngredient];
-      calculateTotal();
-      return newIngredients;
-    });
-    setValue("cantidad", "");
-    setSelectedIngredient(null);
+  let precio, total;
+  if (selectedIngredient?.cost && selectedIngredient?.amount) {
+    const unitCost = selectedIngredient.cost / selectedIngredient.amount;
+    precio = Math.round(unitCost * cantidadRaw * 100) / 100;
+    total  = Math.round(unitCost * 100) / 100;
   } else {
-    console.error("Faltan valores para agregar el ingrediente");
+    precio = parseFloat(getValues("precio") || 0);
+    total  = cantidadRaw ? Math.round((precio / cantidadRaw) * 100) / 100 : 0;
   }
+
+  const newIngredient = {
+    insumoId: selectedIngredient?._id || null,
+    ingrediente,
+    cantidad: cantidadRaw,
+    precio,
+    unidad,
+    total,
+  };
+
+  setIngredientsList(prev => [...prev, newIngredient]);
+  setValue("cantidad", "");
+  setValue("precio", "");
+  setSelectedIngredient(null);
 };
 
 const handleDeleteIngredient = (index) => {
@@ -289,17 +276,14 @@ const handleDeleteIngredient = (index) => {
                           {...field}
                           onChange={(e) => {
                             field.onChange(e);
-                            setSelectedIngredient(e.target.value);
-                            const selectedIngredientData = ingredientOptions.find(option => option.name === e.target.value);
-                            if (selectedIngredientData) {
-                              setValue("precio", selectedIngredientData.cost);
-                              setValue("unidad", selectedIngredientData.unit);
-                            }
+                            const found = ingredientOptions.find(o => o.name === e.target.value);
+                            setSelectedIngredient(found || null);
+                            if (found) setValue("unidad", found.unit);
                           }}
                         >
                           <option value="">Selecciona un ingrediente</option>
                           {ingredientOptions.map(option => (
-                            <option key={option._id} value={option.name}>{option.name}</option>
+                            <option key={option._id} value={option.name}>{option.name} — ${option.cost}/{option.amount}{option.unit}</option>
                           ))}
                         </select>
                       )}
@@ -452,10 +436,13 @@ const handleDeleteIngredient = (index) => {
                 htmlFor="total_cost"
                 className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}
               >
-                Costo total estimado
+                Costo por lote de ingredientes
               </label>
               <p id="total_cost" className="text-center text-2xl">
                 {total !== null ? total.toFixed(2) : "0.00"} MXN
+              </p>
+              <p className="text-center text-xs text-gray-400 mt-1">
+                Solo ingredientes + costos adicionales + IEPS. El overhead y el margen se calculan en el costeo de cotización.
               </p>
             </div>
             <div className="flex flex-col md:flex-row gap-10 justify-center">
