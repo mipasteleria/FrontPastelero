@@ -4,4 +4,164 @@
 
 @import 'flowbite/dist/flowbite.css';
 
+/* ============================================================
+   FUENTES — El Ruiseñor
+   Sofia ya viene cargada página a página via next/font.
+   Fraunces + Nunito se cargan aquí globalmente.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;500;600;700;800&display=swap');
 
+/* ============================================================
+   DESIGN TOKENS — CSS custom properties
+   ============================================================ */
+:root {
+  /* Marca */
+  --burdeos:        #540027;
+  --burdeos-2:      #7A1F44;
+  --rosa:           #FF6F7D;
+  --rosa-2:         #FFA1AA;
+  --rosa-3:         #FFC3C9;
+  --rosa-4:         #FFE2E7;
+  --crema:          #FFF3F5;
+  --crema-2:        #FAEDE3;
+
+  /* Acentos */
+  --menta:          #B8E6D3;
+  --menta-deep:     #6FC9A8;
+  --pistache:       #D4E3A8;
+  --pistache-deep:  #9FB864;
+  --mantequilla:    #FFE99B;
+  --durazno:        #FFC9A5;
+  --lavanda:        #D9C4E8;
+
+  /* Semánticos */
+  --bg:             var(--crema);
+  --bg-raised:      #FFFFFF;
+  --bg-sunken:      #FFEEF1;
+  --color-text:     #2A0A1A;
+  --text-soft:      #5A3548;
+  --text-muted:     #8B6B7A;
+  --text-on-dark:   #FFF3F5;
+  --border-color:   #F5D4DA;
+  --border-strong:  #E8B5BE;
+
+  /* Sombras tintadas con burdeos */
+  --shadow-xs: 0 1px 2px rgba(84,0,39,0.06);
+  --shadow-sm: 0 2px 6px rgba(84,0,39,0.08);
+  --shadow-md: 0 8px 20px rgba(84,0,39,0.12);
+  --shadow-lg: 0 16px 36px rgba(84,0,39,0.16);
+  --shadow-xl: 0 30px 60px rgba(84,0,39,0.22);
+  --shadow-glow: 0 0 0 4px rgba(255,111,125,0.18);
+
+  /* Radios */
+  --r-sm:   6px;
+  --r-md:   12px;
+  --r-lg:   20px;
+  --r-xl:   28px;
+  --r-2xl:  36px;
+  --r-pill: 999px;
+
+  /* Tipografía */
+  --font-sofia:    'Sofia', cursive;
+  --font-fraunces: 'Fraunces', serif;
+  --font-nunito:   'Nunito', system-ui, sans-serif;
+  --font-poppins:  'Poppins', system-ui, sans-serif;
+
+  /* Motion */
+  --dur-fast:    150ms;
+  --dur-med:     280ms;
+  --dur-slow:    480ms;
+  --ease-out:    cubic-bezier(0.2,0.8,0.2,1);
+  --ease-bounce: cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* ============================================================
+   BASE GLOBAL
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background-color: var(--bg);
+  color: var(--color-text);
+  font-family: var(--font-poppins);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   UTILIDADES DE PATRÓN SVG
+   ============================================================ */
+.ru-bg {
+  background:
+    url('/patterns/sprinkle-wash.svg') center top / 480px repeat,
+    url('/patterns/branch-wash.svg') center / 640px repeat,
+    var(--crema);
+}
+.ru-pattern-sprinkle {
+  background-image: url('/patterns/sprinkle-wash.svg');
+  background-size: 480px;
+  background-repeat: repeat;
+}
+.ru-pattern-branches {
+  background-image: url('/patterns/branch-wash.svg');
+  background-size: 640px;
+  background-repeat: repeat;
+}
+
+/* ============================================================
+   COMPONENTES BASE
+   ============================================================ */
+
+/* Botones pill */
+.btn-ru {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--r-pill);
+  font-family: var(--font-nunito);
+  font-weight: 700;
+  font-size: 1rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  text-decoration: none;
+  line-height: 1;
+}
+.btn-ru-primary  { background: var(--rosa); color: #fff; box-shadow: var(--shadow-sm); }
+.btn-ru-primary:hover  { background: var(--burdeos); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.btn-ru-secondary { background: var(--burdeos); color: #fff; }
+.btn-ru-secondary:hover { background: #3D001D; }
+.btn-ru-ghost { background: transparent; color: var(--burdeos); border-color: var(--border-strong); }
+.btn-ru-ghost:hover { background: var(--rosa-4); }
+
+/* Cards */
+.card-ru {
+  background: var(--bg-raised);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Chips */
+.chip-ru {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+.chip-ru.active { background: var(--burdeos); color: #fff; border-color: var(--burdeos); }
+
+/* Status badges para pedidos */
+.status-new  { background: var(--mantequilla); color: #6B4F1A; padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.75rem; font-weight: 700; }
+.status-prep { background: var(--rosa-3);      color: var(--burdeos); padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.75rem; font-weight: 700; }
+.status-out  { background: var(--lavanda);     color: #5A3578; padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.75rem; font-weight: 700; }
+.status-done { background: var(--menta);       color: #1D5A45; padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.75rem; font-weight: 700; }
