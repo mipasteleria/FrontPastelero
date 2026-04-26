@@ -80,7 +80,7 @@ export default function Home() {
             <h1 className={sofia.className} style={{ fontSize: "clamp(3.5rem, 8vw, 6.5rem)", lineHeight: 0.97, color: "var(--burdeos)", marginBottom: "1.25rem" }}>
               Hornea<br />
               recuerdos
-              <span style={{ color: "var(--rosa)", display: "block", transform: "translateX(clamp(1.5rem,3vw,3rem)" }}>dulces.</span>
+              <span style={{ color: "var(--rosa)", display: "block", transform: "translateX(clamp(1.5rem,3vw,3rem))" }}>dulces.</span>
             </h1>
 
             <p style={{ fontSize: "1.05rem", color: "var(--text-soft)", maxWidth: "46ch", lineHeight: 1.7, marginBottom: "2rem" }}>
