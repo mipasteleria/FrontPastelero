@@ -1,462 +1,308 @@
 import Link from "next/link";
 import Image from "next/image";
 import NavbarAdmin from "@/src/components/navbar";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
 import { useState } from "react";
 import WebFooter from "@/src/components/WebFooter";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
 
+/* ── Accordion item data ──────────────────────────────────────── */
+const SECTIONS = [
+  {
+    id: 1,
+    label: "Nuestros sabores",
+    img: "/img/sabores.jpeg",
+    accent: "var(--rosa)",
+    blob: "rgba(255,111,125,0.12)",
+    content: [
+      { name: "Vainilla", desc: "El clásico sabor favorito de las fiestas infantiles, con un infalible gusto suave y esponjoso que evoca recuerdos de infancia y felicidad en cada bocado." },
+      { name: "Chocolate", desc: "Húmedo y con un rico sabor a chocolate, tan delicioso que todos tus invitados querrán una porción extra." },
+      { name: "Birthday Cake (con confetti 🎉)", desc: "Una opción colorida y divertida, especialmente diseñada para los festejos de cumpleaños." },
+      { name: "Red Velvet", desc: "Tan suave y terso como el terciopelo, con su textura sedosa y su distintivo sabor a cacao, con un toque de vainilla y un sutil tono ácido." },
+      { name: "Blueberry con Limón y Semilla de Amapola", desc: "El más fresco de los sabores, único y especial. La combinación de arándanos con limón y semillas de amapola crea una experiencia vibrante." },
+      { name: "Zanahoria", desc: "Especiado, húmedo y con un rico sabor a zanahoria. Una mezcla perfecta de sabores y texturas que te hará sentir como en casa." },
+      { name: "Naranja", desc: "Un sabor natural e intenso que amarás en cada bocado. La frescura cítrica brilla en este pastel." },
+      { name: "Manzana Canela", desc: "Inspirado en la tarta de manzana, combina la dulzura de las manzanas con el cálido abrazo de la canela." },
+      { name: "Dulce de Leche", desc: "Uno de los más dulces. Rico y caramelizado, se derrite en la boca dejando una satisfacción absoluta." },
+    ],
+  },
+  {
+    id: 2,
+    label: "Postres",
+    img: "/img/pay.jpeg",
+    accent: "var(--menta-deep)",
+    blob: "rgba(111,201,168,0.12)",
+    content: [
+      { name: "Pay de Queso", desc: "Relleno suave y cremoso con un toque de vainilla, sobre una base de galleta rica y crujiente." },
+      { name: "Brownie", desc: "Crujientes por fuera y húmedos por dentro, con un sabor intenso a chocolate." },
+      { name: "Galletas Decoradas", desc: "Galletas de mantequilla decoradas que se adaptan a la temática de tu fiesta, tan bonitas como deliciosas." },
+      { name: "Alfajores", desc: "Capas de galleta con un relleno dulce que te transportará a un mundo de sabores." },
+      { name: "Macarons", desc: "Delicada textura y una variedad de sabores exquisitos que harán las delicias de tu paladar." },
+      { name: "Donas", desc: "Frescas, esponjosas y cubiertas con glaseados irresistibles. Perfectas para cualquier momento del día." },
+      { name: "Paletas Magnum", desc: "Helado cremoso cubierto con una gruesa capa de chocolate. Un placer congelado." },
+      { name: "Cupcakes", desc: "Esponjosa masa y cobertura de crema — una explosión de sabor en cada bocado." },
+      { name: "Pan de Naranja con Mermelada de Maracuyá", desc: "Húmedo y aromático, con una exquisita mermelada de maracuyá que añade un toque tropical." },
+      { name: "Tarta de Frutas", desc: "Base crujiente con una colorida selección de frutas frescas, tan hermosa como deliciosa." },
+      { name: "Galletas Americanas", desc: "Las clásicas galletas con chispas de chocolate y una textura perfecta." },
+      { name: "Tarta de Manzana", desc: "Manzana jugosa con canela, en una base dorada y crujiente. El postre perfecto para cualquier temporada." },
+    ],
+  },
+  {
+    id: 4,
+    label: "Pasteles",
+    img: "/img/yoda.jpg",
+    accent: "var(--mantequilla)",
+    blob: "rgba(255,233,155,0.2)",
+    content: [
+      { name: "Pasteles Personalizados", desc: "Llevamos tus eventos al siguiente nivel con diseños únicos. Cada pastel es una obra de arte comestible, creada meticulosamente para impresionar desde todos los ángulos." },
+      { name: "Pasteles 3D", desc: "Figuras completamente personalizadas que cobran vida con detalles realistas y creativos. La experiencia comienza con la admiración de su diseño artístico." },
+      { name: "Para toda ocasión", desc: "Bodas, cumpleaños, XV años, aniversarios — cada celebración especial merece un pastel único que se convierta en el centro de atención." },
+    ],
+  },
+  {
+    id: 3,
+    label: "Galletas Americanas",
+    img: "/img/galletas.jpg",
+    accent: "var(--durazno)",
+    blob: "rgba(255,201,165,0.2)",
+    content: [
+      { name: "Chips de Chocolate con Nuez", desc: "Combina la dulzura de los chips de chocolate con el toque crujiente de las nueces — un clásico irresistible." },
+      { name: "Red Velvet con Chocolate Blanco", desc: "Rellena con queso crema y trozos de chocolate blanco — una auténtica indulgencia." },
+      { name: "Matcha con Macadamias", desc: "Rellena con queso crema y mermelada de frambuesa. Una combinación única que sorprenderá tu paladar." },
+      { name: "Limón con Amapola y Arándanos", desc: "Rellena de lemon curd y mermelada de frambuesa, con semillas de amapola y arándanos para una fiesta de sabor." },
+      { name: "Galleta de Pastel de Cumpleaños", desc: "Masa suave con chispas de colores. Perfecta para traer alegría a cualquier evento." },
+    ],
+  },
+];
+
+/* ── Accordion item component ─────────────────────────────────── */
+function AccordionItem({ section, isOpen, onToggle }) {
+  return (
+    <div
+      style={{
+        background: "var(--bg-raised)",
+        borderRadius: "var(--r-xl)",
+        boxShadow: isOpen ? "var(--shadow-md)" : "var(--shadow-xs)",
+        border: `1.5px solid ${isOpen ? section.accent : "var(--border-color)"}`,
+        overflow: "hidden",
+        transition: "box-shadow 200ms, border-color 200ms",
+      }}
+    >
+      {/* Header button */}
+      <button
+        type="button"
+        onClick={onToggle}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 16,
+          padding: "1.25rem 1.5rem",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          textAlign: "left",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {/* Thumbnail */}
+          <div
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: "50%",
+              overflow: "hidden",
+              flexShrink: 0,
+              border: `2.5px solid ${isOpen ? section.accent : "var(--border-color)"}`,
+              background: section.blob,
+              transition: "border-color 200ms",
+            }}
+          >
+            <Image
+              src={section.img}
+              width={60}
+              height={60}
+              alt={section.label}
+              style={{ objectFit: "cover", width: "100%", height: "100%" }}
+            />
+          </div>
+
+          {/* Label */}
+          <span
+            className={sofia.className}
+            style={{
+              fontSize: "1.4rem",
+              color: isOpen ? section.accent : "var(--burdeos)",
+              lineHeight: 1.2,
+              transition: "color 200ms",
+            }}
+          >
+            {section.label}
+          </span>
+        </div>
+
+        {/* Chevron */}
+        <span
+          style={{
+            flexShrink: 0,
+            color: isOpen ? section.accent : "var(--text-muted)",
+            transition: "transform 250ms, color 200ms",
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+            display: "flex",
+          }}
+        >
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
+          </svg>
+        </span>
+      </button>
+
+      {/* Body */}
+      {isOpen && (
+        <div
+          style={{
+            padding: "0 1.5rem 1.5rem",
+            borderTop: `1px solid var(--border-color)`,
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+              gap: "0.75rem",
+              paddingTop: "1.25rem",
+            }}
+          >
+            {section.content.map((item) => (
+              <div
+                key={item.name}
+                style={{
+                  background: section.blob,
+                  borderRadius: "var(--r-md)",
+                  padding: "1rem",
+                  border: `1px solid ${section.accent}22`,
+                }}
+              >
+                <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "var(--color-text)", marginBottom: 4 }}>
+                  {item.name}
+                </div>
+                <div style={{ fontSize: "0.8rem", color: "var(--text-soft)", lineHeight: 1.55 }}>
+                  {item.desc}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Page ─────────────────────────────────────────────────────── */
 export default function ConocenuestrosProductos() {
   const [openSection, setOpenSection] = useState(null);
 
-  const toggleSection = (section) => {
-    setOpenSection(openSection === section ? null : section);
-  };
-
-  const isSectionOpen = (section) => {
-    return openSection === section;
-  };
+  const toggleSection = (id) => setOpenSection(openSection === id ? null : id);
 
   return (
-    <div>
+    <div
+      className={nunito.className}
+      style={{ minHeight: "100vh", background: "var(--bg-sunken)", display: "flex", flexDirection: "column" }}
+    >
+      {/* Sprinkle overlay */}
+      <div
+        aria-hidden="true"
+        className="ru-pattern-sprinkle fixed inset-0 pointer-events-none z-0"
+        style={{ opacity: 0.07 }}
+      />
+
       <NavbarAdmin />
+
       <main
-        className={`text-text ${poppins.className} max-w-screen-lg mx-auto mt-16`}
+        className="flex-grow relative z-10"
+        style={{ marginTop: "4rem", padding: "2.5rem 1.25rem 3rem", maxWidth: 900, marginLeft: "auto", marginRight: "auto", width: "100%" }}
       >
-        <h1 
-        className={`text-4xl p-4 ${sofia.className}`}>
-          Conoce nuestros productos
-        </h1>
-        <div 
-        className="p-4" 
-        id="accordion-open" 
-        data-accordion="open">
-          <h2 id="accordion-open-heading-1">
-            <button
-              type="button"
-              className="flex items-center justify-between w-full p-5 font-medium rtl:text-right border-b-0 border border-secondary rounded-t-xl focus:ring-4 focus:ring-accent hover:bg-rose-50 gap-3"
-              data-accordion-target="#accordion-open-body-1"
-              aria-expanded={isSectionOpen(1)}
-              aria-controls="accordion-open-body-1"
-              onClick={() => toggleSection(1)}
-            >
-              <span 
-              className="flex items-center text-xl">
-                <Image
-                  width={500}
-                  height={500}
-                  className="rounded-full w-20 h-20 md:h-32 md:w-32 m-6"
-                  src="/img/sabores.jpeg"
-                  alt=""
-                />
-                Nuestros sabores
-              </span>
-              <svg
-                data-accordion-icon
-                className={`w-3 h-3 ${
-                  isSectionOpen(1) ? "" : "rotate-180"
-                } shrink-0`}
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 10 6"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5 5 1 1 5"
-                />
-              </svg>
-            </button>
-          </h2>
-          <div
-            id="accordion-open-body-1"
-            className={`${isSectionOpen(1) ? "" : "hidden"}`}
-            aria-labelledby="accordion-open-heading-1"
+        {/* ── Page header ─────────────────────────────────── */}
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <p
+            style={{
+              fontSize: "0.72rem", fontWeight: 700,
+              textTransform: "uppercase", letterSpacing: "0.14em",
+              color: "var(--rosa)", marginBottom: 8,
+            }}
           >
-            <div 
-            className="p-5 border border-b-0 border-secondary leading-relaxed">
-              <p 
-              className="mb-2">
-                <b>Vainilla</b> - El clásico sabor favorito de las fiestas
-                infantiles, con un infalible gusto suave y esponjoso que evoca
-                recuerdos de infancia y felicidad en cada bocado. ¡Un deleite
-                atemporal!
-              </p>
-              <p 
-              className="mb-2">
-                <b>Chocolate</b> - Húmedo y con un rico sabor a chocolate, tan
-                delicioso que todos tus invitados querrán una porción extra.
-                Cada mordisco es una explosión de puro placer chocolatoso que te
-                dejará deseando más.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Birthday Cake (con confetti 🎉)</b> - Una opción colorida y
-                divertida, especialmente diseñada para los festejos de
-                cumpleaños. Este pastel no solo es visualmente alegre, sino que
-                cada bocado es simplemente delicioso, con un sabor clásico y una
-                textura esponjosa que hará sonreír a todos.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Red Velvet</b> - Tan suave y terso como el terciopelo, este
-                favorito de muchos encanta con su textura sedosa y su distintivo
-                sabor a cacao, con un toque de vainilla y un sutil tono ácido
-                que lo hace irresistible.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Blueberry con Limón y Semilla de Amapola</b> - El más fresco
-                de los sabores, único y especial en todos los sentidos. La
-                combinación de arándanos jugosos con el toque cítrico del limón
-                y la delicada textura de las semillas de amapola crea una
-                experiencia gustativa vibrante y refrescante.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Zanahoria</b> - Este pastel es un clásico que combina la
-                dulzura natural de la zanahoria con un toque de especias
-                cálidas. Especiado, húmedo y con un rico sabor a zanahoria, cada
-                mordisco es una mezcla perfecta de sabores y texturas que te
-                hará sentir como en casa.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Naranja</b> - Un sabor natural e intenso que amarás en cada
-                bocado. La frescura cítrica de la naranja brilla en este pastel,
-                ofreciendo un sabor vibrante y refrescante que despierta tus
-                sentidos y te deja con ganas de más.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Manzana Canela</b> - Inspirado en la tarta de manzana, este
-                pastel combina la dulzura de las manzanas jugosas con el cálido
-                abrazo de la canela. Es un bocado nostálgico que evoca la
-                comodidad del hogar y el sabor de los momentos especiales.
-              </p>
-              <p className="mb-2">
-                <b>Dulce de Leche</b> - Uno de los más dulces, pero solicitado
-                por los amantes del dulce de leche. Este pastel es una
-                indulgencia pura, con un sabor rico y caramelizado que se
-                derrite en la boca y deja una sensación de satisfacción
-                absoluta. ¡Perfecto para los golosos!
-              </p>
-            </div>
-          </div>
-
-          <h2 id="accordion-open-heading-2">
-            <button
-              type="button"
-              className="flex items-center justify-between w-full p-5 font-medium rtl:text-right border border-b-0 border-secondary focus:ring-4 focus:ring-accent hover:bg-rose-50 gap-3"
-              data-accordion-target="#accordion-open-body-2"
-              aria-expanded={isSectionOpen(2)}
-              aria-controls="accordion-open-body-2"
-              onClick={() => toggleSection(2)}
-            >
-              <span className="flex items-center text-xl">
-                <Image
-                  width={500}
-                  height={500}
-                  className="rounded-full w-20 h-20 md:h-32 md:w-32 m-6"
-                  src="/img/pay.jpeg"
-                  alt=""
-                />
-                Postres
-              </span>
-              <svg
-                data-accordion-icon
-                className={`w-3 h-3 ${
-                  isSectionOpen(2) ? "" : "rotate-180"
-                } shrink-0`}
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 10 6"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5 5 1 1 5"
-                />
-              </svg>
-            </button>
-          </h2>
-          <div
-            id="accordion-open-body-2"
-            className={`${isSectionOpen(2) ? "" : "hidden"}`}
-            aria-labelledby="accordion-open-heading-2"
+            Menú y especialidades
+          </p>
+          <h1
+            className={sofia.className}
+            style={{ fontSize: "clamp(2rem, 5vw, 3rem)", color: "var(--burdeos)", lineHeight: 1.1, marginBottom: 12 }}
           >
-            <div 
-            className="p-5 border border-b-0 border-secondary leading-relaxed">
-              <p 
-              className="mb-2">
-                <b>Pay de Queso</b> - Deléitate con nuestro pay de queso, que
-                presenta un relleno suave y cremoso con un toque de vainilla,
-                sobre una base de galleta rica y crujiente. ¡Una combinación
-                perfecta para cualquier ocasión!
-              </p>
-              <p 
-              className="mb-2">
-                <b>Brownie</b> - Disfruta de nuestros brownies, crujientes por
-                fuera y húmedos por dentro, con un sabor intenso a chocolate que
-                te dejará queriendo más.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Galletas Decoradas</b> - Nuestras galletas de mantequilla
-                decoradas pueden adaptarse a la temática de tu fiesta, añadiendo
-                un toque especial y personalizado a tu evento. ¡Son tan bonitas
-                como deliciosas!
-              </p>
-              <p 
-              className="mb-2">
-                <b>Alfajores</b> - Sumérgete en la delicia de nuestros
-                alfajores, con capas de galleta y un relleno dulce que te
-                transportará a un mundo de sabores.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Macarons</b> - Experimenta la elegancia de nuestros macarons,
-                con su delicada textura y una variedad de sabores exquisitos que
-                harán las delicias de tu paladar.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Donas</b> - Saborea nuestras donas frescas, esponjosas y
-                cubiertas con glaseados irresistibles. ¡Perfectas para cualquier
-                momento del día!
-              </p>
-              <p 
-              className="mb-2">
-                <b>Paletas Magnum</b> - Date un capricho con nuestras paletas
-                Magnum, una combinación de helado cremoso cubierto con una
-                gruesa capa de chocolate. ¡Un placer congelado!
-              </p>
-              <p 
-              className="mb-2">
-                <b>Cupcakes</b> - Nuestros cupcakes, con su esponjosa masa y
-                cobertura de crema, son una explosión de sabor en cada bocado.
-                ¡Ideales para cualquier celebración!
-              </p>
-              <p 
-              className="mb-2">
-                <b>Pan de Naranja con Mermelada de Maracuyá</b> - Prueba nuestro
-                pan de naranja, húmedo y aromático, acompañado de una exquisita
-                mermelada de maracuyá que añade un toque tropical.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Tarta de Frutas</b> - Nuestra tarta de frutas, con su base
-                crujiente y una colorida selección de frutas frescas, es un
-                postre tan hermoso como delicioso.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Galletas Americanas</b> - Disfruta de las clásicas galletas
-                americanas, con chispas de chocolate y una textura perfecta que
-                te hará sentir como en casa.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Tarta de Manzana</b> - Termina tu comida con nuestra tarta de
-                manzana, llena de rodajas de manzana jugosa y una pizca de
-                canela, todo en una base dorada y crujiente. ¡El postre perfecto
-                para cualquier temporada!
-              </p>
-            </div>
-          </div>
-
-          <h2 id="accordion-open-heading-4">
-            <button
-              type="button"
-              className="flex items-center justify-between w-full p-5 font-medium rtl:text-right border border-b-0 border-secondary focus:ring-4 focus:ring-accent hover:bg-rose-50 gap-3"
-              data-accordion-target="#accordion-open-body-4"
-              aria-expanded={isSectionOpen(4)}
-              aria-controls="accordion-open-body-4"
-              onClick={() => toggleSection(4)}
-            >
-              <span className="flex items-center">
-                <Image
-                  width={500}
-                  height={500}
-                  className="rounded-full w-20 h-20 md:h-32 md:w-32 m-6"
-                  src="/img/yoda.jpg"
-                  alt=""
-                />
-                Pasteles
-              </span>
-              <svg
-                data-accordion-icon
-                className={`w-3 h-3 ${
-                  isSectionOpen(4) ? "" : "rotate-180"
-                } shrink-0`}
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 10 6"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5 5 1 1 5"
-                />
-              </svg>
-            </button>
-          </h2>
-          <div
-            id="accordion-open-body-4"
-            className={`${isSectionOpen(4) ? "" : "hidden"}`}
-            aria-labelledby="accordion-open-heading-4"
-          >
-            <div 
-            className="p-5 border border-t-0 border-secondary leading-relaxed">
-              <p 
-              className="mb-2">
-                Lleva tus eventos al siguiente nivel con nuestros impresionantes
-                pasteles 3D. Estos pasteles no solo son una delicia para el
-                paladar, sino también un espectáculo visual que dejará a todos
-                maravillados. Cada pastel 3D es una obra de arte comestible,
-                creada meticulosamente para impresionar desde todos los ángulos.
-              </p>
-              <p 
-              className="mb-2">
-                Imagina la emoción de tus invitados al ver un pastel que cobra
-                vida con detalles realistas y creativos, adaptado perfectamente
-                a la temática de tu evento. La experiencia comienza con la
-                admiración de su diseño artístico y culmina con la suculencia de
-                cada bocado, que combina sabores exquisitos y texturas
-                irresistibles.
-              </p>
-              <p 
-              className="mb-2">
-                Ya sea un cumpleaños, una boda, un aniversario o cualquier
-                celebración especial, nuestros pasteles 3D se convertirán en el
-                centro de atención y en el tema de conversación de la fiesta. No
-                solo aportan un toque de elegancia y diversión, sino que también
-                ofrecen una experiencia multisensorial que hará de tu evento
-                algo verdaderamente memorable.
-              </p>
-              <p 
-              className="mb-2">
-                Deja que nuestros talentosos pasteleros transformen tu visión en
-                realidad y sorprende a tus seres queridos con un pastel que no
-                solo se ve increíble, sino que también sabe delicioso. ¡Haz que
-                tu celebración sea inolvidable con estos pasteles únicos y
-                sorprendentes!
-              </p>
-            </div>
-          </div>
-
-          <h2 
-          id="accordion-open-heading-3">
-            <button
-              type="button"
-              className="flex items-center justify-between w-full p-5 font-medium rtl:text-right border border-b-0 border-secondary focus:ring-4 focus:ring-accent hover:bg-rose-50 gap-3"
-              data-accordion-target="#accordion-open-body-3"
-              aria-expanded={isSectionOpen(3)}
-              aria-controls="accordion-open-body-3"
-              onClick={() => toggleSection(3)}
-            >
-              <span className="flex items-center">
-                <Image
-                  width={500}
-                  height={500}
-                  className="rounded-full w-20 h-20 md:h-32 md:w-32 m-6"
-                  src="/img/galletas.jpg"
-                  alt=""
-                />
-                Galletas Americanas
-              </span>
-              <svg
-                data-accordion-icon
-                className={`w-3 h-3 ${
-                  isSectionOpen(3) ? "" : "rotate-180"
-                } shrink-0`}
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 10 6"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5 5 1 1 5"
-                />
-              </svg>
-            </button>
-          </h2>
-          <div
-            id="accordion-open-body-3"
-            className={`${isSectionOpen(3) ? "" : "hidden"}`}
-            aria-labelledby="accordion-open-heading-3"
-          >
-            <div 
-            className="p-5 border border-secondary leading-relaxed">
-              <p 
-              className="mb-2">
-                <b>Galleta de Chips de Chocolate con Nuez:</b> Sumérgete en el
-                placer de un clásico irresistible. Esta galleta combina la
-                dulzura de los chips de chocolate con el toque crujiente de las
-                nueces, creando una experiencia de sabor que te llevará de
-                regreso a tus recuerdos más felices.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Galleta Red Velvet con Chocolate Blanco:</b> ¡Prepárate para
-                un deleite decadente! Nuestra galleta Red Velvet está rellena
-                con queso crema, que se complementa perfectamente con los trozos
-                de chocolate blanco, ofreciendo una explosión de sabor en cada
-                mordisco. ¡Es una auténtica indulgencia!
-              </p>
-              <p 
-              className="mb-2">
-                <b>Galleta Matcha con Macadamias:</b> Para aquellos que buscan
-                algo exótico, nuestra galleta de matcha con macadamias es la
-                elección ideal. Rellena con queso crema y mermelada de
-                frambuesa, esta galleta ofrece una combinación única de sabores
-                y texturas que sorprenderán y encantarán tu paladar.
-              </p>
-              <p 
-              className="mb-2">
-                <b>
-                  Galleta de Limón con Semillas de Amapola y Arándanos Azules:
-                </b>{" "}
-                ¡Una delicia llena de sorpresas refrescantes! Nuestra galleta de
-                limón está rellena de lemon curd y mermelada de frambuesa,
-                creando un equilibrio perfecto entre el sabor cítrico y la
-                dulzura. Las semillas de amapola y los arándanos azules añaden
-                un toque de frescura que hará que cada bocado sea una fiesta de
-                sabor.
-              </p>
-              <p 
-              className="mb-2">
-                <b>Galleta de Pastel de Cumpleaños:</b> ¡Celebra cualquier
-                ocasión con nuestra divertida y colorida galleta de pastel de
-                cumpleaños! Con su masa suave y esponjosa, decorada con chispas
-                de colores, esta galleta es perfecta para traer alegría y
-                diversión a cualquier evento. ¡Cada bocado es una celebración!
-              </p>
-            </div>
-          </div>
+            Conoce nuestros productos
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontWeight: 600, fontSize: "0.9rem", maxWidth: 480, margin: "0 auto" }}>
+            Pasteles personalizados, postres, galletas y más — todos hechos con ingredientes selectos y mucho amor.
+          </p>
         </div>
-        <p 
-        className="bg-rose-50 m-10 p-10 rounded-lg">
-          ¿No suena tentador? Ven y prueba estas delicias que no solo satisfarán
-          tus antojos, sino que también añadirán un toque especial y delicioso a
-          cualquier ocasión. ¡No podrás resistirte!
-        </p>
+
+        {/* ── Accordion ───────────────────────────────────── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          {SECTIONS.map((section) => (
+            <AccordionItem
+              key={section.id}
+              section={section}
+              isOpen={openSection === section.id}
+              onToggle={() => toggleSection(section.id)}
+            />
+          ))}
+        </div>
+
+        {/* ── CTA banner ──────────────────────────────────── */}
+        <div
+          style={{
+            marginTop: "2.5rem",
+            background: "linear-gradient(135deg, var(--burdeos) 0%, #7A1F44 100%)",
+            borderRadius: "var(--r-xl)",
+            padding: "2rem 2rem",
+            textAlign: "center",
+            color: "#fff",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            aria-hidden="true"
+            className="ru-pattern-sprinkle absolute inset-0 pointer-events-none"
+            style={{ opacity: 0.18 }}
+          />
+          <p className={sofia.className} style={{ fontSize: "1.75rem", marginBottom: 8, position: "relative" }}>
+            ¿Te antojaste?
+          </p>
+          <p style={{ color: "rgba(255,210,220,0.9)", fontSize: "0.9rem", marginBottom: "1.25rem", position: "relative", fontWeight: 600 }}>
+            Cotiza tu pedido y te respondemos en menos de 24 horas.
+          </p>
+          <Link href="/cotizacion" style={{ position: "relative", display: "inline-block" }}>
+            <button
+              style={{
+                padding: "12px 32px", borderRadius: "var(--r-pill)",
+                background: "var(--rosa)", color: "#fff",
+                fontWeight: 800, fontSize: "0.95rem",
+                border: "none", cursor: "pointer",
+                boxShadow: "0 4px 16px rgba(255,111,125,0.4)",
+                fontFamily: "var(--font-nunito)",
+                transition: "all 150ms",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(255,111,125,0.5)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(255,111,125,0.4)"; }}
+            >
+              ¡Cotizar ahora! →
+            </button>
+          </Link>
+        </div>
       </main>
+
       <WebFooter />
     </div>
   );

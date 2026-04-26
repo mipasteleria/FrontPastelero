@@ -6,47 +6,189 @@ import Cupcakeprice from "@/src/components/cotizacion/cupcakeprice";
 import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import Link from "next/link";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700"] });
+
+const PRODUCTS = [
+  { value: "cake", label: "Pastel", emoji: "🎂" },
+  { value: "snack", label: "Mesa de postres", emoji: "🍮" },
+  { value: "cupcake", label: "Cupcakes", emoji: "🧁" },
+];
 
 export default function Price() {
   const [selectedProduct, setSelectedProduct] = useState("cake");
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn } = useAuth();
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div
+      className={`flex flex-col min-h-screen ${nunito.className}`}
+      style={{ background: "var(--bg-sunken)", position: "relative" }}
+    >
+      {/* Sprinkle pattern overlay */}
+      <div
+        className="ru-pattern-sprinkle"
+        style={{
+          position: "fixed",
+          inset: 0,
+          opacity: 0.07,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
       <NavbarAdmin />
+
       <main
-        className={`flex-grow text-text ${poppins.className} mt-20 max-w-screen-lg mx-auto`}
+        style={{
+          position: "relative",
+          zIndex: 1,
+          flexGrow: 1,
+          maxWidth: "1024px",
+          width: "100%",
+          margin: "0 auto",
+          marginTop: "4rem",
+          padding: "2rem 1.25rem",
+        }}
       >
-        <h1 className={`text-4xl m-6 ${sofia.className}`}>
-          Solicitar cotización
-        </h1>
+        {/* Page header */}
+        <div style={{ marginBottom: "2rem" }}>
+          <p
+            style={{
+              color: "var(--rosa)",
+              fontFamily: "var(--font-nunito, inherit)",
+              fontWeight: 700,
+              fontSize: "0.75rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.12em",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Pedido especial
+          </p>
+          <h1
+            className={sofia.className}
+            style={{
+              color: "var(--burdeos)",
+              fontSize: "3rem",
+              lineHeight: 1.1,
+              marginBottom: "0.75rem",
+            }}
+          >
+            Cotiza tu pastel
+          </h1>
+          <p
+            style={{
+              color: "var(--text-muted)",
+              fontSize: "0.9rem",
+              maxWidth: "560px",
+            }}
+          >
+            Cuéntanos sobre tu ocasión especial y te preparamos una propuesta a
+            la medida.
+          </p>
+        </div>
 
         {!isLoggedIn ? (
-          <div className="bg-rose-100 p-6 rounded-lg shadow-md mb-28">
-            <h2 className={`text-2xl ${sofia.className} mb-4`}>
+          /* Not-logged-in card */
+          <div
+            style={{
+              background: "#ffffff",
+              borderRadius: "var(--r-xl)",
+              boxShadow: "var(--shadow-md)",
+              border: "1px solid var(--border-color)",
+              padding: "2rem 2.5rem",
+              marginBottom: "7rem",
+            }}
+          >
+            <h2
+              className={sofia.className}
+              style={{
+                color: "var(--burdeos)",
+                fontSize: "1.6rem",
+                marginBottom: "0.75rem",
+              }}
+            >
               Para solicitar una cotización necesitas iniciar sesión
             </h2>
-            <p>
+            <p
+              style={{
+                color: "var(--text-soft)",
+                fontSize: "0.95rem",
+                marginBottom: "1.75rem",
+              }}
+            >
               Por favor, inicia sesión o regístrate para continuar con el
               proceso de cotización. También puedes volver al inicio.
             </p>
-            <div className="flex flex-col md:flex-row items-center md:justify-around mt-6">
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "0.75rem",
+                alignItems: "center",
+              }}
+            >
               <Link href="/registrarse">
-                <button className="bg-accent text-white px-4 py-2 rounded hover:bg-accent-dark my-6">
+                <button
+                  style={{
+                    background: "transparent",
+                    color: "var(--burdeos)",
+                    border: "1.5px solid var(--burdeos)",
+                    borderRadius: "var(--r-pill)",
+                    padding: "10px 24px",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                    cursor: "pointer",
+                    transition: "all 150ms",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "var(--burdeos)";
+                    e.currentTarget.style.color = "#fff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "var(--burdeos)";
+                  }}
+                >
                   Registrarse
                 </button>
               </Link>
               <Link href="/login">
-                <button className="bg-accent text-white px-4 py-2 rounded hover:bg-accent-dark my-6">
+                <button
+                  className="btn-ru btn-ru-primary"
+                  style={{
+                    padding: "10px 24px",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                  }}
+                >
                   Iniciar sesión
                 </button>
               </Link>
               <Link href="/">
-                <button className="bg-secondary text-text px-4 py-2 rounded hover:bg-gray-400 my-6">
+                <button
+                  style={{
+                    background: "transparent",
+                    color: "var(--burdeos)",
+                    border: "1.5px solid var(--burdeos)",
+                    borderRadius: "var(--r-pill)",
+                    padding: "10px 24px",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                    cursor: "pointer",
+                    transition: "all 150ms",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "var(--burdeos)";
+                    e.currentTarget.style.color = "#fff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "transparent";
+                    e.currentTarget.style.color = "var(--burdeos)";
+                  }}
+                >
                   Volver al inicio
                 </button>
               </Link>
@@ -54,58 +196,85 @@ export default function Price() {
           </div>
         ) : (
           <>
-            <p className=" mx-4">
+            {/* Info box */}
+            <div
+              style={{
+                background: "var(--rosa-4)",
+                borderRadius: "var(--r-md)",
+                padding: "1rem 1.25rem",
+                fontSize: "0.85rem",
+                color: "var(--text-soft)",
+                borderLeft: "3px solid var(--rosa)",
+                marginBottom: "1.75rem",
+              }}
+            >
               Le pedimos que complete cada campo con la mayor cantidad de
               detalles posible para acelerar el proceso de cotización. Recuerda
               que somos una empresa pequeña que realiza pocos pasteles a la
               semana. Por favor, solicita tu cotización con suficiente
               anticipación. Hacemos todo lo posible para responder rápidamente,
               pero a veces puede haber retrasos. Agradecemos tu comprensión.
-            </p>
-            <p className={`text-2xl m-4 ${sofia.className}`}>
+            </div>
+
+            {/* Product selector label */}
+            <p
+              className={sofia.className}
+              style={{
+                color: "var(--burdeos)",
+                fontSize: "1.3rem",
+                marginBottom: "0.5rem",
+              }}
+            >
               Selecciona el producto que deseas cotizar:
             </p>
 
-            <div className="flex justify-between items-center m-4 w-full text-text rounded focus:ring-accent focus:ring-2 focus:border-accent">
-              <label className="flex items-center justify-center w-full text-center">
-                <input
-                  type="radio"
-                  name="product"
-                  value="cake"
-                  onChange={() => setSelectedProduct("cake")}
-                  defaultChecked
-                  className="mr-2 bg-gray-100 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                />
-                Pastel
-              </label>
-              <label className="flex items-center justify-center w-full text-center">
-                <input
-                  type="radio"
-                  name="product"
-                  value="snack"
-                  onChange={() => setSelectedProduct("snack")}
-                  className="mr-2 bg-gray-100 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                />
-                Mesa de postres
-              </label>
-              <label className="flex items-center justify-center w-full text-center">
-                <input
-                  type="radio"
-                  name="product"
-                  value="cupcake"
-                  onChange={() => setSelectedProduct("cupcake")}
-                  className="mr-2 bg-gray-100 text-accent border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                />
-                Cupcakes
-              </label>
+            {/* Chip selector */}
+            <div
+              style={{
+                display: "flex",
+                gap: "12px",
+                margin: "1.5rem 0",
+                flexWrap: "wrap",
+              }}
+            >
+              {PRODUCTS.map(({ value, label, emoji }) => {
+                const isSelected = selectedProduct === value;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => setSelectedProduct(value)}
+                    style={{
+                      background: isSelected
+                        ? "var(--burdeos)"
+                        : "var(--bg-raised)",
+                      color: isSelected ? "#ffffff" : "var(--burdeos)",
+                      border: isSelected
+                        ? "1.5px solid var(--burdeos)"
+                        : "1.5px solid var(--border-strong)",
+                      borderRadius: "var(--r-pill)",
+                      padding: "10px 24px",
+                      fontWeight: 700,
+                      fontSize: "0.9rem",
+                      cursor: "pointer",
+                      transition: "all 150ms",
+                    }}
+                  >
+                    {emoji} {label}
+                  </button>
+                );
+              })}
             </div>
 
-            {selectedProduct === "cake" && <Cakeprice />}
-            {selectedProduct === "snack" && <Snackprice />}
-            {selectedProduct === "cupcake" && <Cupcakeprice />}
+            {/* Sub-component area */}
+            <div style={{ marginTop: "1.5rem" }}>
+              {selectedProduct === "cake" && <Cakeprice />}
+              {selectedProduct === "snack" && <Snackprice />}
+              {selectedProduct === "cupcake" && <Cupcakeprice />}
+            </div>
           </>
         )}
       </main>
+
       <WebFooter />
     </div>
   );
