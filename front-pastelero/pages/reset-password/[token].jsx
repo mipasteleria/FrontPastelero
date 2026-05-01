@@ -15,6 +15,7 @@ export default function ResetPassword() {
   const router = useRouter();
   const { token } = router.query;
   const [done, setDone] = useState(false);
+  const [invalidLink, setInvalidLink] = useState(false);
 
   const onSubmit = async (data) => {
     if (!token) return;
@@ -28,6 +29,9 @@ export default function ResetPassword() {
 
       if (res.ok) {
         setDone(true);
+      } else if (res.status === 400 && json.message?.includes("inválido")) {
+        // Token expired or already used — show dedicated recovery UI
+        setInvalidLink(true);
       } else {
         Swal.fire({
           title: "Error",
@@ -132,6 +136,35 @@ export default function ResetPassword() {
                 }}
               >
                 Iniciar sesión
+              </button>
+            </Link>
+          </div>
+        ) : invalidLink ? (
+          /* ── Invalid / expired token state ── */
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⏰</div>
+            <h1 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "2rem", marginBottom: "0.75rem" }}>
+              Enlace expirado
+            </h1>
+            <p style={{ color: "var(--text-soft)", fontSize: "0.9rem", lineHeight: 1.7, marginBottom: "1.75rem" }}>
+              Este enlace ya no es válido. Puede que hayas solicitado otro correo después o que el enlace haya caducado (válido por 1 hora). Solicita uno nuevo y úsalo de inmediato.
+            </p>
+            <Link href="/recuperar-contrasena">
+              <button
+                style={{
+                  padding: "12px 32px",
+                  borderRadius: "var(--r-pill)",
+                  background: "var(--burdeos)",
+                  color: "#fff",
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: "0.9rem",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-nunito)",
+                  transition: "all 150ms",
+                }}
+              >
+                Solicitar nuevo enlace
               </button>
             </Link>
           </div>
