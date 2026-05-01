@@ -84,7 +84,7 @@ export default function Home() {
             </h1>
 
             <p style={{ fontSize: "1.05rem", color: "var(--text-soft)", maxWidth: "46ch", lineHeight: 1.7, marginBottom: "2rem" }}>
-              Pastelería artesanal en la Ciudad de México. Horneamos cada pieza a pedido, con ingredientes de temporada y un toque del ruiseñor.
+              Pastelería artesanal en Guadalajara, Jalisco. Horneamos cada pieza a pedido, con ingredientes de temporada y un toque del ruiseñor.
             </p>
 
             {/* CTAs */}
@@ -105,7 +105,7 @@ export default function Home() {
 
             {/* Stats */}
             <div style={{ display: "flex", gap: "2.5rem" }}>
-              {[["12+","sabores"],["4.9★","458 reseñas"],["72h","entrega CDMX"]].map(([n,l])=>(
+              {[["12+","sabores"],["4.9★","458 reseñas"],["72h","entrega GDL"]].map(([n,l])=>(
                 <div key={l}>
                   <div className={sofia.className} style={{ fontSize: "2.5rem", color: "var(--rosa)", lineHeight: 1 }}>{n}</div>
                   <div style={{ fontSize: "0.8rem", color: "var(--text-soft)", fontWeight: 600 }}>{l}</div>
