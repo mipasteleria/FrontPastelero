@@ -149,7 +149,12 @@ export default function Login() {
             <p className="text-red-600 mt-1">{errors.password.message}</p>
           )}
         </div>
-        <div 
+        <div style={{ textAlign: "right", marginTop: "-0.75rem", marginBottom: "1rem" }}>
+          <Link href="/recuperar-contrasena" style={{ fontSize: "0.82rem", color: "#540027", fontWeight: 600 }}>
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
+        <div
         className="flex items-center mb-5">
           <input
             id="remember"

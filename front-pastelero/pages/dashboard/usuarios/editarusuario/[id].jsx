@@ -114,7 +114,21 @@ export default function UsuarioForm() {
     try {
       const url = `${API_BASE}/users/${id}`;
 
-      // Filtrar los datos a enviar
+      // Validate password match if provided
+      if (data.password && data.password !== data.repeat_password) {
+        Swal.fire({
+          title: "Error",
+          text: "Las contraseñas no coinciden.",
+          icon: "error",
+          timer: 2500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
+        return;
+      }
+
       const updatedData = {
         email: data.email,
         lastname: data.lastname,
@@ -123,9 +137,10 @@ export default function UsuarioForm() {
         role: data.role,
       };
 
-      // Remover los campos de contraseña si están vacíos
-      if (!data.password) delete updatedData.password;
-      if (!data.repeat_password) delete updatedData.repeat_password;
+      // Include password only when provided
+      if (data.password) {
+        updatedData.password = data.password;
+      }
 
       // Logs para verificar los datos enviados
       console.log("URL de la solicitud:", url);
@@ -237,6 +252,7 @@ export default function UsuarioForm() {
     errors,
     placeholder,
     pattern,
+    required: isRequired = true,
   }) => (
     <div className="mb-5">
       <label
@@ -249,7 +265,7 @@ export default function UsuarioForm() {
         type={type}
         id={id}
         {...register(id, {
-          required: `El campo ${label.toLowerCase()} es obligatorio`,
+          required: isRequired ? `El campo ${label.toLowerCase()} es obligatorio` : false,
           pattern: pattern && {
             value: pattern,
             message: "Formato no válido",
@@ -291,6 +307,7 @@ export default function UsuarioForm() {
                   label="Contraseña"
                   register={register}
                   errors={errors.password}
+                  required={false}
                 />
                 <InputField
                   id="repeat_password"
@@ -298,6 +315,7 @@ export default function UsuarioForm() {
                   label="Confirmar Contraseña"
                   register={register}
                   errors={errors.repeat_password}
+                  required={false}
                 />
                 <div className="grid md:grid-cols-2 md:gap-6 mb-5">
                   <InputField
