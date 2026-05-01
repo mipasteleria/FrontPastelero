@@ -274,10 +274,10 @@ export default function Price() {
               <p style={{ color: "var(--rosa-2, #FFD8DF)", fontSize: "0.8rem", marginBottom: "1.25rem", position: "relative" }}>
                 Estimado preliminar · Ajustado al confirmar
               </p>
-              {[["Anticipo", "30%"],["Respuesta","&lt; 24h"],["Entregas","GDL y zona metro"]].map(([k,v])=>(
+              {[["Anticipo","30%"],["Respuesta","< 24h"],["Entregas","GDL y zona metro"]].map(([k,v])=>(
                 <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px dashed rgba(255,255,255,.15)", fontSize: "0.82rem", color: "#FFD8DF", position: "relative" }}>
                   <span>{k}</span>
-                  <strong style={{ color: "#fff" }} dangerouslySetInnerHTML={{ __html: v }} />
+                  <strong style={{ color: "#fff" }}>{v}</strong>
                 </div>
               ))}
               {/* Spinning ring deco */}
