@@ -48,6 +48,56 @@ function stockBadge(stock) {
   return            { label: "Disponible", color: "#1D5A45",       bg: "#B8E6D3" };
 }
 
+/**
+ * Redimensiona y comprime una imagen en el navegador antes de subirla.
+ * Vercel tiene un límite de 4.5 MB en requests serverless, así que las
+ * fotos de cámara (5-10 MB típicas) se rechazaban con 413. Esto las
+ * reduce a max 800×800 px @ 85% JPEG (~100-300 KB típico) sin perder
+ * calidad visible para una foto de producto.
+ */
+async function resizeImage(file, { maxSize = 800, quality = 0.85 } = {}) {
+  return new Promise((resolve, reject) => {
+    const img    = new Image();
+    const reader = new FileReader();
+
+    reader.onload  = (e) => { img.src = e.target.result; };
+    reader.onerror = () => reject(new Error("No se pudo leer la imagen"));
+
+    img.onload  = () => {
+      const canvas = document.createElement("canvas");
+      let { width, height } = img;
+      // Escalar manteniendo aspect ratio
+      if (width > height && width > maxSize) {
+        height = Math.round((height / width) * maxSize);
+        width  = maxSize;
+      } else if (height > maxSize) {
+        width  = Math.round((width / height) * maxSize);
+        height = maxSize;
+      }
+      canvas.width  = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      // Fondo blanco para PNGs con transparencia (de otra forma quedan negras al pasar a JPG)
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error("No se pudo comprimir la imagen"));
+          const base = file.name.replace(/\.[^.]+$/, "") || "image";
+          resolve(new File([blob], `${base}.jpg`, { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        quality
+      );
+    };
+    img.onerror = () => reject(new Error("Imagen inválida o corrupta"));
+
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function GalletasAdminPage() {
   const { userToken } = useAuth();
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
@@ -108,20 +158,36 @@ export default function GalletasAdminPage() {
     setShowForm(true);
   };
 
-  /* ── Image upload to GCS via /upload ── */
+  /* ── Image upload to GCS via /upload ──
+   * Comprime cualquier imagen > 800px / 1MB en el navegador antes de
+   * subirla, para evitar el 413 que devuelve Vercel en archivos grandes.
+   */
   const handleImageUpload = async (file) => {
     if (!file) return;
     setUploadBusy(true);
     try {
+      // Validar tipo
+      if (!file.type.startsWith("image/")) {
+        throw new Error("El archivo seleccionado no es una imagen");
+      }
+
+      // Redimensionar SIEMPRE: garantizamos archivos pequeños y consistentes
+      const compressed = await resizeImage(file, { maxSize: 800, quality: 0.85 });
+
       const fd = new FormData();
-      fd.append("files", file);
+      fd.append("files", compressed);
       const res = await axios.post(`${API_BASE}/upload`, fd, {
         headers: { ...authHeader, "Content-Type": "multipart/form-data" },
       });
       const url = res.data?.[0]?.fileUrl;
       if (url) setFormData((prev) => ({ ...prev, imagen: url }));
     } catch (err) {
-      Swal.fire({ icon: "error", title: "Error", text: "No se pudo subir la imagen" });
+      const msg =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        err.message ||
+        "No se pudo subir la imagen";
+      Swal.fire({ icon: "error", title: "Error", text: msg });
     } finally {
       setUploadBusy(false);
     }
