@@ -158,7 +158,7 @@ export default function Cupcakeprice() {
   const handleClearFields = () => {
     reset({
       flavorBizcocho: "", stuffedFlavor: "", cover: "", portions: "",
-      delivery: "", deliveryAdress: "", fondantCover: "", deliveryDate: "",
+      delivery: "", deliveryAdress: "", municipio: "", fondantCover: "", deliveryDate: "",
       fondantDraw: "", buttercreamDraw: "", naturalFlowers: "", sign: "",
       eatablePrint: "", sprinkles: "", other: "", budget: "",
       contactName: "", contactPhone: "", questionsOrComments: "",
@@ -287,15 +287,21 @@ export default function Cupcakeprice() {
                     {...register("delivery")}
                     onChange={(e) => setIsDelivery(e.target.checked)}
                   />
-                  ¿Requiere Envio?
+                  ¿Requiere Envío?
                 </label>
+                {isDelivery && (
+                  <p className="text-xs mt-1" style={{ color: "#540027", background: "#fff1f2", border: "1px solid #f9a8b8", borderRadius: 6, padding: "5px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    📍 <strong>Solo Zona Metropolitana de Guadalajara.</strong>&nbsp;No realizamos envíos nacionales.
+                  </p>
+                )}
               </div>
               {/* Entrega */}
               <div>
-                <p>Lugar de entrega</p>
+                <p>Calle, número y colonia</p>
                 <input
                   className="inputDeliveryAdressCupcake inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
                   type="text"
+                  placeholder="Ej. Av. Patria 1234, Col. Jardines"
                   {...register("deliveryAdress")}
                   required={isDelivery}
                   disabled={!isDelivery}
@@ -304,6 +310,28 @@ export default function Cupcakeprice() {
                   <p className="text-xs text-gray-500 mt-1">El pedido se recogerá en sucursal.</p>
                 )}
               </div>
+              {/* Municipio (solo ZMG) */}
+              {isDelivery && (
+                <div>
+                  <p>Municipio</p>
+                  <select
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
+                    {...register("municipio", { required: "Selecciona el municipio de entrega" })}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Selecciona municipio…</option>
+                    <option>Guadalajara</option>
+                    <option>Zapopan</option>
+                    <option>San Pedro Tlaquepaque</option>
+                    <option>Tonalá</option>
+                    <option>Tlajomulco de Zúñiga</option>
+                    <option>El Salto</option>
+                    <option>Juanacatlán</option>
+                    <option>Ixtlahuacán de los Membrillos</option>
+                    <option>Acatlán de Juárez</option>
+                  </select>
+                </div>
+              )}
               {/* Fecha */}
               <div>
                 <p>Fecha de entrega</p>
