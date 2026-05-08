@@ -46,6 +46,11 @@ export default function GalletasNY() {
   const [boxes, setBoxes]                       = useState([emptyBox()]);
   const [activeBoxIndex, setActiveBoxIndex]     = useState(0);
 
+  // Imágenes que dieron error de carga — caen al emoji como fallback
+  const [imagenesRotas, setImagenesRotas] = useState({});
+  const markImageBroken = (slug) =>
+    setImagenesRotas((prev) => (prev[slug] ? prev : { ...prev, [slug]: true }));
+
   /* ── Fetch sabores from backend ── */
   useEffect(() => {
     let cancelled = false;
@@ -359,11 +364,17 @@ export default function GalletasNY() {
                         <div style={{ position: "absolute", top: 10, right: 10, background: f.tagColor || "var(--rosa)", color: f.tagText || "#fff", fontSize: "0.65rem", fontWeight: 700, padding: "3px 8px", borderRadius: "var(--r-pill)" }}>{f.tag}</div>
                       ) : null}
 
-                      {/* Image / emoji */}
-                      <div style={{ width: "80%", aspectRatio: "1/1", borderRadius: "50%", background: f.imagen ? "transparent" : (f.bg || "linear-gradient(135deg,#FFE2E7,#FFC3C9)"), margin: "0 auto 0.75rem", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2.5rem", position: "relative", overflow: "hidden" }}>
+                      {/* Image / emoji — el gradiente queda SIEMPRE como fondo
+                          para que, si la imagen rompe, no se vea un círculo blanco vacío. */}
+                      <div style={{ width: "80%", aspectRatio: "1/1", borderRadius: "50%", background: f.bg || "linear-gradient(135deg,#FFE2E7,#FFC3C9)", margin: "0 auto 0.75rem", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2.5rem", position: "relative", overflow: "hidden" }}>
                         <div aria-hidden="true" className="ru-pattern-sprinkle absolute inset-0" style={{ opacity: 0.3 }} />
-                        {f.imagen ? (
-                          <img src={f.imagen} alt={f.nombre} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                        {f.imagen && !imagenesRotas[f.slug] ? (
+                          <img
+                            src={f.imagen}
+                            alt={f.nombre}
+                            onError={() => markImageBroken(f.slug)}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%", position: "relative", zIndex: 2 }}
+                          />
                         ) : (
                           <span style={{ position: "relative", zIndex: 1 }}>{f.emoji || "🍪"}</span>
                         )}
@@ -470,7 +481,11 @@ export default function GalletasNY() {
                 <div style={{ display: "grid", gridTemplateColumns: `repeat(${currentBox.size === "6" ? 3 : 4},1fr)`, gap: 6, background: "rgba(255,243,245,.7)", backdropFilter: "blur(6px)", borderRadius: "var(--r-md)", padding: "0.75rem", border: "2px dashed rgba(84,0,39,.15)" }}>
                   {slots.map((flavor, i) => (
                     <div key={i} style={{ aspectRatio: "1/1", borderRadius: "50%", background: flavor ? (flavor.bg || "linear-gradient(135deg,#FFE2E7,#FFC3C9)") : "rgba(255,255,255,.4)", border: "2px dashed", borderColor: flavor ? "transparent" : "rgba(84,0,39,.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: flavor ? "1.4rem" : "0.85rem", color: "rgba(84,0,39,.35)", fontWeight: 700, animation: flavor ? "bob 4s ease-in-out infinite" : "none", animationDelay: `${i * 0.15}s`, overflow: "hidden" }}>
-                      {flavor ? (flavor.imagen ? <img src={flavor.imagen} alt={flavor.nombre} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} /> : flavor.emoji) : "+"}
+                      {flavor ? (
+                        flavor.imagen && !imagenesRotas[flavor.slug]
+                          ? <img src={flavor.imagen} alt={flavor.nombre} onError={() => markImageBroken(flavor.slug)} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                          : (flavor.emoji || "🍪")
+                      ) : "+"}
                     </div>
                   ))}
                 </div>

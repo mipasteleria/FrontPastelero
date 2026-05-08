@@ -109,6 +109,9 @@ export default function GalletasAdminPage() {
   const [formData, setFormData]     = useState(NEW_FLAVOR);
   const [stockDelta, setStockDelta] = useState({});   // saborId -> "+25" or "-3"
   const [uploadBusy, setUploadBusy] = useState(false);
+  const [imagenesRotas, setImagenesRotas] = useState({});
+  const markImageBroken = (id) =>
+    setImagenesRotas((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
 
   /* ── Load all flavors (including inactive) ── */
   const loadSabores = async () => {
@@ -335,8 +338,13 @@ export default function GalletasAdminPage() {
                   }}>
                     {/* Top row */}
                     <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start", marginBottom: "0.5rem" }}>
-                      {s.imagen ? (
-                        <img src={s.imagen} alt={s.nombre} style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+                      {s.imagen && !imagenesRotas[s._id] ? (
+                        <img
+                          src={s.imagen}
+                          alt={s.nombre}
+                          onError={() => markImageBroken(s._id)}
+                          style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
+                        />
                       ) : (
                         <div style={{ width: 64, height: 64, borderRadius: "50%", background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", flexShrink: 0 }}>{s.emoji}</div>
                       )}
