@@ -165,3 +165,59 @@ body {
 .status-prep { background: var(--rosa-3);      color: var(--burdeos); padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.75rem; font-weight: 700; }
 .status-out  { background: var(--lavanda);     color: #5A3578; padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.75rem; font-weight: 700; }
 .status-done { background: var(--menta);       color: #1D5A45; padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.75rem; font-weight: 700; }
+
+/* ── SweetAlert custom buttons (Ruiseñor) ──
+   Ambos botones con el mismo estilo (filled + sombra) pero colores
+   distintos para diferenciarlos visualmente. El contraste con texto
+   blanco está garantizado (WCAG AA) en ambos colores. */
+.ru-swal-actions {
+  gap: 12px !important;
+  margin-top: 1.25rem !important;
+}
+.ru-swal-btn {
+  padding: 13px 28px !important;
+  font-size: 0.95rem !important;
+  font-weight: 800 !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  border: none !important;
+  opacity: 1 !important;
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease !important;
+  letter-spacing: 0.02em;
+}
+.ru-swal-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+/* Confirm — rosa sólido + sombra a juego */
+.ru-swal-confirm,
+.ru-swal-confirm:focus {
+  background: #FF6F7D !important;
+  background-image: none !important;
+  box-shadow: 0 6px 18px rgba(255, 111, 125, 0.5) !important;
+}
+.ru-swal-confirm:hover {
+  background: #FF6F7D !important;
+  box-shadow: 0 8px 22px rgba(255, 111, 125, 0.6) !important;
+}
+
+/* Cancel — burdeos sólido + sombra a juego */
+.ru-swal-cancel,
+.ru-swal-cancel:focus {
+  background: #540027 !important;
+  background-image: none !important;
+  box-shadow: 0 6px 18px rgba(84, 0, 39, 0.4) !important;
+}
+.ru-swal-cancel:hover {
+  background: #540027 !important;
+  box-shadow: 0 8px 22px rgba(84, 0, 39, 0.5) !important;
+}
+
+/* Variante destructiva — confirmación de borrar (rojo-burdeos) */
+.ru-swal-confirm.ru-swal-danger,
+.ru-swal-confirm.ru-swal-danger:focus,
+.ru-swal-confirm.ru-swal-danger:hover {
+  background: #9c2a44 !important;
+  box-shadow: 0 6px 18px rgba(156, 42, 68, 0.5) !important;
+}

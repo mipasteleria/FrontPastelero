@@ -264,10 +264,19 @@ export default function GalletasAdminPage() {
       text: `"${sabor.nombre}" se borrará de la base de datos. Esto no afecta pedidos históricos.`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#FF6F7D",
-      cancelButtonColor: "#D6A7BC",
-      confirmButtonText: "Sí, eliminar",
+      reverseButtons: true,
+      confirmButtonColor: "#9c2a44",
+      cancelButtonColor: "#3a3a3a",
+      confirmButtonText: "🗑 Eliminar",
       cancelButtonText: "Cancelar",
+      background: "#fff1f2",
+      color: "#540027",
+      buttonsStyling: true,
+      customClass: {
+        confirmButton: "ru-swal-btn ru-swal-confirm",
+        cancelButton:  "ru-swal-btn ru-swal-cancel",
+        actions:       "ru-swal-actions",
+      },
     });
     if (!result.isConfirmed) return;
     try {
