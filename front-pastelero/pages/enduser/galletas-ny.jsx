@@ -31,7 +31,9 @@ function getBoxData(box, saboresMap) {
     .filter(([_, q]) => q > 0)
     .map(([slug, q]) => ({ slug, qty: q, sabor: saboresMap[slug] }));
   const subtotal = items.reduce((s, it) => s + (it.sabor?.precio || 0) * it.qty, 0);
-  const discount = box.size === "12" && filled === 12 ? 30 : 0;
+  // Sin descuentos automáticos. Los descuentos solo se aplican vía código
+  // promocional dado de alta por el admin (feature pendiente).
+  const discount = 0;
   return { size, filled, items, subtotal, discount, total: subtotal - discount };
 }
 
@@ -307,7 +309,7 @@ export default function GalletasNY() {
               </span>
             </div>
             <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "1.25rem" }}>
-              Cada galleta pesa ~120 g. Chocolate belga.
+              Cada galleta pesa ~120 g.
             </p>
 
             {error && (
@@ -381,7 +383,9 @@ export default function GalletasNY() {
                       </div>
 
                       <h4 style={{ fontWeight: 700, fontSize: "0.9rem", textAlign: "center", marginBottom: 2 }}>{f.nombre}</h4>
-                      <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", textAlign: "center", marginBottom: pocas ? 4 : "0.75rem" }}>{f.descripcion || "Chocolate belga"}</p>
+                      {f.descripcion && (
+                        <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", textAlign: "center", marginBottom: pocas ? 4 : "0.75rem" }}>{f.descripcion}</p>
+                      )}
 
                       {/* Stock info — solo si pocas o agotadas */}
                       {agotado && (
@@ -512,7 +516,7 @@ export default function GalletasNY() {
                       ))}
                       {data.discount > 0 && (
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--menta-deep)", padding: "2px 0" }}>
-                          <span>Descuento docena</span><span>−${data.discount}</span>
+                          <span>Descuento</span><span>−${data.discount}</span>
                         </div>
                       )}
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", fontWeight: 700, color: "var(--burdeos)", marginTop: 2 }}>

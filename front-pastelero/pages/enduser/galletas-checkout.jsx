@@ -113,7 +113,8 @@ export default function GalletasCheckout() {
         .map(([slug, qty]) => ({ slug, qty, sabor: saboresMap[slug] }));
       const filled = items.reduce((s, it) => s + it.qty, 0);
       const subtotal = items.reduce((s, it) => s + (it.sabor?.precio || 0) * it.qty, 0);
-      const desc     = box.size === "12" && filled === 12 ? 30 : 0;
+      // Sin descuento automático — pendiente código promocional vía admin.
+      const desc = 0;
       return { ...box, items, filled, subtotal, descuento: desc, total: subtotal - desc };
     });
   }, [boxes, saboresMap]);
@@ -423,7 +424,7 @@ export default function GalletasCheckout() {
                   ))}
                   {caja.descuento > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--menta-deep)", padding: "1px 0" }}>
-                      <span>Descuento docena</span><span>−${caja.descuento}</span>
+                      <span>Descuento</span><span>−${caja.descuento}</span>
                     </div>
                   )}
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", fontWeight: 700, color: "var(--burdeos)", marginTop: 2 }}>

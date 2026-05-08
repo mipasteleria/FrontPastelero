@@ -15,7 +15,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const NEW_FLAVOR = {
   slug: "",
   nombre: "",
-  descripcion: "Chocolate belga",
+  descripcion: "",
   precio: 35,
   stock: 0,
   emoji: "🍪",
