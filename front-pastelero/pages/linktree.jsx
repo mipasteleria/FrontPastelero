@@ -113,7 +113,7 @@ export default function Linktree() {
 
         {/* Brand name */}
         <h1 className={sofia.className} style={{ fontSize: "3.5rem", color: "var(--rosa-2)", lineHeight: 1, marginBottom: "0.5rem" }}>El Ruiseñor</h1>
-        <p style={{ fontFamily: "var(--font-nunito)", fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.5rem" }}>Pastelería artesanal · CDMX</p>
+        <p style={{ fontFamily: "var(--font-nunito)", fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.5rem" }}>Pastelería artesanal · Guadalajara</p>
         <p style={{ color: "#FFD8DF", fontSize: "0.875rem", margin: "0.75rem auto 1.5rem", maxWidth: "33ch", lineHeight: 1.7 }}>
           Hornea recuerdos dulces. Pasteles vintage, galletas NY, cursos y eventos. Reservas con 72h de anticipación.
         </p>
@@ -177,7 +177,7 @@ export default function Linktree() {
 
         {/* Footer */}
         <p style={{ marginTop: "2.5rem", color: "rgba(255,216,223,.65)", fontSize: "0.7rem" }}>
-          © 2026 El Ruiseñor · Hecho con cariño en CDMX
+          © 2026 El Ruiseñor · Hecho con cariño en Guadalajara
         </p>
       </div>
     </div>

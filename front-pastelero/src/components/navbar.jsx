@@ -651,7 +651,7 @@ const NavbarAdmin = () => {
                 fontFamily: "var(--font-nunito)",
               }}
             >
-              Pastelería El Ruiseñor · CDMX
+              Pastelería El Ruiseñor · Guadalajara
             </div>
           </div>
         </div>
