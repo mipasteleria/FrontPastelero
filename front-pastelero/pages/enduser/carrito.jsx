@@ -261,7 +261,7 @@ export default function Carrito() {
 
               {/* Trust badges */}
               <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem", justifyContent: "center", flexWrap: "wrap" }}>
-                {["🔒 Pago seguro", "📦 Entrega CDMX", "⭐ 4.9/5"].map(b => (
+                {["🔒 Pago seguro", "📦 Entrega Guadalajara", "⭐ 4.9/5"].map(b => (
                   <span key={b} style={{ fontSize: "0.7rem", fontWeight: 700, color: "var(--text-muted)", background: "var(--bg-raised)", padding: "4px 10px", borderRadius: "var(--r-pill)", border: "1px solid var(--border-color)" }}>{b}</span>
                 ))}
               </div>

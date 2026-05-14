@@ -62,7 +62,7 @@ export default function Cursos() {
                 Cursos para soñadores <span style={{ color: "var(--rosa)" }}>y reposteros.</span>
               </h1>
               <p style={{ fontSize: "1.05rem", color: "var(--text-soft)", lineHeight: 1.7, marginBottom: "1.5rem", maxWidth: "50ch" }}>
-                Clases en grupos pequeños, en nuestro estudio en CDMX. Te llevas tu pieza a casa, recetas paso a paso y un mandil bordado.
+                Clases en grupos pequeños, en nuestro estudio en Guadalajara. Te llevas tu pieza a casa, recetas paso a paso y un mandil bordado.
               </p>
               {/* Stats */}
               <div style={{ display: "flex", gap: "2.5rem" }}>
