@@ -27,6 +27,7 @@ const NEW_FLAVOR = {
   esTemporada: false,
   activo: true,
   orden: 0,
+  recetaId: "",
 };
 
 /* Predefined gradient swatches for quick pick */
@@ -103,21 +104,27 @@ export default function GalletasAdminPage() {
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
 
   const [sabores, setSabores]       = useState([]);
+  const [recetas, setRecetas]       = useState([]);  // catálogo de recetas para el dropdown
   const [loading, setLoading]       = useState(true);
   const [showForm, setShowForm]     = useState(false);
   const [editing, setEditing]       = useState(null); // sabor being edited
   const [formData, setFormData]     = useState(NEW_FLAVOR);
+  const [costeoData, setCosteoData] = useState(null); // breakdown del cálculo de precio
+  const [costeoBusy, setCosteoBusy] = useState(false);
   const [stockDelta, setStockDelta] = useState({});   // saborId -> "+25" or "-3"
   const [uploadBusy, setUploadBusy] = useState(false);
   const [imagenesRotas, setImagenesRotas] = useState({});
   const markImageBroken = (id) =>
     setImagenesRotas((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
 
-  /* ── Load all flavors (including inactive) ── */
+  /* ── Load all flavors (including inactive) with margin watch ──
+   * `conMargen=true` hace que el back enriquezca cada sabor con
+   * `costoLive`, `margenActual`, `alertaMargenBajo` — para el badge
+   * de "margen bajo" en el listado. */
   const loadSabores = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/galletaSabores?todos=true`, { headers: authHeader });
+      const res = await axios.get(`${API_BASE}/galletaSabores?todos=true&conMargen=true`, { headers: authHeader });
       setSabores(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -127,15 +134,64 @@ export default function GalletasAdminPage() {
     }
   };
 
+  /* ── Load recetas para el dropdown del form ── */
+  const loadRecetas = async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/recetas`, { headers: authHeader });
+      // Solo necesitamos las que tienen porciones para poder costear
+      const list = (res.data?.data || []).filter(r => r.portions > 0 && typeof r.total_cost === "number");
+      setRecetas(list);
+    } catch (err) {
+      console.error("No se pudieron cargar las recetas:", err);
+      // Silencioso — la feature de costeo desde receta es opcional, el admin
+      // puede seguir capturando precio manual.
+    }
+  };
+
   useEffect(() => {
-    if (userToken) loadSabores();
+    if (userToken) {
+      loadSabores();
+      loadRecetas();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userToken]);
+
+  /* ── Calcular precio sugerido desde receta ──
+   * Llama al back con el recetaId; si responde con breakdown, lo
+   * guardamos en state y autopoblamos `precio` con el sugerido (el
+   * admin lo puede ajustar antes de guardar). */
+  const calcularPrecioDesdeReceta = async (recetaId) => {
+    if (!recetaId) { setCosteoData(null); return; }
+    setCosteoBusy(true);
+    try {
+      const res = await axios.post(
+        `${API_BASE}/galletaSabores/calcular-precio`,
+        { recetaId },
+        { headers: authHeader }
+      );
+      const data = res.data?.data;
+      if (data) {
+        setCosteoData(data);
+        // Autopoblar precio solo si está en el default (35) o vacío —
+        // si el admin ya editó manualmente, no lo pisamos.
+        setFormData((prev) => ({
+          ...prev,
+          precio: (prev.precio === 35 || !prev.precio) ? data.precioSugerido : prev.precio,
+        }));
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "No se pudo calcular el precio";
+      Swal.fire({ icon: "warning", title: "Error al calcular", text: msg });
+    } finally {
+      setCosteoBusy(false);
+    }
+  };
 
   /* ── Open form for create ── */
   const openCreate = () => {
     setEditing(null);
     setFormData(NEW_FLAVOR);
+    setCosteoData(null);
     setShowForm(true);
   };
 
@@ -157,8 +213,31 @@ export default function GalletasAdminPage() {
       esTemporada: !!s.esTemporada,
       activo:      s.activo !== false,
       orden:       s.orden || 0,
+      recetaId:    s.recetaId || "",
     });
+    setCosteoData(null);
     setShowForm(true);
+  };
+
+  /* ── Recostear: refresca el snapshot al costo actual de la receta ── */
+  const handleRecostear = async (sabor) => {
+    const result = await Swal.fire({
+      title: "¿Recostear este sabor?",
+      html: `Se actualizará el costo unitario al valor actual de la receta. <b>El precio mostrado al cliente NO cambia</b> — solo se refresca el snapshot interno.`,
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonText: "Sí, recostear",
+      cancelButtonText: "Cancelar",
+      background: "#fff1f2", color: "#540027",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await axios.post(`${API_BASE}/galletaSabores/${sabor._id}/recostear`, {}, { headers: authHeader });
+      Swal.fire({ icon: "success", title: "Costo actualizado", timer: 1500, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
+      loadSabores();
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "Error", text: err.response?.data?.message || err.message });
+    }
   };
 
   /* ── Image upload to GCS via /upload ──
@@ -200,10 +279,12 @@ export default function GalletasAdminPage() {
   const handleSave = async (e) => {
     e?.preventDefault();
     try {
+      // Normaliza recetaId: el back espera ObjectId o null (no string vacío)
+      const payload = { ...formData, recetaId: formData.recetaId || null };
       if (editing) {
-        await axios.put(`${API_BASE}/galletaSabores/${editing._id}`, formData, { headers: authHeader });
+        await axios.put(`${API_BASE}/galletaSabores/${editing._id}`, payload, { headers: authHeader });
       } else {
-        await axios.post(`${API_BASE}/galletaSabores`, formData, { headers: authHeader });
+        await axios.post(`${API_BASE}/galletaSabores`, payload, { headers: authHeader });
       }
       Swal.fire({
         icon: "success",
@@ -336,13 +417,16 @@ export default function GalletasAdminPage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(320px,1fr))", gap: "1rem" }}>
               {sabores.map((s) => {
                 const badge = stockBadge(s.stock);
+                // Resaltado cuando el costo "live" (insumos + branding actual)
+                // dejó al sabor con margen menor al mínimo configurado.
+                const enAlerta = s.alertaMargenBajo === true;
                 return (
                   <div key={s._id} style={{
-                    background: "var(--bg-raised)",
+                    background: enAlerta ? "linear-gradient(180deg,#fff5e6,var(--bg-raised))" : "var(--bg-raised)",
                     borderRadius: "var(--r-xl)",
                     padding: "1.25rem",
-                    boxShadow: "var(--shadow-sm)",
-                    border: !s.activo ? "2px dashed var(--border-strong)" : "2px solid transparent",
+                    boxShadow: enAlerta ? "0 0 0 3px #FF9A56, var(--shadow-sm)" : "var(--shadow-sm)",
+                    border: !s.activo ? "2px dashed var(--border-strong)" : enAlerta ? "2px solid #FF6F00" : "2px solid transparent",
                     opacity: s.activo ? 1 : 0.6,
                   }}>
                     {/* Top row */}
@@ -363,12 +447,37 @@ export default function GalletasAdminPage() {
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                           <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--burdeos)" }}>${s.precio}</span>
                           <span style={{ padding: "2px 8px", fontSize: "0.65rem", fontWeight: 700, background: badge.bg, color: badge.color, borderRadius: "var(--r-pill)" }}>{badge.label}</span>
+                          {enAlerta && <span title={`Costo actual: $${s.costoLive} · Margen: $${s.margenActual}`} style={{ padding: "2px 8px", fontSize: "0.65rem", fontWeight: 800, background: "#FF6F00", color: "#fff", borderRadius: "var(--r-pill)" }}>⚠️ Margen bajo</span>}
                           {s.tag && <span style={{ padding: "2px 8px", fontSize: "0.65rem", fontWeight: 700, background: s.tagColor || "var(--rosa)", color: s.tagText || "#fff", borderRadius: "var(--r-pill)" }}>{s.tag}</span>}
                           {s.esTemporada && <span style={{ padding: "2px 8px", fontSize: "0.65rem", fontWeight: 700, background: "#FFE99B", color: "#6B4F1A", borderRadius: "var(--r-pill)" }}>Temporada</span>}
                           {!s.activo && <span style={{ padding: "2px 8px", fontSize: "0.65rem", fontWeight: 700, background: "var(--border-strong)", color: "#fff", borderRadius: "var(--r-pill)" }}>Oculto</span>}
                         </div>
                       </div>
                     </div>
+
+                    {/* Bloque de detalle de costo (solo si la galleta tiene receta) */}
+                    {s.recetaId && (s.costoLive != null || s.costoUnitarioSnapshot != null) && (
+                      <div style={{ background: enAlerta ? "#fff3e0" : "#f8f8f8", borderRadius: "var(--r-md)", padding: "8px 10px", marginTop: 8, fontSize: "0.72rem", lineHeight: 1.5 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ color: "var(--text-muted)" }}>Costo actual:</span>
+                          <span style={{ fontWeight: 700, color: enAlerta ? "#FF6F00" : "var(--burdeos)" }}>${s.costoLive ?? "—"}</span>
+                        </div>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ color: "var(--text-muted)" }}>Margen:</span>
+                          <span style={{ fontWeight: 700, color: enAlerta ? "#FF6F00" : "#1D5A45" }}>${s.margenActual ?? "—"}</span>
+                        </div>
+                        {s.costoUnitarioSnapshot != null && s.costoLive != null && Math.abs(s.costoLive - s.costoUnitarioSnapshot) > 0.01 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRecostear(s)}
+                            style={{ marginTop: 6, width: "100%", padding: "4px 8px", background: "#fff", color: "var(--burdeos)", border: "1px solid var(--border-color)", borderRadius: "var(--r-md)", fontWeight: 700, fontSize: "0.7rem", cursor: "pointer" }}
+                            title={`Snapshot: $${s.costoUnitarioSnapshot} · Live: $${s.costoLive}`}
+                          >
+                            🔄 Recostear (snapshot quedó desfasado)
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {/* Stock row */}
                     <div style={{ background: "#fff1f2", borderRadius: "var(--r-md)", padding: "10px 12px", margin: "0.75rem 0" }}>
@@ -483,6 +592,49 @@ export default function GalletasAdminPage() {
                   style={inputStyle}
                 />
               </label>
+
+              {/* Receta (opcional) — desde donde hereda el costo */}
+              <label style={{ gridColumn: "1 / -1" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-soft)", display: "block", marginBottom: 4 }}>
+                  Receta asociada <em style={{ color: "var(--text-muted)" }}>(opcional — calcula precio sugerido)</em>
+                </span>
+                <select
+                  value={formData.recetaId}
+                  onChange={(e) => {
+                    const recetaId = e.target.value;
+                    setFormData((prev) => ({ ...prev, recetaId }));
+                    calcularPrecioDesdeReceta(recetaId);
+                  }}
+                  style={inputStyle}
+                  disabled={recetas.length === 0}
+                >
+                  <option value="">— Sin receta (precio manual) —</option>
+                  {recetas.map((r) => (
+                    <option key={r._id} value={r._id}>
+                      {r.nombre_receta} · {r.portions} pz · ${r.total_cost}
+                    </option>
+                  ))}
+                </select>
+                {recetas.length === 0 && <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 4 }}>No hay recetas con porciones válidas. Crea una en /dashboard/costeorecetas.</p>}
+                {costeoBusy && <p style={{ fontSize: "0.75rem", color: "var(--rosa)", marginTop: 4 }}>Calculando…</p>}
+              </label>
+
+              {/* Breakdown del cálculo (si hay) */}
+              {costeoData && (
+                <div style={{ gridColumn: "1 / -1", background: "#fff1f2", borderRadius: "var(--r-md)", padding: "12px 14px", border: "1px dashed var(--rosa)" }}>
+                  <p style={{ margin: 0, fontSize: "0.72rem", fontWeight: 700, color: "var(--rosa)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Cálculo desde receta</p>
+                  <table style={{ width: "100%", fontSize: "0.85rem", lineHeight: 1.7 }}>
+                    <tbody>
+                      <tr><td style={{ color: "var(--text-soft)" }}>Materia prima por galleta:</td><td style={{ textAlign: "right", fontWeight: 700, color: "var(--burdeos)" }}>${costeoData.costoMateriaPrima}</td></tr>
+                      <tr><td style={{ color: "var(--text-soft)" }}>+ Branding / empaque:</td><td style={{ textAlign: "right", fontWeight: 700, color: "var(--burdeos)" }}>${costeoData.costoBranding}</td></tr>
+                      <tr><td style={{ color: "var(--text-soft)", borderTop: "1px solid var(--border-color)", paddingTop: 4 }}>Costo total:</td><td style={{ textAlign: "right", fontWeight: 800, color: "var(--burdeos)", borderTop: "1px solid var(--border-color)", paddingTop: 4 }}>${costeoData.costoTotal}</td></tr>
+                      <tr><td style={{ color: "var(--text-soft)" }}>+ Markup {costeoData.markupPct}%:</td><td style={{ textAlign: "right", fontWeight: 700, color: "#1D5A45" }}>${(costeoData.precioSugerido - costeoData.costoTotal).toFixed(2)}</td></tr>
+                      <tr><td style={{ color: "var(--burdeos)", fontWeight: 800, borderTop: "2px solid var(--rosa)", paddingTop: 6 }}>Precio sugerido:</td><td style={{ textAlign: "right", fontWeight: 900, color: "var(--burdeos)", fontSize: "1.1rem", borderTop: "2px solid var(--rosa)", paddingTop: 6 }}>${costeoData.precioSugerido}</td></tr>
+                    </tbody>
+                  </table>
+                  <p style={{ margin: "6px 0 0", fontSize: "0.7rem", color: "var(--text-muted)" }}>El precio abajo se autopobló con el sugerido. Puedes ajustarlo libremente.</p>
+                </div>
+              )}
 
               {/* Precio */}
               <label>
