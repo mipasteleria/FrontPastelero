@@ -131,6 +131,8 @@ export default function InsumosyTrabajoManual() {
         html: `Se eliminaron <b>${eliminados}</b> duplicado(s).<br>${recetasUpd} receta(s) actualizadas.`,
         background: "#fff1f2",
         color: "#540027",
+        confirmButtonText: "Listo",
+        confirmButtonColor: "#540027",
       });
       setShowMergeModal(false);
       clearSelection();
@@ -143,6 +145,8 @@ export default function InsumosyTrabajoManual() {
         text: err.response?.data?.message || err.message,
         background: "#fff1f2",
         color: "#540027",
+        confirmButtonText: "Cerrar",
+        confirmButtonColor: "#9c2a44",
       });
     } finally {
       setMerging(false);
