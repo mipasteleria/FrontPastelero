@@ -61,8 +61,6 @@ export default function EditarInsumo({ insumo }) {
   };
 
   const onSubmit = async (data) => {
-    console.log("ID del insumo:", insumo._id);
-  
     try {
       const response = await fetch(`${API_BASE}/insumos/${insumo._id}`, {
         method: "PUT",
@@ -72,7 +70,7 @@ export default function EditarInsumo({ insumo }) {
           Authorization: `Bearer ${userToken}`,
         },
       });
-  
+
       if (response.ok) {
         Swal.fire({
           title: "¡Insumo Actualizado!",
@@ -84,19 +82,42 @@ export default function EditarInsumo({ insumo }) {
           background: "#fff1f2",
           color: "#540027",
         });
-      } else {
-        const errorData = await response.json();
-        Swal.fire({
-          title: "Error",
-          text: errorData.message || "No se pudo editar el insumo o trabajo.",
-          icon: "error",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
+        return;
+      }
+
+      // 409: el nuevo nombre choca con otro insumo existente
+      if (response.status === 409) {
+        const json = await response.json().catch(() => ({}));
+        const existente = json.existente;
+        const result = await Swal.fire({
+          title: "Nombre duplicado",
+          html: existente
+            ? `Ya existe otro insumo con el mismo nombre: <b>"${existente.name}"</b>.<br>Cambia el nombre o ve a editar ese otro.`
+            : json.message || "Ese nombre ya está en uso por otro insumo.",
+          icon: "warning",
+          showCancelButton: !!existente,
+          confirmButtonText: existente ? "Ir al otro insumo" : "Entendido",
+          cancelButtonText: "Cancelar",
           background: "#fff1f2",
           color: "#540027",
         });
+        if (result.isConfirmed && existente) {
+          router.push(`/dashboard/insumosytrabajomanual/editarinsumosotrabajo/${existente._id}`);
+        }
+        return;
       }
+
+      const errorData = await response.json().catch(() => ({}));
+      Swal.fire({
+        title: "Error",
+        text: errorData.message || "No se pudo editar el insumo o trabajo.",
+        icon: "error",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
     } catch (error) {
       console.error("Error:", error);
       Swal.fire({
@@ -110,7 +131,7 @@ export default function EditarInsumo({ insumo }) {
         color: "#540027",
       });
     }
-  };  
+  };
 
   return (
     <div className={`text-text ${poppins.className}`}>
