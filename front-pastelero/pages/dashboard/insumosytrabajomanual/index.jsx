@@ -211,7 +211,7 @@ export default function InsumosyTrabajoManual() {
                     <th scope="col" className="px-6 py-3 border-b border-secondary">Cantidad</th>
                     <th scope="col" className="px-6 py-3 border-b border-secondary">Costo</th>
                     <th scope="col" className="px-6 py-3 border-b border-secondary">Unidad</th>
-                    <th scope="col" className="px-6 py-3 border-b border-secondary">Precio por gr/ml</th>
+                    <th scope="col" className="px-6 py-3 border-b border-secondary">Precio unitario</th>
                     <th scope="col" className="px-6 py-3 border-b border-secondary">Acciones</th>
                   </tr>
                 </thead>

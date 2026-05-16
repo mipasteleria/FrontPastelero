@@ -221,6 +221,7 @@ export default function EditarInsumo({ insumo }) {
                     >
                       <option value="gr">gramos</option>
                       <option value="ml">mililitros</option>
+                      <option value="pza">piezas</option>
                     </select>
                     {errors.unit && (
                       <p className="text-red-600">{errors.unit.message}</p>
@@ -230,7 +231,7 @@ export default function EditarInsumo({ insumo }) {
               </div>
             </div>
             <div className="m-4 w-3/4 mx-auto text-lg">
-              Costo por unidad: {costPerUnit} por gramo/ml
+              Costo unitario: {costPerUnit}
             </div>
             <div className="flex flex-col md:flex-row justify-center mb-10">
             <button
