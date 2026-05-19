@@ -7,6 +7,7 @@ import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useAuth } from "@/src/context";
+import NotasInternas from "@/src/components/NotasInternas";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
 
 const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -193,6 +194,13 @@ export default function PedidoDetail() {
                   })}
                 </div>
               </div>
+
+              {/* Notas internas (admin-only, no se imprime) */}
+              <NotasInternas
+                apiBaseEndpoint={`${API_BASE}/galletaPedidos/${pedido._id}`}
+                authHeader={authHeader}
+                initialNotas={pedido.notasInternas || []}
+              />
 
               {/* TICKET — se imprime */}
               <div className="ticket" style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", boxShadow: "var(--shadow-md)", overflow: "hidden" }}>
