@@ -5,9 +5,14 @@ import { loadStripe } from "@stripe/stripe-js";
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 import axios from "axios";
 import Swal from "sweetalert2";
+import DatePicker, { registerLocale } from "react-datepicker";
+import { es } from "date-fns/locale";
+import "react-datepicker/dist/react-datepicker.css";
 import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+
+registerLocale("es", es);
 
 const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
@@ -33,19 +38,30 @@ const SLOTS_ENVIO = [
 ];
 
 /* ─── Helpers ────────────────────────────────────────────────── */
-function getMinDateString() {
-  // 72h from now → date string YYYY-MM-DD (in local TZ)
-  const d = new Date(Date.now() + 72 * 60 * 60 * 1000);
-  // bump to Monday if it lands on Sunday
+function getMinDate() {
+  const d = new Date(Date.now() + 48 * 60 * 60 * 1000);
   if (d.getDay() === 0) d.setDate(d.getDate() + 1);
-  return d.toISOString().split("T")[0];
+  return d;
 }
 
 function isSunday(dateString) {
   if (!dateString) return false;
-  // Parse as local-date (avoid TZ shift)
   const [y, m, d] = dateString.split("-").map(Number);
   return new Date(y, m - 1, d).getDay() === 0;
+}
+
+function dateToYMD(d) {
+  if (!d) return "";
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function ymdToDate(s) {
+  if (!s) return null;
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
 /* ─── Component ──────────────────────────────────────────────── */
@@ -149,7 +165,7 @@ export default function GalletasCheckout() {
 
   /* ── Available time slots ── */
   const slotsDisponibles = tipoEntrega === "envio" ? SLOTS_ENVIO : SLOTS_RECOGIDA;
-  const minDate = getMinDateString();
+  const minDate = getMinDate();
 
   /* ── Form validation ── */
   const formValido = useMemo(() => {
@@ -357,21 +373,21 @@ export default function GalletasCheckout() {
             {/* Step 3 — Fecha + hora */}
             <Section number="3" title="¿Cuándo lo necesitas?">
               <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 8 }}>
-                Mínimo 72 horas de anticipación. Lunes a Sábado.
+                Mínimo 48 horas de anticipación. Lunes a Sábado.
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 <Field label="Fecha de entrega *">
-                  <input type="date" required min={minDate} value={fecha}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (v && isSunday(v)) {
-                        Swal.fire({ icon: "info", title: "Día no disponible", text: "No realizamos entregas los domingos.", timer: 2200, showConfirmButton: false });
-                        setFecha("");
-                      } else {
-                        setFecha(v);
-                      }
-                    }}
-                    style={inputStyle} />
+                  <DatePicker
+                    selected={ymdToDate(fecha)}
+                    onChange={(d) => setFecha(dateToYMD(d))}
+                    minDate={minDate}
+                    filterDate={(d) => d.getDay() !== 0}
+                    locale="es"
+                    dateFormat="dd/MM/yyyy"
+                    placeholderText="Selecciona una fecha"
+                    customInput={<input style={inputStyle} />}
+                    required
+                  />
                 </Field>
                 <Field label="Hora de entrega *">
                   <select required value={hora} onChange={(e) => setHora(e.target.value)} style={inputStyle}>
