@@ -157,7 +157,29 @@ export default function NuevaReceta() {
       calculateTotal();
       return newIngredients;
     });
-  };  
+  };
+
+  /**
+   * Editar un ingrediente: carga sus datos al form (resucitando el
+   * selectedIngredient del catálogo si aplica) y lo retira de la lista.
+   * Cuando el admin edita y vuelve a hacer click en "Agregar", entra
+   * con los valores actualizados.
+   */
+  const handleEditIngredient = (index) => {
+    const ing = ingredientsList[index];
+    if (!ing) return;
+    const insumoCatalogo =
+      ingredientOptions.find(o => o._id === ing.insumoId) ||
+      ingredientOptions.find(o => o.name === ing.ingrediente) ||
+      null;
+    setSelectedIngredient(insumoCatalogo);
+    setValue("ingrediente", ing.ingrediente);
+    setValue("cantidad", ing.cantidad);
+    setValue("precio", ing.precio);
+    setValue("unidad", ing.unidad);
+    setIngredientsList(prev => prev.filter((_, i) => i !== index));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const onInputChange = () => calculateTotal();
   
@@ -393,41 +415,46 @@ export default function NuevaReceta() {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="text-xs text-text uppercase bg-rose-50">
                     <tr>
-                      <th className="px-6 py-3">Ingrediente</th>
-                      <th className="px-6 py-3">Cantidad</th>
-                      <th className="px-6 py-3">Precio</th>
-                      <th className="px-6 py-3">Unidad</th>
-                      <th className="px-6 py-3">Costo</th>
-                      <th className="px-6 py-3">Eliminar</th>
+                      <th className="px-6 py-3 text-left">Ingrediente</th>
+                      <th className="px-6 py-3 text-left">Cantidad</th>
+                      <th className="px-6 py-3 text-left">Precio</th>
+                      <th className="px-6 py-3 text-left">Unidad</th>
+                      <th className="px-6 py-3 text-left">Costo por gr/ml</th>
+                      <th className="px-6 py-3 text-center">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {ingredientsList.map((ingredient, index) => (
                       <tr key={index} className="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                        <td className="px-6 py-4">{ingredient.ingrediente}</td>
-                        <td className="px-6 py-4">{ingredient.cantidad}</td>
-                        <td className="px-6 py-4">{ingredient.precio}</td>
-                        <td className="px-6 py-4">{ingredient.unidad}</td>
-                        <td className="px-6 py-4">{ingredient.total}</td>
+                        <td className="px-6 py-4 text-left">{ingredient.ingrediente}</td>
+                        <td className="px-6 py-4 text-left">{ingredient.cantidad}</td>
+                        <td className="px-6 py-4 text-left">{ingredient.precio}</td>
+                        <td className="px-6 py-4 text-left">{ingredient.unidad}</td>
+                        <td className="px-6 py-4 text-left">{ingredient.total}</td>
                         <td className="px-6 py-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteIngredient(index)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
-                            className="h-5 w-5" 
-                            fill="none" 
-                            viewBox="0 0 24 24" 
-                            stroke="currentColor">
-                              <path 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round" 
-                              strokeWidth="2" 
-                              d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
+                          <div className="flex items-center justify-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => handleEditIngredient(index)}
+                              title="Editar ingrediente"
+                              style={{ color: "var(--burdeos)" }}
+                              className="hover:opacity-70"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586Z" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteIngredient(index)}
+                              title="Borrar ingrediente"
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
