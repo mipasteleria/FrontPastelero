@@ -161,10 +161,11 @@ export default function Home() {
                 <img
                   src={homeCfg.imagenHeroUrl}
                   alt=""
-                  // width/height explícitos (no maxWidth/maxHeight) porque en
-                  // flexbox el <img> a veces ignora los max-* si tiene tamaño
-                  // intrínseco mayor que el contenedor → se ve cortado.
-                  style={{ position: "relative", width: "80%", height: "80%", objectFit: "contain", animation: "bob 4s ease-in-out infinite" }}
+                  // 65% (no 80%) porque la imagen es un rectángulo y el contenedor
+                  // es un círculo: a 80% las esquinas del rectángulo quedaban fuera
+                  // del círculo y la animación bob las cortaba. 65% deja margen
+                  // visible para que cualquier PNG se vea completo y "flotando".
+                  style={{ position: "relative", width: "65%", height: "65%", objectFit: "contain", animation: "bob 4s ease-in-out infinite" }}
                 />
               ) : (
                 <span style={{ fontSize: "6rem", position: "relative", animation: "bob 4s ease-in-out infinite" }}>🎂</span>
