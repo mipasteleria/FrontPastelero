@@ -12,10 +12,20 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+// Quita acentos para que "manon" matche "Manón" en la búsqueda.
+function normaliza(texto) {
+  return (texto || "")
+    .toString()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
 export default function InsumosyTrabajoManual() {
   const [insumos, setInsumos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [searchQuery, setSearchQuery] = useState("");
+  const itemsPerPage = 10;
   const { userToken } = useAuth();
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
 
@@ -153,11 +163,33 @@ export default function InsumosyTrabajoManual() {
     }
   };
 
-  // Lógica de paginación
-  const totalPages = Math.ceil(insumos.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
+  // Filtrado por búsqueda (sobre el nombre, ignorando acentos/mayúsculas).
+  // También permite buscar por unidad o ID (los últimos 6 chars) para
+  // localizar un insumo específico cuando hay duplicados con nombres
+  // parecidos.
+  const queryNorm = normaliza(searchQuery);
+  const filteredInsumos = queryNorm
+    ? insumos.filter((i) => {
+        return (
+          normaliza(i.name).includes(queryNorm) ||
+          normaliza(i.unit).includes(queryNorm) ||
+          (i._id || "").toLowerCase().endsWith(queryNorm)
+        );
+      })
+    : insumos;
+
+  // Lógica de paginación (sobre filtrados).
+  const totalPages = Math.max(1, Math.ceil(filteredInsumos.length / itemsPerPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const indexOfLastItem = safeCurrentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentInsumos = insumos.slice(indexOfFirstItem, indexOfLastItem);
+  const currentInsumos = filteredInsumos.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Reset a página 1 cuando cambia el query (sino podemos quedar en una
+  // página inexistente del resultado filtrado).
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -171,8 +203,34 @@ export default function InsumosyTrabajoManual() {
       <NavbarAdmin className="fixed top-0 w-full z-50" />
       <div className="flex flex-row mt-16">
         <Asideadmin />
-        <main className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis insumos y trabajo manual</h1>
+        <main className={`text-text ${poppins.className} flex-grow w-full px-4 md:px-8 max-w-screen-2xl mx-auto`}>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4">
+            <h1 className={`text-4xl ${sofia.className}`}>Mis insumos y trabajo manual</h1>
+            {/* Barra de búsqueda */}
+            <div className="relative w-full md:w-96">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar por nombre, unidad o id…"
+                className="bg-gray-50 border border-secondary text-sm rounded-full focus:ring-accent focus:border-accent block w-full pl-10 p-2.5"
+              />
+              <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m21 21-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" />
+              </svg>
+            </div>
+          </div>
+
+          {searchQuery && (
+            <p className="px-4 text-sm text-gray-600 -mt-2 mb-2">
+              {filteredInsumos.length} resultado{filteredInsumos.length === 1 ? "" : "s"} para <strong>&ldquo;{searchQuery}&rdquo;</strong>
+              {filteredInsumos.length === 0 && (
+                <button onClick={() => setSearchQuery("")} className="ml-3 underline" style={{ color: "var(--burdeos)" }}>
+                  Limpiar búsqueda
+                </button>
+              )}
+            </p>
+          )}
 
           {/* Toolbar de selección — aparece solo cuando hay algo marcado */}
           {selected.size > 0 && (
