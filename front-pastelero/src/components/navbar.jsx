@@ -392,8 +392,8 @@ const NavbarAdmin = () => {
             {!isLoggedIn && (
               <div className="hidden md:flex items-center gap-3">
                 <Link href="/registrarse" style={linkStyle}>Registrarse</Link>
-                <Link href="/enduser/conocenuestrosproductos" style={linkStyle}>Productos</Link>
-                <Link href="/enduser/galeria" className="hidden lg:inline" style={linkStyle}>Galería</Link>
+                <Link href="/enduser/galletas-ny" style={linkStyle}>Galletas NY</Link>
+                <Link href="/enduser/pastel-vintage" className="hidden lg:inline" style={linkStyle}>Vintage Cake</Link>
                 <Link href="/login" style={linkStyle}>Iniciar sesión</Link>
                 <Link href="/enduser/conocenos#preguntasfrecuentes">
                   <button
@@ -561,8 +561,8 @@ const NavbarAdmin = () => {
                       {userEmail}
                     </div>
                     {[
-                      { href: "/enduser/conocenuestrosproductos", label: "Productos" },
-                      { href: "/enduser/galeria", label: "Galería" },
+                      { href: "/enduser/galletas-ny", label: "Galletas NY" },
+                      { href: "/enduser/pastel-vintage", label: "Vintage Cake" },
                       { href: "/enduser/mispedidos", label: "Mis Pedidos" },
                     ].map((item) => (
                       <Link
@@ -616,8 +616,8 @@ const NavbarAdmin = () => {
                 <>
                   {[
                     { href: "/registrarse", label: "Registrarse" },
-                    { href: "/enduser/conocenuestrosproductos", label: "Productos" },
-                    { href: "/enduser/galeria", label: "Galería" },
+                    { href: "/enduser/galletas-ny", label: "Galletas NY" },
+                    { href: "/enduser/pastel-vintage", label: "Vintage Cake" },
                     { href: "/login", label: "Iniciar sesión" },
                     { href: "/enduser/conocenos#preguntasfrecuentes", label: "Preguntas frecuentes" },
                   ].map((item) => (
