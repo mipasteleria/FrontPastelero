@@ -18,6 +18,7 @@ export default function NuevaReceta() {
     control,
     getValues,
     setValue,
+    watch,
     formState: { errors } } = useForm();
   const { userToken } = useAuth();
 
@@ -259,27 +260,65 @@ export default function NuevaReceta() {
                     />
                   </div>
                   {renderInput("cantidad", "Cantidad", "number", "0.0", "")}
-                  {renderInput("precio", "Precio", "number", "0.0", "")}
-                  <div 
-                  className="flex items-end">
+
+                  {/* Precio: si hay ingrediente del catálogo, se calcula
+                      automáticamente desde su cost/amount × cantidad.
+                      Sólo se pide manualmente si no hay ingrediente
+                      seleccionado del catálogo (caso legacy). */}
+                  {selectedIngredient && selectedIngredient.cost && selectedIngredient.amount ? (
                     <div className="w-full">
-                      <label htmlFor="unidad" className="block mb-2 text-sm font-medium dark:text-white">Unidad</label>
-                      <Controller
-                        name="unidad"
-                        control={control}
-                        defaultValue="gramos"
-                        render={({ field }) => (
-                          <select
-                            id="unidad"
-                            className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
-                            {...field}
-                          >
-                            <option value="gramos">gramos</option>
-                            <option value="ml">mililitros</option>
-                          </select>
-                        )}
-                      />
+                      <label className="block text-sm font-medium dark:text-white">Precio calculado</label>
+                      <div className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5 text-gray-700">
+                        <span className="font-bold">
+                          ${((selectedIngredient.cost / selectedIngredient.amount) * (parseFloat(watch("cantidad")) || 0)).toFixed(2)}
+                        </span>
+                        <span className="text-xs text-gray-500 ml-2">
+                          (${selectedIngredient.cost}/{selectedIngredient.amount}{selectedIngredient.unit} × cantidad)
+                        </span>
+                      </div>
                     </div>
+                  ) : selectedIngredient && (!selectedIngredient.cost || !selectedIngredient.amount) ? (
+                    <>
+                      <p className="text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-lg p-2.5">
+                        Este insumo no tiene precio/cantidad en el catálogo. Edítalo en <Link href="/dashboard/insumosytrabajomanual" className="underline font-bold">Insumos</Link> y vuelve aquí, o ingresa el precio manualmente abajo.
+                      </p>
+                      {renderInput("precio", "Precio manual", "number", "0.0", "")}
+                    </>
+                  ) : (
+                    renderInput("precio", "Precio", "number", "0.0", "")
+                  )}
+
+                  <div className="flex items-end">
+                    {/* Unidad: si viene del catálogo, mostrar como texto
+                        (no editable). Si no, dejar el select para
+                        compatibilidad con entrada manual. */}
+                    {selectedIngredient ? (
+                      <div className="w-full">
+                        <label className="block mb-2 text-sm font-medium dark:text-white">Unidad</label>
+                        <div className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5 text-gray-700">
+                          {selectedIngredient.unit || "—"}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full">
+                        <label htmlFor="unidad" className="block mb-2 text-sm font-medium dark:text-white">Unidad</label>
+                        <Controller
+                          name="unidad"
+                          control={control}
+                          defaultValue="gramos"
+                          render={({ field }) => (
+                            <select
+                              id="unidad"
+                              className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:ring-blue-500 dark:focus:border-accent"
+                              {...field}
+                            >
+                              <option value="gramos">gramos</option>
+                              <option value="ml">mililitros</option>
+                            </select>
+                          )}
+                        />
+                      </div>
+                    )}
                     <button
                       type="button"
                       onClick={handleAddIngredient}
