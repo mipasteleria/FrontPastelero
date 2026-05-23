@@ -140,8 +140,11 @@ const handleAddIngredient = () => {
   };
 
   setIngredientsList(prev => [...prev, newIngredient]);
+  // Limpiar todos los campos del form para seguir agregando sin borrar a mano.
+  setValue("ingrediente", "");
   setValue("cantidad", "");
   setValue("precio", "");
+  setValue("unidad", "gramos");
   setSelectedIngredient(null);
 };
 

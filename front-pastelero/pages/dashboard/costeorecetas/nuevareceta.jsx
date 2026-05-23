@@ -96,8 +96,12 @@ export default function NuevaReceta() {
     };
 
     setIngredientsList(prev => [...prev, newIngredient]);
+    // Limpiar todos los campos del form de ingrediente para que el
+    // admin pueda seguir agregando sin tener que borrar manualmente.
+    setValue("ingrediente", "");
     setValue("cantidad", "");
     setValue("precio", "");
+    setValue("unidad", "gramos"); // vuelve al default del select
     setSelectedIngredient(null);
   };
 
