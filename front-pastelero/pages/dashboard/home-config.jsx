@@ -18,6 +18,52 @@ const HREF_SUGERIDOS = [
   { value: "/cursos",                 label: "Cursos" },
 ];
 
+// Lado mayor máximo (px) tras redimensionar. 1200 es suficiente para que
+// la imagen se vea nítida en el círculo del hero (donde se renderiza a
+// ~400px), y mantiene el archivo bajo ~500KB típicamente — muy por
+// debajo del límite de body de Vercel (~4.5 MB) que estaba truncando
+// los PNG originales y haciendo que se vieran cortados.
+const MAX_LADO_PX = 1200;
+
+/**
+ * Redimensiona un File de imagen al lado mayor MAX_LADO_PX manteniendo
+ * proporción y transparencia. Devuelve un File PNG nuevo. Si la imagen
+ * ya es menor que MAX_LADO_PX en ambas dimensiones, igual la re-encodea
+ * para garantizar que el archivo sea PNG limpio (sin metadata pesada).
+ */
+function redimensionarImagen(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      const escala = Math.min(1, MAX_LADO_PX / Math.max(w, h));
+      const targetW = Math.round(w * escala);
+      const targetH = Math.round(h * escala);
+      const canvas = document.createElement("canvas");
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, targetW, targetH);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error("No se pudo procesar la imagen"));
+          const nombreSinExt = file.name.replace(/\.[^.]+$/, "") || "imagen";
+          resolve(new File([blob], `${nombreSinExt}.png`, { type: "image/png" }));
+        },
+        "image/png"
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("No se pudo leer la imagen"));
+    };
+    img.src = url;
+  });
+}
+
 export default function HomeConfig() {
   const { userToken } = useAuth();
   const [cfg, setCfg] = useState({
@@ -79,9 +125,16 @@ export default function HomeConfig() {
     }
     setUploading(true);
     try {
-      // 1) Subir a GCS via POST /upload
+      // 1) Redimensionar en cliente. Sin esto, un PNG original de >4.5MB
+      //    se trunca en el límite de body de Vercel y llega corrupto al
+      //    back → la imagen final se ve cortada en una línea horizontal
+      //    recta. Con redimensionar a max 1200px el archivo final pesa
+      //    ~200-500KB y nunca topa con el límite.
+      const fileResized = await redimensionarImagen(file);
+
+      // 2) Subir a GCS via POST /upload
       const fd = new FormData();
-      fd.append("files", file);
+      fd.append("files", fileResized);
       const upRes = await fetch(`${API_BASE}/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${userToken}` },
@@ -92,7 +145,7 @@ export default function HomeConfig() {
       const uploaded = Array.isArray(upJson) ? upJson[0] : upJson;
       if (!uploaded?.fileUrl) throw new Error("Respuesta de upload incompleta");
 
-      // 2) Guardar la URL en home-config
+      // 3) Guardar la URL en home-config
       const cfgRes = await fetch(`${API_BASE}/home-config`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${userToken}` },
@@ -211,7 +264,7 @@ export default function HomeConfig() {
                         Quitar imagen
                       </button>
                     )}
-                    <p className="text-xs text-gray-500">PNG (recomendado), WEBP o JPG. Máx 8 MB.</p>
+                    <p className="text-xs text-gray-500">PNG (recomendado), WEBP o JPG. Se redimensiona automáticamente a 1200 px de lado mayor para optimizar.</p>
                   </div>
                 </div>
               </section>
