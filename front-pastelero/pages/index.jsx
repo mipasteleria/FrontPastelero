@@ -3,9 +3,19 @@ import WebFooter from "@/src/components/WebFooter";
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+import { useEffect, useState } from "react";
 
 const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+// Defaults — usados mientras carga el fetch o si el back falla.
+const HOME_CFG_DEFAULTS = {
+  imagenHeroUrl: "",
+  favoritoSemanaHref: "/enduser/galletas-ny",
+  nuevoSaborHref:     "/enduser/galletas-ny",
+};
 
 /* ─── Categories ─────────────────────────────────────────────────── */
 const CATS = [
@@ -31,6 +41,31 @@ const TESTS = [
 ];
 
 export default function Home() {
+  // Carga la config editable desde el back. Si falla, dejamos defaults
+  // (galletas NY) — el home nunca debe romper por una llamada al back.
+  const [homeCfg, setHomeCfg] = useState(HOME_CFG_DEFAULTS);
+  useEffect(() => {
+    if (!API_BASE) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(`${API_BASE}/home-config`);
+        if (!r.ok) return;
+        const j = await r.json();
+        if (!cancelled && j?.data) {
+          setHomeCfg({
+            imagenHeroUrl:      j.data.imagenHeroUrl || "",
+            favoritoSemanaHref: j.data.favoritoSemanaHref || HOME_CFG_DEFAULTS.favoritoSemanaHref,
+            nuevoSaborHref:     j.data.nuevoSaborHref     || HOME_CFG_DEFAULTS.nuevoSaborHref,
+          });
+        }
+      } catch {
+        /* silencioso — usamos defaults */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div className={nunito.className} style={{ minHeight: "100vh", background: "var(--bg-sunken)" }}>
       {/* ── keyframe animations ──────────────────────────── */}
@@ -122,7 +157,15 @@ export default function Home() {
             {/* Cake blob */}
             <div style={{ position: "absolute", inset: "10%", background: "var(--crema)", borderRadius: "50% 50% 50% 50%/50% 50% 50% 50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-xl)", overflow: "hidden" }}>
               <div aria-hidden="true" className="ru-pattern-sprinkle absolute inset-0" style={{ opacity: 0.2 }} />
-              <span style={{ fontSize: "6rem", position: "relative" }}>🎂</span>
+              {homeCfg.imagenHeroUrl ? (
+                <img
+                  src={homeCfg.imagenHeroUrl}
+                  alt=""
+                  style={{ position: "relative", maxWidth: "80%", maxHeight: "80%", objectFit: "contain" }}
+                />
+              ) : (
+                <span style={{ fontSize: "6rem", position: "relative" }}>🎂</span>
+              )}
             </div>
 
             {/* Floating sprinkle particles */}
@@ -136,18 +179,22 @@ export default function Home() {
             ))}
 
             {/* Floating chips */}
-            <div style={{ position:"absolute", top:"8%", right:"-4%", background:"var(--bg-raised)", padding:"10px 14px", borderRadius:"var(--r-pill)", boxShadow:"var(--shadow-md)", display:"flex", alignItems:"center", gap:10, fontWeight:700, fontSize:"0.8rem", animation:"bob 4s ease-in-out infinite", whiteSpace:"nowrap" }}>
-              <span style={{ width:32, height:32, borderRadius:"50%", background:"#FFE2E7", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❤︎</span>
-              <div><div style={{ fontSize:"0.65rem", color:"var(--text-muted)", fontWeight:500 }}>Favorito de</div><div>la semana</div></div>
-            </div>
+            <Link href={homeCfg.favoritoSemanaHref} style={{ textDecoration: "none", color: "inherit" }}>
+              <div style={{ position:"absolute", top:"8%", right:"-4%", background:"var(--bg-raised)", padding:"10px 14px", borderRadius:"var(--r-pill)", boxShadow:"var(--shadow-md)", display:"flex", alignItems:"center", gap:10, fontWeight:700, fontSize:"0.8rem", animation:"bob 4s ease-in-out infinite", whiteSpace:"nowrap", cursor:"pointer" }}>
+                <span style={{ width:32, height:32, borderRadius:"50%", background:"#FFE2E7", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>❤︎</span>
+                <div><div style={{ fontSize:"0.65rem", color:"var(--text-muted)", fontWeight:500 }}>Favorito de</div><div>la semana</div></div>
+              </div>
+            </Link>
             <div style={{ position:"absolute", bottom:"12%", left:"-6%", background:"var(--bg-raised)", padding:"10px 14px", borderRadius:"var(--r-pill)", boxShadow:"var(--shadow-md)", display:"flex", alignItems:"center", gap:10, fontWeight:700, fontSize:"0.8rem", animation:"bob 4s ease-in-out infinite", animationDelay:"-2s", whiteSpace:"nowrap" }}>
               <span style={{ width:32, height:32, borderRadius:"50%", background:"#B8E6D3", color:"#1D5A45", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>✓</span>
               <div><div style={{ fontSize:"0.65rem", color:"var(--text-muted)", fontWeight:500 }}>Hecho con</div><div>mantequilla real</div></div>
             </div>
-            <div style={{ position:"absolute", bottom:"40%", right:"-10%", background:"var(--bg-raised)", padding:"10px 14px", borderRadius:"var(--r-pill)", boxShadow:"var(--shadow-md)", display:"flex", alignItems:"center", gap:10, fontWeight:700, fontSize:"0.8rem", animation:"bob 4s ease-in-out infinite", animationDelay:"-1s", whiteSpace:"nowrap" }}>
-              <span style={{ width:32, height:32, borderRadius:"50%", background:"#FFE99B", color:"#6B4F1A", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>✦</span>
-              <div>Nuevo sabor</div>
-            </div>
+            <Link href={homeCfg.nuevoSaborHref} style={{ textDecoration: "none", color: "inherit" }}>
+              <div style={{ position:"absolute", bottom:"40%", right:"-10%", background:"var(--bg-raised)", padding:"10px 14px", borderRadius:"var(--r-pill)", boxShadow:"var(--shadow-md)", display:"flex", alignItems:"center", gap:10, fontWeight:700, fontSize:"0.8rem", animation:"bob 4s ease-in-out infinite", animationDelay:"-1s", whiteSpace:"nowrap", cursor:"pointer" }}>
+                <span style={{ width:32, height:32, borderRadius:"50%", background:"#FFE99B", color:"#6B4F1A", display:"flex", alignItems:"center", justifyContent:"center", fontSize:16 }}>✦</span>
+                <div>Nuevo sabor</div>
+              </div>
+            </Link>
           </div>
         </div>
       </section>
