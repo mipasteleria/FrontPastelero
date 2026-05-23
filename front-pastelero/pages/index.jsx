@@ -158,14 +158,24 @@ export default function Home() {
             <div style={{ position: "absolute", inset: "10%", background: "var(--crema)", borderRadius: "50% 50% 50% 50%/50% 50% 50% 50%", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-xl)", overflow: "hidden" }}>
               <div aria-hidden="true" className="ru-pattern-sprinkle absolute inset-0" style={{ opacity: 0.2 }} />
               {homeCfg.imagenHeroUrl ? (
-                <img
-                  src={homeCfg.imagenHeroUrl}
-                  alt=""
-                  // 65% (no 80%) porque la imagen es un rectángulo y el contenedor
-                  // es un círculo: a 80% las esquinas del rectángulo quedaban fuera
-                  // del círculo y la animación bob las cortaba. 65% deja margen
-                  // visible para que cualquier PNG se vea completo y "flotando".
-                  style={{ position: "relative", width: "65%", height: "65%", objectFit: "contain", animation: "bob 4s ease-in-out infinite" }}
+                // Usamos <div> con background-image en lugar de <img> porque
+                // Tailwind preflight aplica `height: auto` a `img`, lo que
+                // puede pelearse con `height: 80%` inline en algunos casos
+                // y hacer que la imagen se vea cortada. Un div con
+                // backgroundSize: contain es totalmente predecible.
+                <div
+                  role="img"
+                  aria-label="Imagen del hero"
+                  style={{
+                    position: "relative",
+                    width: "80%",
+                    height: "80%",
+                    backgroundImage: `url(${homeCfg.imagenHeroUrl})`,
+                    backgroundSize: "contain",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "center",
+                    animation: "bob 4s ease-in-out infinite",
+                  }}
                 />
               ) : (
                 <span style={{ fontSize: "6rem", position: "relative", animation: "bob 4s ease-in-out infinite" }}>🎂</span>
