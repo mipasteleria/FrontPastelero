@@ -44,6 +44,9 @@ export default function Home() {
   // Carga la config editable desde el back. Si falla, dejamos defaults
   // (galletas NY) — el home nunca debe romper por una llamada al back.
   const [homeCfg, setHomeCfg] = useState(HOME_CFG_DEFAULTS);
+  // Postres destacados marcados por el admin. Si el admin aún no marcó
+  // ninguno (o la API falla), caemos al BEST hardcoded como fallback.
+  const [destacados, setDestacados] = useState(null); // null = cargando
   useEffect(() => {
     if (!API_BASE) return;
     let cancelled = false;
@@ -63,8 +66,35 @@ export default function Home() {
         /* silencioso — usamos defaults */
       }
     })();
+    (async () => {
+      try {
+        const r = await fetch(`${API_BASE}/postres/destacados`);
+        if (!r.ok) { if (!cancelled) setDestacados([]); return; }
+        const j = await r.json();
+        if (!cancelled) setDestacados(j?.data || []);
+      } catch {
+        if (!cancelled) setDestacados([]);
+      }
+    })();
     return () => { cancelled = true; };
   }, []);
+
+  // Mapear destacados al shape del BEST hardcoded para que el render sea uno solo.
+  // Si no hay destacados o la API aún no respondió, usar el BEST como fallback.
+  const mostrarItems = (destacados && destacados.length > 0)
+    ? destacados.map((p) => ({
+        label: p.nombre,
+        sub: p.descripcion
+          ? (p.descripcion.length > 40 ? p.descripcion.slice(0, 40) + "…" : p.descripcion)
+          : "",
+        price: `$${Number(p.precio).toFixed(0)}`,
+        href: `/enduser/postres/${p.slug}`,
+        imagenUrl: p.imagenUrl || "",
+        bg: "linear-gradient(135deg,#FFE2E7,#FFC3C9)",
+        emoji: "🎂",
+        tag: null,
+      }))
+    : BEST;
 
   return (
     <div className={nunito.className} style={{ minHeight: "100vh", background: "var(--bg-sunken)" }}>
@@ -259,8 +289,8 @@ export default function Home() {
         </div>
 
         <div className="best-grid" style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1rem" }}>
-          {BEST.map((p) => (
-            <Link key={p.label} href={p.href} style={{ textDecoration: "none" }}>
+          {mostrarItems.map((p, idx) => (
+            <Link key={p.href || idx} href={p.href} style={{ textDecoration: "none" }}>
               <div className="prod-card" style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", overflow: "hidden", boxShadow: "var(--shadow-sm)", transition: "all 280ms cubic-bezier(.2,.8,.2,1)", position: "relative", cursor: "pointer" }}>
                 {/* Badge */}
                 {p.tag && (
@@ -270,10 +300,26 @@ export default function Home() {
                 )}
                 {/* Heart */}
                 <button aria-label="favorito" style={{ position: "absolute", top: 10, right: 10, zIndex: 2, width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,.9)", backdropFilter: "blur(6px)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--rosa)", fontSize: 18, cursor: "pointer" }}>♥</button>
-                {/* Product image area */}
-                <div style={{ aspectRatio: "1/1", background: p.bg, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
-                  <div aria-hidden="true" className="ru-pattern-sprinkle absolute inset-0" style={{ opacity: 0.3 }} />
-                  <span style={{ fontSize: "5rem", position: "relative", zIndex: 1 }}>{p.emoji}</span>
+                {/* Product image area: imagen del postre si existe, sino emoji con gradiente */}
+                <div style={{
+                  aspectRatio: "1/1",
+                  background: p.imagenUrl ? "var(--crema)" : p.bg,
+                  backgroundImage: p.imagenUrl ? `url(${p.imagenUrl})` : "none",
+                  backgroundSize: "contain",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                }}>
+                  {!p.imagenUrl && (
+                    <>
+                      <div aria-hidden="true" className="ru-pattern-sprinkle absolute inset-0" style={{ opacity: 0.3 }} />
+                      <span style={{ fontSize: "5rem", position: "relative", zIndex: 1 }}>{p.emoji}</span>
+                    </>
+                  )}
                 </div>
                 {/* Body */}
                 <div style={{ padding: "1rem 1.25rem 1.25rem" }}>
@@ -290,7 +336,7 @@ export default function Home() {
         </div>
 
         <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
-          <Link href="/enduser/conocenuestrosproductos">
+          <Link href="/enduser/postres">
             <button className="link-btn" style={{ padding: "12px 36px", borderRadius: "var(--r-pill)", border: "1.5px solid var(--border-strong)", background: "transparent", color: "var(--burdeos)", cursor: "pointer", fontWeight: 700, fontFamily: "var(--font-nunito)", fontSize: "0.9rem", transition: "all 150ms" }}>
               Ver todo el catálogo
             </button>
