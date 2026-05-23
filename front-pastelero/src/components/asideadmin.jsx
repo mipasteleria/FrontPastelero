@@ -122,6 +122,15 @@ const NAV_GROUPS = [
           </svg>
         ),
       },
+      {
+        href: "/dashboard/home-config",
+        label: "Home",
+        icon: (
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2 1 9h2v8h5v-5h4v5h5V9h2L10 2Z" />
+          </svg>
+        ),
+      },
     ],
   },
 ];
