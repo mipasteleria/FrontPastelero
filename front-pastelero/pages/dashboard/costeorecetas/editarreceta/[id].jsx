@@ -26,12 +26,24 @@ export default function EditarReceta() {
   const [ingredientsList, setIngredientsList] = useState([]);
   const [ingredientOptions, setIngredientOptions] = useState([]);
   const [selectedIngredient, setSelectedIngredient] = useState(null);
-  const [fixedCosts, setFixedCosts] = useState(0);
-  const [fixedCostsHours, setFixedCostsHours] = useState(0);
-  const [total, setTotal] = useState(0);
+  // Tarifas horarias globales (settings).
+  const [tarifaFijaHora, setTarifaFijaHora] = useState(0);
+  const [tarifaLaborHora, setTarifaLaborHora] = useState(0);
+  // Flag para saber si la receta cargada es legacy (sin horas guardadas).
+  const [esRecetaLegacy, setEsRecetaLegacy] = useState(false);
+  const [breakdown, setBreakdown] = useState({
+    materiales: 0, additional: 0, ieps: 0,
+    manoObra: 0, fijos: 0, total: 0, sugerido: 0,
+  });
   const router = useRouter();
-  const { id } = router.query; // Obtén el ID de la receta del query string
+  const { id } = router.query;
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  const watchSpecialTax    = watch("special_tax");
+  const watchAdditional    = watch("additional_costs");
+  const watchHoursLabor    = watch("hours_labor");
+  const watchHoursFixed    = watch("hours_fixed");
+  const watchProfitMargin  = watch("profit_margin");
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -42,35 +54,21 @@ export default function EditarReceta() {
         console.error("Error fetching ingredients:", error);
       }
     };
-  
+
     const fetchCosts = async () => {
       try {
         const response = await axios.get(`${API_BASE}/costs`);
         const data = response.data;
-        setFixedCosts(data.fixedCosts);
-        setFixedCostsHours(data.laborCosts);
-    
-        // Calcula el total inicial con los costos obtenidos
-        const ingredientTotal = ingredientsList.reduce(
-          (acc, ingredient) => acc + parseFloat(ingredient.precio || 0),
-          0
-        );
-    
-        const specialTaxValue = parseFloat(getValues("special_tax") || 0);
-        const additionalCostsValue = parseFloat(getValues("additional_costs") || 0);
-        const profitMarginValue = parseFloat(getValues("profit_margin") || 0);
-    
-        // No incluir overhead ni margen en total_cost; eso lo hace costeoHandler
-        const rawCost = ingredientTotal + additionalCostsValue;
-        setTotal(rawCost + (rawCost * specialTaxValue) / 100);
+        setTarifaFijaHora(data.fixedCosts);
+        setTarifaLaborHora(data.laborCosts);
       } catch (error) {
         console.error("Error fetching costs:", error);
       }
-    };    
+    };
 
     fetchIngredients();
     fetchCosts();
-  }, [ingredientsList, API_BASE, getValues]);
+  }, [API_BASE]);
 
   useEffect(() => {
     if (id) {
@@ -87,8 +85,12 @@ export default function EditarReceta() {
           setValue("portions", receta.portions);
           setValue("special_tax", receta.special_tax);
           setValue("additional_costs", receta.additional_costs);
-          setValue("total_cost", receta.total_cost);
-          setTotal(receta.total_cost);
+          setValue("hours_labor", receta.hours_labor ?? "");
+          setValue("hours_fixed", receta.hours_fixed ?? "");
+
+          // Recetas viejas no tienen hours_*. Marcar como legacy para mostrar warning.
+          const esLegacy = receta.hours_labor == null && receta.hours_fixed == null;
+          setEsRecetaLegacy(esLegacy);
 
           if (receta.ingredientes.length > 0) {
             setIngredientsList(receta.ingredientes);
@@ -100,20 +102,37 @@ export default function EditarReceta() {
 
       fetchReceta();
     }
-  }, [id, getValues, setValue, API_BASE]);
+  }, [id, setValue, API_BASE]);
 
   const calculateTotal = useCallback(() => {
-    const ingredientTotal = ingredientsList.reduce((acc, ingredient) => acc + parseFloat(ingredient.precio || 0), 0);
-    const { special_tax, additional_costs } = getValues();
-    const specialTaxValue = parseFloat(special_tax || 0);
-    const additionalCostsValue = parseFloat(additional_costs || 0);
-    const rawCost = ingredientTotal + additionalCostsValue;
-    setTotal(rawCost + (rawCost * specialTaxValue / 100));
-  }, [ingredientsList, getValues]);
+    const materiales = ingredientsList.reduce((acc, i) => acc + parseFloat(i.precio || 0), 0);
+    const additional = parseFloat(watchAdditional || 0);
+    const iepsPct    = parseFloat(watchSpecialTax || 0);
+    const hoursLab   = parseFloat(watchHoursLabor || 0);
+    const hoursFix   = parseFloat(watchHoursFixed || 0);
+    const margenPct  = parseFloat(watchProfitMargin || 0);
 
-  useEffect(() => {
-    calculateTotal();
-  }, [calculateTotal]);
+    const subBruto = materiales + additional;
+    const ieps     = subBruto * iepsPct / 100;
+    const manoObra = hoursLab * tarifaLaborHora;
+    const fijos    = hoursFix * tarifaFijaHora;
+    const total    = subBruto + ieps + manoObra + fijos;
+    const sugerido = total * (1 + margenPct / 100);
+
+    setBreakdown({
+      materiales: round2(materiales),
+      additional: round2(additional),
+      ieps:       round2(ieps),
+      manoObra:   round2(manoObra),
+      fijos:      round2(fijos),
+      total:      round2(total),
+      sugerido:   round2(sugerido),
+    });
+  }, [ingredientsList, watchSpecialTax, watchAdditional, watchHoursLabor, watchHoursFixed, watchProfitMargin, tarifaLaborHora, tarifaFijaHora]);
+
+  useEffect(() => { calculateTotal(); }, [calculateTotal]);
+
+  function round2(n) { return Math.round(n * 100) / 100; }
 
 const handleAddIngredient = () => {
   const { ingrediente, unidad } = getValues();
@@ -160,9 +179,12 @@ const handleDeleteIngredient = (index) => {
 
   const onSubmit = async (data) => {
     data.ingredientes = ingredientsList;
-    data.total_cost = total;
-    data.fixed_costs = fixedCosts;
-    data.fixed_costs_hours = fixedCostsHours;
+    data.total_cost = breakdown.total;
+    data.hours_labor = parseFloat(data.hours_labor || 0);
+    data.hours_fixed = parseFloat(data.hours_fixed || 0);
+    // Snapshots de tarifas (legacy, opcionales).
+    data.fixed_costs = tarifaFijaHora;
+    data.fixed_costs_hours = tarifaLaborHora;
 
     try {
       const response = await axios.put(
@@ -416,20 +438,31 @@ const handleDeleteIngredient = (index) => {
                 </table>
               )}
             </div>
+            {esRecetaLegacy && (
+              <div className="mb-4 p-3 rounded-lg bg-orange-50 border border-orange-200 text-sm text-orange-800">
+                ⚠️ Esta receta fue creada antes del cambio de costeo y no tiene horas de trabajo guardadas. Configura <strong>Horas de mano de obra</strong> y <strong>Horas de gastos fijos</strong> abajo para que el costeo de cotizaciones sea correcto.
+              </div>
+            )}
             <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="w-full">
-                  <label htmlFor="fixed_costs" className="block text-sm font-medium dark:text-white">Mano de obra</label>
-                  <p id="fixed_costs" className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5">{(fixedCostsHours || 0).toFixed(2)}</p>
+                  <label className="block text-sm font-medium dark:text-white">Mano de obra</label>
+                  <p className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5 text-gray-600">
+                    Tarifa: <strong>${(tarifaLaborHora || 0).toFixed(2)}/hora</strong>
+                  </p>
                 </div>
+                {renderInput("hours_labor", "Horas de mano de obra", "number", "0.0", "")}
                 <div className="w-full">
-                  <label htmlFor="fixed_costs_hours" className="block text-sm font-medium dark:text-white">Gastos fijos</label>
-                  <p id="fixed_costs_hours" className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5">{(fixedCosts || 0).toFixed(2)}</p>
+                  <label className="block text-sm font-medium dark:text-white">Gastos fijos</label>
+                  <p className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5 text-gray-600">
+                    Tarifa: <strong>${(tarifaFijaHora || 0).toFixed(2)}/hora</strong>
+                  </p>
                 </div>
+                {renderInput("hours_fixed", "Horas de gastos fijos (uso del taller)", "number", "0.0", "")}
             {renderInput(
-              "special_tax", 
-              "IEPS (%)", 
-              "number", 
-              "0.0", 
+              "special_tax",
+              "IEPS (%)",
+              "number",
+              "0.0",
               "")}
             {renderInput(
                 "additional_costs",
@@ -470,18 +503,22 @@ const handleDeleteIngredient = (index) => {
                 {errors.profit_margin && <p className="text-red-600">{errors.profit_margin.message}</p>}
               </div>
             </div>
-            <div className="my-10 p-4 rounded-xl bg-rose-50">
-              <label
-                htmlFor="total_cost"
-                className={`text-3xl p-2 font-bold mb-4 ${sofia.className}`}
-              >
-                Costo por lote de ingredientes
-              </label>
-              <p id="total_cost" className="text-center text-2xl">
-                {total !== null ? total.toFixed(2) : "0.00"} MXN
-              </p>
-              <p className="text-center text-xs text-gray-400 mt-1">
-                Solo ingredientes + costos adicionales + IEPS. El overhead y el margen se calculan en el costeo de cotización.
+            <div className="my-10 p-6 rounded-xl bg-rose-50">
+              <h2 className={`text-3xl font-bold mb-4 ${sofia.className}`}>Desglose del costo</h2>
+              <table className="w-full text-sm">
+                <tbody>
+                  <tr><td className="py-1">Materiales (ingredientes)</td><td className="py-1 text-right">${breakdown.materiales.toFixed(2)}</td></tr>
+                  <tr><td className="py-1">Costos adicionales</td><td className="py-1 text-right">${breakdown.additional.toFixed(2)}</td></tr>
+                  <tr><td className="py-1">IEPS</td><td className="py-1 text-right">${breakdown.ieps.toFixed(2)}</td></tr>
+                  <tr><td className="py-1">Mano de obra ({parseFloat(watchHoursLabor || 0)}h × ${tarifaLaborHora.toFixed(2)})</td><td className="py-1 text-right">${breakdown.manoObra.toFixed(2)}</td></tr>
+                  <tr><td className="py-1">Gastos fijos ({parseFloat(watchHoursFixed || 0)}h × ${tarifaFijaHora.toFixed(2)})</td><td className="py-1 text-right">${breakdown.fijos.toFixed(2)}</td></tr>
+                  <tr className="border-t border-secondary"><td className="py-2 font-bold">Costo total de la receta</td><td className="py-2 text-right font-bold text-lg">${breakdown.total.toFixed(2)}</td></tr>
+                  <tr><td className="py-1 text-gray-600">+ Margen de ganancia ({parseFloat(watchProfitMargin || 0)}%)</td><td className="py-1 text-right text-gray-600">${(breakdown.sugerido - breakdown.total).toFixed(2)}</td></tr>
+                  <tr className="border-t border-secondary"><td className="py-2 font-bold" style={{ color: "var(--burdeos)" }}>Precio sugerido (con margen)</td><td className="py-2 text-right font-bold text-xl" style={{ color: "var(--burdeos)" }}>${breakdown.sugerido.toFixed(2)}</td></tr>
+                </tbody>
+              </table>
+              <p className="text-xs text-gray-500 mt-4">
+                El <strong>Costo total</strong> es lo que se guarda. El <strong>precio sugerido</strong> es informativo — el margen final se aplica al cotizar.
               </p>
             </div>
             <div className="flex flex-col md:flex-row gap-10 justify-center">
