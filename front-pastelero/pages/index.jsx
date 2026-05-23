@@ -11,7 +11,7 @@ const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "8
 const CATS = [
   { href: "/enduser/pastel-vintage", label: "Pasteles Vintage", sub: "Ármalo a tu gusto",      bg: "linear-gradient(180deg,rgba(255,226,231,.7) 0%,#FFC3C9 100%)", emoji: "🎂", textColor: "var(--burdeos)" },
   { href: "/enduser/galletas-ny",    label: "Galletas NY",      sub: "Mega, suaves, rellenas",  bg: "linear-gradient(180deg,rgba(184,230,211,.7) 0%,#B8E6D3 100%)", emoji: "🍪", textColor: "var(--burdeos)" },
-  { href: "/enduser/conocenuestrosproductos", label: "Cupcakes", sub: "Perfectos para eventos", bg: "linear-gradient(180deg,rgba(255,233,155,.7) 0%,#FFE99B 100%)", emoji: "🧁", textColor: "var(--burdeos)" },
+  { href: "/cotizacion",             label: "Cotización personalizada", sub: "A tu medida",         bg: "linear-gradient(180deg,rgba(255,233,155,.7) 0%,#FFE99B 100%)", emoji: "📝", textColor: "var(--burdeos)" },
   { href: "/cursos",                 label: "Cursos",            sub: "Aprende con nosotros",   bg: "linear-gradient(180deg,rgba(217,196,232,.7) 0%,#D9C4E8 100%)", emoji: "✨", textColor: "var(--burdeos)" },
 ];
 
@@ -78,9 +78,8 @@ export default function Home() {
             </div>
 
             <h1 className={sofia.className} style={{ fontSize: "clamp(3.5rem, 8vw, 6.5rem)", lineHeight: 0.97, color: "var(--burdeos)", marginBottom: "1.25rem" }}>
-              Hornea<br />
-              recuerdos
-              <span style={{ color: "var(--rosa)", display: "block", transform: "translateX(clamp(1.5rem,3vw,3rem))" }}>dulces.</span>
+              Horneando
+              <span style={{ color: "var(--rosa)", display: "block", transform: "translateX(clamp(1.5rem,3vw,3rem))" }}>recuerdos.</span>
             </h1>
 
             <p style={{ fontSize: "1.05rem", color: "var(--text-soft)", maxWidth: "46ch", lineHeight: 1.7, marginBottom: "2rem" }}>
