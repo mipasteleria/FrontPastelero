@@ -34,6 +34,7 @@ export default function EditarReceta() {
   const [breakdown, setBreakdown] = useState({
     materiales: 0, additional: 0, ieps: 0,
     manoObra: 0, fijos: 0, total: 0, sugerido: 0,
+    costoPorPorcion: 0, precioPorPorcion: 0,
   });
   const router = useRouter();
   const { id } = router.query;
@@ -44,6 +45,7 @@ export default function EditarReceta() {
   const watchHoursLabor    = watch("hours_labor");
   const watchHoursFixed    = watch("hours_fixed");
   const watchProfitMargin  = watch("profit_margin");
+  const watchPortions      = watch("portions");
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -111,6 +113,7 @@ export default function EditarReceta() {
     const hoursLab   = parseFloat(watchHoursLabor || 0);
     const hoursFix   = parseFloat(watchHoursFixed || 0);
     const margenPct  = parseFloat(watchProfitMargin || 0);
+    const porciones  = parseFloat(watchPortions || 0);
 
     const subBruto = materiales + additional;
     const ieps     = subBruto * iepsPct / 100;
@@ -119,16 +122,21 @@ export default function EditarReceta() {
     const total    = subBruto + ieps + manoObra + fijos;
     const sugerido = total * (1 + margenPct / 100);
 
+    const costoPorPorcion  = porciones > 0 ? total / porciones : 0;
+    const precioPorPorcion = porciones > 0 ? sugerido / porciones : 0;
+
     setBreakdown({
-      materiales: round2(materiales),
-      additional: round2(additional),
-      ieps:       round2(ieps),
-      manoObra:   round2(manoObra),
-      fijos:      round2(fijos),
-      total:      round2(total),
-      sugerido:   round2(sugerido),
+      materiales:       round2(materiales),
+      additional:       round2(additional),
+      ieps:             round2(ieps),
+      manoObra:         round2(manoObra),
+      fijos:            round2(fijos),
+      total:            round2(total),
+      sugerido:         round2(sugerido),
+      costoPorPorcion:  round2(costoPorPorcion),
+      precioPorPorcion: round2(precioPorPorcion),
     });
-  }, [ingredientsList, watchSpecialTax, watchAdditional, watchHoursLabor, watchHoursFixed, watchProfitMargin, tarifaLaborHora, tarifaFijaHora]);
+  }, [ingredientsList, watchSpecialTax, watchAdditional, watchHoursLabor, watchHoursFixed, watchProfitMargin, watchPortions, tarifaLaborHora, tarifaFijaHora]);
 
   useEffect(() => { calculateTotal(); }, [calculateTotal]);
 
@@ -513,8 +521,10 @@ const handleDeleteIngredient = (index) => {
                   <tr><td className="py-1">Mano de obra ({parseFloat(watchHoursLabor || 0)}h × ${tarifaLaborHora.toFixed(2)})</td><td className="py-1 text-right">${breakdown.manoObra.toFixed(2)}</td></tr>
                   <tr><td className="py-1">Gastos fijos ({parseFloat(watchHoursFixed || 0)}h × ${tarifaFijaHora.toFixed(2)})</td><td className="py-1 text-right">${breakdown.fijos.toFixed(2)}</td></tr>
                   <tr className="border-t border-secondary"><td className="py-2 font-bold">Costo total de la receta</td><td className="py-2 text-right font-bold text-lg">${breakdown.total.toFixed(2)}</td></tr>
+                  <tr><td className="py-1 text-gray-600 pl-4">Costo por porción ({parseFloat(watchPortions || 0)} porciones)</td><td className="py-1 text-right text-gray-600">${breakdown.costoPorPorcion.toFixed(2)}</td></tr>
                   <tr><td className="py-1 text-gray-600">+ Margen de ganancia ({parseFloat(watchProfitMargin || 0)}%)</td><td className="py-1 text-right text-gray-600">${(breakdown.sugerido - breakdown.total).toFixed(2)}</td></tr>
                   <tr className="border-t border-secondary"><td className="py-2 font-bold" style={{ color: "var(--burdeos)" }}>Precio sugerido (con margen)</td><td className="py-2 text-right font-bold text-xl" style={{ color: "var(--burdeos)" }}>${breakdown.sugerido.toFixed(2)}</td></tr>
+                  <tr><td className="py-1 pl-4" style={{ color: "var(--burdeos)" }}><strong>Precio sugerido por porción</strong></td><td className="py-1 text-right font-bold text-lg" style={{ color: "var(--burdeos)" }}>${breakdown.precioPorPorcion.toFixed(2)}</td></tr>
                 </tbody>
               </table>
               <p className="text-xs text-gray-500 mt-4">
