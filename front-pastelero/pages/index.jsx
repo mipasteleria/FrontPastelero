@@ -161,10 +161,13 @@ export default function Home() {
                 <img
                   src={homeCfg.imagenHeroUrl}
                   alt=""
-                  style={{ position: "relative", maxWidth: "80%", maxHeight: "80%", objectFit: "contain" }}
+                  // width/height explícitos (no maxWidth/maxHeight) porque en
+                  // flexbox el <img> a veces ignora los max-* si tiene tamaño
+                  // intrínseco mayor que el contenedor → se ve cortado.
+                  style={{ position: "relative", width: "80%", height: "80%", objectFit: "contain", animation: "bob 4s ease-in-out infinite" }}
                 />
               ) : (
-                <span style={{ fontSize: "6rem", position: "relative" }}>🎂</span>
+                <span style={{ fontSize: "6rem", position: "relative", animation: "bob 4s ease-in-out infinite" }}>🎂</span>
               )}
             </div>
 
