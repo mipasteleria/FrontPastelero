@@ -233,16 +233,16 @@ export default function Home() {
             <Link key={cat.href} href={cat.href} style={{ textDecoration: "none" }}>
               <div
                 className="cat-card"
-                style={{ position: "relative", aspectRatio: "3/4", borderRadius: "var(--r-xl)", overflow: "hidden", padding: "1.5rem", display: "flex", flexDirection: "column", justifyContent: "flex-end", background: cat.bg, cursor: "pointer", transition: "transform 280ms cubic-bezier(.2,.8,.2,1), box-shadow 280ms" }}
+                style={{ position: "relative", aspectRatio: "3/4", borderRadius: "var(--r-xl)", overflow: "hidden", padding: "clamp(0.85rem, 3vw, 1.5rem)", display: "flex", flexDirection: "column", justifyContent: "flex-end", background: cat.bg, cursor: "pointer", transition: "transform 280ms cubic-bezier(.2,.8,.2,1), box-shadow 280ms" }}
               >
                 {/* Sprinkle overlay */}
                 <div aria-hidden="true" className="ru-pattern-sprinkle absolute inset-0 pointer-events-none" style={{ opacity: 0.3 }} />
                 {/* Illustration */}
-                <div style={{ position: "absolute", top: "12%", left: "50%", transform: "translateX(-50%)", fontSize: "4.5rem", lineHeight: 1, zIndex: 1 }}>{cat.emoji}</div>
+                <div style={{ position: "absolute", top: "12%", left: "50%", transform: "translateX(-50%)", fontSize: "clamp(2.5rem, 10vw, 4.5rem)", lineHeight: 1, zIndex: 1 }}>{cat.emoji}</div>
                 {/* Text */}
-                <h3 className={sofia.className} style={{ fontSize: "2rem", lineHeight: 1, marginBottom: 6, position: "relative", zIndex: 2, color: cat.textColor }}>{cat.label}</h3>
-                <p style={{ fontSize: "0.8rem", color: "var(--text-soft)", marginBottom: "0.75rem", position: "relative", zIndex: 2 }}>{cat.sub}</p>
-                <span style={{ fontWeight: 700, fontSize: "0.8rem", color: cat.textColor, position: "relative", zIndex: 2 }}>Explorar →</span>
+                <h3 className={sofia.className} style={{ fontSize: "clamp(1.15rem, 4.5vw, 2rem)", lineHeight: 1.05, marginBottom: 6, position: "relative", zIndex: 2, color: cat.textColor }}>{cat.label}</h3>
+                <p style={{ fontSize: "clamp(0.7rem, 2vw, 0.8rem)", color: "var(--text-soft)", marginBottom: "0.75rem", position: "relative", zIndex: 2 }}>{cat.sub}</p>
+                <span style={{ fontWeight: 700, fontSize: "clamp(0.7rem, 2vw, 0.8rem)", color: cat.textColor, position: "relative", zIndex: 2 }}>Explorar →</span>
               </div>
             </Link>
           ))}
