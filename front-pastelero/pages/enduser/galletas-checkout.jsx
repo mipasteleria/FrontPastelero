@@ -38,25 +38,28 @@ const SLOTS_ENVIO = [
 ];
 
 /* ─── Helpers ────────────────────────────────────────────────── */
-// Primer día disponible para entrega: aquel donde el slot más temprano
-// (10:00, primero de recogida) ya cae a >=48h de ahora. Sin este
-// "redondeo al siguiente día", DatePicker permitía elegir un día que
-// el back rechazaba porque algunas horas tempranas aún estaban dentro
-// de la ventana de 48h. Saltamos también los domingos.
+// Primer día disponible para entrega: a partir del día siguiente al de
+// compra, contar 2 días hábiles (lunes-sábado) saltando domingos. El
+// día de entrega es el día siguiente al último de esos 2 días hábiles.
+// Si cae en domingo, saltar al lunes.
+//
+// Ejemplos:
+//   viernes  → martes     (sábado, lunes = 2 hábiles; domingo skip)
+//   sábado   → miércoles  (lunes, martes = 2 hábiles)
+//   lunes    → jueves     (martes, miércoles = 2 hábiles)
 function getMinDate() {
-  const FIRST_SLOT_HOUR = 10; // primer slot del día (recogida)
-  const target = new Date(Date.now() + 48 * 60 * 60 * 1000);
-  // Si la hora "ahora+48h" cae después de las 10:00, ese día ya no es
-  // completamente válido — saltar al siguiente día completo.
-  if (
-    target.getHours() > FIRST_SLOT_HOUR ||
-    (target.getHours() === FIRST_SLOT_HOUR && (target.getMinutes() > 0 || target.getSeconds() > 0))
-  ) {
-    target.setDate(target.getDate() + 1);
+  const DIAS_PREPARACION = 2;
+  const hoy = new Date();
+  const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  let habiles = 0;
+  while (habiles < DIAS_PREPARACION) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0) habiles++;
   }
-  target.setHours(0, 0, 0, 0);
-  if (target.getDay() === 0) target.setDate(target.getDate() + 1);
-  return target;
+  // d es el último día de los 2 hábiles de preparación. Entrega = siguiente.
+  d.setDate(d.getDate() + 1);
+  if (d.getDay() === 0) d.setDate(d.getDate() + 1);
+  return d;
 }
 
 function isSunday(dateString) {
@@ -388,7 +391,7 @@ export default function GalletasCheckout() {
             {/* Step 3 — Fecha + hora */}
             <Section number="3" title="¿Cuándo lo necesitas?">
               <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 8 }}>
-                Mínimo 48 horas de anticipación. Lunes a Sábado.
+                Mínimo 2 días hábiles de anticipación (no contamos domingos). Lunes a Sábado.
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                 <Field label="Fecha de entrega *">
