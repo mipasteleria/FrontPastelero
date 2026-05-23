@@ -288,7 +288,7 @@ export default function NuevaReceta() {
       className="flex flex-row mt-16">
         <Asideadmin />
         <main 
-        className={`text-text ${poppins.className} flex-grow w-3/4 max-w-screen-lg mx-auto`}>
+        className={`text-text ${poppins.className} flex-grow w-full px-4 md:px-8 max-w-screen-2xl mx-auto`}>
           <h1 
           className={`text-4xl p-4 ${sofia.className}`}>Nueva Receta</h1>
           <form 
