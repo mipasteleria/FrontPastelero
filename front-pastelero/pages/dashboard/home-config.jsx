@@ -175,7 +175,22 @@ export default function HomeConfig() {
                     }}
                   >
                     {cfg.imagenHeroUrl ? (
-                      <img src={cfg.imagenHeroUrl} alt="Imagen del hero" style={{ maxWidth: "85%", maxHeight: "85%", objectFit: "contain" }} />
+                      // Mismo approach que en pages/index.jsx: <div> con
+                      // background-image en lugar de <img>, para evitar el
+                      // bug donde Tailwind preflight (`img { height: auto }`)
+                      // ignora el maxHeight y la imagen se ve cortada.
+                      <div
+                        role="img"
+                        aria-label="Imagen del hero"
+                        style={{
+                          width: "80%",
+                          height: "80%",
+                          backgroundImage: `url(${cfg.imagenHeroUrl})`,
+                          backgroundSize: "contain",
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: "center",
+                        }}
+                      />
                     ) : (
                       <span style={{ fontSize: "4rem" }}>🎂</span>
                     )}
