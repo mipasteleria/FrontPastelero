@@ -1,0 +1,450 @@
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { loadStripe } from "@stripe/stripe-js";
+import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
+import axios from "axios";
+import Swal from "sweetalert2";
+import DatePicker, { registerLocale } from "react-datepicker";
+import { es } from "date-fns/locale";
+import "react-datepicker/dist/react-datepicker.css";
+import NavbarAdmin from "@/src/components/navbar";
+import WebFooter from "@/src/components/WebFooter";
+import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+import { getCart, clearCart } from "@/src/lib/postresCart";
+
+registerLocale("es", es);
+
+const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
+
+const API_BASE   = process.env.NEXT_PUBLIC_API_BASE_URL;
+const STRIPE_PUB = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+const stripePromise = STRIPE_PUB ? loadStripe(STRIPE_PUB) : null;
+
+const ZMG_MUNICIPIOS = [
+  "Guadalajara", "Zapopan", "San Pedro Tlaquepaque", "Tonalá",
+  "Tlajomulco de Zúñiga", "El Salto", "Juanacatlán",
+  "Ixtlahuacán de los Membrillos", "Acatlán de Juárez",
+];
+
+const SLOTS_RECOGIDA = [
+  "10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30",
+  "14:00","14:30","15:00","15:30","16:00","16:30","17:00","17:30",
+  "18:00","18:30",
+];
+const SLOTS_ENVIO = [
+  "11:00","11:30","12:00","12:30","13:00","13:30","14:00","14:30",
+  "15:00","15:30","16:00","16:30","17:00","17:30",
+];
+
+/* ─── Helpers ────────────────────────────────────────────────── */
+// Misma lógica que galletas: 2 días hábiles, saltando domingos.
+function getMinDate() {
+  const DIAS_PREPARACION = 2;
+  const hoy = new Date();
+  const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  let habiles = 0;
+  while (habiles < DIAS_PREPARACION) {
+    d.setDate(d.getDate() + 1);
+    if (d.getDay() !== 0) habiles++;
+  }
+  d.setDate(d.getDate() + 1);
+  if (d.getDay() === 0) d.setDate(d.getDate() + 1);
+  return d;
+}
+function dateToYMD(d) {
+  if (!d) return "";
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+function ymdToDate(s) {
+  if (!s) return null;
+  const [y, m, d] = s.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+export default function PostresCheckout() {
+  const router = useRouter();
+
+  const [items, setItems] = useState([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
+
+  const [cliente, setCliente] = useState({ nombre: "", email: "", telefono: "" });
+  const [tipoEntrega, setTipoEntrega] = useState("recogida");
+  const [fecha, setFecha] = useState("");
+  const [hora, setHora]   = useState("");
+  const [direccion, setDireccion] = useState({
+    calleNumero: "", colonia: "", municipio: "", referencias: "",
+  });
+  const [notas, setNotas] = useState("");
+
+  const [zonaInfo, setZonaInfo]   = useState(null);
+  const [zonaLoading, setZonaLoading] = useState(false);
+
+  const [clientSecret, setClientSecret] = useState(null);
+  const [submitting, setSubmitting]     = useState(false);
+  const [orderInfo, setOrderInfo]       = useState(null);
+
+  /* ── Cargar carrito desde localStorage ── */
+  useEffect(() => {
+    const cart = getCart();
+    setItems(cart.items || []);
+    setCartLoaded(true);
+  }, []);
+
+  /* ── Resolver zona en debounce (mismo endpoint que galletas) ── */
+  useEffect(() => {
+    if (tipoEntrega !== "envio" || !direccion.colonia.trim() || !direccion.municipio.trim()) {
+      setZonaInfo(null);
+      return;
+    }
+    setZonaLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const res = await axios.post(`${API_BASE}/galletaPedidos/cotizar-envio`, {
+          colonia:   direccion.colonia,
+          municipio: direccion.municipio,
+        });
+        setZonaInfo(res.data.data);
+      } catch (e) {
+        setZonaInfo(null);
+      } finally {
+        setZonaLoading(false);
+      }
+    }, 350);
+    return () => clearTimeout(t);
+  }, [direccion.colonia, direccion.municipio, tipoEntrega]);
+
+  const slotsDisponibles = tipoEntrega === "envio" ? SLOTS_ENVIO : SLOTS_RECOGIDA;
+  const minDate = getMinDate();
+
+  const subtotal = items.reduce((s, it) => s + (Number(it.precio) || 0) * (Number(it.cantidad) || 0), 0);
+  const costoEnvio = tipoEntrega === "envio" && zonaInfo ? Number(zonaInfo.costo) || 0 : 0;
+  const total = subtotal + costoEnvio;
+
+  const formValido = useMemo(() => {
+    if (!cliente.nombre.trim() || !cliente.email.trim() || !cliente.telefono.trim()) return false;
+    if (!fecha || !hora) return false;
+    if (tipoEntrega === "envio") {
+      if (!direccion.calleNumero.trim() || !direccion.colonia.trim() || !direccion.municipio.trim()) return false;
+      if (!zonaInfo) return false;
+    }
+    if (!items.length) return false;
+    return true;
+  }, [cliente, fecha, hora, tipoEntrega, direccion, zonaInfo, items]);
+
+  /* ── Submit → crea pedido + Stripe session ── */
+  const handleProceedToPayment = async (e) => {
+    e?.preventDefault();
+    if (!formValido) return;
+    setSubmitting(true);
+    try {
+      const payload = {
+        cliente,
+        items: items.map((it) => ({ postreId: it.postreId, cantidad: it.cantidad })),
+        tipoEntrega,
+        fechaEntrega: fecha,
+        horaEntrega: hora,
+        direccionEnvio: tipoEntrega === "envio" ? direccion : undefined,
+        notas,
+      };
+      const res = await axios.post(`${API_BASE}/postrePedidos/checkout`, payload);
+      setClientSecret(res.data.clientSecret);
+      setOrderInfo({ numeroOrden: res.data.numeroOrden, total: res.data.total });
+      try { localStorage.setItem("lastPostreOrden", res.data.numeroOrden); } catch {}
+      setTimeout(() => {
+        document.getElementById("stripe-embedded")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 200);
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo continuar",
+        text: err.response?.data?.message || err.message,
+        background: "#fff1f2", color: "#540027",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /* ── Empty cart → redirige ── */
+  if (cartLoaded && items.length === 0) {
+    return (
+      <div className={nunito.className} style={{ minHeight: "100vh", background: "var(--bg-sunken)", display: "flex", flexDirection: "column" }}>
+        <NavbarAdmin />
+        <main className="flex-grow" style={{ marginTop: "5rem", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem 1.25rem" }}>
+          <div style={{ background: "var(--bg-raised)", borderRadius: "var(--r-2xl)", padding: "3rem 2rem", textAlign: "center", maxWidth: 480 }}>
+            <div style={{ fontSize: "3.5rem", marginBottom: "0.75rem" }}>🛒</div>
+            <h1 className={sofia.className} style={{ fontSize: "2rem", color: "var(--burdeos)", marginBottom: 6 }}>Tu carrito está vacío</h1>
+            <Link href="/enduser/postres">
+              <button style={{ padding: "12px 26px", borderRadius: "var(--r-pill)", background: "var(--burdeos)", color: "#fff", border: "none", fontWeight: 800, fontSize: "0.9rem", cursor: "pointer" }}>
+                Ver postres
+              </button>
+            </Link>
+          </div>
+        </main>
+        <WebFooter />
+      </div>
+    );
+  }
+
+  return (
+    <div className={nunito.className} style={{ minHeight: "100vh", background: "var(--bg-sunken)", display: "flex", flexDirection: "column" }}>
+      <style>{`
+        @media (max-width: 900px) {
+          .checkout-grid { grid-template-columns: 1fr !important; }
+          .checkout-summary { position: relative !important; top: auto !important; }
+        }
+      `}</style>
+      <NavbarAdmin />
+
+      <main className="flex-grow relative z-10" style={{ marginTop: "4rem" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "2rem 1.25rem 0" }}>
+          <Link href="/enduser/postres-carrito" style={{ color: "var(--text-soft)", fontSize: "0.85rem", textDecoration: "none" }}>
+            ← Volver al carrito
+          </Link>
+          <h1 className={sofia.className} style={{ fontSize: "clamp(2rem,5vw,3.25rem)", color: "var(--burdeos)", marginTop: "0.5rem", lineHeight: 1 }}>Finaliza tu pedido</h1>
+          <p style={{ color: "var(--text-soft)", fontSize: "0.9rem", maxWidth: "55ch", marginTop: 6 }}>
+            Completa tus datos, elige fecha y forma de entrega. Pagas el total al momento.
+          </p>
+        </div>
+
+        <div className="checkout-grid" style={{ maxWidth: 1100, margin: "1.5rem auto 0", padding: "0 1.25rem 3rem", display: "grid", gridTemplateColumns: "1fr 360px", gap: "1.5rem", alignItems: "start" }}>
+
+          {/* ─── LEFT: form ─── */}
+          <form onSubmit={handleProceedToPayment} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+
+            <Section number="1" title="Tus datos">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                <Field label="Nombre completo *" full>
+                  <input type="text" required value={cliente.nombre}
+                    onChange={(e) => setCliente({ ...cliente, nombre: e.target.value })}
+                    style={inputStyle} />
+                </Field>
+                <Field label="Email *">
+                  <input type="email" required value={cliente.email}
+                    onChange={(e) => setCliente({ ...cliente, email: e.target.value })}
+                    style={inputStyle} />
+                </Field>
+                <Field label="Teléfono *">
+                  <input type="tel" required value={cliente.telefono}
+                    onChange={(e) => setCliente({ ...cliente, telefono: e.target.value })}
+                    placeholder="33 1234 5678"
+                    style={inputStyle} />
+                </Field>
+              </div>
+            </Section>
+
+            <Section number="2" title="¿Cómo quieres recibirlo?">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <DeliveryOption active={tipoEntrega === "recogida"} onClick={() => setTipoEntrega("recogida")} emoji="🏪" title="Recoger en sucursal" desc="Sin costo · 10:00 a 18:30" />
+                <DeliveryOption active={tipoEntrega === "envio"} onClick={() => setTipoEntrega("envio")} emoji="🚗" title="Envío a domicilio" desc="Cotización en vivo · 11:00 a 17:30" badge="Solo ZMG" />
+              </div>
+
+              {tipoEntrega === "envio" && (
+                <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "1px dashed var(--border-color)" }}>
+                  <p style={{ fontSize: "0.78rem", color: "var(--burdeos)", fontWeight: 700, marginBottom: 8, background: "#fff1f2", padding: "5px 10px", borderRadius: 6, display: "inline-block" }}>
+                    📍 Solo entregas dentro de Zona Metropolitana de Guadalajara
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                    <Field label="Calle y número *" full>
+                      <input type="text" value={direccion.calleNumero} onChange={(e) => setDireccion({ ...direccion, calleNumero: e.target.value })} placeholder="Ej. Av. Patria 1234" style={inputStyle} />
+                    </Field>
+                    <Field label="Colonia *">
+                      <input type="text" value={direccion.colonia} onChange={(e) => setDireccion({ ...direccion, colonia: e.target.value })} placeholder="Ej. Providencia" style={inputStyle} />
+                    </Field>
+                    <Field label="Municipio *">
+                      <select value={direccion.municipio} onChange={(e) => setDireccion({ ...direccion, municipio: e.target.value })} style={inputStyle}>
+                        <option value="">Selecciona…</option>
+                        {ZMG_MUNICIPIOS.map((m) => <option key={m}>{m}</option>)}
+                      </select>
+                    </Field>
+                    <Field label="Referencias (opcional)" full>
+                      <input type="text" value={direccion.referencias} onChange={(e) => setDireccion({ ...direccion, referencias: e.target.value })} placeholder="Edificio gris, frente al parque…" style={inputStyle} />
+                    </Field>
+                  </div>
+
+                  {zonaLoading ? (
+                    <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "0.75rem" }}>Calculando envío…</p>
+                  ) : zonaInfo ? (
+                    <div style={{ marginTop: "0.75rem", background: "var(--bg-sunken)", padding: "10px 14px", borderRadius: "var(--r-md)", border: "1px dashed var(--rosa)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div>
+                        <p style={{ fontSize: "0.7rem", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700, color: "var(--text-muted)" }}>Envío estimado</p>
+                        <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--burdeos)", marginTop: 2 }}>{zonaInfo.nombre}</p>
+                        <p style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Tiempo estimado: {zonaInfo.tiempo}</p>
+                      </div>
+                      <span className={sofia.className} style={{ fontSize: "1.5rem", color: "var(--burdeos)" }}>${zonaInfo.costo}</span>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </Section>
+
+            <Section number="3" title="¿Cuándo lo necesitas?">
+              <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: 8 }}>
+                Mínimo 2 días hábiles de anticipación (no contamos domingos). Lunes a Sábado.
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                <Field label="Fecha de entrega *">
+                  <DatePicker
+                    selected={ymdToDate(fecha)}
+                    onChange={(d) => setFecha(dateToYMD(d))}
+                    minDate={minDate}
+                    filterDate={(d) => d.getDay() !== 0}
+                    locale="es"
+                    dateFormat="dd/MM/yyyy"
+                    placeholderText="Selecciona una fecha"
+                    customInput={<input style={inputStyle} />}
+                    required
+                  />
+                </Field>
+                <Field label="Hora de entrega *">
+                  <select required value={hora} onChange={(e) => setHora(e.target.value)} style={inputStyle}>
+                    <option value="">Selecciona…</option>
+                    {slotsDisponibles.map((s) => <option key={s}>{s}</option>)}
+                  </select>
+                </Field>
+              </div>
+            </Section>
+
+            <Section number="4" title="Notas (opcional)">
+              <textarea
+                placeholder="¿Es para regalo? ¿Alguna alergia? Instrucciones especiales…"
+                rows={3}
+                value={notas}
+                onChange={(e) => setNotas(e.target.value)}
+                maxLength={500}
+                style={{ ...inputStyle, resize: "vertical", minHeight: "80px" }}
+              />
+              <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", textAlign: "right", marginTop: 2 }}>{notas.length}/500</p>
+            </Section>
+
+            {!clientSecret && (
+              <button
+                type="submit"
+                disabled={!formValido || submitting}
+                style={{
+                  padding: "14px 30px",
+                  borderRadius: "var(--r-pill)",
+                  background: formValido ? "var(--burdeos)" : "var(--border-strong)",
+                  color: "#fff",
+                  border: "none",
+                  fontWeight: 800,
+                  fontSize: "1rem",
+                  cursor: formValido && !submitting ? "pointer" : "not-allowed",
+                  marginTop: "0.5rem",
+                }}
+              >
+                {submitting ? "Procesando…" : "Continuar al pago →"}
+              </button>
+            )}
+          </form>
+
+          {/* ─── RIGHT: summary ─── */}
+          <aside className="checkout-summary" style={{ position: "sticky", top: "5rem", background: "var(--bg-raised)", borderRadius: "var(--r-xl)", padding: "1.25rem", boxShadow: "var(--shadow-sm)" }}>
+            <h3 className={sofia.className} style={{ fontSize: "1.4rem", color: "var(--burdeos)", marginBottom: "0.75rem" }}>Resumen</h3>
+            {items.map((it) => (
+              <div key={it.postreId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px dashed var(--border-color)" }}>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--color-text)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{it.nombre}</p>
+                  <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: 0 }}>{it.cantidad} × ${Number(it.precio).toFixed(2)}</p>
+                </div>
+                <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--color-text)", whiteSpace: "nowrap", marginLeft: 8 }}>
+                  ${(Number(it.precio) * Number(it.cantidad)).toFixed(2)}
+                </span>
+              </div>
+            ))}
+            <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "10px", color: "var(--text-soft)", fontSize: "0.88rem" }}>
+              <span>Subtotal</span><span>${subtotal.toFixed(2)}</span>
+            </div>
+            {costoEnvio > 0 && (
+              <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "4px", color: "var(--text-soft)", fontSize: "0.88rem" }}>
+                <span>Envío</span><span>${costoEnvio.toFixed(2)}</span>
+              </div>
+            )}
+            <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "10px", borderTop: "2px solid var(--border-color)", marginTop: "10px" }}>
+              <span style={{ fontWeight: 800, color: "var(--burdeos)" }}>Total</span>
+              <span className={sofia.className} style={{ fontSize: "1.8rem", color: "var(--burdeos)" }}>${total.toFixed(2)}</span>
+            </div>
+          </aside>
+        </div>
+
+        {/* Stripe Embedded Checkout */}
+        {clientSecret && stripePromise && (
+          <div id="stripe-embedded" style={{ maxWidth: 900, margin: "0 auto 3rem", padding: "0 1.25rem" }}>
+            <div style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", padding: "1.5rem", boxShadow: "var(--shadow-md)" }}>
+              <p style={{ fontSize: "0.78rem", color: "var(--rosa)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>Orden {orderInfo?.numeroOrden}</p>
+              <h2 className={sofia.className} style={{ fontSize: "1.6rem", color: "var(--burdeos)", marginBottom: "1rem" }}>Completa tu pago</h2>
+              <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
+                <EmbeddedCheckout />
+              </EmbeddedCheckoutProvider>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <WebFooter />
+    </div>
+  );
+}
+
+/* ─── Mini-components ────────────────────────────────────────── */
+const inputStyle = {
+  width: "100%",
+  padding: "10px 14px",
+  borderRadius: "var(--r-md)",
+  border: "1px solid var(--border-strong)",
+  background: "#fff",
+  fontSize: "0.9rem",
+  fontFamily: "inherit",
+  color: "var(--color-text)",
+};
+
+function Section({ number, title, children }) {
+  return (
+    <div style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", padding: "1.25rem", boxShadow: "var(--shadow-sm)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "0.75rem" }}>
+        <span style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--rosa)", color: "#fff", fontSize: "0.78rem", fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{number}</span>
+        <h2 className={sofia.className} style={{ fontSize: "1.3rem", color: "var(--burdeos)", margin: 0 }}>{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Field({ label, full, children }) {
+  return (
+    <label style={{ display: "block", gridColumn: full ? "1 / -1" : "auto" }}>
+      <span style={{ display: "block", fontSize: "0.78rem", color: "var(--text-soft)", fontWeight: 600, marginBottom: 4 }}>{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function DeliveryOption({ active, onClick, emoji, title, desc, badge }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        padding: "1rem",
+        borderRadius: "var(--r-lg)",
+        border: active ? "2px solid var(--burdeos)" : "1.5px solid var(--border-strong)",
+        background: active ? "#fff1f2" : "#fff",
+        textAlign: "left",
+        cursor: "pointer",
+        transition: "all 150ms",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+        <span style={{ fontSize: "1.5rem" }}>{emoji}</span>
+        {badge && <span style={{ fontSize: "0.6rem", fontWeight: 800, background: active ? "var(--burdeos)" : "var(--border-strong)", color: "#fff", padding: "2px 8px", borderRadius: 999, textTransform: "uppercase", letterSpacing: "0.06em" }}>{badge}</span>}
+      </div>
+      <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-text)", margin: 0 }}>{title}</p>
+      <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", margin: 0, marginTop: 2 }}>{desc}</p>
+    </button>
+  );
+}

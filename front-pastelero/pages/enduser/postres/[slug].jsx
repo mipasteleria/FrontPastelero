@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+import { addItem } from "@/src/lib/postresCart";
 
 const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
@@ -39,16 +40,25 @@ export default function PostreDetalle() {
     return () => { cancelled = true; };
   }, [slug]);
 
-  /* ── Placeholder para "Agregar al carrito" (Fase 4) ── */
-  const agregarAlCarrito = () => {
-    Swal.fire({
-      icon: "info",
-      title: "¡Pronto disponible!",
-      html: `El sistema de carrito online para postres estará activo muy pronto.<br/><br/>Por ahora, escríbenos para coordinar tu pedido.`,
-      confirmButtonText: "Entendido",
+  /* ── Agregar al carrito ── */
+  const agregarAlCarrito = async () => {
+    if (!postre) return;
+    addItem(postre, 1);
+    const result = await Swal.fire({
+      icon: "success",
+      title: "Agregado al carrito",
+      html: `<strong>${postre.nombre}</strong> está en tu carrito.`,
+      showCancelButton: true,
+      confirmButtonText: "Ir al carrito",
+      cancelButtonText: "Seguir comprando",
+      confirmButtonColor: "#540027",
+      cancelButtonColor: "#a78891",
       background: "#fff1f2",
       color: "#540027",
     });
+    if (result.isConfirmed) {
+      router.push("/enduser/postres-carrito");
+    }
   };
 
   if (loading) {
