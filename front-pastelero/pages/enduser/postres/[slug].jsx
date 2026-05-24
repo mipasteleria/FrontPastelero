@@ -6,6 +6,7 @@ import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
 import { addItem } from "@/src/lib/postresCart";
+import Resenas from "@/src/components/Resenas";
 
 const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
@@ -201,6 +202,14 @@ export default function PostreDetalle() {
             </p>
           </div>
         </div>
+
+        {/* Reseñas verificadas por compra */}
+        <Resenas
+          tipo="postre"
+          productoId={postre._id}
+          productoSlug={postre.slug}
+          productoNombre={postre.nombre}
+        />
       </section>
 
       <WebFooter />
