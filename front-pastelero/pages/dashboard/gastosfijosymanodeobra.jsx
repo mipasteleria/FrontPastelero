@@ -18,6 +18,8 @@ export default function Conocenuestrosproductos() {
     costoBrandingPorGalleta: 0,
     markupGalletasPct: 60,
     margenMinimoGalleta: 5,
+    costoBrandingPorPostre: 0,
+    markupPostresPct: 60,
   });
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   const { userToken } = useAuth();
@@ -26,6 +28,7 @@ export default function Conocenuestrosproductos() {
   // el de fixedCosts/laborCosts para que el admin pueda guardar uno
   // u otro sin tener que llenar los dos cada vez.
   const galletasForm = useForm();
+  const postresForm  = useForm();
 
   useEffect(() => {
     const fetchCostData = async () => {
@@ -132,6 +135,48 @@ export default function Conocenuestrosproductos() {
       Swal.fire({
         title: 'Error',
         text: 'No se pudo actualizar la configuración de galletas.',
+        icon: 'error',
+        timer: 2000,
+        showConfirmButton: false,
+        background: '#fff1f2',
+        color: '#540027',
+      });
+    }
+  };
+
+  // Mismo patrón que onSubmitGalletas pero para los campos de postres.
+  const onSubmitPostres = async (data) => {
+    try {
+      const response = await fetch(`${API_BASE}/costs`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({
+          fixedCosts: costData.fixedCosts,
+          laborCosts: costData.laborCosts,
+          costoBrandingPorPostre: parseFloat(data.costoBrandingPorPostre) || 0,
+          markupPostresPct: parseFloat(data.markupPostresPct) || 0,
+        }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const result = await response.json();
+      setCostData((prev) => ({ ...prev, ...result }));
+      Swal.fire({
+        title: 'Config de Postres actualizada',
+        icon: 'success',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: '#fff1f2',
+        color: '#540027',
+      });
+    } catch (error) {
+      console.error('Error al actualizar config postres:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo actualizar la configuración de postres.',
         icon: 'error',
         timer: 2000,
         showConfirmButton: false,
@@ -282,6 +327,74 @@ export default function Conocenuestrosproductos() {
               <p className="text-md">Branding/empaque: ${costData.costoBrandingPorGalleta ?? 0} MXN/pieza</p>
               <p className="text-md">Markup sugerido: {costData.markupGalletasPct ?? 60}%</p>
               <p className="text-md">Margen mínimo (alerta): ${costData.margenMinimoGalleta ?? 5} MXN</p>
+            </div>
+          </div>
+
+          {/* ── Sección: Configuración de Postres ─────────────────── */}
+          <div className="border-t-2 border-secondary mt-8 pt-6">
+            <h2 className={`text-3xl px-6 ${sofia.className}`} style={{ color: "#540027" }}>
+              🎂 Configuración de Postres
+            </h2>
+            <p className="text-sm px-6 mb-4" style={{ color: "#a78891" }}>
+              El branding es global (mismo costo en todos los postres). El empaque NO va aquí — varía por postre y se ingresa al dar de alta cada uno.
+            </p>
+
+            <form onSubmit={postresForm.handleSubmit(onSubmitPostres)}>
+              <div className="flex flex-col md:flex-row items-center">
+                <p className="font-bold m-4">Costo de branding por postre</p>
+                <div className="m-4">
+                  <label htmlFor="costoBrandingPorPostre" className="block mb-2 text-sm font-medium">
+                    MXN por postre
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    id="costoBrandingPorPostre"
+                    defaultValue={costData.costoBrandingPorPostre ?? 0}
+                    key={`branding-postre-${costData.costoBrandingPorPostre ?? 0}`}
+                    {...postresForm.register("costoBrandingPorPostre", { required: true })}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                    placeholder="0.0"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center">
+                <p className="font-bold m-4">Markup sugerido para postres</p>
+                <div className="m-4">
+                  <label htmlFor="markupPostresPct" className="block mb-2 text-sm font-medium">
+                    Porcentaje (%)
+                  </label>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    id="markupPostresPct"
+                    defaultValue={costData.markupPostresPct ?? 60}
+                    key={`markup-postres-${costData.markupPostresPct ?? 60}`}
+                    {...postresForm.register("markupPostresPct", { required: true })}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                    placeholder="60"
+                  />
+                  <p className="text-xs mt-1" style={{ color: "#a78891" }}>
+                    Default cuando la receta no tiene margen propio o no se sobrescribe en el form de postre.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm w-96 sm:w-96 px-16 py-2.5 text-center m-4"
+              >
+                Guardar configuración de Postres
+              </button>
+            </form>
+
+            <div className="m-4 p-4 rounded-lg" style={{ background: "#fff1f2" }}>
+              <p className="text-lg font-semibold" style={{ color: "#540027" }}>Config actual de postres:</p>
+              <p className="text-md">Branding por postre: ${costData.costoBrandingPorPostre ?? 0} MXN</p>
+              <p className="text-md">Markup sugerido: {costData.markupPostresPct ?? 60}%</p>
             </div>
           </div>
         </main>

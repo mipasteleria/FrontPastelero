@@ -72,15 +72,21 @@ const FORM_VACIO = {
   activo: true,
   destacado: false,
   orden: 0,
+  recetaId: "",
+  costoEmpaque: "",
 };
 
 export default function DashboardPostres() {
   const { userToken } = useAuth();
   const [postres, setPostres] = useState([]);
+  const [recetas, setRecetas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(FORM_VACIO);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  // Desglose del precio sugerido devuelto por el endpoint del back.
+  const [breakdown, setBreakdown] = useState(null);
+  const [calculando, setCalculando] = useState(false);
 
   const editando = form._id != null;
   const destacadosCount = postres.filter((p) => p.destacado && p.activo).length;
@@ -98,7 +104,21 @@ export default function DashboardPostres() {
       setLoading(false);
     }
   }
-  useEffect(() => { cargar(); }, []);
+
+  /* Cargar las recetas disponibles para el dropdown de receta. */
+  async function cargarRecetas() {
+    try {
+      const r = await fetch(`${API_BASE}/recetas/recetas`);
+      const j = await r.json();
+      // La API puede devolver el array directo o envuelto en { data }.
+      const list = Array.isArray(j) ? j : (j?.data || []);
+      setRecetas(list);
+    } catch (e) {
+      console.error("Error cargando recetas:", e);
+    }
+  }
+
+  useEffect(() => { cargar(); cargarRecetas(); }, []);
 
   /* ── Editar / Nuevo ── */
   const editar = (p) => {
@@ -113,10 +133,49 @@ export default function DashboardPostres() {
       activo: p.activo !== false,
       destacado: !!p.destacado,
       orden: p.orden ?? 0,
+      recetaId: p.recetaId || "",
+      costoEmpaque: p.costoEmpaque ?? "",
     });
+    setBreakdown(null); // limpiar desglose anterior al cargar otro postre
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   };
-  const nuevo = () => setForm(FORM_VACIO);
+  const nuevo = () => {
+    setForm(FORM_VACIO);
+    setBreakdown(null);
+  };
+
+  /* Llamar al endpoint que calcula el precio sugerido desde la receta
+     + branding global + empaque ingresado en este form. */
+  const calcularPrecioSugerido = async () => {
+    if (!form.recetaId) {
+      return Swal.fire({ icon: "info", title: "Selecciona una receta primero", background: "#fff1f2", color: "#540027" });
+    }
+    setCalculando(true);
+    try {
+      const r = await fetch(`${API_BASE}/postres/calcular-precio`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${userToken}` },
+        body: JSON.stringify({
+          recetaId: form.recetaId,
+          costoEmpaque: parseFloat(form.costoEmpaque || 0),
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.message || `HTTP ${r.status}`);
+      setBreakdown(j.data);
+    } catch (err) {
+      console.error(err);
+      Swal.fire({ icon: "error", title: "No se pudo calcular", text: String(err.message || err), background: "#fff1f2", color: "#540027" });
+    } finally {
+      setCalculando(false);
+    }
+  };
+
+  /* Copiar el precio sugerido al campo `precio` del form. */
+  const usarPrecioSugerido = () => {
+    if (!breakdown?.precioSugerido) return;
+    setForm((p) => ({ ...p, precio: String(breakdown.precioSugerido) }));
+  };
 
   /* ── Auto-slug al cambiar nombre (solo si estamos creando) ── */
   const onNombreChange = (e) => {
@@ -156,6 +215,8 @@ export default function DashboardPostres() {
         activo: form.activo,
         destacado: form.destacado,
         orden: Number(form.orden) || 0,
+        recetaId: form.recetaId || null,
+        costoEmpaque: parseFloat(form.costoEmpaque || 0),
       };
       const r = await fetch(url, {
         method,
@@ -166,6 +227,7 @@ export default function DashboardPostres() {
       if (!r.ok) throw new Error(j?.message || `HTTP ${r.status}`);
       await cargar();
       setForm(FORM_VACIO);
+      setBreakdown(null);
       Swal.fire({ icon: "success", title: editando ? "Postre actualizado" : "Postre creado", timer: 1500, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
     } catch (err) {
       console.error(err);
@@ -402,6 +464,78 @@ export default function DashboardPostres() {
                   rows={3}
                   placeholder="Masa de mantequilla rellena de crema de pistache…"
                 />
+              </div>
+
+              {/* ── Cálculo de precio sugerido desde receta ─────────── */}
+              <div className="p-4 rounded-xl border border-secondary" style={{ background: "#fff1f2" }}>
+                <h3 className={`text-xl mb-2 ${sofia.className}`} style={{ color: "var(--burdeos)" }}>
+                  Calcular precio sugerido
+                </h3>
+                <p className="text-xs text-gray-600 mb-3">
+                  Selecciona una receta (toma su costo por porción) e ingresa el empaque que usa este postre. El branding global se suma automáticamente desde Gastos fijos.
+                </p>
+                <div className="grid md:grid-cols-3 gap-4 items-end">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">Receta</label>
+                    <select
+                      value={form.recetaId}
+                      onChange={(e) => setForm((p) => ({ ...p, recetaId: e.target.value }))}
+                      className={inputStyle}
+                    >
+                      <option value="">— Sin receta —</option>
+                      {recetas.map((r) => (
+                        <option key={r._id} value={r._id}>
+                          {r.nombre_receta} ({r.portions} porciones, ${Number(r.total_cost).toFixed(2)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">Costo de empaque (MXN)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.costoEmpaque}
+                      onChange={(e) => setForm((p) => ({ ...p, costoEmpaque: e.target.value }))}
+                      className={inputStyle}
+                      placeholder="ej. 15 (domo, caja, etc.)"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={calcularPrecioSugerido}
+                    disabled={!form.recetaId || calculando}
+                    className="px-4 py-2.5 rounded-full text-white font-bold disabled:opacity-50"
+                    style={{ background: "var(--burdeos)" }}
+                  >
+                    {calculando ? "Calculando…" : "Calcular precio sugerido"}
+                  </button>
+                </div>
+
+                {breakdown && (
+                  <div className="mt-4 bg-white rounded-lg p-4 border border-secondary">
+                    <table className="w-full text-sm">
+                      <tbody>
+                        <tr><td className="py-1">Receta: <strong>{breakdown.receta.nombre_receta}</strong></td><td></td></tr>
+                        <tr><td className="py-1 pl-4">Costo por porción ({breakdown.receta.portions} porciones, total ${breakdown.receta.total_cost.toFixed(2)})</td><td className="py-1 text-right">${breakdown.costoMateriaPrima.toFixed(2)}</td></tr>
+                        <tr><td className="py-1">+ Branding (global)</td><td className="py-1 text-right">${breakdown.costoBranding.toFixed(2)}</td></tr>
+                        <tr><td className="py-1">+ Empaque (este postre)</td><td className="py-1 text-right">${breakdown.costoEmpaque.toFixed(2)}</td></tr>
+                        <tr className="border-t border-secondary"><td className="py-2 font-bold">Costo total</td><td className="py-2 text-right font-bold">${breakdown.costoTotal.toFixed(2)}</td></tr>
+                        <tr><td className="py-1 text-gray-600">+ Markup ({breakdown.markupPct}%)</td><td className="py-1 text-right text-gray-600">${(breakdown.precioSugerido - breakdown.costoTotal).toFixed(2)}</td></tr>
+                        <tr className="border-t border-secondary"><td className="py-2 font-bold" style={{ color: "var(--burdeos)" }}>Precio sugerido</td><td className="py-2 text-right font-bold text-xl" style={{ color: "var(--burdeos)" }}>${breakdown.precioSugerido.toFixed(2)}</td></tr>
+                      </tbody>
+                    </table>
+                    <button
+                      type="button"
+                      onClick={usarPrecioSugerido}
+                      className="mt-3 px-4 py-2 rounded-full text-sm font-bold border border-secondary hover:bg-rosa-4"
+                      style={{ color: "var(--burdeos)" }}
+                    >
+                      Usar como precio del postre →
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
