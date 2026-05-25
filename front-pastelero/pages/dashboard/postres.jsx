@@ -5,12 +5,12 @@ import FooterDashboard from "@/src/components/footeradmin";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { subirImagen } from "@/src/lib/imageUpload";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-const MAX_LADO_PX = 1200;
 const MAX_DESTACADOS = 4;
 
 /** Genera un slug normalizado (minúsculas, sin acentos, guiones). */
@@ -24,41 +24,6 @@ function generarSlug(texto) {
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-}
-
-/** Redimensiona imagen en canvas a max MAX_LADO_PX manteniendo proporción.
- *  Mismo helper que en home-config — evita el truncamiento del PNG por
- *  el límite de body de Vercel y deja archivos chicos en GCS. */
-function redimensionarImagen(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      const escala = Math.min(1, MAX_LADO_PX / Math.max(w, h));
-      const targetW = Math.round(w * escala);
-      const targetH = Math.round(h * escala);
-      const canvas = document.createElement("canvas");
-      canvas.width = targetW;
-      canvas.height = targetH;
-      canvas.getContext("2d").drawImage(img, 0, 0, targetW, targetH);
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) return reject(new Error("No se pudo procesar la imagen"));
-          const base = file.name.replace(/\.[^.]+$/, "") || "imagen";
-          resolve(new File([blob], `${base}.png`, { type: "image/png" }));
-        },
-        "image/png"
-      );
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("No se pudo leer la imagen"));
-    };
-    img.src = url;
-  });
 }
 
 const FORM_VACIO = {
@@ -295,24 +260,10 @@ export default function DashboardPostres() {
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      return Swal.fire({ icon: "warning", title: "Debe ser una imagen", background: "#fff1f2", color: "#540027" });
-    }
     setUploading(true);
     try {
-      const fileResized = await redimensionarImagen(file);
-      const fd = new FormData();
-      fd.append("files", fileResized);
-      const r = await fetch(`${API_BASE}/upload`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${userToken}` },
-        body: fd,
-      });
-      if (!r.ok) throw new Error("Error al subir el archivo");
-      const j = await r.json();
-      const up = Array.isArray(j) ? j[0] : j;
-      if (!up?.fileUrl) throw new Error("Respuesta de upload incompleta");
-      setForm((p) => ({ ...p, imagenUrl: up.fileUrl, imagenFileName: up.fileName || "" }));
+      const { fileUrl, fileName } = await subirImagen(file, API_BASE, userToken);
+      setForm((p) => ({ ...p, imagenUrl: fileUrl, imagenFileName: fileName }));
       Swal.fire({ icon: "success", title: "Imagen subida", text: "No olvides guardar el postre.", timer: 1800, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
     } catch (err) {
       console.error(err);

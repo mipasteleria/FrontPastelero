@@ -2,42 +2,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
+import { subirImagen } from "@/src/lib/imageUpload";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
-const MAX_LADO_PX = 1200;
-
-/* ── Helper: redimensionar imagen en cliente (mismo patrón que home-config) ── */
-function redimensionarImagen(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      const escala = Math.min(1, MAX_LADO_PX / Math.max(w, h));
-      const targetW = Math.round(w * escala);
-      const targetH = Math.round(h * escala);
-      const canvas = document.createElement("canvas");
-      canvas.width = targetW;
-      canvas.height = targetH;
-      canvas.getContext("2d").drawImage(img, 0, 0, targetW, targetH);
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) return reject(new Error("No se pudo procesar la imagen"));
-          const base = file.name.replace(/\.[^.]+$/, "") || "resena";
-          resolve(new File([blob], `${base}.png`, { type: "image/png" }));
-        },
-        "image/png"
-      );
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("No se pudo leer la imagen"));
-    };
-    img.src = url;
-  });
-}
 
 /* ── Componente: render de las estrellas ── */
 function Stars({ rating, size = 18, color = "#E8B43A", muted = "#E5DCD2" }) {
@@ -147,24 +114,10 @@ export default function Resenas({ tipo, productoId, productoSlug, productoNombre
   const onFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      return Swal.fire({ icon: "warning", title: "Debe ser una imagen", background: "#fff1f2", color: "#540027" });
-    }
     setUploading(true);
     try {
-      const resized = await redimensionarImagen(file);
-      const fd = new FormData();
-      fd.append("files", resized);
-      const r = await fetch(`${API_BASE}/upload`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${userToken}` },
-        body: fd,
-      });
-      if (!r.ok) throw new Error("Error al subir la imagen");
-      const j = await r.json();
-      const up = Array.isArray(j) ? j[0] : j;
-      if (!up?.fileUrl) throw new Error("Respuesta de upload incompleta");
-      setMiImagen({ url: up.fileUrl, fileName: up.fileName || "" });
+      const { fileUrl, fileName } = await subirImagen(file, API_BASE, userToken);
+      setMiImagen({ url: fileUrl, fileName });
     } catch (err) {
       console.error(err);
       Swal.fire({ icon: "error", title: "No se pudo subir", text: String(err.message || err), background: "#fff1f2", color: "#540027" });

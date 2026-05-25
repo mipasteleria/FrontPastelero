@@ -5,6 +5,7 @@ import FooterDashboard from "@/src/components/footeradmin";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { subirImagen } from "@/src/lib/imageUpload";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -17,52 +18,6 @@ const HREF_SUGERIDOS = [
   { value: "/cotizacion",             label: "Cotización personalizada" },
   { value: "/cursos",                 label: "Cursos" },
 ];
-
-// Lado mayor máximo (px) tras redimensionar. 1200 es suficiente para que
-// la imagen se vea nítida en el círculo del hero (donde se renderiza a
-// ~400px), y mantiene el archivo bajo ~500KB típicamente — muy por
-// debajo del límite de body de Vercel (~4.5 MB) que estaba truncando
-// los PNG originales y haciendo que se vieran cortados.
-const MAX_LADO_PX = 1200;
-
-/**
- * Redimensiona un File de imagen al lado mayor MAX_LADO_PX manteniendo
- * proporción y transparencia. Devuelve un File PNG nuevo. Si la imagen
- * ya es menor que MAX_LADO_PX en ambas dimensiones, igual la re-encodea
- * para garantizar que el archivo sea PNG limpio (sin metadata pesada).
- */
-function redimensionarImagen(file) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      const escala = Math.min(1, MAX_LADO_PX / Math.max(w, h));
-      const targetW = Math.round(w * escala);
-      const targetH = Math.round(h * escala);
-      const canvas = document.createElement("canvas");
-      canvas.width = targetW;
-      canvas.height = targetH;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, targetW, targetH);
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) return reject(new Error("No se pudo procesar la imagen"));
-          const nombreSinExt = file.name.replace(/\.[^.]+$/, "") || "imagen";
-          resolve(new File([blob], `${nombreSinExt}.png`, { type: "image/png" }));
-        },
-        "image/png"
-      );
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("No se pudo leer la imagen"));
-    };
-    img.src = url;
-  });
-}
 
 export default function HomeConfig() {
   const { userToken } = useAuth();
@@ -119,40 +74,16 @@ export default function HomeConfig() {
   const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      Swal.fire({ icon: "warning", title: "Debe ser una imagen (PNG recomendado, sin fondo)", background: "#fff1f2", color: "#540027" });
-      return;
-    }
     setUploading(true);
     try {
-      // 1) Redimensionar en cliente. Sin esto, un PNG original de >4.5MB
-      //    se trunca en el límite de body de Vercel y llega corrupto al
-      //    back → la imagen final se ve cortada en una línea horizontal
-      //    recta. Con redimensionar a max 1200px el archivo final pesa
-      //    ~200-500KB y nunca topa con el límite.
-      const fileResized = await redimensionarImagen(file);
+      // subirImagen redimensiona a max 1200px y postea a /upload.
+      const { fileUrl, fileName } = await subirImagen(file, API_BASE, userToken);
 
-      // 2) Subir a GCS via POST /upload
-      const fd = new FormData();
-      fd.append("files", fileResized);
-      const upRes = await fetch(`${API_BASE}/upload`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${userToken}` },
-        body: fd,
-      });
-      if (!upRes.ok) throw new Error("Error al subir el archivo");
-      const upJson = await upRes.json();
-      const uploaded = Array.isArray(upJson) ? upJson[0] : upJson;
-      if (!uploaded?.fileUrl) throw new Error("Respuesta de upload incompleta");
-
-      // 3) Guardar la URL en home-config
+      // Guardar la URL en home-config
       const cfgRes = await fetch(`${API_BASE}/home-config`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${userToken}` },
-        body: JSON.stringify({
-          imagenHeroUrl:      uploaded.fileUrl,
-          imagenHeroFileName: uploaded.fileName || "",
-        }),
+        body: JSON.stringify({ imagenHeroUrl: fileUrl, imagenHeroFileName: fileName }),
       });
       if (!cfgRes.ok) throw new Error("Error al guardar la imagen en la configuración");
       const cfgJson = await cfgRes.json();
