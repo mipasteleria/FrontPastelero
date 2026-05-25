@@ -5,6 +5,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
+import Resenas from "@/src/components/Resenas";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
 
 const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -44,6 +45,10 @@ export default function GalletasNY() {
   const [sabores, setSabores]               = useState([]);
   const [loadingSabores, setLoadingSabores] = useState(true);
   const [error, setError]                   = useState("");
+  // Mapa { "<saborId>": { promedio, total } } para mostrar rating en cada card.
+  const [ratingsMap, setRatingsMap]         = useState({});
+  // Sabor seleccionado en el dropdown de la sección de reseñas al final.
+  const [resenaSaborId, setResenaSaborId]   = useState("");
 
   const [boxes, setBoxes]                       = useState([emptyBox()]);
   const [activeBoxIndex, setActiveBoxIndex]     = useState(0);
@@ -60,7 +65,13 @@ export default function GalletasNY() {
       try {
         const res = await axios.get(`${API_BASE}/galletaSabores`);
         if (!cancelled) {
-          setSabores(res.data.data || []);
+          const list = res.data.data || [];
+          setSabores(list);
+          // Por default seleccionar el primer sabor activo para la sección
+          // de reseñas (si no hay sabor seleccionado todavía).
+          if (list.length > 0) {
+            setResenaSaborId((prev) => prev || String(list[0]._id));
+          }
           setError("");
         }
       } catch (err) {
@@ -70,6 +81,20 @@ export default function GalletasNY() {
         }
       } finally {
         if (!cancelled) setLoadingSabores(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  /* ── Fetch ratings agregados (1 sola request para todos los sabores) ── */
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/resenas/ratings/galleta`);
+        if (!cancelled) setRatingsMap(res.data?.data || {});
+      } catch {
+        if (!cancelled) setRatingsMap({});
       }
     })();
     return () => { cancelled = true; };
@@ -383,6 +408,13 @@ export default function GalletasNY() {
                       </div>
 
                       <h4 style={{ fontWeight: 700, fontSize: "0.9rem", textAlign: "center", marginBottom: 2 }}>{f.nombre}</h4>
+                      {/* Rating agregado (mini) — solo si hay reseñas */}
+                      {ratingsMap[String(f._id)] && (
+                        <p style={{ fontSize: "0.72rem", color: "var(--text-muted)", textAlign: "center", marginBottom: 2 }}>
+                          <span style={{ color: "#E8B43A" }}>★</span> {ratingsMap[String(f._id)].promedio}
+                          <span style={{ color: "var(--text-muted)" }}> ({ratingsMap[String(f._id)].total})</span>
+                        </p>
+                      )}
                       {f.descripcion && (
                         <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", textAlign: "center", marginBottom: pocas ? 4 : "0.75rem" }}>{f.descripcion}</p>
                       )}
@@ -551,6 +583,55 @@ export default function GalletasNY() {
             </div>
           </div>
         </div>
+
+        {/* ═══ Reseñas de Galletas NY ═══ */}
+        {sabores.length > 0 && (
+          <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 1.25rem 4rem" }}>
+            <div style={{ marginBottom: "1rem" }}>
+              <label htmlFor="resena-sabor" style={{ display: "block", fontSize: "0.78rem", color: "var(--text-soft)", fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Reseñas por sabor
+              </label>
+              <select
+                id="resena-sabor"
+                value={resenaSaborId}
+                onChange={(e) => setResenaSaborId(e.target.value)}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "var(--r-pill)",
+                  border: "1px solid var(--border-strong)",
+                  background: "#fff",
+                  fontSize: "0.95rem",
+                  fontFamily: "inherit",
+                  color: "var(--burdeos)",
+                  fontWeight: 700,
+                  minWidth: 240,
+                }}
+              >
+                {sabores.map((s) => {
+                  const r = ratingsMap[String(s._id)];
+                  return (
+                    <option key={s._id} value={String(s._id)}>
+                      {s.nombre}{r ? ` — ★ ${r.promedio} (${r.total})` : ""}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {(() => {
+              const seleccionado = sabores.find((s) => String(s._id) === resenaSaborId);
+              if (!seleccionado) return null;
+              return (
+                <Resenas
+                  tipo="galleta"
+                  productoId={seleccionado._id}
+                  productoSlug={seleccionado.slug}
+                  productoNombre={seleccionado.nombre}
+                />
+              );
+            })()}
+          </section>
+        )}
       </main>
 
       <WebFooter />
