@@ -47,6 +47,8 @@ export default function Home() {
   // Postres destacados marcados por el admin. Si el admin aún no marcó
   // ninguno (o la API falla), caemos al BEST hardcoded como fallback.
   const [destacados, setDestacados] = useState(null); // null = cargando
+  // Reseñas reales rating-5 destacadas. Si vacío o falla, fallback a TESTS.
+  const [resenasDestacadas, setResenasDestacadas] = useState(null);
   useEffect(() => {
     if (!API_BASE) return;
     let cancelled = false;
@@ -76,8 +78,36 @@ export default function Home() {
         if (!cancelled) setDestacados([]);
       }
     })();
+    (async () => {
+      try {
+        const r = await fetch(`${API_BASE}/resenas/destacadas?limit=3`);
+        if (!r.ok) { if (!cancelled) setResenasDestacadas([]); return; }
+        const j = await r.json();
+        if (!cancelled) setResenasDestacadas(j?.data || []);
+      } catch {
+        if (!cancelled) setResenasDestacadas([]);
+      }
+    })();
     return () => { cancelled = true; };
   }, []);
+
+  // Mapear reseñas reales al shape de TESTS para reusar el render.
+  const AVATAR_BGS = [
+    "linear-gradient(135deg,#FFC3C9,#FF6F7D)",
+    "linear-gradient(135deg,#B8E6D3,#6FC9A8)",
+    "linear-gradient(135deg,#D9C4E8,#A87BC8)",
+    "linear-gradient(135deg,#FFE99B,#FFC9A5)",
+  ];
+  const mostrarTests = (resenasDestacadas && resenasDestacadas.length > 0)
+    ? resenasDestacadas.map((r, i) => ({
+        stars: "★★★★★".slice(0, r.rating) + "☆☆☆☆☆".slice(0, 5 - r.rating),
+        text:  r.texto || `Excelente experiencia con ${r.producto?.nombre || "este producto"}.`,
+        name:  r.usuario?.nombre || "Cliente",
+        meta:  r.producto?.nombre ? `${r.producto.nombre}${r.producto.tipo === "galleta" ? " · Galletas NY" : ""}` : "Compra verificada",
+        av:    (r.usuario?.nombre || "C").charAt(0).toUpperCase(),
+        avBg:  AVATAR_BGS[i % AVATAR_BGS.length],
+      }))
+    : TESTS;
 
   // Mapear destacados al shape del BEST hardcoded para que el render sea uno solo.
   // Si no hay destacados o la API aún no respondió, usar el BEST como fallback.
@@ -402,7 +432,7 @@ export default function Home() {
           </div>
 
           <div className="test-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.25rem" }}>
-            {TESTS.map((t) => (
+            {mostrarTests.map((t) => (
               <div key={t.name} style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", padding: "1.75rem", boxShadow: "var(--shadow-sm)", position: "relative" }}>
                 <span className={sofia.className} style={{ fontSize: "4rem", color: "var(--rosa-3)", lineHeight: 0.5, position: "absolute", top: 16, right: 20 }}>"</span>
                 <div style={{ color: "#E8B43A", fontSize: "1rem", letterSpacing: 2, marginBottom: "0.75rem" }}>{t.stars}</div>
