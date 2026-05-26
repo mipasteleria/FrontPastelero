@@ -40,12 +40,20 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  // Slot "Más": atajo al home del dashboard donde están TODAS las
+  // opciones como cards. No alargamos el bottom tab a 10+ items —
+  // 5 es el límite cómodo de espacio. Si en el futuro hay opciones
+  // muy usadas que pasan a primer plano, se cambian los 4 anteriores.
   {
-    href: "/dashboard/usuarios",
-    label: "Usuarios",
+    href: "/dashboard",
+    exact: true,
+    isMore: true,
+    label: "Más",
     icon: (
-      <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 18">
-        <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="5" cy="12" r="1.5" />
+        <circle cx="12" cy="12" r="1.5" />
+        <circle cx="19" cy="12" r="1.5" />
       </svg>
     ),
   },
