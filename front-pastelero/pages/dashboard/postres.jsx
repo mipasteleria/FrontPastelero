@@ -38,6 +38,7 @@ const FORM_VACIO = {
   destacado: false,
   orden: 0,
   recetaId: "",
+  cantidadReceta: "1",
   costoEmpaque: "",
 };
 
@@ -99,6 +100,7 @@ export default function DashboardPostres() {
       destacado: !!p.destacado,
       orden: p.orden ?? 0,
       recetaId: p.recetaId || "",
+      cantidadReceta: p.cantidadReceta != null ? String(p.cantidadReceta) : "1",
       costoEmpaque: p.costoEmpaque ?? "",
     });
     setBreakdown(null); // limpiar desglose anterior al cargar otro postre
@@ -122,6 +124,7 @@ export default function DashboardPostres() {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${userToken}` },
         body: JSON.stringify({
           recetaId: form.recetaId,
+          cantidadReceta: parseFloat(form.cantidadReceta || 1),
           costoEmpaque: parseFloat(form.costoEmpaque || 0),
         }),
       });
@@ -181,6 +184,7 @@ export default function DashboardPostres() {
         destacado: form.destacado,
         orden: Number(form.orden) || 0,
         recetaId: form.recetaId || null,
+        cantidadReceta: parseFloat(form.cantidadReceta || 1),
         costoEmpaque: parseFloat(form.costoEmpaque || 0),
       };
       const r = await fetch(url, {
@@ -423,10 +427,10 @@ export default function DashboardPostres() {
                   Calcular precio sugerido
                 </h3>
                 <p className="text-xs text-gray-600 mb-3">
-                  Selecciona una receta (toma su costo por porción) e ingresa el empaque que usa este postre. El branding global se suma automáticamente desde Gastos fijos.
+                  Selecciona una receta, indica cuánto de ella usa <strong>1 postre</strong>, e ingresa el empaque. El branding global se suma automáticamente desde Gastos fijos.
                 </p>
-                <div className="grid md:grid-cols-3 gap-4 items-end">
-                  <div>
+                <div className="grid md:grid-cols-4 gap-4 items-end">
+                  <div className="md:col-span-2">
                     <label className="block mb-1 text-sm font-medium">Receta</label>
                     <select
                       value={form.recetaId}
@@ -436,10 +440,28 @@ export default function DashboardPostres() {
                       <option value="">— Sin receta —</option>
                       {recetas.map((r) => (
                         <option key={r._id} value={r._id}>
-                          {r.nombre_receta} ({r.portions} porciones, ${Number(r.total_cost).toFixed(2)})
+                          {r.nombre_receta} ({r.portions} {r.unidadRendimiento || "porcion"}, ${Number(r.total_cost).toFixed(2)})
                         </option>
                       ))}
                     </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      Cantidad usada por postre
+                      {(() => {
+                        const r = recetas.find((x) => String(x._id) === String(form.recetaId));
+                        return r ? ` (${r.unidadRendimiento || "porcion"})` : "";
+                      })()}
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={form.cantidadReceta}
+                      onChange={(e) => setForm((p) => ({ ...p, cantidadReceta: e.target.value }))}
+                      className={inputStyle}
+                      placeholder="1"
+                    />
                   </div>
                   <div>
                     <label className="block mb-1 text-sm font-medium">Costo de empaque (MXN)</label>
@@ -453,6 +475,9 @@ export default function DashboardPostres() {
                       placeholder="ej. 15 (domo, caja, etc.)"
                     />
                   </div>
+                </div>
+
+                <div className="mt-4">
                   <button
                     type="button"
                     onClick={calcularPrecioSugerido}
@@ -469,7 +494,8 @@ export default function DashboardPostres() {
                     <table className="w-full text-sm">
                       <tbody>
                         <tr><td className="py-1">Receta: <strong>{breakdown.receta.nombre_receta}</strong></td><td></td></tr>
-                        <tr><td className="py-1 pl-4">Costo por porción ({breakdown.receta.portions} porciones, total ${breakdown.receta.total_cost.toFixed(2)})</td><td className="py-1 text-right">${breakdown.costoMateriaPrima.toFixed(2)}</td></tr>
+                        <tr><td className="py-1 pl-4">Rendimiento: {breakdown.receta.portions} {breakdown.receta.unidadRendimiento || "porcion"}, total ${breakdown.receta.total_cost.toFixed(2)}</td><td className="py-1 text-right">${breakdown.costoUnitarioReceta.toFixed(2)}/{breakdown.receta.unidadRendimiento || "porcion"}</td></tr>
+                        <tr><td className="py-1 pl-4">Cantidad usada por postre: {breakdown.cantidadReceta} {breakdown.receta.unidadRendimiento || "porcion"}</td><td className="py-1 text-right font-semibold">${breakdown.costoMateriaPrima.toFixed(2)}</td></tr>
                         <tr><td className="py-1">+ Branding (global)</td><td className="py-1 text-right">${breakdown.costoBranding.toFixed(2)}</td></tr>
                         <tr><td className="py-1">+ Empaque (este postre)</td><td className="py-1 text-right">${breakdown.costoEmpaque.toFixed(2)}</td></tr>
                         <tr className="border-t border-secondary"><td className="py-2 font-bold">Costo total</td><td className="py-2 text-right font-bold">${breakdown.costoTotal.toFixed(2)}</td></tr>
