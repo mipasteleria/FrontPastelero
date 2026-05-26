@@ -70,6 +70,46 @@ const NAV_CARDS = [
     ),
   },
   {
+    href: "/dashboard/galletas-ny",
+    label: "Galletas NY",
+    description: "Catálogo de sabores y stock por pieza",
+    accent: "var(--burdeos)",
+    blob: "rgba(84,0,39,0.10)",
+    icon: (
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <circle cx="9" cy="10" r="1" />
+        <circle cx="14" cy="9" r="1" />
+        <circle cx="15" cy="14" r="1" />
+        <circle cx="10" cy="15" r="1" />
+      </svg>
+    ),
+  },
+  {
+    href: "/dashboard/postres",
+    label: "Postres",
+    description: "Catálogo Top Postres con receta + empaque",
+    accent: "var(--rosa)",
+    blob: "rgba(255,111,125,0.15)",
+    icon: (
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 19h18M5 19V12a7 7 0 0 1 14 0v7M9 7V4M12 7V3M15 7V4" />
+      </svg>
+    ),
+  },
+  {
+    href: "/dashboard/pedidos-galletas",
+    label: "Pedidos Galletas NY",
+    description: "Órdenes confirmadas y en preparación",
+    accent: "var(--menta-deep)",
+    blob: "rgba(111,201,168,0.18)",
+    icon: (
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
     href: "/dashboard/productos",
     label: "Productos del Home",
     description: "Gestiona los productos visibles en tu tienda",
@@ -78,6 +118,30 @@ const NAV_CARDS = [
     icon: (
       <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 6h18M3 12h18M3 18h18" />
+      </svg>
+    ),
+  },
+  {
+    href: "/dashboard/home-config",
+    label: "Home (hero)",
+    description: "Imagen del hero, chips y destinos",
+    accent: "var(--lavanda)",
+    blob: "rgba(217,196,232,0.25)",
+    icon: (
+      <svg width="28" height="28" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2 1 9h2v8h5v-5h4v5h5V9h2L10 2Z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/dashboard/resenas",
+    label: "Reseñas",
+    description: "Modera reseñas verificadas por compra",
+    accent: "#E8B43A",
+    blob: "rgba(232,180,58,0.18)",
+    icon: (
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27Z" />
       </svg>
     ),
   },
