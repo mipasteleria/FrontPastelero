@@ -25,6 +25,15 @@ export default function NuevaReceta() {
   const [ingredientsList, setIngredientsList] = useState([]);
   const [ingredientOptions, setIngredientOptions] = useState([]);
   const [selectedIngredient, setSelectedIngredient] = useState(null);
+  // Sub-recetas: array de { recetaId, cantidad, nombreSnapshot, unidadSnapshot, costoUnitarioSnapshot, subtotal }.
+  const [subRecetasList, setSubRecetasList] = useState([]);
+  // Catálogo de recetas disponibles para el dropdown de sub-recetas.
+  const [recetasOptions, setRecetasOptions] = useState([]);
+  // Form state para agregar una sub-receta.
+  const [subRecetaForm, setSubRecetaForm] = useState({ recetaId: "", cantidad: "" });
+  const [subRecetaInfo, setSubRecetaInfo] = useState(null); // metadata de la receta seleccionada
+  // Unidad de rendimiento de ESTA receta (selector arriba del form).
+  const [unidadRendimiento, setUnidadRendimiento] = useState("porcion");
   // Tarifas horarias globales (del settings de gastos fijos y mano de obra).
   const [tarifaFijaHora, setTarifaFijaHora] = useState(0);
   const [tarifaLaborHora, setTarifaLaborHora] = useState(0);
@@ -35,6 +44,7 @@ export default function NuevaReceta() {
     additional: 0,
     manoObra: 0,
     fijos: 0,
+    subRecetas: 0,         // ← suma de las sub-recetas
     total: 0,              // ← lo que se guarda en total_cost (sin margen)
     sugerido: 0,           // ← preview con margen aplicado (informativo)
     costoPorPorcion: 0,    // ← total / porciones
@@ -71,12 +81,71 @@ export default function NuevaReceta() {
       }
     };
 
+    // Cargar todas las recetas disponibles para usarlas como sub-recetas.
+    const fetchRecetas = async () => {
+      try {
+        const r = await axios.get(`${API_BASE}/recetas/recetas`);
+        setRecetasOptions(r.data?.data || []);
+      } catch (e) {
+        console.error("Error fetching recetas:", e);
+      }
+    };
+
     fetchIngredients();
     fetchCosts();
+    fetchRecetas();
   }, [API_BASE]);
+
+  /* ── Cuando cambia la receta seleccionada en el dropdown de sub-receta,
+        obtener su costo unitario actual del back. ── */
+  useEffect(() => {
+    if (!subRecetaForm.recetaId) {
+      setSubRecetaInfo(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await axios.get(`${API_BASE}/recetas/recetas/costo-unitario/${subRecetaForm.recetaId}`);
+        if (!cancelled) setSubRecetaInfo(r.data?.data || null);
+      } catch (e) {
+        if (!cancelled) setSubRecetaInfo(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [subRecetaForm.recetaId, API_BASE]);
+
+  /* ── Agregar / Borrar sub-receta ── */
+  const handleAddSubReceta = () => {
+    const cantidadRaw = parseFloat(subRecetaForm.cantidad || 0);
+    if (!subRecetaForm.recetaId || !subRecetaInfo || cantidadRaw <= 0) {
+      Swal.fire({ icon: "warning", title: "Selecciona una receta y cantidad", background: "#fff1f2", color: "#540027" });
+      return;
+    }
+    const costoUnitario = Number(subRecetaInfo.costoUnitario) || 0;
+    const subtotal = Math.round(costoUnitario * cantidadRaw * 100) / 100;
+    setSubRecetasList((prev) => [
+      ...prev,
+      {
+        recetaId: subRecetaForm.recetaId,
+        cantidad: cantidadRaw,
+        nombreSnapshot: subRecetaInfo.nombre_receta,
+        unidadSnapshot: subRecetaInfo.unidadRendimiento || "porcion",
+        costoUnitarioSnapshot: costoUnitario,
+        subtotal,
+      },
+    ]);
+    setSubRecetaForm({ recetaId: "", cantidad: "" });
+    setSubRecetaInfo(null);
+  };
+
+  const handleDeleteSubReceta = (index) => {
+    setSubRecetasList((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const calculateTotal = useCallback(() => {
     const materiales = ingredientsList.reduce((acc, i) => acc + parseFloat(i.precio || 0), 0);
+    const subRecetas = subRecetasList.reduce((acc, s) => acc + parseFloat(s.subtotal || 0), 0);
     const additional = parseFloat(watchAdditional || 0);
     const iepsPct    = parseFloat(watchSpecialTax || 0);
     const hoursLab   = parseFloat(watchHoursLabor || 0);
@@ -84,17 +153,17 @@ export default function NuevaReceta() {
     const margenPct  = parseFloat(watchProfitMargin || 0);
     const porciones  = parseFloat(watchPortions || 0);
 
+    // IEPS aplica sobre materiales + additional (ingredientes y costos
+    // adicionales). NO aplica sobre sub-recetas (su IEPS ya quedó
+    // incluido en su propio total_cost).
     const subBruto = materiales + additional;
     const ieps     = subBruto * iepsPct / 100;
     const manoObra = hoursLab * tarifaLaborHora;
     const fijos    = hoursFix * tarifaFijaHora;
 
-    // total_cost: ingredientes + additional + IEPS + mano de obra + fijos
-    // (NO incluye margen — el margen se aplica al cotizar).
-    const total = subBruto + ieps + manoObra + fijos;
+    const total = subBruto + ieps + manoObra + fijos + subRecetas;
     const sugerido = total * (1 + margenPct / 100);
 
-    // Costo / precio por porción. Si porciones es 0 o vacío, dejamos 0.
     const costoPorPorcion  = porciones > 0 ? total / porciones : 0;
     const precioPorPorcion = porciones > 0 ? sugerido / porciones : 0;
 
@@ -104,12 +173,13 @@ export default function NuevaReceta() {
       ieps:             round2(ieps),
       manoObra:         round2(manoObra),
       fijos:            round2(fijos),
+      subRecetas:       round2(subRecetas),
       total:            round2(total),
       sugerido:         round2(sugerido),
       costoPorPorcion:  round2(costoPorPorcion),
       precioPorPorcion: round2(precioPorPorcion),
     });
-  }, [ingredientsList, watchSpecialTax, watchAdditional, watchHoursLabor, watchHoursFixed, watchProfitMargin, watchPortions, tarifaLaborHora, tarifaFijaHora]);
+  }, [ingredientsList, subRecetasList, watchSpecialTax, watchAdditional, watchHoursLabor, watchHoursFixed, watchProfitMargin, watchPortions, tarifaLaborHora, tarifaFijaHora]);
 
   useEffect(() => { calculateTotal(); }, [calculateTotal]);
 
@@ -185,7 +255,15 @@ export default function NuevaReceta() {
   
   const onSubmit = async (data) => {
     data.ingredientes = ingredientsList;
-    data.total_cost = breakdown.total;       // ya incluye mano de obra + fijos
+    data.subRecetas = subRecetasList.map((s) => ({
+      recetaId: s.recetaId,
+      cantidad: s.cantidad,
+      nombreSnapshot: s.nombreSnapshot,
+      unidadSnapshot: s.unidadSnapshot,
+      costoUnitarioSnapshot: s.costoUnitarioSnapshot,
+    }));
+    data.unidadRendimiento = unidadRendimiento;
+    data.total_cost = breakdown.total;       // ya incluye mano de obra + fijos + sub-recetas
     data.hours_labor = parseFloat(data.hours_labor || 0);
     data.hours_fixed = parseFloat(data.hours_fixed || 0);
     // Snapshots de tarifas al momento de guardar (campos legacy, opcionales).
@@ -225,7 +303,9 @@ export default function NuevaReceta() {
           setValue('hours_labor', '');
           setValue('hours_fixed', '');
           setIngredientsList([]);
-          setBreakdown({ materiales: 0, additional: 0, ieps: 0, manoObra: 0, fijos: 0, total: 0, sugerido: 0, costoPorPorcion: 0, precioPorPorcion: 0 });
+          setSubRecetasList([]);
+          setUnidadRendimiento("porcion");
+          setBreakdown({ materiales: 0, additional: 0, ieps: 0, manoObra: 0, fijos: 0, subRecetas: 0, total: 0, sugerido: 0, costoPorPorcion: 0, precioPorPorcion: 0 });
         });
       } else {
         Swal.fire({
@@ -462,6 +542,102 @@ export default function NuevaReceta() {
                 </table>
               )}
             </div>
+
+            {/* ═══ Sub-recetas ═══ */}
+            <div className="my-10 p-4 rounded-xl bg-rose-50 overflow-x-auto">
+              <h2 className={`text-3xl p-2 font-bold mb-2 ${sofia.className}`}>Sub-recetas (opcional)</h2>
+              <p className="text-sm text-gray-600 px-2 mb-4">
+                Si esta receta usa OTRAS recetas como ingredientes (ej. una mermelada o relleno que costeas por separado), agrégalas aquí. El sistema calcula el costo proporcional automáticamente.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 px-2">
+                <div>
+                  <label className="block mb-1 text-sm font-medium">Receta a usar</label>
+                  <select
+                    value={subRecetaForm.recetaId}
+                    onChange={(e) => setSubRecetaForm((p) => ({ ...p, recetaId: e.target.value }))}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                  >
+                    <option value="">Selecciona una receta</option>
+                    {recetasOptions.map((r) => (
+                      <option key={r._id} value={r._id}>
+                        {r.nombre_receta} ({r.portions} {r.unidadRendimiento || "porcion"}, ${Number(r.total_cost).toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium">
+                    Cantidad {subRecetaInfo ? `(${subRecetaInfo.unidadRendimiento})` : ""}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={subRecetaForm.cantidad}
+                    onChange={(e) => setSubRecetaForm((p) => ({ ...p, cantidad: e.target.value }))}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                    placeholder="0"
+                  />
+                  {subRecetaInfo && subRecetaForm.cantidad && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Costo: ${(Number(subRecetaInfo.costoUnitario) * Number(subRecetaForm.cantidad)).toFixed(2)}
+                      <span className="text-gray-400 ml-1">
+                        (${Number(subRecetaInfo.costoUnitario).toFixed(2)}/{subRecetaInfo.unidadRendimiento} × {subRecetaForm.cantidad})
+                      </span>
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={handleAddSubReceta}
+                    className="shadow-md text-white bg-secondary hover:bg-accent rounded-lg text-sm w-full px-6 py-2.5"
+                  >
+                    Agregar sub-receta
+                  </button>
+                </div>
+              </div>
+              {subRecetasList.length === 0 ? (
+                <p className="text-center text-gray-500 px-2">Sin sub-recetas. Esta es una receta base.</p>
+              ) : (
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="text-xs text-text uppercase bg-rose-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left">Sub-receta</th>
+                      <th className="px-6 py-3 text-left">Cantidad</th>
+                      <th className="px-6 py-3 text-left">Unidad</th>
+                      <th className="px-6 py-3 text-left">Costo unitario</th>
+                      <th className="px-6 py-3 text-left">Subtotal</th>
+                      <th className="px-6 py-3 text-center">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white">
+                    {subRecetasList.map((s, idx) => (
+                      <tr key={idx} className="border-t border-secondary">
+                        <td className="px-6 py-3 text-left">{s.nombreSnapshot}</td>
+                        <td className="px-6 py-3 text-left">{s.cantidad}</td>
+                        <td className="px-6 py-3 text-left">{s.unidadSnapshot}</td>
+                        <td className="px-6 py-3 text-left">${Number(s.costoUnitarioSnapshot).toFixed(2)}</td>
+                        <td className="px-6 py-3 text-left font-semibold">${Number(s.subtotal).toFixed(2)}</td>
+                        <td className="px-6 py-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSubReceta(idx)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Quitar"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
             <div className="grid gap-6 mb-6 md:grid-cols-2">
               {/* ── Mano de obra ──────────────────────────── */}
               <div className="w-full">
@@ -507,9 +683,25 @@ export default function NuevaReceta() {
                 "Los costos adicionales son obligatorios")}
               {renderInput(
                 "portions",
-                "Porciones",
+                "Rendimiento",
                 "number", "0",
-                "El número de porciones es obligatorio")}
+                "El rendimiento es obligatorio")}
+              <div className="w-full">
+                <label className="block text-sm font-medium dark:text-white">Unidad del rendimiento</label>
+                <select
+                  value={unidadRendimiento}
+                  onChange={(e) => setUnidadRendimiento(e.target.value)}
+                  className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                >
+                  <option value="porcion">Porciones (default)</option>
+                  <option value="gramos">Gramos</option>
+                  <option value="ml">Mililitros</option>
+                  <option value="pieza">Piezas</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Para recetas que se usan como sub-ingredientes (ej. mermelada que rinde 500g), usa la unidad correcta. Default: porciones.
+                </p>
+              </div>
               <div 
               className="w-full">
                 <label 
@@ -545,6 +737,9 @@ export default function NuevaReceta() {
                   <tr><td className="py-1">IEPS</td><td className="py-1 text-right">${breakdown.ieps.toFixed(2)}</td></tr>
                   <tr><td className="py-1">Mano de obra ({parseFloat(watchHoursLabor || 0)}h × ${tarifaLaborHora.toFixed(2)})</td><td className="py-1 text-right">${breakdown.manoObra.toFixed(2)}</td></tr>
                   <tr><td className="py-1">Gastos fijos ({parseFloat(watchHoursFixed || 0)}h × ${tarifaFijaHora.toFixed(2)})</td><td className="py-1 text-right">${breakdown.fijos.toFixed(2)}</td></tr>
+                  {breakdown.subRecetas > 0 && (
+                    <tr><td className="py-1">Sub-recetas ({subRecetasList.length})</td><td className="py-1 text-right">${breakdown.subRecetas.toFixed(2)}</td></tr>
+                  )}
                   <tr className="border-t border-secondary"><td className="py-2 font-bold">Costo total de la receta</td><td className="py-2 text-right font-bold text-lg">${breakdown.total.toFixed(2)}</td></tr>
                   <tr><td className="py-1 text-gray-600 pl-4">Costo por porción ({parseFloat(watchPortions || 0)} porciones)</td><td className="py-1 text-right text-gray-600">${breakdown.costoPorPorcion.toFixed(2)}</td></tr>
                   <tr><td className="py-1 text-gray-600">+ Margen de ganancia ({parseFloat(watchProfitMargin || 0)}%)</td><td className="py-1 text-right text-gray-600">${(breakdown.sugerido - breakdown.total).toFixed(2)}</td></tr>
