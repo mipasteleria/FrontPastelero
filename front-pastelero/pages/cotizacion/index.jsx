@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/src/context";
-import Cakeprice from "../../src/components/cotizacion/cakeprice";
+import CakePersonalizado from "../../src/components/cotizacion/cakePersonalizado";
 import Snackprice from "@/src/components/cotizacion/snackprice";
 import Cupcakeprice from "@/src/components/cotizacion/cupcakeprice";
 import NavbarAdmin from "@/src/components/navbar";
@@ -240,7 +240,7 @@ export default function Price() {
                     overflow: "hidden",
                   }}
                 >
-                  {selectedProduct === "cake"    && <Cakeprice />}
+                  {selectedProduct === "cake"    && <CakePersonalizado />}
                   {selectedProduct === "snack"   && <Snackprice />}
                   {selectedProduct === "cupcake" && <Cupcakeprice />}
                 </div>
