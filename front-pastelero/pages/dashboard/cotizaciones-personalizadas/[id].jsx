@@ -1,0 +1,351 @@
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import Swal from "sweetalert2";
+import NavbarAdmin from "@/src/components/navbar";
+import Asideadmin from "@/src/components/asideadmin";
+import FooterDashboard from "@/src/components/footeradmin";
+import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { useAuth } from "@/src/context";
+
+const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
+const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+const STATUSES = [
+  "Pendiente",
+  "Agendado · revisión",
+  "Agendado · producción",
+  "Entregado",
+  "Cancelado",
+];
+
+/**
+ * Detalle admin de una cotización personalizada — incluye:
+ *  - Resumen de la solicitud (lectura)
+ *  - Acciones admin: status, precio, anticipo
+ *  - Pre-costeo automático (POST /:id/calcular-costeo)
+ *  - Notas internas (POST/DELETE)
+ */
+export default function CotizacionPersonalizadaDetalle() {
+  const router = useRouter();
+  const { id } = router.query;
+  const { userToken } = useAuth();
+
+  const [cot, setCot] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [calculando, setCalculando] = useState(false);
+
+  // Form editable de admin (status/precio/anticipo).
+  const [editForm, setEditForm] = useState({ status: "", precio: "", anticipo: "" });
+
+  // Nota interna nueva
+  const [notaTexto, setNotaTexto] = useState("");
+
+  const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
+
+  const recargar = async () => {
+    if (!id) return;
+    const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, { headers: authHeader });
+    const j = await r.json();
+    setCot(j.data);
+    setEditForm({
+      status: j.data?.status || "Pendiente",
+      precio: j.data?.precio ?? "",
+      anticipo: j.data?.anticipo ?? "",
+    });
+    setCargando(false);
+  };
+
+  useEffect(() => { recargar(); /* eslint-disable-line */ }, [id, userToken]);
+
+  // ── Guardar campos admin ─────────────────────────────────────────
+  const guardarAdmin = async () => {
+    try {
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify({
+          status: editForm.status,
+          precio: editForm.precio === "" ? undefined : Number(editForm.precio),
+          anticipo: editForm.anticipo === "" ? undefined : Number(editForm.anticipo),
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "Error");
+      Swal.fire({ icon: "success", title: "Actualizado", timer: 1500, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
+      recargar();
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, timer: 2200, showConfirmButton: false });
+    }
+  };
+
+  // ── Costeo automático ────────────────────────────────────────────
+  const calcularCosteo = async () => {
+    setCalculando(true);
+    try {
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}/calcular-costeo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify({}),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "Error");
+      Swal.fire({
+        icon: "success",
+        title: `Precio sugerido: $${j.data.precioSugerido.toLocaleString("es-MX")}`,
+        timer: 2500,
+        showConfirmButton: false,
+        background: "#fff1f2",
+        color: "#540027",
+      });
+      recargar();
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, timer: 2200, showConfirmButton: false });
+    } finally {
+      setCalculando(false);
+    }
+  };
+
+  // ── Notas internas ───────────────────────────────────────────────
+  const agregarNota = async () => {
+    const texto = notaTexto.trim();
+    if (!texto) return;
+    try {
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}/notas-internas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify({ texto }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "Error");
+      setNotaTexto("");
+      recargar();
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, timer: 2200, showConfirmButton: false });
+    }
+  };
+
+  const borrarNota = async (notaId) => {
+    try {
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}/notas-internas/${notaId}`, {
+        method: "DELETE",
+        headers: authHeader,
+      });
+      if (!r.ok) throw new Error();
+      recargar();
+    } catch {
+      Swal.fire({ icon: "error", title: "Error al borrar nota", timer: 1800, showConfirmButton: false });
+    }
+  };
+
+  if (cargando || !cot) {
+    return (
+      <div className={poppins.className}>
+        <NavbarAdmin />
+        <div className="flex flex-row mt-16">
+          <Asideadmin />
+          <main className="flex-grow p-8">Cargando…</main>
+        </div>
+        <FooterDashboard />
+      </div>
+    );
+  }
+
+  const cs = cot.costeoSnapshot;
+
+  return (
+    <div className={`text-text ${poppins.className}`}>
+      <NavbarAdmin className="fixed top-0 w-full z-50" />
+      <div className="flex flex-row mt-16">
+        <Asideadmin />
+        <main className="flex-grow w-full max-w-screen-xl mx-auto px-4 md:px-8 pb-24 md:pb-8">
+          <Link href="/dashboard/cotizaciones-personalizadas" className="text-xs text-accent hover:underline">
+            ← Volver al listado
+          </Link>
+          <h1 className={`text-3xl py-3 ${sofia.className}`}>
+            {cot.cliente?.nombre} — {cot.evento?.tipo}
+          </h1>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            {/* ── Columna izquierda: detalle de la solicitud ─── */}
+            <section className="md:col-span-2 bg-white shadow rounded-lg p-5">
+              <h2 className="font-bold text-lg mb-3" style={{ color: "var(--burdeos)" }}>
+                Detalle de la solicitud
+              </h2>
+              <Info label="Evento"     val={`${cot.evento?.tipo} · ${cot.evento?.invitados} invitados`} />
+              <Info label="Fecha"      val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX") : "—"} />
+              <Info label="Niveles"    val={`${cot.niveles} piso${cot.niveles > 1 ? "s" : ""}`} />
+              <Info label="Bizcocho"   val={cot.sabor?.nombre || "—"} />
+              <Info label="Relleno"    val={cot.relleno?.nombre || "—"} />
+              <Info label="Cobertura"  val={cot.cobertura?.nombre || "—"} />
+              <Info label="Color principal" val={cot.colorPrincipal ? <span className="inline-block w-6 h-6 rounded-full align-middle" style={{ background: cot.colorPrincipal, border: "1px solid #eee" }} /> : "—"} />
+              <Info label="Decoraciones" val={(cot.decoraciones || []).map((d) => d.nombre).join(", ") || "—"} />
+              <Info label="Estilo"     val={cot.estilo?.value || "—"} />
+              {cot.estilo?.comentarios && (
+                <div className="mt-2">
+                  <div className="text-xs font-bold uppercase text-gray-500">Comentarios</div>
+                  <p className="text-sm bg-gray-50 p-2 rounded">{cot.estilo.comentarios}</p>
+                </div>
+              )}
+              {cot.estilo?.imagenesInspiracion?.length > 0 && (
+                <div className="mt-3">
+                  <div className="text-xs font-bold uppercase text-gray-500 mb-1">Inspiración</div>
+                  <div className="flex gap-2 flex-wrap">
+                    {cot.estilo.imagenesInspiracion.map((url) => (
+                      <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                        <img src={url} alt="" style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 6, border: "1px solid #eee" }} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Entrega</h3>
+              <Info label="Tipo"      val={cot.entrega?.tipo || "—"} />
+              <Info label="Fecha"     val={cot.entrega?.fecha ? new Date(cot.entrega.fecha).toLocaleDateString("es-MX") : "—"} />
+              <Info label="Hora"      val={cot.entrega?.hora || "—"} />
+              <Info label="Dirección" val={cot.entrega?.direccion || "—"} />
+
+              <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Cliente</h3>
+              <Info label="Nombre"   val={cot.cliente?.nombre} />
+              <Info label="Teléfono" val={cot.cliente?.telefono} />
+              <Info label="Email"    val={cot.cliente?.email || "—"} />
+            </section>
+
+            {/* ── Columna derecha: admin actions + costeo ─── */}
+            <section className="space-y-4">
+              {/* Status / precio */}
+              <div className="bg-white shadow rounded-lg p-5">
+                <h3 className="font-bold mb-3" style={{ color: "var(--burdeos)" }}>Acciones admin</h3>
+                <label className="block text-xs font-semibold mb-1">Status</label>
+                <select
+                  className="border rounded px-3 py-2 w-full mb-3"
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                >
+                  {STATUSES.map((s) => <option key={s}>{s}</option>)}
+                </select>
+                <label className="block text-xs font-semibold mb-1">Precio final</label>
+                <input
+                  type="number"
+                  className="border rounded px-3 py-2 w-full mb-3"
+                  value={editForm.precio}
+                  onChange={(e) => setEditForm({ ...editForm, precio: e.target.value })}
+                  placeholder="MXN"
+                />
+                <label className="block text-xs font-semibold mb-1">Anticipo recibido</label>
+                <input
+                  type="number"
+                  className="border rounded px-3 py-2 w-full mb-3"
+                  value={editForm.anticipo}
+                  onChange={(e) => setEditForm({ ...editForm, anticipo: e.target.value })}
+                />
+                <button
+                  onClick={guardarAdmin}
+                  className="px-4 py-2 rounded text-sm font-semibold text-white shadow-md w-full"
+                  style={{ background: "var(--burdeos)" }}
+                >
+                  Guardar
+                </button>
+              </div>
+
+              {/* Costeo automático */}
+              <div className="bg-white shadow rounded-lg p-5">
+                <h3 className="font-bold mb-2" style={{ color: "var(--burdeos)" }}>Pre-costeo</h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Calcula el costo real usando receta del bizcocho + técnicas creativas de las decoraciones.
+                </p>
+                <button
+                  onClick={calcularCosteo}
+                  disabled={calculando}
+                  className="px-4 py-2 rounded text-sm font-semibold text-white shadow-md w-full disabled:opacity-50"
+                  style={{ background: "var(--rosa)" }}
+                >
+                  {calculando ? "Calculando…" : (cs ? "Recalcular" : "Calcular costeo")}
+                </button>
+
+                {cs && (
+                  <div className="mt-3 text-xs">
+                    <CostRow label="Bizcocho"    val={cs.costoBizcocho} sub={cs.bizcocho?.nombre} />
+                    <CostRow label="Relleno"     val={cs.costoRelleno} sub={cs.relleno?.nombre} />
+                    <CostRow label="Cobertura"   val={cs.costoCobertura} sub={cs.cobertura?.nombre} />
+                    <CostRow label="Decoraciones" val={cs.costoDecoraciones} sub={`${cs.decoraciones?.length || 0} elementos`} />
+                    <div className="border-t mt-2 pt-2">
+                      <CostRow label="Costo total" val={cs.costoTotal} bold />
+                      <CostRow label={`Markup ${cs.markupPct}%`} val={cs.precioSugerido - cs.costoTotal} />
+                      <CostRow label="Precio sugerido" val={cs.precioSugerido} highlight />
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-2">
+                      Calculado: {new Date(cs.fechaCosteo).toLocaleString("es-MX")} ·
+                      Niveles x{cs.multiplicadorNiveles}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Notas internas */}
+              <div className="bg-white shadow rounded-lg p-5">
+                <h3 className="font-bold mb-3" style={{ color: "var(--burdeos)" }}>Notas internas</h3>
+                <div className="space-y-2 mb-3 max-h-60 overflow-y-auto">
+                  {(cot.notasInternas || []).length === 0 ? (
+                    <p className="text-xs text-gray-400 italic">Sin notas</p>
+                  ) : (
+                    cot.notasInternas.map((n) => (
+                      <div key={n._id} className="bg-gray-50 p-2 rounded text-xs">
+                        <p>{n.texto}</p>
+                        <div className="flex justify-between mt-1 text-[10px] text-gray-400">
+                          <span>{n.autorNombre || n.autorEmail || "Admin"} · {new Date(n.fecha).toLocaleDateString("es-MX")}</span>
+                          <button onClick={() => borrarNota(n._id)} className="text-red-400 hover:text-red-600">✕</button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <textarea
+                  rows={2}
+                  className="border rounded px-3 py-2 w-full text-sm mb-2"
+                  value={notaTexto}
+                  onChange={(e) => setNotaTexto(e.target.value)}
+                  placeholder="Nueva nota…"
+                />
+                <button
+                  onClick={agregarNota}
+                  disabled={!notaTexto.trim()}
+                  className="px-3 py-1.5 rounded text-xs font-semibold text-white w-full disabled:opacity-50"
+                  style={{ background: "var(--accent, #6FC9A8)" }}
+                >
+                  Agregar nota
+                </button>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+      <FooterDashboard />
+    </div>
+  );
+}
+
+function Info({ label, val }) {
+  return (
+    <div className="flex justify-between text-sm py-1.5 border-b border-gray-100">
+      <span className="text-gray-500">{label}</span>
+      <span className="font-semibold text-right max-w-[60%]">{val ?? "—"}</span>
+    </div>
+  );
+}
+
+function CostRow({ label, val, sub, bold, highlight }) {
+  return (
+    <div className="flex justify-between py-0.5">
+      <span className={highlight ? "font-bold text-burdeos" : bold ? "font-bold" : ""} style={highlight ? { color: "var(--burdeos)" } : {}}>
+        {label}
+        {sub && <span className="block text-[10px] text-gray-400 font-normal">{sub}</span>}
+      </span>
+      <span className={highlight ? "font-bold" : bold ? "font-bold" : ""} style={highlight ? { color: "var(--burdeos)" } : {}}>
+        ${Number(val || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      </span>
+    </div>
+  );
+}
