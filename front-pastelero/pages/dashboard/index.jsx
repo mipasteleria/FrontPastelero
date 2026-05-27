@@ -22,6 +22,18 @@ const NAV_CARDS = [
     ),
   },
   {
+    href: "/dashboard/cotizacion-catalogos",
+    label: "Catálogos de cotización",
+    description: "Sabores, rellenos, coberturas y decoraciones",
+    accent: "var(--burdeos)",
+    blob: "rgba(84,0,39,0.10)",
+    icon: (
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2 9 9l-7 .5 5.5 4.5L5.5 22 12 18l6.5 4-2-8 5.5-4.5L15 9l-3-7Z" />
+      </svg>
+    ),
+  },
+  {
     href: "/dashboard/insumosytrabajomanual",
     label: "Insumos y Trabajo Manual",
     description: "Administra materias primas y tarifas de trabajo",

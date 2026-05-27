@@ -104,6 +104,47 @@ const NAV_GROUPS = [
     ],
   },
   {
+    label: "Cotización Pastel",
+    items: [
+      {
+        href: "/dashboard/cotizacion-catalogos/sabores",
+        label: "Sabores del bizcocho",
+        icon: (
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 19h18M5 19V12a7 7 0 0 1 14 0v7M9 7V4M12 7V3M15 7V4" />
+          </svg>
+        ),
+      },
+      {
+        href: "/dashboard/cotizacion-catalogos/rellenos",
+        label: "Rellenos",
+        icon: (
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 10h16M4 14h16M6 18h12" />
+          </svg>
+        ),
+      },
+      {
+        href: "/dashboard/cotizacion-catalogos/coberturas",
+        label: "Coberturas",
+        icon: (
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 8c4-4 14-4 18 0M3 8v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8" />
+          </svg>
+        ),
+      },
+      {
+        href: "/dashboard/cotizacion-catalogos/decoraciones",
+        label: "Decoraciones",
+        icon: (
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2 9 9l-7 .5 5.5 4.5L5.5 22 12 18l6.5 4-2-8 5.5-4.5L15 9l-3-7Z" />
+          </svg>
+        ),
+      },
+    ],
+  },
+  {
     label: "Pedidos",
     items: [
       {
