@@ -44,14 +44,36 @@ const ENTREGAS = [
   { value: "recoger-local",  label: "Recoger en local",      emoji: "🏠" },
   { value: "domicilio",      label: "A domicilio (GDL)",     emoji: "🚚" },
   { value: "evento",         label: "Al salón / evento",     emoji: "🎉" },
-  { value: "express",        label: "Express (mismo día)",   emoji: "⚡" },
-  { value: "envio-foraneo",  label: "Envío foráneo",         emoji: "✈️" },
-  { value: "por-confirmar",  label: "Por confirmar",         emoji: "❓" },
 ];
 
-// Multiplicador de complejidad por número de pisos.
-const MULTIPLICADOR_NIVELES = { 1: 1, 2: 1.25, 3: 1.55, 4: 1.95 };
-const MARKUP_PCT = 60; // estimado para mostrar al cliente. El back recalcula real.
+// Tipos de entrega que requieren dirección/zona.
+const ENTREGAS_CON_DIRECCION = ["domicilio", "evento"];
+
+// ── Anticipación mínima por número de porciones (días hábiles) ──────
+// < 30 porciones → 3 días hábiles
+// 30 a 59        → 10 días hábiles
+// 60 o más       → 14 días hábiles
+const VALIDEZ_DIAS = 30; // la cotización es válida 30 días desde el envío.
+
+function diasHabilesRequeridos(porciones) {
+  const p = Number(porciones) || 0;
+  if (p >= 60) return 14;
+  if (p >= 30) return 10;
+  return 3;
+}
+
+// Suma `n` días hábiles (lunes–viernes) a partir de hoy y devuelve la
+// fecha resultante en formato YYYY-MM-DD para usar como `min` del <input>.
+function fechaMinimaHabil(diasHabiles) {
+  const d = new Date();
+  let restantes = diasHabiles;
+  while (restantes > 0) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay(); // 0 = domingo, 6 = sábado
+    if (dow !== 0 && dow !== 6) restantes--;
+  }
+  return d.toISOString().slice(0, 10);
+}
 
 const DEFAULT_FORM = {
   evento:    { tipo: "", fecha: "", invitados: 20 },
@@ -117,30 +139,22 @@ export default function CakePersonalizado() {
     fetchAll();
   }, []);
 
-  // ── Estimación cliente-side ─────────────────────────────────────
-  // Sólo orientativa. El back recalcula en Fase D con receta + técnicas.
+  // ── Resumen de selección (sin precio) ───────────────────────────
+  // El monto NO se muestra al cliente: lo autoriza y calcula el admin
+  // manualmente. Aquí sólo resolvemos los nombres para el resumen.
   const desglose = useMemo(() => {
-    const inv = Math.max(1, Number(form.evento.invitados) || 0);
-    const mult = MULTIPLICADOR_NIVELES[form.niveles] ?? 1;
-
     const sabor = catalogos.sabores.find((s) => s.slug === form.saborSlug);
     const relleno = catalogos.rellenos.find((r) => r.slug === form.rellenoSlug);
     const cobertura = catalogos.coberturas.find((c) => c.slug === form.coberturaSlug);
     const decosSel = catalogos.decoraciones.filter((d) => form.decoracionesSlugs.includes(d.slug));
-
-    const cBizcocho  = (sabor?.costoUnitarioSnapshot ?? sabor?.costoManualPorPorcion ?? 0) * inv;
-    const cRelleno   = (relleno?.costoPorPorcion ?? 0) * inv;
-    const cCobertura = (cobertura?.costoPorPorcion ?? 0) * inv;
-    const cDeco      = decosSel.reduce((acc, d) => acc + (d.costoManual ?? 0), 0);
-    const subtotal   = (cBizcocho + cRelleno + cCobertura + cDeco) * mult;
-    const precio     = subtotal * (1 + MARKUP_PCT / 100);
-
-    return {
-      sabor, relleno, cobertura, decosSel,
-      cBizcocho, cRelleno, cCobertura, cDeco,
-      subtotal, mult, precio,
-    };
+    return { sabor, relleno, cobertura, decosSel };
   }, [form, catalogos]);
+
+  // Anticipación mínima según porciones (días hábiles) → fecha `min`.
+  const fechaMinEvento = useMemo(
+    () => fechaMinimaHabil(diasHabilesRequeridos(form.evento.invitados)),
+    [form.evento.invitados]
+  );
 
   // ── Helpers para setear sub-estado ──────────────────────────────
   const setEvento = (patch)  => setForm((f) => ({ ...f, evento: { ...f.evento, ...patch } }));
@@ -208,18 +222,34 @@ export default function CakePersonalizado() {
 
     setEnviando(true);
     try {
+      // La entrega es el mismo día del evento; la dirección sólo aplica
+      // a domicilio / salón.
+      const payload = {
+        ...form,
+        entrega: {
+          ...form.entrega,
+          fecha: form.evento.fecha,
+          direccion: ENTREGAS_CON_DIRECCION.includes(form.entrega.tipo) ? form.entrega.direccion : "",
+        },
+      };
       const r = await fetch(`${API_BASE}/cotizacion-personalizada`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}) },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "Error al enviar la cotización");
 
+      const validUntil = j.data?.validUntil
+        ? new Date(j.data.validUntil).toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })
+        : null;
+
       Swal.fire({
         icon: "success",
         title: "¡Cotización enviada!",
-        text: "Te contactaremos en menos de 24 horas hábiles.",
+        html: `Te contactaremos en menos de 24 horas hábiles.${
+          validUntil ? `<br/><br/><strong>Tu cotización es válida hasta el ${validUntil}</strong> (${VALIDEZ_DIAS} días).` : ""
+        }`,
         confirmButtonColor: "#FF6F7D",
         background: "#fff1f2",
         color: "#540027",
@@ -494,18 +524,32 @@ export default function CakePersonalizado() {
                   <input
                     type="date"
                     value={form.evento.fecha}
-                    min={new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10)}
+                    min={fechaMinEvento}
                     onChange={(e) => setEvento({ fecha: e.target.value })}
                   />
+                  <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
+                    Anticipación mínima: {diasHabilesRequeridos(form.evento.invitados)} días hábiles
+                    {" "}para {form.evento.invitados || 0} porciones.
+                  </p>
                 </div>
                 <div>
-                  <label className="fld">Invitados</label>
+                  <label className="fld">Porciones</label>
                   <input
                     type="number"
-                    min="1"
+                    min="10"
+                    step="10"
                     value={form.evento.invitados}
-                    onChange={(e) => setEvento({ invitados: Number(e.target.value) })}
+                    onChange={(e) => {
+                      // Las porciones van de 10 en 10: redondeamos al múltiplo
+                      // de 10 más cercano (mínimo 10).
+                      const n = Number(e.target.value) || 0;
+                      const redondeado = Math.max(10, Math.round(n / 10) * 10);
+                      setEvento({ invitados: redondeado });
+                    }}
                   />
+                  <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
+                    En incrementos de 10 porciones.
+                  </p>
                 </div>
               </div>
             </fieldset>
@@ -707,15 +751,7 @@ export default function CakePersonalizado() {
                   </button>
                 ))}
               </div>
-              <div className="row three">
-                <div>
-                  <label className="fld">Fecha entrega</label>
-                  <input
-                    type="date"
-                    value={form.entrega.fecha}
-                    onChange={(e) => setEntrega({ fecha: e.target.value })}
-                  />
-                </div>
+              <div className="row">
                 <div>
                   <label className="fld">Hora aproximada</label>
                   <input
@@ -724,16 +760,22 @@ export default function CakePersonalizado() {
                     onChange={(e) => setEntrega({ hora: e.target.value })}
                   />
                 </div>
-                <div>
-                  <label className="fld">Dirección / zona</label>
-                  <input
-                    type="text"
-                    value={form.entrega.direccion}
-                    onChange={(e) => setEntrega({ direccion: e.target.value })}
-                    placeholder="Colonia o salón"
-                  />
-                </div>
+                {ENTREGAS_CON_DIRECCION.includes(form.entrega.tipo) && (
+                  <div>
+                    <label className="fld">Dirección / zona</label>
+                    <input
+                      type="text"
+                      value={form.entrega.direccion}
+                      onChange={(e) => setEntrega({ direccion: e.target.value })}
+                      placeholder="Colonia o salón"
+                    />
+                  </div>
+                )}
               </div>
+              <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: ".5rem" }}>
+                La entrega es el mismo día del evento
+                {form.evento.fecha ? ` (${new Date(form.evento.fecha + "T00:00:00").toLocaleDateString("es-MX")})` : ""}.
+              </p>
             </fieldset>
 
             {/* ── 9. Cliente ────────────────────────────────────── */}
@@ -777,11 +819,11 @@ export default function CakePersonalizado() {
               Tu pastel
             </h3>
             <p style={{ fontSize: ".75rem", color: "var(--text-soft)", marginBottom: ".75rem" }}>
-              Estimado preliminar · Confirmamos en 24h
+              Resumen de tu solicitud · Confirmamos en 24h
             </p>
 
             <SumRow label="Evento" val={EVENTOS.find((x) => x.value === form.evento.tipo)?.label || "—"} />
-            <SumRow label="Invitados" val={form.evento.invitados || "—"} />
+            <SumRow label="Porciones" val={form.evento.invitados || "—"} />
             <SumRow label="Niveles" val={NIVELES.find((x) => x.value === form.niveles)?.label || "—"} />
             <SumRow label="Bizcocho" val={desglose.sabor?.nombre || "—"} />
             <SumRow label="Relleno" val={desglose.relleno?.nombre || "—"} />
@@ -789,13 +831,12 @@ export default function CakePersonalizado() {
             <SumRow label="Decoraciones" val={desglose.decosSel.length ? desglose.decosSel.map((d) => d.nombre).join(", ") : "—"} />
             <SumRow label="Estilo" val={ESTILOS.find((x) => x.value === form.estilo.value)?.label || "—"} />
 
-            <div className="sum-row total">
-              <span>Estimado</span>
-              <span>${Math.round(desglose.precio).toLocaleString("es-MX")}</span>
-            </div>
-
-            <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".5rem", fontStyle: "italic" }}>
-              * Cálculo orientativo. El precio final se confirma por whatsapp/email tras revisar tu solicitud.
+            <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: ".75rem", fontStyle: "italic" }}>
+              El monto se calcula y autoriza manualmente. Te enviamos el precio
+              final por WhatsApp o correo tras revisar tu solicitud.
+            </p>
+            <p style={{ fontSize: ".72rem", color: "var(--burdeos)", marginTop: ".5rem", fontWeight: 700 }}>
+              Validez de la cotización: {VALIDEZ_DIAS} días desde el envío.
             </p>
 
             <button type="submit" disabled={enviando} className="submit-btn">

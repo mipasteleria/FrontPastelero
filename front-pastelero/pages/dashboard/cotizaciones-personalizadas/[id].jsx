@@ -211,6 +211,18 @@ export default function CotizacionPersonalizadaDetalle() {
               <Info label="Nombre"   val={cot.cliente?.nombre} />
               <Info label="Teléfono" val={cot.cliente?.telefono} />
               <Info label="Email"    val={cot.cliente?.email || "—"} />
+
+              <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Validez</h3>
+              <Info
+                label="Válida hasta"
+                val={cot.validUntil ? new Date(cot.validUntil).toLocaleDateString("es-MX") : "—"}
+              />
+              <Info
+                label="Imágenes"
+                val={cot.imagenesEliminadasAt
+                  ? `Eliminadas el ${new Date(cot.imagenesEliminadasAt).toLocaleDateString("es-MX")}`
+                  : (cot.estilo?.imagenesInspiracion?.length || 0) + " adjunta(s)"}
+              />
             </section>
 
             {/* ── Columna derecha: admin actions + costeo ─── */}

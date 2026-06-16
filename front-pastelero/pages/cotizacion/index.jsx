@@ -21,7 +21,7 @@ const PRODUCTS = [
 const TIPS = [
   { icon: "⏰", title: "Anticipa tu pedido", body: "Pasteles personalizados: 72h mínimo. Eventos grandes: 14 días." },
   { icon: "📸", title: "Comparte referencias", body: "Una imagen vale más que mil palabras. Adjunta fotos de inspiración." },
-  { icon: "✅", title: "Reserva con 30%", body: "Al confirmar, apartas fecha con 30% de anticipo. El resto al entregar." },
+  { icon: "✅", title: "Reserva con 50%", body: "Al confirmar, apartas fecha con 50% de anticipo. El resto al entregar." },
   { icon: "💬", title: "Respuesta en 24h", body: "Te contactamos por WhatsApp o correo en menos de 24 horas hábiles." },
 ];
 
@@ -274,7 +274,7 @@ export default function Price() {
               <p style={{ color: "var(--rosa-2, #FFD8DF)", fontSize: "0.8rem", marginBottom: "1.25rem", position: "relative" }}>
                 Estimado preliminar · Ajustado al confirmar
               </p>
-              {[["Anticipo","30%"],["Respuesta","< 24h"],["Entregas","GDL y zona metro"]].map(([k,v])=>(
+              {[["Anticipo","50%"],["Respuesta","< 24h"],["Entregas","GDL y zona metro"]].map(([k,v])=>(
                 <div key={k} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px dashed rgba(255,255,255,.15)", fontSize: "0.82rem", color: "#FFD8DF", position: "relative" }}>
                   <span>{k}</span>
                   <strong style={{ color: "#fff" }}>{v}</strong>
