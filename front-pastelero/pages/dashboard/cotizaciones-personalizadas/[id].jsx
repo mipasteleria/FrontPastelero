@@ -153,7 +153,6 @@ export default function CotizacionPersonalizadaDetalle() {
   // ── Costeo: renglones extra ───────────────────────────────────────
   // Construye un renglón a partir del tipo/fuente seleccionados.
   const construirExtra = () => {
-    const porciones = Math.max(1, Number(cot?.evento?.invitados) || 0);
     const cantidad = Math.max(1, Number(nuevoExtra.cantidad) || 1);
     const { tipo, refId } = nuevoExtra;
 
@@ -166,7 +165,10 @@ export default function CotizacionPersonalizadaDetalle() {
     if (tipo === "tecnica") {
       const t = fuentes.tecnicas.find((x) => String(x._id) === String(refId));
       if (!t) return null;
-      const unit = (t.costoBase || 0) + (t.escalaPorPorcion || 0) * porciones + (t.tiempoHoras || 0) * fuentes.laborHora;
+      // Costo por unidad/porción de la técnica: base + escala (1 porción) +
+      // horas × tarifa. La `cantidad` (porciones de esta técnica) multiplica
+      // de forma lineal, así cantidad=1 → costo base de la técnica.
+      const unit = (t.costoBase || 0) + (t.escalaPorPorcion || 0) + (t.tiempoHoras || 0) * fuentes.laborHora;
       return { tipo, refId: t._id, concepto: t.nombre, costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
     }
     if (tipo === "insumo") {
