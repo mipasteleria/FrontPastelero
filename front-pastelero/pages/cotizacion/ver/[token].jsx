@@ -31,8 +31,39 @@ export default function VerCotizacion() {
   const [cot, setCot] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-  const [mostrarPago, setMostrarPago] = useState(false);
+  const [pagando, setPagando] = useState(false);
   const [confirmando, setConfirmando] = useState(false);
+
+  // Feedback al volver de Stripe.
+  useEffect(() => {
+    if (router.query.pago === "ok") {
+      Swal.fire({
+        icon: "success",
+        title: "¡Pago recibido!",
+        text: "Tu anticipo fue procesado. ¡Gracias! Te contactaremos para los detalles.",
+        confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027",
+      });
+    } else if (router.query.pago === "cancelado") {
+      Swal.fire({ icon: "info", title: "Pago cancelado", text: "Puedes intentarlo de nuevo cuando quieras.", confirmButtonColor: "#FF6F7D" });
+    }
+  }, [router.query.pago]);
+
+  const pagarEnLinea = async (paymentOption = "anticipo") => {
+    setPagando(true);
+    try {
+      const r = await fetch(`${API_BASE}/checkout/create-checkout-session-public`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, paymentOption }),
+      });
+      const j = await r.json();
+      if (!r.ok || !j.url) throw new Error(j.message || "No se pudo iniciar el pago");
+      window.location.href = j.url;
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" });
+      setPagando(false);
+    }
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -92,6 +123,7 @@ export default function VerCotizacion() {
   const vence = cot.validUntil ? new Date(cot.validUntil) : null;
   const vencida = vence ? Date.now() > vence.getTime() : false;
   const yaConfirmado = cot.confirmacionCliente?.confirmado;
+  const pagado = (cot.status || "").startsWith("Agendado");
   const esMesa = cot.tipoProducto === "mesa-postres";
 
   return (
@@ -172,7 +204,14 @@ export default function VerCotizacion() {
 
         {/* Acciones */}
         {precio > 0 && !vencida && (
-          yaConfirmado ? (
+          pagado ? (
+            <div style={{ ...card, borderColor: "var(--menta-deep, #6FC9A8)" }}>
+              <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.2rem" }}>¡Pedido apartado! 🎉</h2>
+              <p style={{ color: "var(--text-soft)", marginTop: 6 }}>
+                Recibimos tu anticipo. {cot.saldoPendiente > 0 ? `Saldo pendiente: $${Number(cot.saldoPendiente).toLocaleString("es-MX")}.` : "Pedido pagado en su totalidad."}
+              </p>
+            </div>
+          ) : yaConfirmado ? (
             <div style={{ ...card, borderColor: "var(--menta-deep, #6FC9A8)" }}>
               <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.2rem" }}>¡Pedido confirmado! 🎉</h2>
               <p style={{ color: "var(--text-soft)", marginTop: 6 }}>
@@ -196,8 +235,8 @@ export default function VerCotizacion() {
                   y pagar el resto contra entrega. ¡Es rápido!
                 </p>
                 {isLoggedIn ? (
-                  <button className="btn" style={{ background: "var(--burdeos)", color: "#fff", width: "100%" }} onClick={() => setMostrarPago(true)}>
-                    Continuar al pago
+                  <button className="btn" disabled={pagando} style={{ background: "var(--burdeos)", color: "#fff", width: "100%", opacity: pagando ? 0.6 : 1 }} onClick={() => pagarEnLinea("anticipo")}>
+                    {pagando ? "Redirigiendo…" : `Pagar anticipo en línea ($${anticipo.toLocaleString("es-MX")})`}
                   </button>
                 ) : (
                   <>
@@ -208,18 +247,13 @@ export default function VerCotizacion() {
                     </Link>
                     <button
                       className="btn"
-                      style={{ background: "transparent", color: "var(--burdeos)", width: "100%", marginTop: 8, fontWeight: 700, fontSize: ".82rem" }}
-                      onClick={() => setMostrarPago(true)}
+                      disabled={pagando}
+                      style={{ background: "transparent", color: "var(--burdeos)", width: "100%", marginTop: 8, fontWeight: 700, fontSize: ".82rem", opacity: pagando ? 0.6 : 1 }}
+                      onClick={() => pagarEnLinea("anticipo")}
                     >
-                      o continuar como invitado
+                      {pagando ? "Redirigiendo…" : "o pagar como invitado"}
                     </button>
                   </>
-                )}
-                {mostrarPago && (
-                  <p style={{ fontSize: ".8rem", color: "var(--burdeos)", marginTop: 10, background: "#fff", padding: "8px 10px", borderRadius: 8 }}>
-                    El pago en línea estará disponible en breve. Mientras tanto puedes apartar
-                    con transferencia o efectivo abajo. 👇
-                  </p>
                 )}
               </div>
 
