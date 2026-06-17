@@ -152,35 +152,55 @@ export default function CotizacionPersonalizadaDetalle() {
 
   // ── Costeo: renglones extra ───────────────────────────────────────
   // Construye un renglón a partir del tipo/fuente seleccionados.
-  const construirExtra = () => {
-    const cantidad = Math.max(1, Number(nuevoExtra.cantidad) || 1);
-    const { tipo, refId } = nuevoExtra;
-
+  // Costo unitario sugerido al elegir una fuente (editable después).
+  const costoSugerido = (tipo, refId) => {
     if (tipo === "receta") {
       const r = fuentes.recetas.find((x) => String(x._id) === String(refId));
-      if (!r) return null;
-      const unit = r.portions > 0 ? r.total_cost / r.portions : 0;
-      return { tipo, refId: r._id, concepto: r.nombre_receta, costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+      return r && r.portions > 0 ? round2(r.total_cost / r.portions) : 0;
     }
     if (tipo === "tecnica") {
       const t = fuentes.tecnicas.find((x) => String(x._id) === String(refId));
-      if (!t) return null;
-      // Costo por unidad/porción de la técnica: base + escala (1 porción) +
-      // horas × tarifa. La `cantidad` (porciones de esta técnica) multiplica
-      // de forma lineal, así cantidad=1 → costo base de la técnica.
-      const unit = (t.costoBase || 0) + (t.escalaPorPorcion || 0) + (t.tiempoHoras || 0) * fuentes.laborHora;
-      return { tipo, refId: t._id, concepto: t.nombre, costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+      if (!t) return 0;
+      return round2((t.costoBase || 0) + (t.escalaPorPorcion || 0) + (t.tiempoHoras || 0) * fuentes.laborHora);
     }
     if (tipo === "insumo") {
       const i = fuentes.insumos.find((x) => String(x._id) === String(refId));
-      if (!i) return null;
-      const unit = i.cost || 0;
-      return { tipo, refId: i._id, concepto: `${i.name}${i.unit ? ` (${i.unit})` : ""}`, costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+      return i ? round2(i.cost || 0) : 0;
     }
-    // manual
+    return 0;
+  };
+
+  const conceptoDeFuente = (tipo, refId) => {
+    if (tipo === "receta") return fuentes.recetas.find((x) => String(x._id) === String(refId))?.nombre_receta || "";
+    if (tipo === "tecnica") return fuentes.tecnicas.find((x) => String(x._id) === String(refId))?.nombre || "";
+    if (tipo === "insumo") {
+      const i = fuentes.insumos.find((x) => String(x._id) === String(refId));
+      return i ? `${i.name}${i.unit ? ` (${i.unit})` : ""}` : "";
+    }
+    return "";
+  };
+
+  const construirExtra = () => {
+    const cantidad = Math.max(1, Number(nuevoExtra.cantidad) || 1);
+    const { tipo, refId } = nuevoExtra;
+    // El costo unitario es el que está en el form (pre-llenado desde la
+    // fuente pero editable por el admin).
     const unit = Number(nuevoExtra.costoUnitario) || 0;
-    if (!nuevoExtra.concepto.trim() || unit <= 0) return null;
-    return { tipo: "manual", refId: null, concepto: nuevoExtra.concepto.trim(), costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+
+    if (tipo === "manual") {
+      if (!nuevoExtra.concepto.trim() || unit <= 0) return null;
+      return { tipo: "manual", refId: null, concepto: nuevoExtra.concepto.trim(), costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+    }
+    // receta / tecnica / insumo
+    if (!refId) return null;
+    const concepto = conceptoDeFuente(tipo, refId);
+    const refDoc = tipo === "tecnica"
+      ? fuentes.tecnicas.find((x) => String(x._id) === String(refId))
+      : tipo === "receta"
+        ? fuentes.recetas.find((x) => String(x._id) === String(refId))
+        : fuentes.insumos.find((x) => String(x._id) === String(refId));
+    if (!refDoc) return null;
+    return { tipo, refId: refDoc._id, concepto, costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
   };
 
   const agregarExtra = () => {
@@ -563,22 +583,39 @@ export default function CotizacionPersonalizadaDetalle() {
                     />
                   </>
                 ) : (
-                  <select
-                    className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
-                    value={nuevoExtra.refId}
-                    onChange={(e) => setNuevoExtra({ ...nuevoExtra, refId: e.target.value })}
-                  >
-                    <option value="">— Selecciona —</option>
-                    {nuevoExtra.tipo === "receta" && fuentes.recetas.map((r) => (
-                      <option key={r._id} value={r._id}>{r.nombre_receta} (${r.portions > 0 ? (r.total_cost / r.portions).toFixed(2) : "?"}/porción)</option>
-                    ))}
-                    {nuevoExtra.tipo === "tecnica" && fuentes.tecnicas.map((t) => (
-                      <option key={t._id} value={t._id}>{t.nombre}</option>
-                    ))}
-                    {nuevoExtra.tipo === "insumo" && fuentes.insumos.map((i) => (
-                      <option key={i._id} value={i._id}>{i.name} (${Number(i.cost).toFixed(2)}{i.unit ? `/${i.unit}` : ""})</option>
-                    ))}
-                  </select>
+                  <>
+                    <select
+                      className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
+                      value={nuevoExtra.refId}
+                      onChange={(e) => {
+                        const refId = e.target.value;
+                        setNuevoExtra((prev) => ({
+                          ...prev,
+                          refId,
+                          costoUnitario: refId ? costoSugerido(prev.tipo, refId) : 0,
+                        }));
+                      }}
+                    >
+                      <option value="">— Selecciona —</option>
+                      {nuevoExtra.tipo === "receta" && fuentes.recetas.map((r) => (
+                        <option key={r._id} value={r._id}>{r.nombre_receta} (${r.portions > 0 ? (r.total_cost / r.portions).toFixed(2) : "?"}/porción)</option>
+                      ))}
+                      {nuevoExtra.tipo === "tecnica" && fuentes.tecnicas.map((t) => (
+                        <option key={t._id} value={t._id}>{t.nombre}</option>
+                      ))}
+                      {nuevoExtra.tipo === "insumo" && fuentes.insumos.map((i) => (
+                        <option key={i._id} value={i._id}>{i.name} (${Number(i.cost).toFixed(2)}{i.unit ? `/${i.unit}` : ""})</option>
+                      ))}
+                    </select>
+                    <label className="block text-xs font-semibold mb-1">Costo unitario (editable)</label>
+                    <input
+                      type="number" step="0.01" min="0"
+                      className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
+                      value={nuevoExtra.costoUnitario}
+                      onChange={(e) => setNuevoExtra({ ...nuevoExtra, costoUnitario: e.target.value })}
+                      placeholder="Costo unitario"
+                    />
+                  </>
                 )}
 
                 <label className="block text-xs font-semibold mb-1">Cantidad (ej. gramos / piezas)</label>
