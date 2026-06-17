@@ -72,10 +72,15 @@ export default function CotizacionPersonalizadaDetalle() {
     const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, { headers: authHeader });
     const j = await r.json();
     setCot(j.data);
+    // Si aún no hay precio final pero ya se costeó, pre-llenamos con el
+    // precio sugerido (el admin solo confirma y guarda).
+    const sugerido = j.data?.costeoSnapshot?.precioSugerido;
+    const precioPre = j.data?.precio ?? (sugerido != null ? Math.round(sugerido) : "");
+    const anticipoPre = j.data?.anticipo ?? (precioPre !== "" ? Math.round(Number(precioPre) * 0.5) : "");
     setEditForm({
       status: j.data?.status || "Pendiente",
-      precio: j.data?.precio ?? "",
-      anticipo: j.data?.anticipo ?? "",
+      precio: precioPre,
+      anticipo: anticipoPre,
     });
     setExtras(j.data?.costeoExtras || []);
     setMarkupPct(j.data?.costeoSnapshot?.markupPct != null ? String(j.data.costeoSnapshot.markupPct) : "");
