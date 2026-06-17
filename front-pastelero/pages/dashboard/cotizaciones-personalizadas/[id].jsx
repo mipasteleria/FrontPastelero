@@ -211,6 +211,30 @@ export default function CotizacionPersonalizadaDetalle() {
 
   const extrasTotal = extras.reduce((acc, x) => acc + (Number(x.subtotal) || 0), 0);
 
+  // ── Enlace público (invitado) ─────────────────────────────────────
+  const enlacePublico = (tok) =>
+    typeof window !== "undefined" ? `${window.location.origin}/cotizacion/ver/${tok}` : "";
+
+  const copiarEnlace = async () => {
+    try {
+      let tok = cot.publicToken;
+      if (!tok) {
+        const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}/generar-enlace`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeader },
+        });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.message || "Error");
+        tok = j.data.publicToken;
+        setCot((c) => ({ ...c, publicToken: tok }));
+      }
+      await navigator.clipboard.writeText(enlacePublico(tok));
+      Swal.fire({ icon: "success", title: "Enlace copiado", text: "Pégalo en WhatsApp para tu cliente.", timer: 1800, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message || "Error", timer: 2000, showConfirmButton: false });
+    }
+  };
+
   // ── Notas internas ───────────────────────────────────────────────
   const agregarNota = async () => {
     const texto = notaTexto.trim();
@@ -377,6 +401,31 @@ export default function CotizacionPersonalizadaDetalle() {
                   style={{ background: "var(--burdeos)" }}
                 >
                   Guardar
+                </button>
+              </div>
+
+              {/* Enlace para el cliente (invitado) */}
+              <div className="bg-white shadow rounded-lg p-5">
+                <h3 className="font-bold mb-1" style={{ color: "var(--burdeos)" }}>Enlace para el cliente</h3>
+                <p className="text-xs text-gray-500 mb-2">
+                  Comparte este enlace por WhatsApp. El cliente ve su cotización y precio sin necesidad de cuenta.
+                </p>
+                {cot.publicToken && (
+                  <div className="text-[11px] bg-gray-50 rounded p-2 mb-2 break-all text-gray-600">
+                    {enlacePublico(cot.publicToken)}
+                  </div>
+                )}
+                {cot.confirmacionCliente?.confirmado && (
+                  <p className="text-xs mb-2" style={{ color: "var(--menta-deep, #2e9e76)" }}>
+                    ✓ Cliente confirmó pago por {cot.confirmacionCliente.metodo}.
+                  </p>
+                )}
+                <button
+                  onClick={copiarEnlace}
+                  className="px-4 py-2 rounded text-sm font-semibold text-white shadow-md w-full"
+                  style={{ background: "var(--rosa)" }}
+                >
+                  {cot.publicToken ? "Copiar enlace" : "Generar y copiar enlace"}
                 </button>
               </div>
 
