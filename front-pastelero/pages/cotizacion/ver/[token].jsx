@@ -148,10 +148,12 @@ export default function VerCotizacion() {
         .tpl-order .v { color:var(--burdeos); font-weight:800; }
         .det-grid { display:grid; grid-template-columns:1fr 1.1fr; gap:18px; padding:20px 22px; }
         @media (max-width:720px){ .det-grid { grid-template-columns:1fr; } }
-        .det-row { margin-bottom:8px; line-height:1.35; }
-        .det-lbl { color:var(--text-soft); font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
-        .det-val { color:var(--burdeos); font-size:1rem; font-weight:700; }
-        .section-title { color:var(--burdeos); font-weight:800; font-size:1.05rem; margin:12px 0 8px; border-bottom:1px solid var(--border-color,#f0dbe2); padding-bottom:4px; }
+        .det-box { background:var(--rosa-4,#FFF3F5); border:1px solid var(--rosa); border-radius:12px; overflow:hidden; margin-bottom:14px; }
+        .det-row { display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:9px 14px; border-bottom:1px dashed rgba(84,0,39,.14); }
+        .det-row:last-child { border-bottom:none; }
+        .det-lbl { color:var(--text-soft); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; flex-shrink:0; }
+        .det-val { color:var(--burdeos); font-size:.98rem; font-weight:800; text-align:right; }
+        .section-title { color:var(--burdeos); font-weight:800; font-size:1.05rem; margin:14px 0 8px; }
         .cond { padding:16px 22px; background:#fffafc; border-top:1px solid #f3d7df; }
         .cond h3 { color:#5b5b6b; font-weight:800; font-size:1.1rem; margin-bottom:8px; }
         .cond li { font-size:.85rem; color:#5b5b6b; margin-bottom:7px; line-height:1.5; list-style:none; padding-left:18px; position:relative; }
@@ -190,30 +192,34 @@ export default function VerCotizacion() {
           </div>
 
           <div>
-            <Row lbl="En atención a" val={cot.cliente?.nombre} />
-            <Row lbl="Fecha de entrega" val={fmtFecha(cot.evento?.fecha)} />
-            <Row lbl="Lugar y hora de entrega" val={lugarHora} />
-            <Row lbl="Recibirá" val={cot.cliente?.nombre} />
-            <Row lbl="Teléfono" val={cot.cliente?.telefono ? "Registrado" : "—"} />
+            <div className="det-box">
+              <Row lbl="En atención a" val={cot.cliente?.nombre} />
+              <Row lbl="Fecha de entrega" val={fmtFecha(cot.evento?.fecha)} />
+              <Row lbl="Lugar y hora de entrega" val={lugarHora} />
+              <Row lbl="Recibirá" val={cot.cliente?.nombre} />
+              <Row lbl="Teléfono" val={cot.cliente?.telefono ? "Registrado" : "—"} />
+            </div>
 
             <div className="section-title">Detalles del Pedido 🧾</div>
-            {esMesa ? (
-              <>
-                <Row lbl="Mesa de postres para" val={`${cot.evento?.invitados} personas`} />
-                <Row lbl="Postres por persona" val={cot.postresPorPersona} />
-                <Row lbl="Postres" val={(cot.postres || []).map((p) => p.nombre).join(", ") || "—"} />
-              </>
-            ) : (
-              <>
-                <Row lbl={`${PRODUCTO_NOUN[cot.tipoProducto] || "Pastel"} para`} val={`${cot.evento?.invitados} porciones`} />
-                <Row lbl="Sabor de pan" val={cot.sabor?.nombre} />
-                <Row lbl="Relleno" val={cot.relleno?.nombre} />
-                <Row lbl="Cobertura" val={cot.cobertura?.nombre} />
-                <Row lbl="Forrado" val={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} />
-                {cot.colorPrincipal && <Row lbl="Color principal" val={colorSwatch} />}
-              </>
-            )}
-            <Row lbl="Extras" val={extras} />
+            <div className="det-box">
+              {esMesa ? (
+                <>
+                  <Row lbl="Mesa de postres para" val={`${cot.evento?.invitados} personas`} />
+                  <Row lbl="Postres por persona" val={cot.postresPorPersona} />
+                  <Row lbl="Postres" val={(cot.postres || []).map((p) => p.nombre).join(", ") || "—"} />
+                </>
+              ) : (
+                <>
+                  <Row lbl={`${PRODUCTO_NOUN[cot.tipoProducto] || "Pastel"} para`} val={`${cot.evento?.invitados} porciones`} />
+                  <Row lbl="Sabor de pan" val={cot.sabor?.nombre} />
+                  <Row lbl="Relleno" val={cot.relleno?.nombre} />
+                  <Row lbl="Cobertura" val={cot.cobertura?.nombre} />
+                  <Row lbl="Forrado" val={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} />
+                  {cot.colorPrincipal && <Row lbl="Color principal" val={colorSwatch} />}
+                </>
+              )}
+              <Row lbl="Extras" val={extras} />
+            </div>
           </div>
         </div>
 
