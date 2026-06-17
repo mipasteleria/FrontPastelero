@@ -260,7 +260,7 @@ export default function CotizacionesIndex() {
                 {userCotizacion.length} solicitud{userCotizacion.length !== 1 ? "es" : ""} en total
               </p>
             </div>
-            <Link href="/dashboard/cotizaciones/cotizacionmanual">
+            <Link href="/cotizacion">
               <button
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
