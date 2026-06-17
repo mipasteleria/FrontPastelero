@@ -39,6 +39,13 @@ const CARDS = [
     accent: "var(--menta-deep)",
     blob: "rgba(111,201,168,0.15)",
   },
+  {
+    href: "/dashboard/cotizacion-catalogos/postres",
+    label: "Postres (mesa de postres)",
+    desc: "Catálogo con costo desde Recetas",
+    accent: "var(--rosa)",
+    blob: "rgba(255,111,125,0.15)",
+  },
 ];
 
 export default function CotizacionCatalogosHub() {

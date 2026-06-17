@@ -1,571 +1,514 @@
-import { useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { useAuth } from "@/src/context";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
-import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
+import { useAuth } from "@/src/context";
+import { subirImagen } from "@/src/lib/imageUpload";
+import { Sofia as SofiaFont } from "next/font/google";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+// ── Opciones hardcodeadas (universales) ──
+const EVENTOS = [
+  { value: "boda",       label: "Boda",         emoji: "💍" },
+  { value: "xv",         label: "XV años",      emoji: "👑" },
+  { value: "cumple",     label: "Cumpleaños",   emoji: "🎂" },
+  { value: "corporativo",label: "Corporativo",  emoji: "🏢" },
+  { value: "baby",       label: "Baby shower",  emoji: "👶" },
+  { value: "graduacion", label: "Graduación",   emoji: "🎓" },
+  { value: "bautizo",    label: "Bautizo",      emoji: "🕊️" },
+  { value: "otro",       label: "Otro",         emoji: "✨" },
+];
+
+const ESTILOS = [
+  { value: "minimalista", label: "Minimalista", emoji: "○" },
+  { value: "elegante",    label: "Elegante",    emoji: "✦" },
+  { value: "tropical",    label: "Tropical",    emoji: "🌴" },
+  { value: "rustico",     label: "Rústico",     emoji: "🌾" },
+  { value: "acuarela",    label: "Acuarela",    emoji: "🎨" },
+  { value: "lujoso",      label: "Lujoso",      emoji: "✨" },
+];
+
+const ENTREGAS = [
+  { value: "recoger-local",  label: "Recoger en local",      emoji: "🏠" },
+  { value: "domicilio",      label: "A domicilio (GDL)",     emoji: "🚚" },
+  { value: "evento",         label: "Al salón / evento",     emoji: "🎉" },
+];
+const ENTREGAS_CON_DIRECCION = ["domicilio", "evento"];
+
+const VALIDEZ_DIAS = 30;
+
+// Anticipación mínima por número de personas (días hábiles).
+function diasHabilesRequeridos(personas) {
+  const p = Number(personas) || 0;
+  if (p >= 60) return 14;
+  if (p >= 30) return 10;
+  return 3;
+}
+function fechaMinimaHabil(diasHabiles) {
+  const d = new Date();
+  let restantes = diasHabiles;
+  while (restantes > 0) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) restantes--;
+  }
+  return d.toISOString().slice(0, 10);
+}
+
+const DEFAULT_FORM = {
+  evento:   { tipo: "", fecha: "", invitados: 30 },
+  postresPorPersona: 1,
+  postresSlugs: [],
+  estilo:   { value: "", comentarios: "", imagenesInspiracion: [] },
+  entrega:  { tipo: "", fecha: "", hora: "", direccion: "" },
+  cliente:  { nombre: "", telefono: "", email: "" },
+};
+
+/**
+ * Snackprice — cotización de Mesa de postres con el flujo "game-like"
+ * del pastel. Los postres se leen del catálogo que el admin gestiona en
+ * /dashboard/cotizacion-catalogos/postres. El monto NO se muestra: lo
+ * autoriza y calcula el admin manualmente.
+ */
 export default function Snackprice() {
-  const { register, handleSubmit, reset, watch, setValue } = useForm();
-  const { userId, userName, userPhone } = useAuth();
-  const router = useRouter();
-  const [isDelivery, setIsDelivery] = useState(false);
-  const [preview1, setPreview1] = useState(null);
-  const [preview2, setPreview2] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState("");
-  const [phoneValue, setPhoneValue] = useState(userPhone || "");
-  const [dateValue, setDateValue] = useState("");
-  const [timeValue, setTimeValue] = useState("");
-  const file1 = watch("file1");
-  const file2 = watch("file2");
+  const { userToken, userEmail, isLoggedIn } = useAuth();
 
-  const minDate = (() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 3);
-    return d.toISOString().split("T")[0];
-  })();
-
-  const TIME_OPTIONS = [];
-  for (let h = 9; h <= 18; h++) {
-    TIME_OPTIONS.push(`${String(h).padStart(2, "0")}:00`);
-    if (h < 18) TIME_OPTIONS.push(`${String(h).padStart(2, "0")}:30`);
-  }
-
-  function formatPhone(raw) {
-    const digits = raw.replace(/\D/g, "").slice(0, 10);
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-  }
+  const [form, setForm] = useState(DEFAULT_FORM);
+  const [postres, setPostres] = useState([]);
+  const [enviando, setEnviando] = useState(false);
+  const [subiendoImg, setSubiendoImg] = useState(false);
 
   useEffect(() => {
-    if (file1) handlePreview(file1, setPreview1);
-    if (file2) handlePreview(file2, setPreview2);
-  }, [file1, file2]);
+    if (userEmail) setForm((f) => ({ ...f, cliente: { ...f.cliente, email: userEmail } }));
+  }, [userEmail]);
 
   useEffect(() => {
-    if (dateValue && timeValue) {
-      const [year, month, day] = dateValue.split("-");
-      setValue("deliveryDate", `${day}/${month}/${year} ${timeValue}`);
-    }
-  }, [dateValue, timeValue, setValue]);
+    fetch(`${API_BASE}/cotizacion-catalogos/postres`)
+      .then((r) => r.json())
+      .then((j) => setPostres(j.data || []))
+      .catch((e) => console.error("Error cargando postres:", e));
+  }, []);
 
-  const handlePreview = (file, setPreview) => {
-    if (file && file.length > 0) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result);
+  const postresSel = useMemo(
+    () => postres.filter((p) => form.postresSlugs.includes(p.slug)),
+    [postres, form.postresSlugs]
+  );
+
+  const fechaMinEvento = useMemo(
+    () => fechaMinimaHabil(diasHabilesRequeridos(form.evento.invitados)),
+    [form.evento.invitados]
+  );
+
+  const piezasTotales = (Number(form.evento.invitados) || 0) * (Number(form.postresPorPersona) || 0);
+
+  const setEvento = (patch)  => setForm((f) => ({ ...f, evento: { ...f.evento, ...patch } }));
+  const setEstilo = (patch)  => setForm((f) => ({ ...f, estilo: { ...f.estilo, ...patch } }));
+  const setEntrega = (patch) => setForm((f) => ({ ...f, entrega: { ...f.entrega, ...patch } }));
+  const setCliente = (patch) => setForm((f) => ({ ...f, cliente: { ...f.cliente, ...patch } }));
+
+  const togglePostre = (slug) => {
+    setForm((f) => {
+      const has = f.postresSlugs.includes(slug);
+      return {
+        ...f,
+        postresSlugs: has ? f.postresSlugs.filter((s) => s !== slug) : [...f.postresSlugs, slug],
       };
-      reader.readAsDataURL(file[0]);
-    } else {
-      setPreview(null);
-    }
-  };
-
-  const uploadFiles = async (data) => {
-    const formData = new FormData();
-    formData.append("files", data.file1[0]);
-    if (data.file2 && data.file2.length > 0) formData.append("files", data.file2[0]);
-
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_BASE}/upload`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
     });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "Error al subir imágenes");
-    }
-
-    setUploadStatus("¡Imágenes subidas correctamente!");
-    return await res.json();
   };
 
-  async function onSubmit(data) {
-    let imageUrls = [];
-    if (data.file1 && data.file1.length > 0) {
-      try {
-        imageUrls = await uploadFiles(data);
-      } catch (uploadErr) {
-        setUploadStatus("Error al subir las imágenes");
-        Swal.fire({
-          title: "Error al subir imágenes",
-          text: uploadErr.message,
-          icon: "error",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          background: "#fff1f2",
-          color: "#540027",
-        });
-        return;
-      }
+  const handleImgUpload = async (e) => {
+    if (!isLoggedIn || !userToken) {
+      Swal.fire({ icon: "info", title: "Inicia sesión para subir fotos", timer: 2500, showConfirmButton: false });
+      e.target.value = "";
+      return;
     }
-
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setSubiendoImg(true);
     try {
-      const response = await fetch(`${API_BASE}/pricesnack`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          contactPhone: phoneValue,
-          userId: userId,
-          images: imageUrls.map((f) => f.fileName),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const urls = [];
+      for (const file of files) {
+        const { fileUrl } = await subirImagen(file, API_BASE, userToken);
+        urls.push(fileUrl);
       }
-
-      const json = await response.json();
-      const id = json.data._id;
-
-      Swal.fire({
-        title: "¡Cotización Enviada!",
-        text: "Solicitud de cotización para Mesa de postres fue enviada correctamente.",
-        icon: "success",
-        timer: 2000,
-        timerProgressBar: true,
-        showConfirmButton: false,
-        background: "#fff1f2",
-        color: "#540027",
-      }).then(() => {
-        router.push(`/enduser/detallesolicitud/${id}?source=snack`);
-      });
-    } catch (error) {
-      console.error("Error en la solicitud:", error);
-      Swal.fire({
-        title: "Error",
-        text: "Error al enviar la solicitud de cotización. Por favor, inténtelo de nuevo.",
-        icon: "error",
-        timer: 2000,
-        timerProgressBar: true,
-        showConfirmButton: false,
-        background: "#fff1f2",
-        color: "#540027",
-      });
+      setEstilo({ imagenesInspiracion: [...form.estilo.imagenesInspiracion, ...urls] });
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "Error subiendo imagen", text: err.message, timer: 2500, showConfirmButton: false });
+    } finally {
+      setSubiendoImg(false);
+      e.target.value = "";
     }
-  }
+  };
 
-  const handleClearFields = () => {
-    reset({
-      people: "", portionsPerPerson: "", delivery: "", deliveryAdress: "", municipio: "",
-      deliveryDate: "", pay: "", brownie: "", coockie: "", alfajores: "",
-      macaroni: "", donuts: "", lollipops: "", cupcakes: "", bread: "",
-      tortaFruts: "", americanCoockies: "", tortaApple: "", other: "",
-      image: "", budget: "", contactName: "", contactPhone: "", questionsOrComments: "",
-    });
-    setPreview1(null);
-    setPreview2(null);
-    setPhoneValue("");
-    setDateValue("");
-    setTimeValue("");
+  const quitarImagen = (url) => {
+    setEstilo({ imagenesInspiracion: form.estilo.imagenesInspiracion.filter((u) => u !== url) });
+  };
+
+  const alertarFalta = (msg) => {
+    Swal.fire({ icon: "warning", title: "Falta info", text: msg, timer: 1800, showConfirmButton: false });
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!form.evento.tipo)      return alertarFalta("Selecciona el tipo de evento");
+    if (!form.evento.fecha)     return alertarFalta("Selecciona la fecha del evento");
+    if (!form.evento.invitados) return alertarFalta("Indica cuántas personas");
+    if (form.postresSlugs.length === 0) return alertarFalta("Elige al menos un postre");
+    if (!form.cliente.nombre)   return alertarFalta("Necesitamos tu nombre");
+    if (!form.cliente.telefono) return alertarFalta("Necesitamos un teléfono de contacto");
+
+    setEnviando(true);
+    try {
+      const payload = {
+        tipoProducto: "mesa-postres",
+        evento: form.evento,
+        postresPorPersona: Number(form.postresPorPersona) || 1,
+        postresSlugs: form.postresSlugs,
+        estilo: form.estilo,
+        entrega: {
+          ...form.entrega,
+          fecha: form.evento.fecha,
+          direccion: ENTREGAS_CON_DIRECCION.includes(form.entrega.tipo) ? form.entrega.direccion : "",
+        },
+        cliente: form.cliente,
+      };
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(userToken ? { Authorization: `Bearer ${userToken}` } : {}) },
+        body: JSON.stringify(payload),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "Error al enviar la cotización");
+
+      const validUntil = j.data?.validUntil
+        ? new Date(j.data.validUntil).toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })
+        : null;
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Cotización enviada!",
+        html: `Te contactaremos en menos de 24 horas hábiles.${
+          validUntil ? `<br/><br/><strong>Tu cotización es válida hasta el ${validUntil}</strong> (${VALIDEZ_DIAS} días).` : ""
+        }`,
+        confirmButtonColor: "#FF6F7D",
+        background: "#fff1f2",
+        color: "#540027",
+      });
+      setForm({ ...DEFAULT_FORM, cliente: { ...DEFAULT_FORM.cliente, email: userEmail || "" } });
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "Error", text: err.message, confirmButtonColor: "#FF6F7D" });
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
-    <main>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className={`${poppins.className}`}
-      >
-        <div className="grid grid-cols-1 m-8 md:grid-cols-4 gap-4 text-sm font-medium dark:text-white">
-          {/* Basic request information */}
-          <div className="md:col-span-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Numero de personas */}
-              <div>
-                <p>Número de Personas</p>
-                <select
-                  className="inputPeopleSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                  {...register("people")}
-                  required
-                >
-                  <option value="">Selecciona el número de personas</option>
-                  <option value="30">30 personas,</option>
-                  <option value="40">40 personas,</option>
-                  <option value="50">50 personas,</option>
-                  <option value="60">60 personas,</option>
-                  <option value="70">70 personas,</option>
-                  <option value="80">80 personas,</option>
-                  <option value="90">90 personas,</option>
-                  <option value="100">100 personas,</option>
-                  <option value="100+">
-                    100+ personas, especificar en comentarios
-                  </option>
-                </select>
-              </div>
-              {/* Postres por persona */}
-              <div>
-                <p>Número de Postres por Persona</p>
-                <select
-                  className="inputPortionsPerPersonSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                  {...register("portionsPerPerson")}
-                  required
-                >
-                  <option value="">Selecciona el número de postres</option>
-                  <option value="1">1 postre</option>
-                  <option value="2">2 postres</option>
-                  <option value="3">3 postres</option>
-                  <option value="4">4 postres</option>
-                  <option value="5">5 postres</option>
-                  <option value="6">6 postres</option>
-                  <option value="7">7 postres</option>
-                  <option value="8">8 postres</option>
-                  <option value="9">9 postres</option>
-                  <option value="10">10 postres</option>
-                  <option value="10+">
-                    10+ postres especificar en comentarios
-                  </option>
-                </select>
-              </div>
-              {/* Envio */}
-              <div>
-                <label>
-                  <input
-                    className="inputDeliverySnack m-4 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                    type="checkbox"
-                    {...register("delivery")}
-                    onChange={(e) => setIsDelivery(e.target.checked)}
-                  />
-                  ¿Requiere Envío?
-                </label>
-                {isDelivery && (
-                  <p className="text-xs mt-1" style={{ color: "#540027", background: "#fff1f2", border: "1px solid #f9a8b8", borderRadius: 6, padding: "5px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
-                    📍 <strong>Solo Zona Metropolitana de Guadalajara.</strong>&nbsp;No realizamos envíos nacionales.
-                  </p>
-                )}
-              </div>
-              {/* Entrega */}
-              <div>
-                <p>Calle, número y colonia</p>
-                <input
-                  className="inputDeliveryAdressSnack bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                  type="text"
-                  placeholder="Ej. Av. Patria 1234, Col. Jardines"
-                  {...register("deliveryAdress")}
-                  disabled={!isDelivery}
-                />
-                {!isDelivery && (
-                  <p className="text-xs text-gray-500 mt-1">El pedido se recogerá en sucursal.</p>
-                )}
-              </div>
-              {/* Municipio (solo ZMG) */}
-              {isDelivery && (
-                <div>
-                  <p>Municipio</p>
-                  <select
-                    className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                    {...register("municipio", { required: "Selecciona el municipio de entrega" })}
-                    defaultValue=""
+    <div className="mesa-postres">
+      <style jsx>{`
+        .mesa-postres { padding: 1.5rem; }
+        .layout { display: grid; grid-template-columns: 1fr 280px; gap: 1.5rem; align-items: start; }
+        @media (max-width: 900px) {
+          .layout { grid-template-columns: 1fr; }
+          .summary-side { position: static !important; }
+        }
+        fieldset {
+          border: 1px solid var(--border-color);
+          border-radius: var(--r-lg);
+          padding: 1.25rem; margin-bottom: 1rem; background: #fff;
+        }
+        legend { font-family: var(--font-sofia); color: var(--burdeos); font-size: 1.15rem; padding: 0 0.5rem; }
+        .opt-grid {
+          display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 0.5rem; margin-top: 0.5rem;
+        }
+        .opt-grid.tight { grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); }
+        .opt {
+          border: 1.5px solid var(--border-color); background: #fff; border-radius: var(--r-md);
+          padding: 0.6rem 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--burdeos);
+          cursor: pointer; transition: all 150ms; display: flex; align-items: center; gap: 0.4rem; text-align: left;
+        }
+        .opt:hover { background: var(--rosa-4, #FFF3F5); }
+        .opt.sel { background: var(--burdeos); color: #fff; border-color: var(--burdeos); box-shadow: var(--shadow-sm); }
+        .deco {
+          border: 1.5px solid var(--border-color); background: #fff; border-radius: var(--r-md);
+          padding: 0.75rem; cursor: pointer; transition: all 150ms; display: flex; flex-direction: column; gap: 0.25rem;
+        }
+        .deco:hover { background: var(--rosa-4, #FFF3F5); }
+        .deco.sel { background: var(--rosa-4, #FFF3F5); border-color: var(--burdeos); }
+        .deco-emoji { font-size: 1.5rem; }
+        .deco-name { font-weight: 700; font-size: 0.82rem; color: var(--burdeos); }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
+        @media (max-width: 500px) { .row { grid-template-columns: 1fr; } }
+        input[type="text"], input[type="email"], input[type="tel"],
+        input[type="number"], input[type="date"], input[type="time"], textarea, select {
+          width: 100%; padding: 0.55rem 0.75rem; border: 1.5px solid var(--border-color);
+          border-radius: var(--r-md); font-size: 0.88rem; font-family: var(--font-nunito); background: #fff;
+        }
+        input:focus, textarea:focus, select:focus {
+          outline: none; border-color: var(--rosa); box-shadow: 0 0 0 3px rgba(255,111,125,0.15);
+        }
+        label.fld {
+          display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-soft);
+          text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem;
+        }
+        .summary-side {
+          position: sticky; top: 90px;
+          background: linear-gradient(180deg, var(--rosa-4, #FFF3F5) 0%, #fff 100%);
+          border: 1.5px solid var(--rosa); border-radius: var(--r-xl); padding: 1.25rem;
+        }
+        .sum-row {
+          display: flex; justify-content: space-between; font-size: 0.82rem;
+          padding: 0.4rem 0; border-bottom: 1px dashed var(--border-color);
+        }
+        .submit-btn {
+          width: 100%; background: var(--burdeos); color: #fff; border: none; border-radius: var(--r-pill);
+          padding: 0.85rem 1.5rem; font-weight: 800; font-size: 0.95rem; cursor: pointer;
+          font-family: var(--font-nunito); margin-top: 1rem; box-shadow: var(--shadow-md); transition: all 150ms;
+        }
+        .submit-btn:hover:not(:disabled) { background: var(--rosa); transform: translateY(-1px); }
+        .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+        .img-pill {
+          display: inline-flex; align-items: center; gap: 4px; background: var(--rosa-4, #FFF3F5);
+          padding: 4px 10px; border-radius: var(--r-pill); font-size: 0.75rem; margin: 4px 4px 0 0;
+        }
+        .img-pill button { background: transparent; border: none; cursor: pointer; color: var(--burdeos); font-weight: 800; }
+      `}</style>
+
+      <form onSubmit={submit}>
+        <div className="layout">
+          <div>
+            {/* ── 1. Evento ──────────────────────────────────── */}
+            <fieldset>
+              <legend>1. ¿Qué celebras?</legend>
+              <div className="opt-grid">
+                {EVENTOS.map((e) => (
+                  <button
+                    type="button"
+                    key={e.value}
+                    className={`opt ${form.evento.tipo === e.value ? "sel" : ""}`}
+                    onClick={() => setEvento({ tipo: e.value })}
                   >
-                    <option value="" disabled>Selecciona municipio…</option>
-                    <option>Guadalajara</option>
-                    <option>Zapopan</option>
-                    <option>San Pedro Tlaquepaque</option>
-                    <option>Tonalá</option>
-                    <option>Tlajomulco de Zúñiga</option>
-                    <option>El Salto</option>
-                    <option>Juanacatlán</option>
-                    <option>Ixtlahuacán de los Membrillos</option>
-                    <option>Acatlán de Juárez</option>
-                  </select>
+                    <span>{e.emoji}</span>{e.label}
+                  </button>
+                ))}
+              </div>
+              <div className="row">
+                <div>
+                  <label className="fld">Fecha del evento</label>
+                  <input
+                    type="date"
+                    value={form.evento.fecha}
+                    min={fechaMinEvento}
+                    onChange={(e) => setEvento({ fecha: e.target.value })}
+                  />
+                  <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
+                    Anticipación mínima: {diasHabilesRequeridos(form.evento.invitados)} días hábiles
+                    {" "}para {form.evento.invitados || 0} personas.
+                  </p>
+                </div>
+                <div>
+                  <label className="fld">Personas</label>
+                  <input
+                    type="number"
+                    min="10"
+                    step="10"
+                    value={form.evento.invitados}
+                    onChange={(e) => {
+                      const n = Number(e.target.value) || 0;
+                      setEvento({ invitados: Math.max(10, Math.round(n / 10) * 10) });
+                    }}
+                  />
+                  <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
+                    En incrementos de 10 personas.
+                  </p>
+                </div>
+              </div>
+            </fieldset>
+
+            {/* ── 2. Postres por persona ──────────────────────── */}
+            <fieldset>
+              <legend>2. ¿Cuántos postres por persona?</legend>
+              <div className="row">
+                <div>
+                  <label className="fld">Postres por persona</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={form.postresPorPersona}
+                    onChange={(e) => setForm({ ...form, postresPorPersona: Math.max(1, Number(e.target.value) || 1) })}
+                  />
+                </div>
+                <div style={{ alignSelf: "end" }}>
+                  <p style={{ fontSize: ".8rem", color: "var(--text-soft)" }}>
+                    Total aproximado: <strong style={{ color: "var(--burdeos)" }}>{piezasTotales} piezas</strong>
+                  </p>
+                </div>
+              </div>
+            </fieldset>
+
+            {/* ── 3. Postres (multi) ──────────────────────────── */}
+            <fieldset>
+              <legend>3. Elige tus postres</legend>
+              {postres.length === 0 ? (
+                <p style={{ fontSize: ".82rem", color: "var(--text-soft)" }}>Cargando opciones…</p>
+              ) : (
+                <div className="opt-grid tight">
+                  {postres.map((p) => {
+                    const sel = form.postresSlugs.includes(p.slug);
+                    return (
+                      <div
+                        key={p.slug}
+                        className={`deco ${sel ? "sel" : ""}`}
+                        onClick={() => togglePostre(p.slug)}
+                      >
+                        <div className="deco-emoji">{p.emoji || "🍰"}</div>
+                        <div className="deco-name">{p.nombre}</div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
-              {/* Fecha */}
-              <div>
-                <p>Fecha del evento</p>
-                <input
-                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                  type="date"
-                  min={minDate}
-                  value={dateValue}
-                  onChange={(e) => setDateValue(e.target.value)}
-                  required
+            </fieldset>
+
+            {/* ── 4. Estilo + inspiración ─────────────────────── */}
+            <fieldset>
+              <legend>4. Estilo y referencias</legend>
+              <div className="opt-grid tight">
+                {ESTILOS.map((s) => (
+                  <button
+                    type="button"
+                    key={s.value}
+                    className={`opt ${form.estilo.value === s.value ? "sel" : ""}`}
+                    onClick={() => setEstilo({ value: s.value })}
+                  >
+                    <span>{s.emoji}</span>{s.label}
+                  </button>
+                ))}
+              </div>
+              <div style={{ marginTop: "1rem" }}>
+                <label className="fld">Comentarios / detalles especiales</label>
+                <textarea
+                  rows={3}
+                  value={form.estilo.comentarios}
+                  onChange={(e) => setEstilo({ comentarios: e.target.value })}
+                  placeholder="Tema, colores, alergias, etc."
                 />
               </div>
-              {/* Hora */}
-              <div>
-                <p>Hora del evento</p>
-                <select
-                  className="bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-                  value={timeValue}
-                  onChange={(e) => setTimeValue(e.target.value)}
-                  required
-                >
-                  <option value="">Selecciona una hora</option>
-                  {TIME_OPTIONS.map((t) => (
-                    <option key={t} value={t}>{t}</option>
+              <div style={{ marginTop: "1rem" }}>
+                <label className="fld">Imágenes de inspiración (opcional)</label>
+                {!isLoggedIn ? (
+                  <p style={{ fontSize: ".78rem", color: "var(--text-soft)" }}>Inicia sesión para adjuntar fotos.</p>
+                ) : (
+                  <input type="file" multiple accept="image/*" onChange={handleImgUpload} disabled={subiendoImg} />
+                )}
+                {subiendoImg && <p style={{ fontSize: ".78rem", color: "var(--rosa)" }}>Subiendo…</p>}
+                <div>
+                  {form.estilo.imagenesInspiracion.map((url) => (
+                    <span key={url} className="img-pill">
+                      <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--burdeos)" }}>📷</a>
+                      <button type="button" onClick={() => quitarImagen(url)}>×</button>
+                    </span>
                   ))}
-                </select>
-                <input type="hidden" {...register("deliveryDate")} />
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-        {/* Seleccion de postres */}
-        <div className="flex flex-col m-8 bg-rose-50 p-6 mb-6 rounded-lg">
-          <h2 className={`text-xl m-4 ${sofia.className}`}>
-            Elige los postres que te gustaría incluir en tu mesa
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label>
-              <input
-                className="inputPaySnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("pay")}
-              />
-              Pay de Queso
-            </label>
-            <label>
-              <input
-                className="inputBrownieSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("brownie")}
-              />
-              Brownie
-            </label>
-            <label>
-              <input
-                className="inputCoockieSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("coockie")}
-              />
-              Galletas Decoradas
-            </label>
-            <label>
-              <input
-                className="inputAlfajoresSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("alfajores")}
-              />
-              Alfajores
-            </label>
-            <label>
-              <input
-                className="inputMacaroniSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("macaroni")}
-              />
-              Macarrones
-            </label>
-            <label>
-              <input
-                className="inputDonutsiSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("donuts")}
-              />
-              Donas
-            </label>
-            <label>
-              <input
-                className="inputLollipopssiSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("lollipops")}
-              />
-              Paletas Magnum
-            </label>
-            <label>
-              <input
-                className="inputCupcakesSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("cupcakes")}
-              />
-              Cupcakes
-            </label>
-            <label>
-              <input
-                className="inputBreadSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("bread")}
-              />
-              Pan de Naranja
-            </label>
-            <label>
-              <input
-                className="inputTortaFrutsSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("tortaFruts")}
-              />
-              Torta de Frutas
-            </label>
-            <label>
-              <input
-                className="inputAmericanCoockiesSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("americanCoockies")}
-              />
-              Galletas Americanas
-            </label>
-            <label>
-              <input
-                className="inputTortaAppleSnack m-2 w-4 h-4 text-secondary bg-gray-100 border-gray-300 rounded focus:ring-accent focus:ring-2 focus:border-accent"
-                type="checkbox"
-                {...register("tortaApple")}
-              />
-              Torta de Manzana
-            </label>
-          </div>
-          <p className="m-4">Otros</p>
-          <input
-            className="inputOtherSnack m-2 bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-            type="text"
-            {...register("other")}
-          />
-        </div>
-        {/* Imagenes */}
-        <div className="flex flex-col m-8 p-6 mb-6 rounded-lg">
-  <p className="my-2 m-6">
-    Por favor, sube imágenes de inspiración, como la temática,
-    los elementos que te gustaría ver en la mesa de postres, la paleta
-    de colores u otras preferencias.
-  </p>
-  <p className="my-2 m-6">
-    Esto nos ayudará a crear un diseño personalizado para ti. Puedes
-    subir hasta 2 imágenes de hasta 10MB cada una.
-  </p>
+            </fieldset>
 
-  {/* Contenedor flex para alinear horizontalmente */}
-  <div className="flex flex-row justify-between space-x-8 w-full">
-    {/* Imagen 1 */}
-    <div className="flex flex-col w-1/2 relative">
-      <label className="mb-2 text-center">Imagen 1</label>
-      <div className="relative w-full">
-        <input
-          type="file"
-          {...register("file1")}
-          accept="image/*"
-          className="absolute inset-0 opacity-0 cursor-pointer"
-        />
-        <button className="rounded-full bg-rose-200 text-white p-2 w-full cursor-pointer">
-          Seleccionar archivo
-        </button>
-      </div>
-      {preview1 && (
-        <Image
-          src={preview1}
-          width={500}
-          height={500}
-          alt="Preview 1"
-          className="mt-4"
-          style={{ width: "200px", marginTop: "10px" }}
-        />
-      )}
-    </div>
-
-    {/* Imagen 2 */}
-    <div className="flex flex-col w-1/2 relative">
-      <label className="mb-2 text-center">Imagen 2 (opcional)</label>
-      <div className="relative w-full">
-        <input
-          type="file"
-          {...register("file2")}
-          accept="image/*"
-          className="absolute inset-0 opacity-0 cursor-pointer"
-        />
-        <button className="rounded-full bg-rose-200 text-white p-2 w-full cursor-pointer">
-          Seleccionar archivo
-        </button>
-      </div>
-      {preview2 && (
-        <Image
-          src={preview2}
-          width={500}
-          height={500}
-          alt="Preview 2"
-          className="mt-4"
-          style={{ width: "200px", marginTop: "10px" }}
-        />
-      )}
-    </div>
-  </div>
-</div>
-
-
-
-         
-        
-        {/* Presupuesto */}
-        <div className="flex flex-col md:flex-col m-6">
-          <p>
-            ¿Podrías informarnos si tienes un presupuesto específico para este
-            pedido? Nos sería de gran ayuda conocer la cantidad que tienes en
-            mente.
-          </p>
-          <div className="m-4">
-            <p>Presupuesto deseado</p>
-            <input
-              className="inputBudgetrCake bg-gray-50 p-2.5bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
-              type="text"
-              {...register("budget")}
-            />
-          </div>
-        </div>
-
-        {/* Informacion de contacto */}
-        <div className="m-6">
-          <h2 className={`text-3xl m-4 ${sofia.className}`}>
-            Información de contacto
-          </h2>
-          <div className="flex flex-col m-3 bg-rose-50 p-6 mb-6 rounded-lg">
-            <div className="m-3">
-              <p>Nombre</p>
-              <input
-                className="inputContactNameCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                type="text"
-                placeholder="Escribe tu nombre"
-                defaultValue={userName}
-                {...register("contactName", { value: userName })}
-              />
-            </div>
-            <div className="m-3">
-              <p>Número de celular</p>
-              <input
-                className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                type="text"
-                placeholder="000-000-0000"
-                value={phoneValue}
-                onChange={(e) => setPhoneValue(formatPhone(e.target.value))}
-              />
-            </div>
-            <div className="m-3">
-              <p>
-                Preguntas o comentarios, platicanos más acerca de tu idea o
-                tematica, nos especializamos en diseñar dulsuras a la medida
+            {/* ── 5. Entrega ──────────────────────────────────── */}
+            <fieldset>
+              <legend>5. Entrega</legend>
+              <div className="opt-grid">
+                {ENTREGAS.map((e) => (
+                  <button
+                    type="button"
+                    key={e.value}
+                    className={`opt ${form.entrega.tipo === e.value ? "sel" : ""}`}
+                    onClick={() => setEntrega({ tipo: e.value })}
+                  >
+                    <span>{e.emoji}</span>{e.label}
+                  </button>
+                ))}
+              </div>
+              <div className="row">
+                <div>
+                  <label className="fld">Hora aproximada</label>
+                  <input
+                    type="time"
+                    value={form.entrega.hora}
+                    onChange={(e) => setEntrega({ hora: e.target.value })}
+                  />
+                </div>
+                {ENTREGAS_CON_DIRECCION.includes(form.entrega.tipo) && (
+                  <div>
+                    <label className="fld">Dirección / zona</label>
+                    <input
+                      type="text"
+                      value={form.entrega.direccion}
+                      onChange={(e) => setEntrega({ direccion: e.target.value })}
+                      placeholder="Colonia o salón"
+                    />
+                  </div>
+                )}
+              </div>
+              <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: ".5rem" }}>
+                La entrega es el mismo día del evento
+                {form.evento.fecha ? ` (${new Date(form.evento.fecha + "T00:00:00").toLocaleDateString("es-MX")})` : ""}.
               </p>
-              <input
-                className="inputQuestionsOrCommentsCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
-                type="text"
-                {...register("questionsOrComments")}
-              />
-            </div>
-          </div>
-        </div>
-        {/* Botones */}
+            </fieldset>
 
-        <div className="flex flex-col md:flex-row items-center justify-end m-4 mb-8 gap-4 ml-4">
-          <button
-            type="button"
-            className="bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
-            onClick={handleClearFields}
-          >
-            Limpiar campos
-          </button>
-          <button
-            type="submit"
-            className="btnSubmitCake bg-secondary text-white py-2 px-4 rounded hover:bg-accent transition"
-          >
-            Cotizar Mesa de Postres
-          </button>
+            {/* ── 6. Cliente ──────────────────────────────────── */}
+            <fieldset>
+              <legend>6. Tus datos</legend>
+              <div className="row">
+                <div>
+                  <label className="fld">Nombre completo</label>
+                  <input type="text" value={form.cliente.nombre} onChange={(e) => setCliente({ nombre: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="fld">Teléfono</label>
+                  <input type="tel" value={form.cliente.telefono} onChange={(e) => setCliente({ telefono: e.target.value })} placeholder="33-1234-5678" required />
+                </div>
+                <div>
+                  <label className="fld">Email</label>
+                  <input type="email" value={form.cliente.email} onChange={(e) => setCliente({ email: e.target.value })} />
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          {/* ── Summary side ─────────────────────────────────── */}
+          <aside className="summary-side">
+            <h3 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.4rem", marginBottom: ".5rem" }}>
+              Tu mesa de postres
+            </h3>
+            <p style={{ fontSize: ".75rem", color: "var(--text-soft)", marginBottom: ".75rem" }}>
+              Resumen de tu solicitud · Confirmamos en 24h
+            </p>
+
+            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Evento</span><strong style={{ color: "var(--burdeos)" }}>{EVENTOS.find((x) => x.value === form.evento.tipo)?.label || "—"}</strong></div>
+            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Personas</span><strong style={{ color: "var(--burdeos)" }}>{form.evento.invitados || "—"}</strong></div>
+            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Postres/persona</span><strong style={{ color: "var(--burdeos)" }}>{form.postresPorPersona}</strong></div>
+            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Total piezas</span><strong style={{ color: "var(--burdeos)" }}>{piezasTotales}</strong></div>
+            <div className="sum-row">
+              <span style={{ color: "var(--text-soft)" }}>Postres</span>
+              <strong style={{ color: "var(--burdeos)", maxWidth: "60%", textAlign: "right", overflowWrap: "anywhere" }}>
+                {postresSel.length ? postresSel.map((p) => p.nombre).join(", ") : "—"}
+              </strong>
+            </div>
+
+            <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: ".75rem", fontStyle: "italic" }}>
+              El monto se calcula y autoriza manualmente. Te enviamos el precio
+              final por WhatsApp o correo tras revisar tu solicitud.
+            </p>
+            <p style={{ fontSize: ".72rem", color: "var(--burdeos)", marginTop: ".5rem", fontWeight: 700 }}>
+              Validez de la cotización: {VALIDEZ_DIAS} días desde el envío.
+            </p>
+
+            <button type="submit" disabled={enviando} className="submit-btn">
+              {enviando ? "Solicitando…" : "Solicitar cotización"}
+            </button>
+          </aside>
         </div>
       </form>
-    </main>
+    </div>
   );
 }

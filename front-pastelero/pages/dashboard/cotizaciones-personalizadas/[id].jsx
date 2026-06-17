@@ -12,6 +12,12 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+const PRODUCTO_LABEL = {
+  pastel: "Pastel",
+  cupcake: "Cupcakes",
+  "mesa-postres": "Mesa de postres",
+};
+
 const STATUSES = [
   "Pendiente",
   "Agendado · revisión",
@@ -173,14 +179,28 @@ export default function CotizacionPersonalizadaDetalle() {
               <h2 className="font-bold text-lg mb-3" style={{ color: "var(--burdeos)" }}>
                 Detalle de la solicitud
               </h2>
-              <Info label="Evento"     val={`${cot.evento?.tipo} · ${cot.evento?.invitados} invitados`} />
+              <Info label="Producto"   val={PRODUCTO_LABEL[cot.tipoProducto] || "Pastel"} />
+              <Info label="Evento"     val={`${cot.evento?.tipo} · ${cot.evento?.invitados} ${cot.tipoProducto === "mesa-postres" ? "personas" : "invitados"}`} />
               <Info label="Fecha"      val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX") : "—"} />
-              <Info label="Niveles"    val={`${cot.niveles} piso${cot.niveles > 1 ? "s" : ""}`} />
-              <Info label="Bizcocho"   val={cot.sabor?.nombre || "—"} />
-              <Info label="Relleno"    val={cot.relleno?.nombre || "—"} />
-              <Info label="Cobertura"  val={cot.cobertura?.nombre || "—"} />
-              <Info label="Color principal" val={cot.colorPrincipal ? <span className="inline-block w-6 h-6 rounded-full align-middle" style={{ background: cot.colorPrincipal, border: "1px solid #eee" }} /> : "—"} />
-              <Info label="Decoraciones" val={(cot.decoraciones || []).map((d) => d.nombre).join(", ") || "—"} />
+
+              {cot.tipoProducto === "mesa-postres" ? (
+                <>
+                  <Info label="Postres / persona" val={cot.postresPorPersona || "—"} />
+                  <Info label="Total piezas" val={(cot.evento?.invitados || 0) * (cot.postresPorPersona || 0) || "—"} />
+                  <Info label="Postres" val={(cot.postres || []).map((p) => p.nombre).join(", ") || "—"} />
+                </>
+              ) : (
+                <>
+                  {cot.tipoProducto !== "cupcake" && (
+                    <Info label="Niveles" val={`${cot.niveles} piso${cot.niveles > 1 ? "s" : ""}`} />
+                  )}
+                  <Info label={cot.tipoProducto === "cupcake" ? "Cupcake" : "Bizcocho"} val={cot.sabor?.nombre || "—"} />
+                  <Info label="Relleno"    val={cot.relleno?.nombre || "—"} />
+                  <Info label="Cobertura"  val={cot.cobertura?.nombre || "—"} />
+                  <Info label="Color principal" val={cot.colorPrincipal ? <span className="inline-block w-6 h-6 rounded-full align-middle" style={{ background: cot.colorPrincipal, border: "1px solid #eee" }} /> : "—"} />
+                  <Info label="Decoraciones" val={(cot.decoraciones || []).map((d) => d.nombre).join(", ") || "—"} />
+                </>
+              )}
               <Info label="Estilo"     val={cot.estilo?.value || "—"} />
               {cot.estilo?.comentarios && (
                 <div className="mt-2">

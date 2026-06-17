@@ -98,7 +98,8 @@ const DEFAULT_FORM = {
  * UX: visual selectors en vez de dropdowns. Multi-select para decoración.
  * Sticky summary card con desglose y estimado preliminar.
  */
-export default function CakePersonalizado() {
+export default function CakePersonalizado({ tipoProducto = "pastel" } = {}) {
+  const esCupcake = tipoProducto === "cupcake";
   const { userToken, userEmail, isLoggedIn } = useAuth();
 
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -226,6 +227,8 @@ export default function CakePersonalizado() {
       // a domicilio / salón.
       const payload = {
         ...form,
+        tipoProducto,
+        niveles: esCupcake ? 1 : form.niveles,
         entrega: {
           ...form.entrega,
           fecha: form.evento.fecha,
@@ -554,27 +557,29 @@ export default function CakePersonalizado() {
               </div>
             </fieldset>
 
-            {/* ── 2. Niveles ───────────────────────────────────── */}
-            <fieldset>
-              <legend>2. Niveles del pastel</legend>
-              <div className="tier-grid">
-                {NIVELES.map((n) => (
-                  <button
-                    type="button"
-                    key={n.value}
-                    className={`tier-pick ${form.niveles === n.value ? "sel" : ""}`}
-                    onClick={() => setForm({ ...form, niveles: n.value })}
-                  >
-                    <TierIcon niveles={n.value} />
-                    {n.label}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
+            {/* ── 2. Niveles (solo pastel) ─────────────────────── */}
+            {!esCupcake && (
+              <fieldset>
+                <legend>2. Niveles del pastel</legend>
+                <div className="tier-grid">
+                  {NIVELES.map((n) => (
+                    <button
+                      type="button"
+                      key={n.value}
+                      className={`tier-pick ${form.niveles === n.value ? "sel" : ""}`}
+                      onClick={() => setForm({ ...form, niveles: n.value })}
+                    >
+                      <TierIcon niveles={n.value} />
+                      {n.label}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )}
 
             {/* ── 3. Sabor del bizcocho ─────────────────────────── */}
             <fieldset>
-              <legend>3. Sabor del bizcocho</legend>
+              <legend>{esCupcake ? "2. Sabor del cupcake" : "3. Sabor del bizcocho"}</legend>
               {catalogos.sabores.length === 0 ? (
                 <p style={{ fontSize: ".82rem", color: "var(--text-soft)" }}>Cargando opciones…</p>
               ) : (
@@ -816,7 +821,7 @@ export default function CakePersonalizado() {
           {/* ── Summary side ───────────────────────────────────── */}
           <aside className="summary-side">
             <h3 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.4rem", marginBottom: ".5rem" }}>
-              Tu pastel
+              {esCupcake ? "Tus cupcakes" : "Tu pastel"}
             </h3>
             <p style={{ fontSize: ".75rem", color: "var(--text-soft)", marginBottom: ".75rem" }}>
               Resumen de tu solicitud · Confirmamos en 24h
@@ -824,8 +829,10 @@ export default function CakePersonalizado() {
 
             <SumRow label="Evento" val={EVENTOS.find((x) => x.value === form.evento.tipo)?.label || "—"} />
             <SumRow label="Porciones" val={form.evento.invitados || "—"} />
-            <SumRow label="Niveles" val={NIVELES.find((x) => x.value === form.niveles)?.label || "—"} />
-            <SumRow label="Bizcocho" val={desglose.sabor?.nombre || "—"} />
+            {!esCupcake && (
+              <SumRow label="Niveles" val={NIVELES.find((x) => x.value === form.niveles)?.label || "—"} />
+            )}
+            <SumRow label={esCupcake ? "Cupcake" : "Bizcocho"} val={desglose.sabor?.nombre || "—"} />
             <SumRow label="Relleno" val={desglose.relleno?.nombre || "—"} />
             <SumRow label="Cobertura" val={desglose.cobertura?.nombre || "—"} />
             <SumRow label="Decoraciones" val={desglose.decosSel.length ? desglose.decosSel.map((d) => d.nombre).join(", ") : "—"} />
@@ -840,7 +847,7 @@ export default function CakePersonalizado() {
             </p>
 
             <button type="submit" disabled={enviando} className="submit-btn">
-              {enviando ? "Enviando…" : "Enviar cotización"}
+              {enviando ? "Solicitando…" : "Solicitar cotización"}
             </button>
           </aside>
         </div>

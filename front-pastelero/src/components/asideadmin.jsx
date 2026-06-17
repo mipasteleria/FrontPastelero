@@ -104,7 +104,7 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: "Cotización Pastel",
+    label: "Cotización (pastel / cupcake / mesa)",
     items: [
       {
         href: "/dashboard/cotizacion-catalogos/sabores",
@@ -139,6 +139,15 @@ const NAV_GROUPS = [
         icon: (
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2 9 9l-7 .5 5.5 4.5L5.5 22 12 18l6.5 4-2-8 5.5-4.5L15 9l-3-7Z" />
+          </svg>
+        ),
+      },
+      {
+        href: "/dashboard/cotizacion-catalogos/postres",
+        label: "Postres (mesa)",
+        icon: (
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 13h16M5 13a7 7 0 0 1 14 0M9 7V5M12 7V4M15 7V5M3 17h18" />
           </svg>
         ),
       },
