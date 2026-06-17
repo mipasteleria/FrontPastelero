@@ -29,6 +29,7 @@ const PRODUCTO_LABEL = {
 
 const STATUSES = [
   "Pendiente",
+  "Cotizada",            // precio listo y visible para el cliente (puede agendar)
   "Agendado · revisión",
   "Agendado · producción",
   "Entregado",
@@ -429,6 +430,10 @@ export default function CotizacionPersonalizadaDetalle() {
                   value={editForm.anticipo}
                   onChange={(e) => setEditForm({ ...editForm, anticipo: e.target.value })}
                 />
+                <p className="text-[11px] text-gray-500 mb-3">
+                  Cuando el precio esté listo, pon el status en <strong>"Cotizada"</strong> y
+                  guarda: así el cliente verá el precio en su enlace y podrá agendar.
+                </p>
                 <button
                   onClick={guardarAdmin}
                   className="px-4 py-2 rounded text-sm font-semibold text-white shadow-md w-full"

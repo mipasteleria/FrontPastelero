@@ -124,6 +124,9 @@ export default function VerCotizacion() {
   const vencida = vence ? Date.now() > vence.getTime() : false;
   const yaConfirmado = cot.confirmacionCliente?.confirmado;
   const pagado = (cot.status || "").startsWith("Agendado");
+  // El precio se publica al cliente cuando el admin pone status "Cotizada"
+  // (o ya está agendada/entregada). Antes de eso se muestra "en revisión".
+  const publicada = pagado || ["Cotizada", "Entregado"].includes(cot.status);
   const esMesa = cot.tipoProducto === "mesa-postres";
 
   return (
@@ -185,7 +188,7 @@ export default function VerCotizacion() {
 
         {/* Precio */}
         <div style={{ ...card, background: "linear-gradient(180deg,var(--burdeos),#3D001D)", color: "#fff" }}>
-          {precio > 0 ? (
+          {publicada && precio > 0 ? (
             <>
               <div className="row" style={{ borderColor: "rgba(255,255,255,.15)" }}><span style={{ color: "#FFD8DF" }}>Precio total</span><strong style={{ fontSize: "1.2rem" }}>${precio.toLocaleString("es-MX")}</strong></div>
               <div className="row" style={{ borderColor: "rgba(255,255,255,.15)" }}><span style={{ color: "#FFD8DF" }}>Anticipo (50%)</span><strong>${anticipo.toLocaleString("es-MX")}</strong></div>
@@ -203,7 +206,7 @@ export default function VerCotizacion() {
         </div>
 
         {/* Acciones */}
-        {precio > 0 && !vencida && (
+        {publicada && precio > 0 && !vencida && (
           pagado ? (
             <div style={{ ...card, borderColor: "var(--menta-deep, #6FC9A8)" }}>
               <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.2rem" }}>¡Pedido apartado! 🎉</h2>
