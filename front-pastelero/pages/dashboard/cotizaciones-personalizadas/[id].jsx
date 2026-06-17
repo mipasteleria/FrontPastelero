@@ -62,6 +62,7 @@ export default function CotizacionPersonalizadaDetalle() {
   const [extras, setExtras] = useState([]);
   const [nuevoExtra, setNuevoExtra] = useState({ tipo: "manual", refId: "", concepto: "", costoUnitario: 0, cantidad: 1 });
   const [guardandoExtras, setGuardandoExtras] = useState(false);
+  const [markupPct, setMarkupPct] = useState("");
 
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
 
@@ -76,6 +77,7 @@ export default function CotizacionPersonalizadaDetalle() {
       anticipo: j.data?.anticipo ?? "",
     });
     setExtras(j.data?.costeoExtras || []);
+    setMarkupPct(j.data?.costeoSnapshot?.markupPct != null ? String(j.data.costeoSnapshot.markupPct) : "");
     setCargando(false);
   };
 
@@ -128,7 +130,7 @@ export default function CotizacionPersonalizadaDetalle() {
       const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}/calcular-costeo`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeader },
-        body: JSON.stringify({}),
+        body: JSON.stringify(markupPct === "" ? {} : { markupPct: Number(markupPct) }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "Error");
@@ -443,6 +445,16 @@ export default function CotizacionPersonalizadaDetalle() {
                 <p className="text-xs text-gray-500 mb-3">
                   Calcula el costo real usando receta del bizcocho + técnicas creativas de las decoraciones.
                 </p>
+                <label className="block text-xs font-semibold mb-1">Markup (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  className="border rounded px-3 py-2 w-full mb-3"
+                  value={markupPct}
+                  onChange={(e) => setMarkupPct(e.target.value)}
+                  placeholder="Global por defecto (ej. 60)"
+                />
                 <button
                   onClick={calcularCosteo}
                   disabled={calculando}
