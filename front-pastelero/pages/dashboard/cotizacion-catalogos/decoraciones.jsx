@@ -53,11 +53,19 @@ export default function DecoracionesPage() {
         {
           key: "costo",
           label: "Costo",
-          render: (d) => (
-            d.tecnicaCreativaId
-              ? <span className="text-xs text-gray-500">Calculado en Fase D</span>
-              : `$${Number(d.costoManual ?? 0).toFixed(2)}`
-          ),
+          render: (d) => {
+            if (!d.tecnicaCreativaId) return `$${Number(d.costoManual ?? 0).toFixed(2)}`;
+            const idStr = d.tecnicaCreativaId?._id || d.tecnicaCreativaId;
+            const t = tecnicas.find((x) => String(x._id) === String(idStr));
+            if (!t) return <span className="text-xs text-gray-500">según técnica</span>;
+            const base = Number(t.costoBase ?? 0);
+            const escala = Number(t.escalaPorPorcion ?? 0);
+            return (
+              <span className="text-xs">
+                ${base.toFixed(2)} base{escala > 0 ? ` + $${escala.toFixed(2)}/porción` : ""}
+              </span>
+            );
+          },
         },
       ]}
       renderFormFields={({ form, setForm }) => (
@@ -89,7 +97,7 @@ export default function DecoracionesPage() {
               ))}
             </select>
             <div className="text-[10px] text-gray-400 mt-1">
-              Si eliges técnica, el costo escala con porciones automáticamente en Fase D.
+              Si eliges técnica, el costo escala con las porciones al costear la cotización.
             </div>
           </div>
           <div className="md:col-span-2">
