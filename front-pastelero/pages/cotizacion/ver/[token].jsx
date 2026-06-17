@@ -114,9 +114,18 @@ export default function VerCotizacion() {
   const extras = [
     ...(cot.decoraciones || []).map((d) => d.nombre),
     cot.estilo?.value,
-    cot.colorPrincipal ? `Color ${cot.colorPrincipal}` : "",
     cot.estilo?.comentarios,
   ].filter(Boolean).join(", ") || "—";
+
+  const colorSwatch = cot.colorPrincipal ? (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+      <span style={{
+        width: 18, height: 18, borderRadius: "50%",
+        background: cot.colorPrincipal,
+        border: "1.5px solid rgba(0,0,0,.15)", display: "inline-block",
+      }} />
+    </span>
+  ) : "—";
 
   const disenoImg = cot.estilo?.imagenesInspiracion?.[0];
 
@@ -201,6 +210,7 @@ export default function VerCotizacion() {
                 <Row lbl="Relleno" val={cot.relleno?.nombre} />
                 <Row lbl="Cobertura" val={cot.cobertura?.nombre} />
                 <Row lbl="Forrado" val={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} />
+                {cot.colorPrincipal && <Row lbl="Color principal" val={colorSwatch} />}
               </>
             )}
             <Row lbl="Extras" val={extras} />
