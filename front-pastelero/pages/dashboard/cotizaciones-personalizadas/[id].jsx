@@ -12,6 +12,15 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+
+const TIPO_EXTRA_LABEL = {
+  receta: "Receta",
+  tecnica: "Técnica creativa",
+  insumo: "Insumo / trabajo manual",
+  manual: "Costo manual / estructura",
+};
+
 const PRODUCTO_LABEL = {
   pastel: "Pastel",
   cupcake: "Cupcakes",
@@ -48,6 +57,12 @@ export default function CotizacionPersonalizadaDetalle() {
   // Nota interna nueva
   const [notaTexto, setNotaTexto] = useState("");
 
+  // ── Costeo: renglones extra (base automática + extras encima) ──────
+  const [fuentes, setFuentes] = useState({ recetas: [], tecnicas: [], insumos: [], laborHora: 0 });
+  const [extras, setExtras] = useState([]);
+  const [nuevoExtra, setNuevoExtra] = useState({ tipo: "manual", refId: "", concepto: "", costoUnitario: 0, cantidad: 1 });
+  const [guardandoExtras, setGuardandoExtras] = useState(false);
+
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
 
   const recargar = async () => {
@@ -60,10 +75,30 @@ export default function CotizacionPersonalizadaDetalle() {
       precio: j.data?.precio ?? "",
       anticipo: j.data?.anticipo ?? "",
     });
+    setExtras(j.data?.costeoExtras || []);
     setCargando(false);
   };
 
   useEffect(() => { recargar(); /* eslint-disable-line */ }, [id, userToken]);
+
+  // ── Cargar fuentes de costo (recetas / técnicas / insumos / labor) ──
+  useEffect(() => {
+    if (!userToken) return;
+    const h = { Authorization: `Bearer ${userToken}` };
+    Promise.all([
+      fetch(`${API_BASE}/recetas/recetas`, { headers: h }).then((r) => r.json()).catch(() => ({})),
+      fetch(`${API_BASE}/tecnicas?todas=true`, { headers: h }).then((r) => r.json()).catch(() => ({})),
+      fetch(`${API_BASE}/insumos`, { headers: h }).then((r) => r.json()).catch(() => ([])),
+      fetch(`${API_BASE}/costs`, { headers: h }).then((r) => r.json()).catch(() => ({})),
+    ]).then(([rec, tec, ins, cost]) => {
+      setFuentes({
+        recetas: rec.data || rec || [],
+        tecnicas: tec.data || tec || [],
+        insumos: Array.isArray(ins) ? ins : (ins.data || []),
+        laborHora: cost?.laborCosts ?? 0,
+      });
+    });
+  }, [userToken]);
 
   // ── Guardar campos admin ─────────────────────────────────────────
   const guardarAdmin = async () => {
@@ -112,6 +147,69 @@ export default function CotizacionPersonalizadaDetalle() {
       setCalculando(false);
     }
   };
+
+  // ── Costeo: renglones extra ───────────────────────────────────────
+  // Construye un renglón a partir del tipo/fuente seleccionados.
+  const construirExtra = () => {
+    const porciones = Math.max(1, Number(cot?.evento?.invitados) || 0);
+    const cantidad = Math.max(1, Number(nuevoExtra.cantidad) || 1);
+    const { tipo, refId } = nuevoExtra;
+
+    if (tipo === "receta") {
+      const r = fuentes.recetas.find((x) => String(x._id) === String(refId));
+      if (!r) return null;
+      const unit = r.portions > 0 ? r.total_cost / r.portions : 0;
+      return { tipo, refId: r._id, concepto: r.nombre_receta, costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+    }
+    if (tipo === "tecnica") {
+      const t = fuentes.tecnicas.find((x) => String(x._id) === String(refId));
+      if (!t) return null;
+      const unit = (t.costoBase || 0) + (t.escalaPorPorcion || 0) * porciones + (t.tiempoHoras || 0) * fuentes.laborHora;
+      return { tipo, refId: t._id, concepto: t.nombre, costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+    }
+    if (tipo === "insumo") {
+      const i = fuentes.insumos.find((x) => String(x._id) === String(refId));
+      if (!i) return null;
+      const unit = i.cost || 0;
+      return { tipo, refId: i._id, concepto: `${i.name}${i.unit ? ` (${i.unit})` : ""}`, costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+    }
+    // manual
+    const unit = Number(nuevoExtra.costoUnitario) || 0;
+    if (!nuevoExtra.concepto.trim() || unit <= 0) return null;
+    return { tipo: "manual", refId: null, concepto: nuevoExtra.concepto.trim(), costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
+  };
+
+  const agregarExtra = () => {
+    const item = construirExtra();
+    if (!item) {
+      Swal.fire({ icon: "warning", title: "Completa el renglón", timer: 1600, showConfirmButton: false });
+      return;
+    }
+    setExtras((prev) => [...prev, item]);
+    setNuevoExtra({ tipo: nuevoExtra.tipo, refId: "", concepto: "", costoUnitario: 0, cantidad: 1 });
+  };
+
+  const quitarExtra = (idx) => setExtras((prev) => prev.filter((_, i) => i !== idx));
+
+  // Guarda los extras (PUT) y recalcula el costeo para reflejar el total.
+  const guardarYRecalcular = async () => {
+    setGuardandoExtras(true);
+    try {
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify({ costeoExtras: extras }),
+      });
+      if (!r.ok) throw new Error((await r.json()).message || "Error guardando extras");
+      await calcularCosteo();
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, timer: 2200, showConfirmButton: false });
+    } finally {
+      setGuardandoExtras(false);
+    }
+  };
+
+  const extrasTotal = extras.reduce((acc, x) => acc + (Number(x.subtotal) || 0), 0);
 
   // ── Notas internas ───────────────────────────────────────────────
   const agregarNota = async () => {
@@ -299,21 +397,133 @@ export default function CotizacionPersonalizadaDetalle() {
 
                 {cs && (
                   <div className="mt-3 text-xs">
-                    <CostRow label="Bizcocho"    val={cs.costoBizcocho} sub={cs.bizcocho?.nombre} />
-                    <CostRow label="Relleno"     val={cs.costoRelleno} sub={cs.relleno?.nombre} />
-                    <CostRow label="Cobertura"   val={cs.costoCobertura} sub={cs.cobertura?.nombre} />
-                    <CostRow label="Decoraciones" val={cs.costoDecoraciones} sub={`${cs.decoraciones?.length || 0} elementos`} />
+                    {cs.tipoProducto === "mesa-postres" ? (
+                      <CostRow label="Postres" val={cs.costoPostres} sub={`${cs.postres?.length || 0} tipos · ${cs.piezasTotales} piezas`} />
+                    ) : (
+                      <>
+                        <CostRow label="Bizcocho"    val={cs.costoBizcocho} sub={cs.bizcocho?.nombre} />
+                        <CostRow label="Relleno"     val={cs.costoRelleno} sub={cs.relleno?.nombre} />
+                        <CostRow label="Cobertura"   val={cs.costoCobertura} sub={cs.cobertura?.nombre} />
+                        <CostRow label="Decoraciones" val={cs.costoDecoraciones} sub={`${cs.decoraciones?.length || 0} elementos`} />
+                      </>
+                    )}
+                    {cs.costoExtras > 0 && (
+                      <CostRow label="Extras" val={cs.costoExtras} sub={`${cs.extras?.length || 0} renglones`} />
+                    )}
                     <div className="border-t mt-2 pt-2">
                       <CostRow label="Costo total" val={cs.costoTotal} bold />
                       <CostRow label={`Markup ${cs.markupPct}%`} val={cs.precioSugerido - cs.costoTotal} />
                       <CostRow label="Precio sugerido" val={cs.precioSugerido} highlight />
                     </div>
                     <p className="text-[10px] text-gray-400 mt-2">
-                      Calculado: {new Date(cs.fechaCosteo).toLocaleString("es-MX")} ·
-                      Niveles x{cs.multiplicadorNiveles}
+                      Calculado: {new Date(cs.fechaCosteo).toLocaleString("es-MX")}
+                      {cs.multiplicadorNiveles ? ` · Niveles x${cs.multiplicadorNiveles}` : ""}
                     </p>
                   </div>
                 )}
+              </div>
+
+              {/* Renglones extra del costeo */}
+              <div className="bg-white shadow rounded-lg p-5">
+                <h3 className="font-bold mb-1" style={{ color: "var(--burdeos)" }}>Renglones extra</h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Se suman a la base automática (estructura, técnicas, insumos, recetas o costo libre).
+                </p>
+
+                {extras.length > 0 && (
+                  <div className="mb-3 space-y-1">
+                    {extras.map((x, i) => (
+                      <div key={i} className="flex items-center justify-between bg-gray-50 rounded px-2 py-1 text-xs">
+                        <div className="min-w-0">
+                          <div className="font-semibold truncate">{x.concepto}</div>
+                          <div className="text-[10px] text-gray-400">
+                            {TIPO_EXTRA_LABEL[x.tipo]} · ${Number(x.costoUnitario).toFixed(2)} × {x.cantidad}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="font-semibold">${Number(x.subtotal).toFixed(2)}</span>
+                          <button onClick={() => quitarExtra(i)} className="text-red-400 hover:text-red-600">✕</button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex justify-between text-xs font-bold pt-1">
+                      <span>Subtotal extras</span>
+                      <span>${extrasTotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Form nuevo renglón */}
+                <label className="block text-xs font-semibold mb-1">Tipo</label>
+                <select
+                  className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
+                  value={nuevoExtra.tipo}
+                  onChange={(e) => setNuevoExtra({ ...nuevoExtra, tipo: e.target.value, refId: "", concepto: "", costoUnitario: 0 })}
+                >
+                  <option value="manual">Costo manual / estructura</option>
+                  <option value="receta">Receta</option>
+                  <option value="tecnica">Técnica creativa</option>
+                  <option value="insumo">Insumo / trabajo manual</option>
+                </select>
+
+                {nuevoExtra.tipo === "manual" ? (
+                  <>
+                    <input
+                      className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
+                      placeholder="Concepto (ej. estructura, base)"
+                      value={nuevoExtra.concepto}
+                      onChange={(e) => setNuevoExtra({ ...nuevoExtra, concepto: e.target.value })}
+                    />
+                    <input
+                      type="number" step="0.01" min="0"
+                      className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
+                      placeholder="Costo unitario"
+                      value={nuevoExtra.costoUnitario}
+                      onChange={(e) => setNuevoExtra({ ...nuevoExtra, costoUnitario: e.target.value })}
+                    />
+                  </>
+                ) : (
+                  <select
+                    className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
+                    value={nuevoExtra.refId}
+                    onChange={(e) => setNuevoExtra({ ...nuevoExtra, refId: e.target.value })}
+                  >
+                    <option value="">— Selecciona —</option>
+                    {nuevoExtra.tipo === "receta" && fuentes.recetas.map((r) => (
+                      <option key={r._id} value={r._id}>{r.nombre_receta} (${r.portions > 0 ? (r.total_cost / r.portions).toFixed(2) : "?"}/porción)</option>
+                    ))}
+                    {nuevoExtra.tipo === "tecnica" && fuentes.tecnicas.map((t) => (
+                      <option key={t._id} value={t._id}>{t.nombre}</option>
+                    ))}
+                    {nuevoExtra.tipo === "insumo" && fuentes.insumos.map((i) => (
+                      <option key={i._id} value={i._id}>{i.name} (${Number(i.cost).toFixed(2)}{i.unit ? `/${i.unit}` : ""})</option>
+                    ))}
+                  </select>
+                )}
+
+                <label className="block text-xs font-semibold mb-1">Cantidad</label>
+                <input
+                  type="number" min="1" step="1"
+                  className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
+                  value={nuevoExtra.cantidad}
+                  onChange={(e) => setNuevoExtra({ ...nuevoExtra, cantidad: e.target.value })}
+                />
+
+                <button
+                  onClick={agregarExtra}
+                  className="px-3 py-1.5 rounded text-xs font-semibold text-white w-full mb-2"
+                  style={{ background: "var(--accent, #6FC9A8)" }}
+                >
+                  + Agregar renglón
+                </button>
+                <button
+                  onClick={guardarYRecalcular}
+                  disabled={guardandoExtras}
+                  className="px-3 py-1.5 rounded text-xs font-semibold text-white w-full disabled:opacity-50"
+                  style={{ background: "var(--rosa)" }}
+                >
+                  {guardandoExtras ? "Guardando…" : "Guardar extras y recalcular"}
+                </button>
               </div>
 
               {/* Notas internas */}

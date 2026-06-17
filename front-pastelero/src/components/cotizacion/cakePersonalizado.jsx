@@ -100,6 +100,8 @@ const DEFAULT_FORM = {
  */
 export default function CakePersonalizado({ tipoProducto = "pastel" } = {}) {
   const esCupcake = tipoProducto === "cupcake";
+  // Cupcakes se cotizan por docena (múltiplos de 12); pastel de 10 en 10.
+  const pasoPorciones = esCupcake ? 12 : 10;
   const { userToken, userEmail, isLoggedIn } = useAuth();
 
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -115,6 +117,16 @@ export default function CakePersonalizado({ tipoProducto = "pastel" } = {}) {
       setForm((f) => ({ ...f, cliente: { ...f.cliente, email: userEmail } }));
     }
   }, [userEmail]);
+
+  // ── Normalizar porciones al múltiplo del producto (cupcake = 12) ──
+  useEffect(() => {
+    setForm((f) => {
+      const n = Number(f.evento.invitados) || pasoPorciones;
+      const norm = Math.max(pasoPorciones, Math.round(n / pasoPorciones) * pasoPorciones);
+      if (norm === f.evento.invitados) return f;
+      return { ...f, evento: { ...f.evento, invitados: norm } };
+    });
+  }, [pasoPorciones]);
 
   // ── Cargar catálogos ─────────────────────────────────────────────
   useEffect(() => {
@@ -536,22 +548,23 @@ export default function CakePersonalizado({ tipoProducto = "pastel" } = {}) {
                   </p>
                 </div>
                 <div>
-                  <label className="fld">Porciones</label>
+                  <label className="fld">{esCupcake ? "Cupcakes" : "Porciones"}</label>
                   <input
                     type="number"
-                    min="10"
-                    step="10"
+                    min={pasoPorciones}
+                    step={pasoPorciones}
                     value={form.evento.invitados}
                     onChange={(e) => {
-                      // Las porciones van de 10 en 10: redondeamos al múltiplo
-                      // de 10 más cercano (mínimo 10).
+                      // Redondeamos al múltiplo del producto (cupcake = docena).
                       const n = Number(e.target.value) || 0;
-                      const redondeado = Math.max(10, Math.round(n / 10) * 10);
+                      const redondeado = Math.max(pasoPorciones, Math.round(n / pasoPorciones) * pasoPorciones);
                       setEvento({ invitados: redondeado });
                     }}
                   />
                   <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
-                    En incrementos de 10 porciones.
+                    {esCupcake
+                      ? `Por docena (${form.evento.invitados / 12 || 0} ${form.evento.invitados / 12 === 1 ? "docena" : "docenas"}).`
+                      : "En incrementos de 10 porciones."}
                   </p>
                 </div>
               </div>
