@@ -161,7 +161,9 @@ export default function CotizacionPersonalizadaDetalle() {
     if (tipo === "tecnica") {
       const t = fuentes.tecnicas.find((x) => String(x._id) === String(refId));
       if (!t) return 0;
-      return round2((t.costoBase || 0) + (t.escalaPorPorcion || 0) + (t.tiempoHoras || 0) * fuentes.laborHora);
+      // Pre-llenamos con el costo base de la técnica (el admin puede subirlo
+      // si quiere incluir escala/horas). Evita inflar el costo por defecto.
+      return round2(t.costoBase || 0);
     }
     if (tipo === "insumo") {
       const i = fuentes.insumos.find((x) => String(x._id) === String(refId));
