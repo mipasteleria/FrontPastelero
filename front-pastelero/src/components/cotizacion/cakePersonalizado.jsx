@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
@@ -98,10 +99,11 @@ const DEFAULT_FORM = {
  * UX: visual selectors en vez de dropdowns. Multi-select para decoración.
  * Sticky summary card con desglose y estimado preliminar.
  */
-export default function CakePersonalizado({ tipoProducto = "pastel" } = {}) {
+export default function CakePersonalizado({ tipoProducto = "pastel", adminMode = false } = {}) {
   const esCupcake = tipoProducto === "cupcake";
   // Cupcakes se cotizan por docena (múltiplos de 12); pastel de 10 en 10.
   const pasoPorciones = esCupcake ? 12 : 10;
+  const router = useRouter();
   const { userToken, userEmail, isLoggedIn } = useAuth();
 
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -113,10 +115,12 @@ export default function CakePersonalizado({ tipoProducto = "pastel" } = {}) {
 
   // ── Pre-llenar email del usuario logeado ─────────────────────────
   useEffect(() => {
-    if (userEmail) {
+    // En modo captura (admin) NO prellenamos con el email del admin —
+    // los datos son del cliente y se teclean a mano.
+    if (userEmail && !adminMode) {
       setForm((f) => ({ ...f, cliente: { ...f.cliente, email: userEmail } }));
     }
-  }, [userEmail]);
+  }, [userEmail, adminMode]);
 
   // ── Normalizar porciones al múltiplo del producto (cupcake = 12) ──
   useEffect(() => {
@@ -254,6 +258,21 @@ export default function CakePersonalizado({ tipoProducto = "pastel" } = {}) {
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "Error al enviar la cotización");
+
+      // Captura admin: ir directo al detalle para costear.
+      if (adminMode && j.data?._id) {
+        await Swal.fire({
+          icon: "success",
+          title: "Cotización capturada",
+          text: "Ahora puedes costearla y fijar el precio.",
+          timer: 1600,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
+        router.push(`/dashboard/cotizaciones-personalizadas/${j.data._id}`);
+        return;
+      }
 
       const validUntil = j.data?.validUntil
         ? new Date(j.data.validUntil).toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })
@@ -860,7 +879,7 @@ export default function CakePersonalizado({ tipoProducto = "pastel" } = {}) {
             </p>
 
             <button type="submit" disabled={enviando} className="submit-btn">
-              {enviando ? "Solicitando…" : "Solicitar cotización"}
+              {enviando ? (adminMode ? "Capturando…" : "Solicitando…") : (adminMode ? "Capturar cotización" : "Solicitar cotización")}
             </button>
           </aside>
         </div>

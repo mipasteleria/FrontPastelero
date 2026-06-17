@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
@@ -70,7 +71,8 @@ const DEFAULT_FORM = {
  * /dashboard/cotizacion-catalogos/postres. El monto NO se muestra: lo
  * autoriza y calcula el admin manualmente.
  */
-export default function Snackprice() {
+export default function Snackprice({ adminMode = false } = {}) {
+  const router = useRouter();
   const { userToken, userEmail, isLoggedIn } = useAuth();
 
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -79,8 +81,8 @@ export default function Snackprice() {
   const [subiendoImg, setSubiendoImg] = useState(false);
 
   useEffect(() => {
-    if (userEmail) setForm((f) => ({ ...f, cliente: { ...f.cliente, email: userEmail } }));
-  }, [userEmail]);
+    if (userEmail && !adminMode) setForm((f) => ({ ...f, cliente: { ...f.cliente, email: userEmail } }));
+  }, [userEmail, adminMode]);
 
   useEffect(() => {
     fetch(`${API_BASE}/cotizacion-catalogos/postres`)
@@ -179,6 +181,20 @@ export default function Snackprice() {
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "Error al enviar la cotización");
+
+      if (adminMode && j.data?._id) {
+        await Swal.fire({
+          icon: "success",
+          title: "Cotización capturada",
+          text: "Ahora puedes costearla y fijar el precio.",
+          timer: 1600,
+          showConfirmButton: false,
+          background: "#fff1f2",
+          color: "#540027",
+        });
+        router.push(`/dashboard/cotizaciones-personalizadas/${j.data._id}`);
+        return;
+      }
 
       const validUntil = j.data?.validUntil
         ? new Date(j.data.validUntil).toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" })
@@ -504,7 +520,7 @@ export default function Snackprice() {
             </p>
 
             <button type="submit" disabled={enviando} className="submit-btn">
-              {enviando ? "Solicitando…" : "Solicitar cotización"}
+              {enviando ? (adminMode ? "Capturando…" : "Solicitando…") : (adminMode ? "Capturar cotización" : "Solicitar cotización")}
             </button>
           </aside>
         </div>

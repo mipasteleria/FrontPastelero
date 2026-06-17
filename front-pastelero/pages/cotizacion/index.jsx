@@ -27,7 +27,7 @@ const TIPS = [
 
 export default function Price() {
   const [selectedProduct, setSelectedProduct] = useState("cake");
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isAdmin } = useAuth();
 
   return (
     <div
@@ -166,6 +166,24 @@ export default function Price() {
               </div>
             ) : (
               <>
+                {/* Banner de captura admin */}
+                {isAdmin && (
+                  <div
+                    style={{
+                      background: "#540027",
+                      borderRadius: "var(--r-md)",
+                      padding: "0.85rem 1.25rem",
+                      fontSize: "0.85rem",
+                      color: "#fff",
+                      marginBottom: "1.25rem",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    🧾 <strong>Modo captura (admin)</strong> — estás registrando una cotización
+                    a nombre de un cliente. Al guardar irás al detalle para costearla y fijar el precio.
+                  </div>
+                )}
+
                 {/* Info box */}
                 <div
                   style={{
@@ -240,9 +258,9 @@ export default function Price() {
                     overflow: "hidden",
                   }}
                 >
-                  {selectedProduct === "cake"    && <CakePersonalizado />}
-                  {selectedProduct === "snack"   && <Snackprice />}
-                  {selectedProduct === "cupcake" && <Cupcakeprice />}
+                  {selectedProduct === "cake"    && <CakePersonalizado adminMode={isAdmin} />}
+                  {selectedProduct === "snack"   && <Snackprice adminMode={isAdmin} />}
+                  {selectedProduct === "cupcake" && <Cupcakeprice adminMode={isAdmin} />}
                 </div>
               </>
             )}

@@ -5,6 +5,6 @@ import CakePersonalizado from "./cakePersonalizado";
  * (mismos catálogos de sabor / relleno / cobertura / decoraciones) pero
  * sin la sección de niveles. Ver CakePersonalizado.
  */
-export default function Cupcakeprice() {
-  return <CakePersonalizado tipoProducto="cupcake" />;
+export default function Cupcakeprice({ adminMode = false } = {}) {
+  return <CakePersonalizado tipoProducto="cupcake" adminMode={adminMode} />;
 }
