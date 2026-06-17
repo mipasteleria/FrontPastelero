@@ -191,6 +191,14 @@ export default function CotizacionPersonalizadaDetalle() {
 
   const quitarExtra = (idx) => setExtras((prev) => prev.filter((_, i) => i !== idx));
 
+  // Editar la cantidad de un renglón ya agregado (recalcula subtotal).
+  const editarCantidadExtra = (idx, valor) => {
+    const cantidad = Math.max(0, Number(valor) || 0);
+    setExtras((prev) => prev.map((x, i) =>
+      i === idx ? { ...x, cantidad, subtotal: round2((Number(x.costoUnitario) || 0) * cantidad) } : x
+    ));
+  };
+
   // Guarda los extras (PUT) y recalcula el costeo para reflejar el total.
   const guardarYRecalcular = async () => {
     setGuardandoExtras(true);
@@ -482,15 +490,24 @@ export default function CotizacionPersonalizadaDetalle() {
                 {extras.length > 0 && (
                   <div className="mb-3 space-y-1">
                     {extras.map((x, i) => (
-                      <div key={i} className="flex items-center justify-between bg-gray-50 rounded px-2 py-1 text-xs">
+                      <div key={i} className="flex items-center justify-between bg-gray-50 rounded px-2 py-1 text-xs gap-2">
                         <div className="min-w-0">
                           <div className="font-semibold truncate">{x.concepto}</div>
                           <div className="text-[10px] text-gray-400">
-                            {TIPO_EXTRA_LABEL[x.tipo]} · ${Number(x.costoUnitario).toFixed(2)} × {x.cantidad}
+                            {TIPO_EXTRA_LABEL[x.tipo]} · ${Number(x.costoUnitario).toFixed(2)} c/u
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="font-semibold">${Number(x.subtotal).toFixed(2)}</span>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={x.cantidad}
+                            onChange={(e) => editarCantidadExtra(i, e.target.value)}
+                            className="border rounded px-1.5 py-0.5 w-16 text-right text-xs"
+                            title="Cantidad (ej. gramos)"
+                          />
+                          <span className="font-semibold w-16 text-right">${Number(x.subtotal).toFixed(2)}</span>
                           <button onClick={() => quitarExtra(i)} className="text-red-400 hover:text-red-600">✕</button>
                         </div>
                       </div>
@@ -550,7 +567,7 @@ export default function CotizacionPersonalizadaDetalle() {
                   </select>
                 )}
 
-                <label className="block text-xs font-semibold mb-1">Cantidad</label>
+                <label className="block text-xs font-semibold mb-1">Cantidad (ej. gramos / piezas)</label>
                 <input
                   type="number" min="1" step="1"
                   className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
