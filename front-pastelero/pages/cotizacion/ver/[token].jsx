@@ -130,17 +130,19 @@ export default function VerCotizacion() {
         .btn:hover:not(:disabled) { transform:translateY(-1px); }
         .btn:disabled { opacity:.6; cursor:not-allowed; }
 
-        .tpl { background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 10px 40px rgba(84,0,39,.10); border:1px solid #f3d7df; }
-        .tpl-header { background:linear-gradient(180deg,#f9dfe6,#f6cdd8); padding:18px 22px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-        .tpl-title { font-size:2rem; line-height:1; color:#c98aa6; }
-        .tpl-order { text-align:right; color:#7a6; }
-        .tpl-order .lbl { color:#9a7; font-size:.7rem; }
+        .tpl { background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 10px 40px rgba(84,0,39,.10); border:1px solid var(--border-color,#f3d7df); }
+        .tpl-header { background:linear-gradient(180deg, var(--rosa-4,#FFF3F5), #f6cdd8); padding:18px 22px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+        .tpl-eyebrow { font-size:.72rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--rosa); }
+        .tpl-title { font-size:2.1rem; line-height:1; color:var(--burdeos); }
+        .tpl-order { text-align:right; }
+        .tpl-order .lbl { color:var(--text-soft); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; }
+        .tpl-order .v { color:var(--burdeos); font-weight:800; }
         .det-grid { display:grid; grid-template-columns:1fr 1.1fr; gap:18px; padding:20px 22px; }
         @media (max-width:720px){ .det-grid { grid-template-columns:1fr; } }
-        .det-row { margin-bottom:9px; }
-        .det-lbl { color:#5b5b6b; font-size:.95rem; }
-        .det-val { color:#d57aa0; font-size:1.05rem; }
-        .section-title { color:#5b5b6b; font-weight:800; font-size:1.05rem; margin:6px 0 8px; border-bottom:1px solid #f0dbe2; padding-bottom:4px; }
+        .det-row { margin-bottom:8px; line-height:1.35; }
+        .det-lbl { color:var(--text-soft); font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
+        .det-val { color:var(--burdeos); font-size:1rem; font-weight:700; }
+        .section-title { color:var(--burdeos); font-weight:800; font-size:1.05rem; margin:12px 0 8px; border-bottom:1px solid var(--border-color,#f0dbe2); padding-bottom:4px; }
         .cond { padding:16px 22px; background:#fffafc; border-top:1px solid #f3d7df; }
         .cond h3 { color:#5b5b6b; font-weight:800; font-size:1.1rem; margin-bottom:8px; }
         .cond li { font-size:.85rem; color:#5b5b6b; margin-bottom:7px; line-height:1.5; list-style:none; padding-left:18px; position:relative; }
@@ -156,14 +158,14 @@ export default function VerCotizacion() {
         {/* Encabezado */}
         <div className="tpl-header">
           <div>
-            <div className={sofia.className} style={{ fontSize: "0.7rem", color: "#b07", letterSpacing: ".1em", textTransform: "uppercase" }}>Cotización</div>
+            <div className="tpl-eyebrow">Cotización</div>
             <div className={`${sofia.className} tpl-title`}>Pastelería el Ruiseñor</div>
           </div>
           <div className="tpl-order">
             <div className="lbl">Número de orden</div>
-            <div className={sofia.className} style={{ fontSize: "1.1rem", color: "#7a6" }}>{cot.numeroOrden || "—"}</div>
-            <div className="lbl" style={{ marginTop: 4 }}>Fecha</div>
-            <div className={sofia.className} style={{ color: "#7a6" }}>{fmtFecha(cot.createdAt, { day: "2-digit", month: "long", year: "numeric" })}</div>
+            <div className="v" style={{ fontSize: "1rem" }}>{cot.numeroOrden || "—"}</div>
+            <div className="lbl" style={{ marginTop: 6 }}>Fecha</div>
+            <div className="v">{fmtFecha(cot.createdAt, { day: "2-digit", month: "long", year: "numeric" })}</div>
           </div>
         </div>
 
@@ -217,13 +219,8 @@ export default function VerCotizacion() {
           </ul>
         </div>
 
-        {/* Datos bancarios + totales */}
-        <div className="pay-foot">
-          <div className="bank">
-            <div className="b-title">Datos Bancarios Citibanamex:</div>
-            <div>Clabe 002320902695222820</div>
-            <div>No. Tarjeta 5256 7839 9715 6998</div>
-          </div>
+        {/* Totales */}
+        <div className="pay-foot" style={{ justifyContent: "flex-end" }}>
           <div className="totals">
             {publicada && precio > 0 ? (
               <>
@@ -244,8 +241,19 @@ export default function VerCotizacion() {
           <Card><h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.2rem" }}>¡Pedido apartado! 🎉</h2>
             <p style={{ color: "var(--text-soft)", marginTop: 6 }}>Recibimos tu anticipo. {cot.saldoPendiente > 0 ? `Saldo pendiente: $${Number(cot.saldoPendiente).toLocaleString("es-MX")}.` : "Pedido pagado en su totalidad."}</p></Card>
         ) : yaConfirmado ? (
-          <Card><h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.2rem" }}>¡Pedido confirmado! 🎉</h2>
-            <p style={{ color: "var(--text-soft)", marginTop: 6 }}>Coordinaremos contigo el anticipo por {cot.confirmacionCliente?.metodo}. {cot.confirmacionCliente?.metodo === "transferencia" ? "Revisa tu correo con los datos bancarios." : ""} ¡Gracias!</p></Card>
+          <Card>
+            <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.2rem" }}>¡Pedido confirmado! 🎉</h2>
+            <p style={{ color: "var(--text-soft)", marginTop: 6 }}>Coordinaremos contigo el anticipo por {cot.confirmacionCliente?.metodo}. {cot.confirmacionCliente?.metodo === "transferencia" ? "También te lo enviamos por correo." : ""} ¡Gracias!</p>
+            {cot.confirmacionCliente?.metodo === "transferencia" && (
+              <div style={{ marginTop: 12, padding: "12px 14px", background: "var(--rosa-4,#FFF3F5)", borderRadius: 12, border: "1px solid var(--rosa)" }}>
+                <div style={{ fontWeight: 800, color: "var(--burdeos)", marginBottom: 4 }}>Datos para tu transferencia (anticipo 50%)</div>
+                <div style={{ fontSize: ".9rem", color: "var(--burdeos)" }}>Banco: Citibanamex</div>
+                <div style={{ fontSize: ".9rem", color: "var(--burdeos)" }}>CLABE: 002320902695222820</div>
+                <div style={{ fontSize: ".9rem", color: "var(--burdeos)" }}>No. Tarjeta: 5256 7839 9715 6998</div>
+                <div style={{ fontSize: ".85rem", color: "var(--text-soft)", marginTop: 6 }}>Anticipo: <strong>${anticipo.toLocaleString("es-MX")} MXN</strong>. Envíanos tu comprobante por WhatsApp citando tu número de orden.</div>
+              </div>
+            )}
+          </Card>
         ) : (
           <Card>
             <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.4rem", marginBottom: 12 }}>Aparta tu fecha con el 50%</h2>
@@ -297,8 +305,8 @@ export default function VerCotizacion() {
 function Row({ lbl, val }) {
   return (
     <div className="det-row">
-      <span className="det-lbl">{lbl} </span>
-      <span className={`${sofia.className} det-val`}>{val ?? "—"}</span>
+      <div className="det-lbl">{lbl}</div>
+      <div className="det-val">{val ?? "—"}</div>
     </div>
   );
 }

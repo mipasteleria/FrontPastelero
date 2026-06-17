@@ -7,6 +7,7 @@ import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { useAuth } from "@/src/context";
+import { subirImagen } from "@/src/lib/imageUpload";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -64,6 +65,7 @@ export default function CotizacionPersonalizadaDetalle() {
   const [nuevoExtra, setNuevoExtra] = useState({ tipo: "manual", refId: "", concepto: "", costoUnitario: 0, cantidad: 1 });
   const [guardandoExtras, setGuardandoExtras] = useState(false);
   const [markupPct, setMarkupPct] = useState("");
+  const [subiendoImg, setSubiendoImg] = useState(false);
 
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
 
@@ -88,6 +90,56 @@ export default function CotizacionPersonalizadaDetalle() {
   };
 
   useEffect(() => { recargar(); /* eslint-disable-line */ }, [id, userToken]);
+
+  // Backfill de número de orden / enlace para cotizaciones viejas.
+  useEffect(() => {
+    if (!cot || !id || !userToken) return;
+    if (cot.numeroOrden && cot.publicToken) return;
+    fetch(`${API_BASE}/cotizacion-personalizada/${id}/generar-enlace`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeader },
+    }).then(() => recargar()).catch(() => {});
+    /* eslint-disable-next-line */
+  }, [cot?._id]);
+
+  // ── Imagen de diseño (subir / quitar) ─────────────────────────────
+  const guardarImagenes = async (imagenes) => {
+    const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...authHeader },
+      body: JSON.stringify({ estilo: { ...(cot.estilo || {}), imagenesInspiracion: imagenes } }),
+    });
+    if (!r.ok) throw new Error((await r.json()).message || "Error");
+    await recargar();
+  };
+
+  const subirImagenDiseno = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setSubiendoImg(true);
+    try {
+      const urls = [];
+      for (const file of files) {
+        const { fileUrl } = await subirImagen(file, API_BASE, userToken);
+        urls.push(fileUrl);
+      }
+      await guardarImagenes([...(cot.estilo?.imagenesInspiracion || []), ...urls]);
+      Swal.fire({ icon: "success", title: "Imagen agregada", timer: 1400, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
+    } catch (err) {
+      Swal.fire({ icon: "error", title: err.message || "Error al subir", timer: 2200, showConfirmButton: false });
+    } finally {
+      setSubiendoImg(false);
+      e.target.value = "";
+    }
+  };
+
+  const quitarImagenDiseno = async (url) => {
+    try {
+      await guardarImagenes((cot.estilo?.imagenesInspiracion || []).filter((u) => u !== url));
+    } catch (err) {
+      Swal.fire({ icon: "error", title: err.message || "Error", timer: 2000, showConfirmButton: false });
+    }
+  };
 
   // ── Cargar fuentes de costo (recetas / técnicas / insumos / labor) ──
   useEffect(() => {
@@ -370,18 +422,29 @@ export default function CotizacionPersonalizadaDetalle() {
                   <p className="text-sm bg-gray-50 p-2 rounded">{cot.estilo.comentarios}</p>
                 </div>
               )}
-              {cot.estilo?.imagenesInspiracion?.length > 0 && (
-                <div className="mt-3">
-                  <div className="text-xs font-bold uppercase text-gray-500 mb-1">Inspiración</div>
-                  <div className="flex gap-2 flex-wrap">
-                    {cot.estilo.imagenesInspiracion.map((url) => (
-                      <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+              <div className="mt-3">
+                <div className="text-xs font-bold uppercase text-gray-500 mb-1">
+                  Imagen de diseño / inspiración
+                </div>
+                <div className="flex gap-2 flex-wrap items-center">
+                  {(cot.estilo?.imagenesInspiracion || []).map((url) => (
+                    <div key={url} className="relative">
+                      <a href={url} target="_blank" rel="noopener noreferrer">
                         <img src={url} alt="" style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 6, border: "1px solid #eee" }} />
                       </a>
-                    ))}
-                  </div>
+                      <button
+                        onClick={() => quitarImagenDiseno(url)}
+                        title="Quitar"
+                        className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full w-5 h-5 text-xs text-red-500 leading-none"
+                      >✕</button>
+                    </div>
+                  ))}
+                  <label className="cursor-pointer text-xs px-3 py-2 rounded border border-dashed border-gray-400 text-gray-600 hover:bg-gray-50">
+                    {subiendoImg ? "Subiendo…" : "+ Subir / cambiar imagen"}
+                    <input type="file" accept="image/*" multiple className="hidden" onChange={subirImagenDiseno} disabled={subiendoImg} />
+                  </label>
                 </div>
-              )}
+              </div>
 
               <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Entrega</h3>
               <Info label="Tipo"      val={cot.entrega?.tipo || "—"} />
