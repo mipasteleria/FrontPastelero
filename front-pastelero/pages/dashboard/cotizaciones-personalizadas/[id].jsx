@@ -8,6 +8,7 @@ import FooterDashboard from "@/src/components/footeradmin";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
+import { HORAS_DISPONIBLES, esDiaNoDisponible, MENSAJE_DIA } from "@/src/lib/disponibilidad";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -152,6 +153,10 @@ export default function CotizacionPersonalizadaDetalle() {
   };
 
   const guardarEdicion = async () => {
+    if (esDiaNoDisponible(edit.eventoFecha)) {
+      Swal.fire({ icon: "warning", title: MENSAJE_DIA, timer: 2400, showConfirmButton: false });
+      return;
+    }
     setGuardandoEdit(true);
     try {
       const esMesa = edit.tipoProducto === "mesa-postres";
@@ -902,7 +907,10 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
         </div>
         <div>
           <label className={lbl}>Fecha del evento</label>
-          <input type="date" className={inp} value={edit.eventoFecha} onChange={(e) => set("eventoFecha", e.target.value)} />
+          <input type="date" className={inp} value={edit.eventoFecha} onChange={(e) => {
+            if (esDiaNoDisponible(e.target.value)) { Swal.fire({ icon: "warning", title: MENSAJE_DIA, timer: 2200, showConfirmButton: false }); return; }
+            set("eventoFecha", e.target.value);
+          }} />
         </div>
         <div>
           <label className={lbl}>{esMesa ? "Personas" : "Porciones"}</label>
@@ -986,7 +994,10 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
         </div>
         <div>
           <label className={lbl}>Hora de entrega</label>
-          <input type="time" className={inp} value={edit.entregaHora} onChange={(e) => set("entregaHora", e.target.value)} />
+          <select className={inp} value={edit.entregaHora} onChange={(e) => set("entregaHora", e.target.value)}>
+            <option value="">—</option>
+            {HORAS_DISPONIBLES.map((h) => <option key={h} value={h}>{h}</option>)}
+          </select>
         </div>
       </div>
       {["domicilio", "evento"].includes(edit.entregaTipo) && (

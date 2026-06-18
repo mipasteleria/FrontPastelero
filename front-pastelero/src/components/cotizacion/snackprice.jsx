@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
+import { HORAS_DISPONIBLES, esDiaNoDisponible, MENSAJE_DIA } from "@/src/lib/disponibilidad";
 import { Sofia as SofiaFont } from "next/font/google";
 
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -154,6 +155,7 @@ export default function Snackprice({ adminMode = false } = {}) {
     e.preventDefault();
     if (!form.evento.tipo)      return alertarFalta("Selecciona el tipo de evento");
     if (!form.evento.fecha)     return alertarFalta("Selecciona la fecha del evento");
+    if (esDiaNoDisponible(form.evento.fecha)) return alertarFalta(MENSAJE_DIA);
     if (!form.evento.invitados) return alertarFalta("Indica cuántas personas");
     if (form.postresSlugs.length === 0) return alertarFalta("Elige al menos un postre");
     if (!form.cliente.nombre)   return alertarFalta("Necesitamos tu nombre");
@@ -315,7 +317,10 @@ export default function Snackprice({ adminMode = false } = {}) {
                     type="date"
                     value={form.evento.fecha}
                     min={fechaMinEvento}
-                    onChange={(e) => setEvento({ fecha: e.target.value })}
+                    onChange={(e) => {
+                      if (esDiaNoDisponible(e.target.value)) { alertarFalta(MENSAJE_DIA); return; }
+                      setEvento({ fecha: e.target.value });
+                    }}
                   />
                   <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
                     Anticipación mínima: {diasHabilesRequeridos(form.evento.invitados)} días hábiles
@@ -447,11 +452,13 @@ export default function Snackprice({ adminMode = false } = {}) {
               <div className="row">
                 <div>
                   <label className="fld">Hora aproximada</label>
-                  <input
-                    type="time"
+                  <select
                     value={form.entrega.hora}
                     onChange={(e) => setEntrega({ hora: e.target.value })}
-                  />
+                  >
+                    <option value="">Selecciona una hora</option>
+                    {HORAS_DISPONIBLES.map((h) => <option key={h} value={h}>{h}</option>)}
+                  </select>
                 </div>
                 {ENTREGAS_CON_DIRECCION.includes(form.entrega.tipo) && (
                   <div>
