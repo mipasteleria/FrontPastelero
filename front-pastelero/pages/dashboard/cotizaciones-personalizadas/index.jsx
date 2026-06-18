@@ -46,7 +46,7 @@ export default function CotizacionesPersonalizadasList() {
         <Asideadmin />
         <main className="flex-grow w-full max-w-screen-xl mx-auto px-4 md:px-8 pb-24 md:pb-8">
           <div className="flex flex-wrap items-center justify-between gap-3 py-4">
-            <h1 className={`text-4xl ${sofia.className}`}>Cotizaciones personalizadas</h1>
+            <h1 className={`text-4xl ${sofia.className}`}>Cotizaciones</h1>
             <Link
               href="/cotizacion"
               className="px-4 py-2 rounded text-sm font-semibold text-white shadow-md"
@@ -56,9 +56,8 @@ export default function CotizacionesPersonalizadasList() {
             </Link>
           </div>
           <p className="text-sm text-gray-500 -mt-2 mb-4">
-            Solicitudes del flujo rediseñado de <code className="px-1 bg-gray-100 rounded">/cotizacion</code>.
-            Las viejas (pastel/cupcake/snack) están en{" "}
-            <Link href="/dashboard/cotizaciones" className="text-accent hover:underline">/dashboard/cotizaciones</Link>.
+            Todas las cotizaciones (pastel, cupcakes y mesa de postres) del flujo{" "}
+            <code className="px-1 bg-gray-100 rounded">/cotizacion</code>.
           </p>
 
           {cargando ? (

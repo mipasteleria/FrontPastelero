@@ -21,7 +21,7 @@ const NAV_GROUPS = [
         ),
       },
       {
-        href: "/dashboard/cotizaciones",
+        href: "/dashboard/cotizaciones-personalizadas",
         label: "Cotizaciones",
         icon: (
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
