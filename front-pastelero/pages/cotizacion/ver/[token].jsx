@@ -461,7 +461,7 @@ export default function VerCotizacion() {
             {/* Contacto */}
             <section className="card cond" style={{ padding: 24 }}>
               <p style={{ color: "var(--soft)", fontSize: ".88rem", fontFamily: "var(--font-sans-q)" }}>¿Dudas con tu cotización? Escríbenos y te ayudamos.</p>
-              <a className="wa" href="https://wa.me/523300000000" target="_blank" rel="noopener noreferrer">WhatsApp 33 0000 0000</a>
+              <a className="wa" href="https://wa.me/523741025036" target="_blank" rel="noopener noreferrer">WhatsApp 374 102 5036</a>
             </section>
           </aside>
         </div>
