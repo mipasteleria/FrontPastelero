@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { Nunito as NunitoFont, Fraunces as FrauncesFont, Caveat as CaveatFont } from "next/font/google";
+import { Nunito as NunitoFont, Fraunces as FrauncesFont, Sofia as SofiaFont } from "next/font/google";
 import { useAuth } from "@/src/context";
 
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "700", "800"], variable: "--font-sans-q" });
 const fraunces = FrauncesFont({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-display-q" });
-const caveat = CaveatFont({ subsets: ["latin"], weight: ["500", "700"], variable: "--font-script-q" });
+const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"], variable: "--font-script-q" });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const PRODUCTO_NOUN = { pastel: "Pastel", cupcake: "Cupcakes", "mesa-postres": "Mesa de postres" };
@@ -100,7 +100,7 @@ export default function VerCotizacion() {
     Swal.fire({ icon: "success", title: "Enlace copiado", timer: 1200, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
   };
 
-  const fontVars = `${nunito.variable} ${fraunces.variable} ${caveat.variable}`;
+  const fontVars = `${nunito.variable} ${fraunces.variable} ${sofia.variable}`;
 
   if (cargando) return <Shell fontVars={fontVars}><p style={{ color: "var(--text-soft)" }}>Cargando tu cotización…</p></Shell>;
   if (error || !cot) {
@@ -143,7 +143,7 @@ export default function VerCotizacion() {
           --burd:#540027; --burd2:#7A1F44; --rosa:#FF6F7D; --rosa2:#FFA1AA; --rosa3:#FFC3C9; --rosa4:#FFE2E7;
           --crema:#FFF3F5; --bg-raised:#fff; --bg-sunken:#FFEEF1;
           --text:#2A0A1A; --soft:#5A3548; --muted:#8B6B7A; --border:#F5D4DA; --border-strong:#E8B5BE;
-          --mantequilla:#FFE99B; --menta-deep:#6FC9A8;
+          --mantequilla:#FFE99B; --menta-deep:#6FC9A8; --durazno:#FFC9A5; --lavanda:#D9C4E8; --pistache:#9FB864;
           --r-md:12px; --r-lg:20px; --r-xl:28px; --r-2xl:36px; --r-pill:999px;
           --sh-xs:0 1px 2px rgba(84,0,39,.06); --sh-sm:0 2px 6px rgba(84,0,39,.08); --sh-md:0 8px 20px rgba(84,0,39,.12);
         }
@@ -154,7 +154,8 @@ export default function VerCotizacion() {
         .wrap { max-width:1120px; margin:0 auto; padding:24px 20px 64px; font-family:var(--font-display-q); }
         .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
         .logo { display:flex; align-items:center; gap:12px; }
-        .badge { width:42px; height:42px; border-radius:50%; background:#fff; box-shadow:var(--sh-xs); display:flex; align-items:center; justify-content:center; font-family:var(--font-script-q); color:var(--burd); font-size:1.5rem; }
+        .badge { width:42px; height:42px; border-radius:50%; background:#fff; box-shadow:var(--sh-xs); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+        .badge img { width:100%; height:100%; object-fit:cover; }
         .eb { font-size:9px; text-transform:uppercase; letter-spacing:.06em; color:var(--rosa); font-weight:800; font-family:var(--font-sans-q); }
         .wm { font-family:var(--font-script-q); font-size:1.55rem; color:var(--burd); line-height:1; }
         .ghost { background:#fff; border:1px solid var(--border); color:var(--soft); border-radius:var(--r-pill); padding:8px 14px; font-size:.8rem; font-weight:700; cursor:pointer; font-family:var(--font-sans-q); margin-left:8px; }
@@ -242,7 +243,7 @@ export default function VerCotizacion() {
         {/* Topbar */}
         <div className="topbar">
           <div className="logo">
-            <div className="badge">R</div>
+            <div className="badge"><img src="/img/logo.JPG" alt="Pastelería el Ruiseñor" /></div>
             <div>
               <div className="eb">Pastelería</div>
               <div className="wm">El Ruiseñor</div>
@@ -304,36 +305,43 @@ export default function VerCotizacion() {
               <h3>Lo que armaste</h3>
               <p className="lead">Revisa cada detalle. Si algo no coincide, pídenos ajustes — sin compromiso.</p>
               <div className="spec-grid">
-                <Spec k="Ocasión" v={cot.evento?.tipo} cap />
+                <Spec k="Ocasión" v={cot.evento?.tipo} cap dot="var(--rosa)" />
                 {esMesa ? (
                   <>
-                    <Spec k="Personas" v={`${cot.evento?.invitados}`} />
-                    <Spec k="Postres por persona" v={cot.postresPorPersona} />
-                    <Spec k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ")} wide />
+                    <Spec k="Personas" v={`${cot.evento?.invitados}`} dot="var(--menta-deep)" />
+                    <Spec k="Postres por persona" v={cot.postresPorPersona} dot="var(--mantequilla)" />
+                    <Spec k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ")} wide dot="var(--lavanda)" />
                   </>
                 ) : (
                   <>
-                    <Spec k="Porciones" v={`${cot.evento?.invitados}`} />
-                    <Spec k="Bizcocho" v={cot.sabor?.nombre} />
-                    <Spec k="Relleno" v={cot.relleno?.nombre} />
-                    <Spec k="Cobertura" v={cot.cobertura?.nombre} />
-                    <Spec k="Forrado" v={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} />
-                    <Spec k="Decoración" v={(cot.decoraciones || []).map((d) => d.nombre).join(", ") || "—"} />
-                    <Spec k="Color principal" v={cot.colorPrincipal
+                    <Spec k="Porciones" v={`${cot.evento?.invitados}`} dot="var(--menta-deep)" />
+                    <Spec k="Bizcocho" v={cot.sabor?.nombre} dot="var(--mantequilla)" />
+                    <Spec k="Relleno" v={cot.relleno?.nombre} dot="var(--durazno)" />
+                    <Spec k="Cobertura" v={cot.cobertura?.nombre} dot="var(--rosa2)" />
+                    <Spec k="Forrado" v={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} dot="var(--pistache)" />
+                    <Spec k="Decoración" dot="var(--lavanda)" v={
+                      (cot.decoraciones || []).length
+                        ? <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            {cot.decoraciones.map((d) => (
+                              <span key={d.slug} style={{ background: "var(--bg-sunken)", padding: "4px 10px", borderRadius: 999, fontSize: ".8rem", fontWeight: 700, color: "var(--burd2)" }}>{d.nombre}</span>
+                            ))}
+                          </div>
+                        : "—"
+                    } />
+                    <Spec k="Color principal" dot="var(--rosa)" v={cot.colorPrincipal
                       ? <span style={{ display: "inline-block", width: 18, height: 18, borderRadius: "50%", background: cot.colorPrincipal, border: "1.5px solid rgba(0,0,0,.15)" }} />
                       : "—"} />
-                    <Spec k="Estilo" v={cot.estilo?.value || "—"} cap />
+                    <Spec k="Estilo" v={cot.estilo?.value || "—"} cap dot="var(--menta-deep)" />
                   </>
                 )}
-                {cot.estilo?.comentarios && <Spec k="Mensaje / notas" v={cot.estilo.comentarios} wide />}
-                <Spec k="Entrega" v={[cot.entrega?.tipo === "recoger-local" ? "Recoger en local" : (cot.entrega?.direccion || cot.entrega?.tipo), cot.entrega?.hora].filter(Boolean).join(" · ") || "Por confirmar"} wide />
+                {cot.estilo?.comentarios && <Spec k="Mensaje / notas" v={cot.estilo.comentarios} wide dot="var(--pistache)" />}
+                <Spec k="Entrega" wide dot="var(--burd)" v={[cot.entrega?.tipo === "recoger-local" ? "Recoger en local" : (cot.entrega?.direccion || cot.entrega?.tipo), cot.entrega?.hora].filter(Boolean).join(" · ") || "Por confirmar"} />
                 {referencias.length > 0 && (
-                  <div className="spec wide">
-                    <div className="k">Referencias que enviaste</div>
+                  <Spec k="Referencias que enviaste" wide dot="var(--menta-deep)" v={
                     <div className="refs">
                       {referencias.map((u) => <a key={u} href={u} target="_blank" rel="noopener noreferrer"><img src={u} alt="ref" /></a>)}
                     </div>
-                  </div>
+                  } />
                 )}
               </div>
             </section>
@@ -461,7 +469,13 @@ export default function VerCotizacion() {
             {/* Contacto */}
             <section className="card cond" style={{ padding: 24 }}>
               <p style={{ color: "var(--soft)", fontSize: ".88rem", fontFamily: "var(--font-sans-q)" }}>¿Dudas con tu cotización? Escríbenos y te ayudamos.</p>
-              <a className="wa" href="https://wa.me/523741025036" target="_blank" rel="noopener noreferrer">WhatsApp 374 102 5036</a>
+              <a className="wa" href="https://wa.me/523741025036" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <svg width="20" height="20" viewBox="0 0 32 32" fill="#25D366" aria-hidden="true">
+                  <path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 29l8.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3z" opacity=".15"/>
+                  <path d="M16.1 5.5c-5.3 0-9.6 4.3-9.6 9.6 0 1.9.6 3.7 1.5 5.2l-1 3.6 3.7-1c1.4.8 3 1.2 4.4 1.2 5.3 0 9.6-4.3 9.6-9.6s-4.3-9.6-9.6-9.6zm5.6 13.6c-.2.7-1.4 1.3-1.9 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5.1-4.5-.1-.2-1.2-1.5-1.2-2.9s.7-2.1 1-2.4c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.5.8 1.9.8 2 .1.1.1.3 0 .5-.1.2-.2.3-.3.5-.2.2-.3.4-.5.5-.2.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.7-.1.3.1 1.7.8 2 1 .3.1.5.2.5.3.1.2.1.7-.1 1.4z"/>
+                </svg>
+                374 102 5036
+              </a>
             </section>
           </aside>
         </div>
@@ -470,11 +484,24 @@ export default function VerCotizacion() {
   );
 }
 
-function Spec({ k, v, wide, cap }) {
+function Spec({ k, v, wide, cap, dot }) {
   return (
-    <div className={`spec${wide ? " wide" : ""}`}>
-      <div className="k">{k}</div>
-      <div className="v" style={cap ? { textTransform: "capitalize" } : undefined}>{v ?? "—"}</div>
+    <div style={{
+      gridColumn: wide ? "1 / -1" : undefined,
+      background: "var(--crema)", border: "1px solid var(--border)",
+      borderRadius: "var(--r-lg)", padding: 16,
+    }}>
+      <div style={{
+        display: "flex", alignItems: "center", gap: 8, fontSize: ".72rem", fontWeight: 800,
+        color: "var(--muted)", textTransform: "uppercase", letterSpacing: ".05em",
+        marginBottom: 8, fontFamily: "var(--font-sans-q)",
+      }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: dot || "var(--rosa)", display: "inline-block", flexShrink: 0 }} />
+        {k}
+      </div>
+      <div style={{ fontSize: "1rem", color: "var(--text)", lineHeight: 1.45, fontFamily: "var(--font-sans-q)", fontWeight: 700, textTransform: cap ? "capitalize" : undefined }}>
+        {v ?? "—"}
+      </div>
     </div>
   );
 }
