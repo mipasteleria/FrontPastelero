@@ -95,7 +95,7 @@ export default function CotizacionesPersonalizadasList() {
                         </td>
                         <td className="px-4 py-3 capitalize">{c.evento?.tipo || "—"}</td>
                         <td className="px-4 py-3">
-                          {c.evento?.fecha ? new Date(c.evento.fecha).toLocaleDateString("es-MX") : "—"}
+                          {c.evento?.fecha ? new Date(c.evento.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"}
                         </td>
                         <td className="px-4 py-3">{c.evento?.invitados ?? "—"}</td>
                         <td className="px-4 py-3">{c.niveles}</td>

@@ -113,7 +113,9 @@ export default function VerCotizacion() {
     );
   }
 
-  const fmt = (d, o) => d ? new Date(d).toLocaleDateString("es-MX", o || { day: "2-digit", month: "long", year: "numeric" }) : "—";
+  // Las fechas de evento/validez son "date-only" guardadas a medianoche UTC;
+  // se formatean en UTC para no recorrerse un día en zonas detrás de UTC.
+  const fmt = (d, o) => d ? new Date(d).toLocaleDateString("es-MX", { ...(o || { day: "2-digit", month: "long", year: "numeric" }), timeZone: "UTC" }) : "—";
   const precio = Number(cot.precio) || 0;
   const anticipo = cot.anticipo != null ? Number(cot.anticipo) : Math.round(precio * 0.5);
   const saldo = Math.max(precio - anticipo, 0);

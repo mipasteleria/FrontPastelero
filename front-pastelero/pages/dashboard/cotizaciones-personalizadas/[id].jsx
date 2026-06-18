@@ -499,7 +499,7 @@ export default function CotizacionPersonalizadaDetalle() {
               <>
               <Info label="Producto"   val={PRODUCTO_LABEL[cot.tipoProducto] || "Pastel"} />
               <Info label="Evento"     val={`${cot.evento?.tipo} · ${cot.evento?.invitados} ${cot.tipoProducto === "mesa-postres" ? "personas" : "invitados"}`} />
-              <Info label="Fecha"      val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX") : "—"} />
+              <Info label="Fecha"      val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"} />
 
               {cot.tipoProducto === "mesa-postres" ? (
                 <>
@@ -552,7 +552,7 @@ export default function CotizacionPersonalizadaDetalle() {
 
               <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Entrega</h3>
               <Info label="Tipo"      val={cot.entrega?.tipo || "—"} />
-              <Info label="Fecha"     val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX") : "—"} />
+              <Info label="Fecha"     val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"} />
               <Info label="Hora"      val={cot.entrega?.hora || "—"} />
               <Info label="Dirección" val={cot.entrega?.direccion || "—"} />
 
@@ -564,7 +564,7 @@ export default function CotizacionPersonalizadaDetalle() {
               <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Validez</h3>
               <Info
                 label="Válida hasta"
-                val={cot.validUntil ? new Date(cot.validUntil).toLocaleDateString("es-MX") : "—"}
+                val={cot.validUntil ? new Date(cot.validUntil).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"}
               />
               <Info
                 label="Imágenes"
