@@ -552,7 +552,7 @@ export default function CotizacionPersonalizadaDetalle() {
 
               <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Entrega</h3>
               <Info label="Tipo"      val={cot.entrega?.tipo || "—"} />
-              <Info label="Fecha"     val={cot.entrega?.fecha ? new Date(cot.entrega.fecha).toLocaleDateString("es-MX") : "—"} />
+              <Info label="Fecha"     val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX") : "—"} />
               <Info label="Hora"      val={cot.entrega?.hora || "—"} />
               <Info label="Dirección" val={cot.entrega?.direccion || "—"} />
 
