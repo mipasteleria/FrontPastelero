@@ -217,6 +217,31 @@ export default function CotizacionesIndex() {
     }
   };
 
+  const migrarLegacy = async () => {
+    const ok = await Swal.fire({
+      title: "¿Migrar a cotizaciones personalizadas?",
+      html: "Copiará estas cotizaciones (sin borrarlas) al sistema nuevo, donde tienen costeo, enlace al cliente, pago y edición. Las ya migradas se omiten.",
+      icon: "question", showCancelButton: true, confirmButtonColor: "#FF6F7D", cancelButtonColor: "#D6A7BC",
+      confirmButtonText: "Sí, migrar", cancelButtonText: "Cancelar", background: "#fff1f2", color: "#540027",
+    });
+    if (!ok.isConfirmed) return;
+    try {
+      const token = localStorage.getItem("token");
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/migrar-legacy`, {
+        method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "Error");
+      Swal.fire({
+        title: "Migración completada",
+        html: `Migradas: <strong>${j.migradas}</strong> · Omitidas (ya estaban): <strong>${j.omitidas}</strong>${j.errores?.length ? ` · Con error: <strong>${j.errores.length}</strong>` : ""}`,
+        icon: "success", confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027",
+      }).then(() => router.push("/dashboard/cotizaciones-personalizadas"));
+    } catch (e) {
+      Swal.fire({ title: "Error", text: e.message, icon: "error", confirmButtonColor: "#FF6F7D" });
+    }
+  };
+
   /* Pagination */
   const totalPages = Math.ceil(userCotizacion.length / itemsPerPage);
   const currentItems = userCotizacion.slice(
@@ -280,6 +305,18 @@ export default function CotizacionesIndex() {
                 Crear cotización manual
               </button>
             </Link>
+          </div>
+
+          {/* Banner: estas son legacy → migrar al sistema nuevo */}
+          <div style={{ background: "#fff", border: "1px solid var(--border-color)", borderLeft: "4px solid var(--rosa)", borderRadius: "var(--r-md)", padding: "12px 16px", marginBottom: 20, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div style={{ fontSize: "0.85rem", color: "var(--text-soft)", lineHeight: 1.5 }}>
+              Estas son cotizaciones del sistema anterior. Puedes <strong>migrarlas</strong> a{" "}
+              <Link href="/dashboard/cotizaciones-personalizadas" className="text-accent" style={{ color: "var(--rosa)", fontWeight: 700 }}>Cotizaciones personalizadas</Link>{" "}
+              para usar costeo, enlace al cliente, pago y edición.
+            </div>
+            <button onClick={migrarLegacy} style={{ padding: "9px 18px", borderRadius: "var(--r-pill)", background: "var(--rosa)", color: "#fff", fontFamily: "var(--font-nunito)", fontWeight: 700, fontSize: "0.85rem", border: "none", cursor: "pointer", whiteSpace: "nowrap" }}>
+              Migrar a personalizadas
+            </button>
           </div>
 
           {/* ── Table card ─────────────────────────────────────── */}
