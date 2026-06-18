@@ -2,20 +2,27 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { Nunito as NunitoFont, Sofia as SofiaFont } from "next/font/google";
+import { Nunito as NunitoFont, Fraunces as FrauncesFont, Caveat as CaveatFont } from "next/font/google";
 import { useAuth } from "@/src/context";
 
-const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "700", "800"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
+const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "700", "800"], variable: "--font-sans-q" });
+const fraunces = FrauncesFont({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-display-q" });
+const caveat = CaveatFont({ subsets: ["latin"], weight: ["500", "700"], variable: "--font-script-q" });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const PRODUCTO_NOUN = { pastel: "Pastel", cupcake: "Cupcakes", "mesa-postres": "Mesa de postres" };
 
-/**
- * Vista pública de una cotización (enlace de invitado), con el formato del
- * template de Pastelería el Ruiseñor: encabezado, diseño, detalles del
- * pedido, condiciones, datos bancarios y acciones de pago.
- */
+// Pasos del timeline y a qué índice corresponde cada status.
+const STEPS = ["Enviada", "En revisión", "Anticipo", "Horneando", "Entrega"];
+function stepIndex(status) {
+  if (status === "Entregado") return 4;
+  if (status === "Agendado · producción") return 3;
+  if (status === "Cotizada") return 2;            // listo para apartar
+  if (status === "Agendado · revisión") return 3;
+  if (status === "Cancelado") return 1;
+  return 1; // Pendiente → en revisión
+}
+
 export default function VerCotizacion() {
   const router = useRouter();
   const { token } = router.query;
@@ -26,13 +33,15 @@ export default function VerCotizacion() {
   const [error, setError] = useState("");
   const [pagando, setPagando] = useState(false);
   const [confirmando, setConfirmando] = useState(false);
+  const [opcionPago, setOpcionPago] = useState("anticipo"); // anticipo | total
+  const [verDesglose, setVerDesglose] = useState(false);
+  const [ajusteOpen, setAjusteOpen] = useState(false);
+  const [ajusteTexto, setAjusteTexto] = useState("");
+  const [enviandoAjuste, setEnviandoAjuste] = useState(false);
 
   useEffect(() => {
-    if (router.query.pago === "ok") {
-      Swal.fire({ icon: "success", title: "¡Pago recibido!", text: "Tu anticipo fue procesado. ¡Gracias!", confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027" });
-    } else if (router.query.pago === "cancelado") {
-      Swal.fire({ icon: "info", title: "Pago cancelado", text: "Puedes intentarlo de nuevo cuando quieras.", confirmButtonColor: "#FF6F7D" });
-    }
+    if (router.query.pago === "ok") Swal.fire({ icon: "success", title: "¡Pago recibido!", text: "Tu anticipo fue procesado. ¡Gracias!", confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027" });
+    else if (router.query.pago === "cancelado") Swal.fire({ icon: "info", title: "Pago cancelado", text: "Puedes intentarlo de nuevo cuando quieras.", confirmButtonColor: "#FF6F7D" });
   }, [router.query.pago]);
 
   useEffect(() => {
@@ -44,7 +53,7 @@ export default function VerCotizacion() {
       .finally(() => setCargando(false));
   }, [token]);
 
-  const pagarEnLinea = async (paymentOption = "anticipo") => {
+  const pagarEnLinea = async (paymentOption) => {
     setPagando(true);
     try {
       const r = await fetch(`${API_BASE}/checkout/create-checkout-session-public`, {
@@ -54,289 +63,426 @@ export default function VerCotizacion() {
       const j = await r.json();
       if (!r.ok || !j.url) throw new Error(j.message || "No se pudo iniciar el pago");
       window.location.href = j.url;
-    } catch (e) {
-      Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" });
-      setPagando(false);
-    }
+    } catch (e) { Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" }); setPagando(false); }
   };
 
   const confirmarPago = async (metodo) => {
     setConfirmando(true);
     try {
       const r = await fetch(`${API_BASE}/cotizacion-personalizada/public/${token}/confirmar`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ metodo }),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ metodo }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "Error");
       setCot((c) => ({ ...c, confirmacionCliente: { confirmado: true, metodo } }));
-      Swal.fire({
-        icon: "success",
-        title: "¡Pedido confirmado!",
-        html: metodo === "transferencia"
-          ? "Te enviamos por correo los datos bancarios para tu anticipo del 50%."
-          : "Coordinaremos contigo el anticipo del 50% en efectivo.",
-        confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027",
-      });
-    } catch (e) {
-      Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" });
-    } finally {
-      setConfirmando(false);
-    }
+      Swal.fire({ icon: "success", title: "¡Pedido confirmado!", html: metodo === "transferencia" ? "Te enviamos por correo los datos bancarios para tu anticipo del 50%." : "Coordinaremos contigo el anticipo del 50% en efectivo.", confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027" });
+    } catch (e) { Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" }); }
+    finally { setConfirmando(false); }
   };
 
-  if (cargando) return <Shell><p style={{ color: "var(--text-soft)" }}>Cargando tu cotización…</p></Shell>;
+  const enviarAjuste = async () => {
+    const mensaje = ajusteTexto.trim();
+    if (!mensaje) return;
+    setEnviandoAjuste(true);
+    try {
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/public/${token}/solicitar-ajuste`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mensaje }),
+      });
+      if (!r.ok) throw new Error((await r.json()).message || "Error");
+      setAjusteTexto(""); setAjusteOpen(false);
+      Swal.fire({ icon: "success", title: "Solicitud enviada", text: "Revisaremos tus ajustes y te contactamos.", confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027" });
+    } catch (e) { Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" }); }
+    finally { setEnviandoAjuste(false); }
+  };
+
+  const copiarEnlace = () => {
+    navigator.clipboard?.writeText(window.location.href);
+    Swal.fire({ icon: "success", title: "Enlace copiado", timer: 1200, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
+  };
+
+  const fontVars = `${nunito.variable} ${fraunces.variable} ${caveat.variable}`;
+
+  if (cargando) return <Shell fontVars={fontVars}><p style={{ color: "var(--text-soft)" }}>Cargando tu cotización…</p></Shell>;
   if (error || !cot) {
     return (
-      <Shell>
-        <h1 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "2rem" }}>Cotización no disponible</h1>
-        <p style={{ color: "var(--text-soft)", marginTop: 8 }}>El enlace no es válido o expiró. Contáctanos para reenviarte tu cotización.</p>
-        <Link href="/" style={{ color: "var(--rosa)", fontWeight: 700, marginTop: 16, display: "inline-block" }}>← Inicio</Link>
+      <Shell fontVars={fontVars}>
+        <h1 style={{ fontFamily: "var(--font-display-q)", color: "#540027", fontSize: "2rem" }}>Cotización no disponible</h1>
+        <p style={{ color: "#5A3548", marginTop: 8 }}>El enlace no es válido o expiró. Contáctanos para reenviarte tu cotización.</p>
+        <Link href="/" style={{ color: "#FF6F7D", fontWeight: 700, marginTop: 16, display: "inline-block" }}>← Inicio</Link>
       </Shell>
     );
   }
 
-  const fmtFecha = (d, opts) => d ? new Date(d).toLocaleDateString("es-MX", opts || { day: "2-digit", month: "long", year: "numeric" }) : "—";
+  const fmt = (d, o) => d ? new Date(d).toLocaleDateString("es-MX", o || { day: "2-digit", month: "long", year: "numeric" }) : "—";
   const precio = Number(cot.precio) || 0;
   const anticipo = cot.anticipo != null ? Number(cot.anticipo) : Math.round(precio * 0.5);
+  const saldo = Math.max(precio - anticipo, 0);
+  const montoSel = opcionPago === "total" ? precio : anticipo;
   const vence = cot.validUntil ? new Date(cot.validUntil) : null;
   const vencida = vence ? Date.now() > vence.getTime() : false;
   const yaConfirmado = cot.confirmacionCliente?.confirmado;
-  const pagado = (cot.status || "").startsWith("Agendado");
-  const publicada = pagado || ["Cotizada", "Entregado"].includes(cot.status);
+  const pagado = (cot.status || "").startsWith("Agendado") || cot.status === "Entregado";
+  const publicada = pagado || cot.status === "Cotizada";
   const esMesa = cot.tipoProducto === "mesa-postres";
-
-  const lugarHora = [
-    cot.entrega?.tipo === "recoger-local" ? "Recoger en local" : (cot.entrega?.direccion || ""),
-    cot.entrega?.hora || "",
-  ].filter(Boolean).join(" · ") || "Por confirmar";
-
-  const extras = [
-    ...(cot.decoraciones || []).map((d) => d.nombre),
-    cot.estilo?.value,
-    cot.estilo?.comentarios,
-  ].filter(Boolean).join(", ") || "—";
-
-  const colorSwatch = cot.colorPrincipal ? (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-      <span style={{
-        width: 18, height: 18, borderRadius: "50%",
-        background: cot.colorPrincipal,
-        border: "1.5px solid rgba(0,0,0,.15)", display: "inline-block",
-      }} />
-    </span>
-  ) : "—";
-
+  const sidx = stepIndex(cot.status);
   const disenoImg = cot.estilo?.imagenesInspiracion?.[0];
+  const referencias = (cot.estilo?.imagenesInspiracion || []).slice(1);
+
+  const tituloPastel = esMesa
+    ? "Mesa de postres"
+    : `${PRODUCTO_NOUN[cot.tipoProducto] || "Pastel"}${cot.estilo?.value ? ` ${cot.estilo.value}` : ""}`;
+
+  const tags = esMesa
+    ? [`${cot.evento?.invitados} personas`, `${cot.postresPorPersona}/persona`, cot.estilo?.value]
+    : [cot.niveles ? `${cot.niveles} nivel${cot.niveles > 1 ? "es" : ""}` : null, `${cot.evento?.invitados} porciones`, cot.estilo?.value];
 
   return (
-    <Shell>
+    <Shell fontVars={fontVars}>
+      <style jsx global>{`
+        :root{
+          --burd:#540027; --burd2:#7A1F44; --rosa:#FF6F7D; --rosa2:#FFA1AA; --rosa3:#FFC3C9; --rosa4:#FFE2E7;
+          --crema:#FFF3F5; --bg-raised:#fff; --bg-sunken:#FFEEF1;
+          --text:#2A0A1A; --soft:#5A3548; --muted:#8B6B7A; --border:#F5D4DA; --border-strong:#E8B5BE;
+          --mantequilla:#FFE99B; --menta-deep:#6FC9A8;
+          --r-md:12px; --r-lg:20px; --r-xl:28px; --r-2xl:36px; --r-pill:999px;
+          --sh-xs:0 1px 2px rgba(84,0,39,.06); --sh-sm:0 2px 6px rgba(84,0,39,.08); --sh-md:0 8px 20px rgba(84,0,39,.12);
+        }
+        @keyframes floatq { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+        @keyframes pulseq { 0%,100%{opacity:1} 50%{opacity:.35} }
+      `}</style>
       <style jsx>{`
-        @keyframes pulse-glow { 0%,100% { box-shadow:0 0 0 0 rgba(255,111,125,.45); transform:translateY(0);} 50% { box-shadow:0 0 0 10px rgba(255,111,125,0); transform:translateY(-2px);} }
-        .reco-card { animation: pulse-glow 2.2s ease-in-out infinite; }
-        .reco-badge { position:absolute; top:-10px; right:16px; background:var(--rosa); color:#fff; font-size:.7rem; font-weight:800; padding:3px 12px; border-radius:999px; letter-spacing:.04em; text-transform:uppercase; }
-        .btn { border:none; border-radius:999px; padding:.8rem 1.2rem; font-weight:800; font-size:.9rem; cursor:pointer; transition:all 150ms; }
-        .btn:hover:not(:disabled) { transform:translateY(-1px); }
-        .btn:disabled { opacity:.6; cursor:not-allowed; }
+        .wrap { max-width:1120px; margin:0 auto; padding:24px 20px 64px; font-family:var(--font-display-q); }
+        .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+        .logo { display:flex; align-items:center; gap:12px; }
+        .badge { width:42px; height:42px; border-radius:50%; background:#fff; box-shadow:var(--sh-xs); display:flex; align-items:center; justify-content:center; font-family:var(--font-script-q); color:var(--burd); font-size:1.5rem; }
+        .eb { font-size:9px; text-transform:uppercase; letter-spacing:.06em; color:var(--rosa); font-weight:800; font-family:var(--font-sans-q); }
+        .wm { font-family:var(--font-script-q); font-size:1.55rem; color:var(--burd); line-height:1; }
+        .ghost { background:#fff; border:1px solid var(--border); color:var(--soft); border-radius:var(--r-pill); padding:8px 14px; font-size:.8rem; font-weight:700; cursor:pointer; font-family:var(--font-sans-q); margin-left:8px; }
+        .ghost:hover { border-color:var(--border-strong); }
 
-        .tpl { background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 10px 40px rgba(84,0,39,.10); border:1px solid var(--border-color,#f3d7df); }
-        .tpl-header { background:linear-gradient(180deg, var(--rosa-4,#FFF3F5), #f6cdd8); padding:18px 22px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-        .tpl-eyebrow { font-size:.72rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--rosa); }
-        .tpl-title { font-size:2.1rem; line-height:1; color:var(--burdeos); }
-        .tpl-order { text-align:right; }
-        .tpl-order .lbl { color:var(--text-soft); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; }
-        .tpl-order .v { color:var(--burdeos); font-weight:800; }
-        .det-grid { display:grid; grid-template-columns:1fr 1.1fr; gap:18px; padding:20px 22px; }
-        @media (max-width:720px){ .det-grid { grid-template-columns:1fr; } }
-        .det-box { background:var(--rosa-4,#FFF3F5); border:1px solid var(--rosa); border-radius:12px; overflow:hidden; margin-bottom:14px; }
-        .det-row { display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:9px 14px; border-bottom:1px dashed rgba(84,0,39,.14); }
-        .det-row:last-child { border-bottom:none; }
-        .det-lbl { color:var(--text-soft); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; flex-shrink:0; }
-        .det-val { color:var(--burdeos); font-size:.98rem; font-weight:800; text-align:right; }
-        .section-title { color:var(--burdeos); font-weight:800; font-size:1.05rem; margin:14px 0 8px; }
-        .cond { padding:16px 22px; background:#fffafc; border-top:1px solid #f3d7df; }
-        .cond h3 { color:#5b5b6b; font-weight:800; font-size:1.1rem; margin-bottom:8px; }
-        .cond li { font-size:.85rem; color:#5b5b6b; margin-bottom:7px; line-height:1.5; list-style:none; padding-left:18px; position:relative; }
-        .cond li::before { content:"❤"; position:absolute; left:0; color:#f4a6c0; font-size:.8rem; }
-        .pay-foot { padding:18px 22px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px; border-top:1px solid #f3d7df; }
-        .bank { color:#7c9; font-size:.9rem; }
-        .bank .b-title { color:#6aa; font-weight:800; }
-        .totals { text-align:right; color:#d57aa0; }
-        .disenoBox { border:1px dashed #e8b9c8; border-radius:12px; min-height:180px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#fff6f9; }
+        .head { text-align:center; max-width:720px; margin:0 auto 40px; }
+        .folio-row { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+        .folio { display:inline-flex; align-items:center; gap:8px; font-family:ui-monospace,monospace; font-size:.8rem; color:var(--soft); background:#fff; padding:6px 14px; border-radius:var(--r-pill); border:1px solid var(--border); }
+        .status-pill { display:inline-flex; align-items:center; gap:7px; padding:6px 15px; border-radius:var(--r-pill); font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-family:var(--font-sans-q); }
+        .status-pill .dot { width:8px; height:8px; border-radius:50%; background:currentColor; animation:pulseq 1.8s ease infinite; }
+        h1.title { font-family:var(--font-script-q); color:var(--burd); font-size:3rem; line-height:1.02; margin:6px 0 10px; }
+        .sub { color:var(--soft); font-family:var(--font-sans-q); font-size:1rem; line-height:1.6; }
+
+        .timeline { display:flex; gap:8px; max-width:760px; margin:0 auto 44px; }
+        .tl { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; position:relative; }
+        .tl::before { content:""; position:absolute; top:19px; left:-50%; width:100%; height:2px; background:var(--border); z-index:0; }
+        .tl:first-child::before { display:none; }
+        .tl.done::before, .tl.active::before { background:var(--rosa2); }
+        .ring { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.85rem; background:#fff; color:var(--muted); border:2px solid var(--border); z-index:1; font-family:var(--font-sans-q); }
+        .tl.done .ring { background:var(--menta-deep); color:#fff; border-color:var(--menta-deep); }
+        .tl.active .ring { background:var(--rosa); color:#fff; border-color:var(--rosa); box-shadow:0 0 0 4px rgba(255,111,125,.18); }
+        .tl .lbl { font-size:.78rem; font-weight:800; color:var(--soft); font-family:var(--font-sans-q); }
+        .tl .when { font-size:.68rem; color:var(--muted); font-family:var(--font-sans-q); }
+        @media (max-width:560px){ .tl .when{display:none} }
+
+        .layout { display:grid; grid-template-columns:1fr 372px; gap:28px; align-items:start; }
+        @media (max-width:880px){ .layout{ grid-template-columns:1fr; } }
+        .card { background:#fff; border-radius:var(--r-2xl); box-shadow:var(--sh-sm); border:1px solid var(--border); }
+
+        .preview { padding:28px; margin-bottom:24px; display:grid; grid-template-columns:200px 1fr; gap:28px; align-items:center; position:relative; overflow:hidden; }
+        @media (max-width:520px){ .preview{ grid-template-columns:1fr; } }
+        .blob { position:absolute; width:320px; height:320px; right:-60px; top:-60px; background:var(--rosa4); border-radius:42% 58% 65% 35% / 50% 40% 60% 50%; z-index:0; }
+        .cake-art { position:relative; z-index:1; border-radius:18px; overflow:hidden; box-shadow:0 14px 26px rgba(84,0,39,.18); background:var(--bg-sunken); aspect-ratio:1; display:flex; align-items:center; justify-content:center; }
+        .cake-art img { width:100%; height:100%; object-fit:cover; display:block; }
+        .pinfo { position:relative; z-index:1; }
+        .eyebrow { color:var(--rosa); font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; font-family:var(--font-sans-q); }
+        h2.pname { font-family:var(--font-script-q); font-size:2.6rem; color:var(--burd); line-height:.96; margin:6px 0 14px; text-transform:capitalize; }
+        .tags { display:flex; gap:8px; flex-wrap:wrap; }
+        .tag { background:var(--bg-sunken); padding:6px 14px; border-radius:var(--r-pill); font-size:.82rem; font-weight:700; color:var(--burd2); font-family:var(--font-sans-q); }
+
+        .specs { padding:28px; }
+        .specs h3 { font-family:var(--font-display-q); font-weight:600; font-size:1.75rem; color:var(--burd); margin-bottom:8px; }
+        .lead { color:var(--muted); font-size:.875rem; margin-bottom:24px; font-family:var(--font-sans-q); }
+        .spec-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        @media (max-width:520px){ .spec-grid{ grid-template-columns:1fr; } }
+        .spec { background:var(--crema); border:1px solid var(--border); border-radius:var(--r-lg); padding:16px; }
+        .spec.wide { grid-column:1 / -1; }
+        .spec .k { font-size:.72rem; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; font-family:var(--font-sans-q); }
+        .spec .v { font-size:1rem; color:var(--text); line-height:1.45; font-family:var(--font-sans-q); font-weight:700; }
+        .refs { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+        .refs img { width:64px; height:64px; object-fit:cover; border-radius:10px; border:1px solid var(--border); }
+
+        aside { display:flex; flex-direction:column; gap:16px; position:sticky; top:16px; }
+        .price { padding:28px; }
+        .ptop { display:flex; align-items:baseline; justify-content:space-between; }
+        .price h3 { font-family:var(--font-display-q); font-weight:600; font-size:1.375rem; color:var(--burd); }
+        .est { font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-family:var(--font-sans-q); }
+        .total-line { display:flex; align-items:flex-end; gap:6px; margin:6px 0 4px; }
+        .num { font-family:var(--font-display-q); font-weight:700; font-size:2.5rem; color:var(--burd); line-height:1; }
+        .cur { font-size:.8rem; color:var(--muted); font-weight:700; font-family:var(--font-sans-q); }
+        .dl { display:flex; justify-content:space-between; font-size:.85rem; padding:5px 0; color:var(--soft); font-family:var(--font-sans-q); border-bottom:1px dashed var(--border); }
+        .dl:last-child { border-bottom:none; }
+        .dl strong { color:var(--burd); }
+        .pay-label { font-size:.8rem; font-weight:800; color:var(--soft); margin:16px 0 8px; font-family:var(--font-sans-q); }
+        .seg { display:flex; gap:6px; background:var(--bg-sunken); padding:5px; border-radius:var(--r-pill); }
+        .seg button { flex:1; border:0; background:transparent; padding:9px; border-radius:var(--r-pill); font-weight:800; font-size:.82rem; color:var(--soft); cursor:pointer; font-family:var(--font-sans-q); }
+        .seg button.on { background:#fff; color:var(--burd); box-shadow:var(--sh-xs); }
+        .pay-box { background:var(--crema); border:1px solid var(--border); border-radius:var(--r-lg); padding:14px; margin-top:12px; }
+        .reco { position:relative; border:2px solid var(--rosa); border-radius:var(--r-lg); padding:14px; background:var(--rosa4); margin-top:14px; }
+        .reco .rb { position:absolute; top:-10px; right:14px; background:var(--rosa); color:#fff; font-size:.65rem; font-weight:800; padding:3px 12px; border-radius:var(--r-pill); text-transform:uppercase; letter-spacing:.04em; font-family:var(--font-sans-q); animation:floatq 2.4s ease infinite; }
+        .cta { background:var(--rosa); color:#fff; border:0; width:100%; padding:15px; border-radius:var(--r-pill); font-weight:800; font-family:var(--font-sans-q); font-size:1rem; cursor:pointer; margin-top:14px; box-shadow:var(--sh-sm); }
+        .cta:hover:not(:disabled){ background:var(--burd); }
+        .cta:disabled{ opacity:.6; cursor:not-allowed; }
+        .cta-2 { background:transparent; color:var(--burd); border:1.5px solid var(--border-strong); width:100%; padding:12px; border-radius:var(--r-pill); font-weight:800; font-family:var(--font-sans-q); font-size:.9rem; cursor:pointer; margin-top:10px; }
+        .cta-2:hover{ background:var(--bg-sunken); }
+        .valid { font-size:.75rem; color:var(--muted); text-align:center; margin-top:12px; font-family:var(--font-sans-q); }
+        .cond h3 { font-family:var(--font-display-q); font-weight:600; font-size:1.2rem; color:var(--burd); margin-bottom:10px; }
+        .cond li { list-style:none; font-size:.82rem; color:var(--soft); line-height:1.5; margin-bottom:8px; padding-left:18px; position:relative; font-family:var(--font-sans-q); }
+        .cond li::before { content:"❤"; position:absolute; left:0; color:var(--rosa2); font-size:.75rem; }
+        .bankbox { margin-top:12px; padding:12px 14px; background:var(--rosa4); border:1px solid var(--rosa); border-radius:var(--r-lg); font-family:var(--font-sans-q); }
+        .wa { display:inline-block; margin-top:6px; color:var(--burd); font-weight:800; font-family:var(--font-sans-q); text-decoration:none; }
       `}</style>
 
-      <div className="tpl">
-        {/* Encabezado */}
-        <div className="tpl-header">
-          <div>
-            <div className="tpl-eyebrow">Cotización</div>
-            <div className={`${sofia.className} tpl-title`}>Pastelería el Ruiseñor</div>
+      <div className="wrap">
+        {/* Topbar */}
+        <div className="topbar">
+          <div className="logo">
+            <div className="badge">R</div>
+            <div>
+              <div className="eb">Pastelería</div>
+              <div className="wm">El Ruiseñor</div>
+            </div>
           </div>
-          <div className="tpl-order">
-            <div className="lbl">Número de orden</div>
-            <div className="v" style={{ fontSize: "1rem" }}>{cot.numeroOrden || "—"}</div>
-            <div className="lbl" style={{ marginTop: 6 }}>Fecha</div>
-            <div className="v">{fmtFecha(cot.createdAt, { day: "2-digit", month: "long", year: "numeric" })}</div>
+          <div>
+            <button className="ghost" onClick={copiarEnlace}>Compartir</button>
+            <button className="ghost" onClick={() => window.print()}>Imprimir</button>
           </div>
         </div>
 
-        {/* Diseño + Detalles */}
-        <div className="det-grid">
-          <div>
-            <div className="det-lbl" style={{ marginBottom: 8 }}>Diseño</div>
-            <div className="disenoBox">
-              {disenoImg
-                ? <img src={disenoImg} alt="Diseño" style={{ width: "100%", height: "auto", display: "block" }} />
-                : <span style={{ color: "#cba", fontSize: ".85rem" }}>Sin imagen de diseño</span>}
+        {/* Head */}
+        <div className="head">
+          <div className="folio-row">
+            <span className="folio">Número de orden · {cot.numeroOrden || "—"}</span>
+            <span className="status-pill" style={{ background: pagado ? "var(--menta-deep)" : "var(--mantequilla)", color: pagado ? "#fff" : "#6B4F1A" }}>
+              <span className="dot" />{cot.status || "Pendiente"}
+            </span>
+          </div>
+          <h1 className="title">{pagado ? "¡Tu pedido está apartado!" : publicada ? "Tu cotización está lista" : "Tu cotización está casi lista"}</h1>
+          <p className="sub">Hola 👋 {cot.cliente?.nombre ? <strong>{cot.cliente.nombre}</strong> : ""}, esto es justo lo que armaste. Revísalo y, si algo no coincide, pídenos ajustes — sin compromiso.</p>
+        </div>
+
+        {/* Timeline */}
+        <div className="timeline">
+          {STEPS.map((s, i) => (
+            <div key={s} className={`tl ${i < sidx ? "done" : i === sidx ? "active" : ""}`}>
+              <div className="ring">{i < sidx ? "✓" : i + 1}</div>
+              <div className="lbl">{s}</div>
+              <div className="when">
+                {i === 0 ? fmt(cot.createdAt, { day: "2-digit", month: "short" })
+                  : s === "Anticipo" ? "50% para apartar"
+                  : s === "En revisión" ? "Resp. < 24h"
+                  : s === "Entrega" ? fmt(cot.evento?.fecha, { day: "2-digit", month: "short" })
+                  : "—"}
+              </div>
             </div>
+          ))}
+        </div>
+
+        <div className="layout">
+          {/* Izquierda */}
+          <div>
+            <section className="card preview">
+              <div className="blob" aria-hidden="true" />
+              <div className="cake-art">
+                {disenoImg ? <img src={disenoImg} alt="Diseño propuesto" /> : <span style={{ color: "#b89", fontSize: ".8rem", padding: 12, textAlign: "center" }}>La propuesta de diseño se agregará pronto</span>}
+              </div>
+              <div className="pinfo">
+                <span className="eyebrow">Tu Pastel</span>
+                <h2 className="pname">{tituloPastel}</h2>
+                <div className="tags">
+                  {tags.filter(Boolean).map((t, i) => <span key={i} className="tag" style={{ textTransform: "capitalize" }}>{t}</span>)}
+                </div>
+              </div>
+            </section>
+
+            <section className="card specs">
+              <h3>Lo que armaste</h3>
+              <p className="lead">Revisa cada detalle. Si algo no coincide, pídenos ajustes — sin compromiso.</p>
+              <div className="spec-grid">
+                <Spec k="Ocasión" v={cot.evento?.tipo} cap />
+                {esMesa ? (
+                  <>
+                    <Spec k="Personas" v={`${cot.evento?.invitados}`} />
+                    <Spec k="Postres por persona" v={cot.postresPorPersona} />
+                    <Spec k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ")} wide />
+                  </>
+                ) : (
+                  <>
+                    <Spec k="Porciones" v={`${cot.evento?.invitados}`} />
+                    <Spec k="Bizcocho" v={cot.sabor?.nombre} />
+                    <Spec k="Relleno" v={cot.relleno?.nombre} />
+                    <Spec k="Cobertura" v={cot.cobertura?.nombre} />
+                    <Spec k="Forrado" v={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} />
+                    <Spec k="Decoración" v={(cot.decoraciones || []).map((d) => d.nombre).join(", ") || "—"} />
+                    <Spec k="Color principal" v={cot.colorPrincipal
+                      ? <span style={{ display: "inline-block", width: 18, height: 18, borderRadius: "50%", background: cot.colorPrincipal, border: "1.5px solid rgba(0,0,0,.15)" }} />
+                      : "—"} />
+                    <Spec k="Estilo" v={cot.estilo?.value || "—"} cap />
+                  </>
+                )}
+                {cot.estilo?.comentarios && <Spec k="Mensaje / notas" v={cot.estilo.comentarios} wide />}
+                <Spec k="Entrega" v={[cot.entrega?.tipo === "recoger-local" ? "Recoger en local" : (cot.entrega?.direccion || cot.entrega?.tipo), cot.entrega?.hora].filter(Boolean).join(" · ") || "Por confirmar"} wide />
+                {referencias.length > 0 && (
+                  <div className="spec wide">
+                    <div className="k">Referencias que enviaste</div>
+                    <div className="refs">
+                      {referencias.map((u) => <a key={u} href={u} target="_blank" rel="noopener noreferrer"><img src={u} alt="ref" /></a>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
 
-          <div>
-            <div className="det-box">
-              <Row lbl="En atención a" val={cot.cliente?.nombre} />
-              <Row lbl="Fecha de entrega" val={fmtFecha(cot.evento?.fecha)} />
-              <Row lbl="Lugar y hora de entrega" val={lugarHora} />
-              <Row lbl="Recibirá" val={cot.cliente?.nombre} />
-              <Row lbl="Teléfono" val={cot.cliente?.telefono ? "Registrado" : "—"} />
-            </div>
+          {/* Derecha */}
+          <aside>
+            <section className="card price">
+              <div className="ptop">
+                <h3>Resumen</h3>
+                {!publicada && <span className="est">En revisión</span>}
+              </div>
 
-            <div className="section-title">Detalles del Pedido 🧾</div>
-            <div className="det-box">
-              {esMesa ? (
+              {publicada && precio > 0 ? (
                 <>
-                  <Row lbl="Mesa de postres para" val={`${cot.evento?.invitados} personas`} />
-                  <Row lbl="Postres por persona" val={cot.postresPorPersona} />
-                  <Row lbl="Postres" val={(cot.postres || []).map((p) => p.nombre).join(", ") || "—"} />
+                  <div className="total-line">
+                    <span className="num">${precio.toLocaleString("es-MX")}</span><span className="cur">MXN</span>
+                  </div>
+                  <div className="dl"><span>Anticipo (50%)</span><strong>${anticipo.toLocaleString("es-MX")}</strong></div>
+                  <div className="dl"><span>Saldo al entregar</span><strong>${saldo.toLocaleString("es-MX")}</strong></div>
+
+                  {!pagado && !yaConfirmado && !vencida && (
+                    <>
+                      <div className="pay-label">¿Cómo quieres pagar?</div>
+                      <div className="seg">
+                        <button className={opcionPago === "anticipo" ? "on" : ""} onClick={() => setOpcionPago("anticipo")}>Anticipo 50%</button>
+                        <button className={opcionPago === "total" ? "on" : ""} onClick={() => setOpcionPago("total")}>Pago total</button>
+                      </div>
+                      <div className="pay-box">
+                        <div className="dl" style={{ borderBottom: "none", padding: 0 }}>
+                          <span>{opcionPago === "total" ? "Pago total" : "Anticipo para apartar"}</span>
+                          <strong>${montoSel.toLocaleString("es-MX")}</strong>
+                        </div>
+                      </div>
+
+                      <div className="reco">
+                        <span className="rb">Recomendado</span>
+                        <div style={{ fontWeight: 800, color: "var(--burd)", fontFamily: "var(--font-sans-q)", marginBottom: 4 }}>💳 Pagar en línea</div>
+                        <div style={{ fontSize: ".82rem", color: "var(--soft)", fontFamily: "var(--font-sans-q)", lineHeight: 1.45 }}>
+                          {isLoggedIn ? "Aparta tu fecha al instante y da seguimiento a tu pedido." : "Crea tu cuenta para apartar al instante y dar seguimiento; el resto contra entrega."}
+                        </div>
+                        {isLoggedIn ? (
+                          <button className="cta" disabled={pagando} onClick={() => pagarEnLinea(opcionPago)}>{pagando ? "Redirigiendo…" : `Confirmar y pagar $${montoSel.toLocaleString("es-MX")}`}</button>
+                        ) : (
+                          <>
+                            <Link href={`/registrarse?next=${encodeURIComponent(`/cotizacion/ver/${token}`)}`}><button className="cta">Crear cuenta y pagar</button></Link>
+                            <button className="cta-2" disabled={pagando} onClick={() => pagarEnLinea(opcionPago)}>{pagando ? "Redirigiendo…" : "o pagar como invitado"}</button>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="pay-label" style={{ marginTop: 18 }}>🏦 O aparta con transferencia / efectivo</div>
+                      <button className="cta-2" disabled={confirmando} onClick={() => confirmarPago("transferencia")} style={{ marginTop: 4 }}>Confirmar (pagaré vía transferencia)</button>
+                      <button className="cta-2" disabled={confirmando} onClick={() => confirmarPago("efectivo")}>Confirmar (pagaré con efectivo)</button>
+                    </>
+                  )}
+
+                  {pagado && (
+                    <div className="bankbox" style={{ background: "var(--bg-sunken)", borderColor: "var(--menta-deep)" }}>
+                      <strong style={{ color: "var(--burd)" }}>¡Pedido apartado! 🎉</strong>
+                      <div style={{ fontSize: ".85rem", color: "var(--soft)", marginTop: 4 }}>{saldo > 0 ? `Saldo pendiente: $${saldo.toLocaleString("es-MX")}.` : "Pagado en su totalidad."}</div>
+                    </div>
+                  )}
+
+                  {yaConfirmado && !pagado && (
+                    <div className="bankbox">
+                      <strong style={{ color: "var(--burd)" }}>¡Pedido confirmado! 🎉</strong>
+                      <div style={{ fontSize: ".85rem", color: "var(--soft)", marginTop: 4 }}>
+                        Pagarás el anticipo por {cot.confirmacionCliente?.metodo}. {cot.confirmacionCliente?.metodo === "transferencia" ? "También te lo enviamos por correo." : ""}
+                      </div>
+                      {cot.confirmacionCliente?.metodo === "transferencia" && (
+                        <div style={{ marginTop: 8, fontSize: ".85rem", color: "var(--burd)" }}>
+                          <div style={{ fontWeight: 800 }}>Datos Citibanamex</div>
+                          <div>CLABE: 002320902695222820</div>
+                          <div>Tarjeta: 5256 7839 9715 6998</div>
+                          <div style={{ color: "var(--soft)", marginTop: 4 }}>Anticipo: <strong>${anticipo.toLocaleString("es-MX")}</strong></div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Solicitar ajustes */}
+                  {!pagado && (
+                    <>
+                      <button className="cta-2" onClick={() => setAjusteOpen((v) => !v)} style={{ marginTop: 10 }}>Solicitar ajustes</button>
+                      {ajusteOpen && (
+                        <div style={{ marginTop: 8 }}>
+                          <textarea value={ajusteTexto} onChange={(e) => setAjusteTexto(e.target.value)} rows={3} placeholder="¿Qué te gustaría cambiar?" style={{ width: "100%", border: "1px solid var(--border)", borderRadius: 12, padding: 10, fontFamily: "var(--font-sans-q)", fontSize: ".88rem" }} />
+                          <button className="cta-2" disabled={enviandoAjuste || !ajusteTexto.trim()} onClick={enviarAjuste}>{enviandoAjuste ? "Enviando…" : "Enviar solicitud de ajuste"}</button>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {vence && <p className="valid">Cotización válida hasta el {fmt(cot.validUntil)}.</p>}
                 </>
               ) : (
                 <>
-                  <Row lbl={`${PRODUCTO_NOUN[cot.tipoProducto] || "Pastel"} para`} val={`${cot.evento?.invitados} porciones`} />
-                  <Row lbl="Sabor de pan" val={cot.sabor?.nombre} />
-                  <Row lbl="Relleno" val={cot.relleno?.nombre} />
-                  <Row lbl="Cobertura" val={cot.cobertura?.nombre} />
-                  <Row lbl="Forrado" val={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} />
-                  {cot.colorPrincipal && <Row lbl="Color principal" val={colorSwatch} />}
+                  <p style={{ color: "var(--soft)", fontSize: ".9rem", fontFamily: "var(--font-sans-q)", marginTop: 8 }}>
+                    Tu precio está en revisión. Te lo compartiremos muy pronto por este mismo enlace.
+                  </p>
+                  <button className="cta-2" onClick={() => setAjusteOpen((v) => !v)} style={{ marginTop: 12 }}>Solicitar ajustes</button>
+                  {ajusteOpen && (
+                    <div style={{ marginTop: 8 }}>
+                      <textarea value={ajusteTexto} onChange={(e) => setAjusteTexto(e.target.value)} rows={3} placeholder="¿Qué te gustaría cambiar?" style={{ width: "100%", border: "1px solid var(--border)", borderRadius: 12, padding: 10, fontFamily: "var(--font-sans-q)", fontSize: ".88rem" }} />
+                      <button className="cta-2" disabled={enviandoAjuste || !ajusteTexto.trim()} onClick={enviarAjuste}>{enviandoAjuste ? "Enviando…" : "Enviar solicitud de ajuste"}</button>
+                    </div>
+                  )}
                 </>
               )}
-              <Row lbl="Extras" val={extras} />
-            </div>
-          </div>
-        </div>
+            </section>
 
-        {/* Condiciones */}
-        <div className="cond">
-          <h3>Condiciones e Información Importante ⚠️</h3>
-          <ul style={{ margin: 0, padding: 0 }}>
-            <li>Para iniciar su pedido se solicita un anticipo del 50% del total del pedido, favor de confirmar disponibilidad antes de hacer su pedido.</li>
-            <li><strong>Vigencia:</strong> El presupuesto es válido por 30 días a partir de la fecha estipulada en la orden{vence ? ` (vence el ${fmtFecha(cot.validUntil)})` : ""}.</li>
-            <li><strong>Cancelaciones:</strong> Podrá cancelar su pedido hasta 5 días antes de la fecha de entrega por medio de llamada o mensaje en un horario de 9am a 5pm de Lunes a Viernes, con un cargo del 30% del total; de lo contrario el cargo por cancelación será del 50% del costo total.</li>
-            <li><strong>Cambios de diseño:</strong> Podrá hacer cambios en el diseño hasta 5 días antes de la fecha de entrega, pudiendo generar cambios en la cotización compartida previamente.</li>
-            <li><strong>Liquidar y Recoger:</strong> Se pide liquidar su pedido un día antes de la fecha de entrega; para recoger su pedido por favor indique su número de orden.</li>
-          </ul>
-        </div>
+            {/* Condiciones */}
+            <section className="card cond" style={{ padding: 24 }}>
+              <h3>Condiciones e Información Importante ⚠️</h3>
+              <ul style={{ margin: 0, padding: 0 }}>
+                <li>Para iniciar tu pedido se solicita un anticipo del 50% del total; confirma disponibilidad antes de hacer tu pedido.</li>
+                <li><strong>Vigencia:</strong> el presupuesto es válido por 30 días{vence ? ` (vence el ${fmt(cot.validUntil)})` : ""}.</li>
+                <li><strong>Cancelaciones:</strong> hasta 5 días antes de la entrega (Lun–Vie 9am–5pm) con cargo del 30%; de lo contrario el cargo será del 50%.</li>
+                <li><strong>Cambios de diseño:</strong> hasta 5 días antes de la entrega; pueden generar cambios en la cotización.</li>
+                <li><strong>Liquidar y recoger:</strong> liquida un día antes de la entrega; para recoger indica tu número de orden.</li>
+              </ul>
+            </section>
 
-        {/* Totales */}
-        <div className="pay-foot" style={{ justifyContent: "flex-end" }}>
-          <div className="totals">
-            {publicada && precio > 0 ? (
-              <>
-                <div className={sofia.className} style={{ fontSize: "1.3rem" }}>Total $ {precio.toLocaleString("es-MX")}</div>
-                <div style={{ borderTop: "1px solid #e8b9c8", margin: "6px 0" }} />
-                <div className={sofia.className} style={{ fontSize: "1.1rem" }}>Anticipo $ {anticipo.toLocaleString("es-MX")}</div>
-              </>
-            ) : (
-              <div style={{ color: "#b89", fontSize: ".9rem", maxWidth: 220 }}>Tu precio está en revisión. Te lo compartiremos muy pronto por este mismo enlace.</div>
-            )}
-          </div>
+            {/* Contacto */}
+            <section className="card cond" style={{ padding: 24 }}>
+              <p style={{ color: "var(--soft)", fontSize: ".88rem", fontFamily: "var(--font-sans-q)" }}>¿Dudas con tu cotización? Escríbenos y te ayudamos.</p>
+              <a className="wa" href="https://wa.me/523300000000" target="_blank" rel="noopener noreferrer">WhatsApp 33 0000 0000</a>
+            </section>
+          </aside>
         </div>
       </div>
-
-      {/* Acciones de pago */}
-      {publicada && precio > 0 && !vencida && (
-        pagado ? (
-          <Card><h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.2rem" }}>¡Pedido apartado! 🎉</h2>
-            <p style={{ color: "var(--text-soft)", marginTop: 6 }}>Recibimos tu anticipo. {cot.saldoPendiente > 0 ? `Saldo pendiente: $${Number(cot.saldoPendiente).toLocaleString("es-MX")}.` : "Pedido pagado en su totalidad."}</p></Card>
-        ) : yaConfirmado ? (
-          <Card>
-            <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.2rem" }}>¡Pedido confirmado! 🎉</h2>
-            <p style={{ color: "var(--text-soft)", marginTop: 6 }}>Coordinaremos contigo el anticipo por {cot.confirmacionCliente?.metodo}. {cot.confirmacionCliente?.metodo === "transferencia" ? "También te lo enviamos por correo." : ""} ¡Gracias!</p>
-            {cot.confirmacionCliente?.metodo === "transferencia" && (
-              <div style={{ marginTop: 12, padding: "12px 14px", background: "var(--rosa-4,#FFF3F5)", borderRadius: 12, border: "1px solid var(--rosa)" }}>
-                <div style={{ fontWeight: 800, color: "var(--burdeos)", marginBottom: 4 }}>Datos para tu transferencia (anticipo 50%)</div>
-                <div style={{ fontSize: ".9rem", color: "var(--burdeos)" }}>Banco: Citibanamex</div>
-                <div style={{ fontSize: ".9rem", color: "var(--burdeos)" }}>CLABE: 002320902695222820</div>
-                <div style={{ fontSize: ".9rem", color: "var(--burdeos)" }}>No. Tarjeta: 5256 7839 9715 6998</div>
-                <div style={{ fontSize: ".85rem", color: "var(--text-soft)", marginTop: 6 }}>Anticipo: <strong>${anticipo.toLocaleString("es-MX")} MXN</strong>. Envíanos tu comprobante por WhatsApp citando tu número de orden.</div>
-              </div>
-            )}
-          </Card>
-        ) : (
-          <Card>
-            <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.4rem", marginBottom: 12 }}>Aparta tu fecha con el 50%</h2>
-
-            <div className="reco-card" style={{ position: "relative", border: "2px solid var(--rosa)", borderRadius: 14, padding: "1.1rem", background: "var(--rosa-4,#FFF3F5)" }}>
-              <span className="reco-badge">Recomendado</span>
-              <h3 style={{ fontWeight: 800, color: "var(--burdeos)", fontSize: "1.02rem", marginBottom: 6 }}>💳 Paga en línea</h3>
-              <p style={{ fontSize: ".85rem", color: "var(--text-soft)", lineHeight: 1.5, marginBottom: 12 }}>Crea tu cuenta para apartar tu fecha al instante, dar seguimiento y pagar el resto contra entrega. ¡Es rápido!</p>
-              {isLoggedIn ? (
-                <button className="btn" disabled={pagando} style={{ background: "var(--burdeos)", color: "#fff", width: "100%" }} onClick={() => pagarEnLinea("anticipo")}>
-                  {pagando ? "Redirigiendo…" : `Pagar anticipo en línea ($${anticipo.toLocaleString("es-MX")})`}
-                </button>
-              ) : (
-                <>
-                  <Link href={`/registrarse?next=${encodeURIComponent(`/cotizacion/ver/${token}`)}`}>
-                    <button className="btn" style={{ background: "var(--burdeos)", color: "#fff", width: "100%" }}>Crear cuenta y pagar</button>
-                  </Link>
-                  <button className="btn" disabled={pagando} style={{ background: "transparent", color: "var(--burdeos)", width: "100%", marginTop: 8, fontWeight: 700, fontSize: ".82rem" }} onClick={() => pagarEnLinea("anticipo")}>
-                    {pagando ? "Redirigiendo…" : "o pagar como invitado"}
-                  </button>
-                </>
-              )}
-            </div>
-
-            <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px dashed var(--border-color)" }}>
-              <h3 style={{ fontWeight: 800, color: "var(--burdeos)", fontSize: "1.02rem", marginBottom: 6 }}>🏦 Pagar el anticipo por transferencia o efectivo</h3>
-              <p style={{ fontSize: ".85rem", color: "var(--text-soft)", marginBottom: 12 }}>Al confirmar te enviamos por correo los datos para depositar el 50%.</p>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                <button className="btn" disabled={confirmando} style={{ background: "var(--rosa)", color: "#fff", flex: 1, minWidth: 200 }} onClick={() => confirmarPago("transferencia")}>
-                  Confirmar (pagaré vía transferencia)
-                </button>
-                <button className="btn" disabled={confirmando} style={{ background: "#fff", color: "var(--burdeos)", border: "1.5px solid var(--burdeos)", flex: 1, minWidth: 200 }} onClick={() => confirmarPago("efectivo")}>
-                  Confirmar (pagaré con efectivo)
-                </button>
-              </div>
-            </div>
-          </Card>
-        )
-      )}
-
-      <p style={{ textAlign: "center", fontSize: ".8rem", color: "var(--text-soft)", marginTop: 18, fontStyle: "italic" }}>
-        Muchas gracias por tomarte el tiempo de leer toda la información. Quedamos al pendiente para cualquier duda o aclaración. Horario de atención: Lunes a Viernes de 9am a 6pm.
-      </p>
-      <Link href="/" style={{ color: "var(--text-soft)", fontSize: ".85rem", marginTop: 14, display: "inline-block" }}>← Volver al inicio</Link>
     </Shell>
   );
 }
 
-function Row({ lbl, val }) {
+function Spec({ k, v, wide, cap }) {
   return (
-    <div className="det-row">
-      <div className="det-lbl">{lbl}</div>
-      <div className="det-val">{val ?? "—"}</div>
+    <div className={`spec${wide ? " wide" : ""}`}>
+      <div className="k">{k}</div>
+      <div className="v" style={cap ? { textTransform: "capitalize" } : undefined}>{v ?? "—"}</div>
     </div>
   );
 }
 
-const cardStyle = { background: "#fff", borderRadius: 16, border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)", padding: "1.25rem 1.4rem", marginTop: 16 };
-function Card({ children }) { return <div style={cardStyle}>{children}</div>; }
-
-function Shell({ children }) {
+function Shell({ children, fontVars }) {
   return (
-    <div className={nunito.className} style={{ minHeight: "100vh", background: "var(--bg-sunken)" }}>
-      <div aria-hidden="true" className="ru-pattern-sprinkle fixed inset-0 pointer-events-none" style={{ opacity: 0.06 }} />
-      <main style={{ position: "relative", maxWidth: 720, margin: "0 auto", padding: "2.5rem 1.25rem 4rem" }}>
-        {children}
-      </main>
+    <div className={fontVars} style={{ minHeight: "100vh", background: "radial-gradient(1100px 520px at 78% -8%, #FFE2E7 0%, transparent 60%), radial-gradient(900px 480px at 6% 4%, #FFF8F2 0%, transparent 55%), #FFF3F5" }}>
+      <main style={{ position: "relative" }}>{children}</main>
     </div>
   );
 }
