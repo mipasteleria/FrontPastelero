@@ -15,6 +15,14 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 
+const EVENTOS = ["boda", "xv", "cumple", "corporativo", "baby", "graduacion", "bautizo", "otro"];
+const ESTILOS = ["minimalista", "elegante", "tropical", "rustico", "acuarela", "lujoso", "vintage"];
+const ENTREGAS = [
+  { value: "recoger-local", label: "Recoger en local" },
+  { value: "domicilio", label: "A domicilio (GDL)" },
+  { value: "evento", label: "Al salón / evento" },
+];
+
 const TIPO_EXTRA_LABEL = {
   receta: "Receta",
   tecnica: "Técnica creativa",
@@ -66,6 +74,10 @@ export default function CotizacionPersonalizadaDetalle() {
   const [guardandoExtras, setGuardandoExtras] = useState(false);
   const [markupPct, setMarkupPct] = useState("");
   const [subiendoImg, setSubiendoImg] = useState(false);
+  const [catalogos, setCatalogos] = useState({ sabores: [], rellenos: [], coberturas: [], decoraciones: [], postres: [] });
+  const [editMode, setEditMode] = useState(false);
+  const [edit, setEdit] = useState(null);
+  const [guardandoEdit, setGuardandoEdit] = useState(false);
 
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
 
@@ -101,6 +113,84 @@ export default function CotizacionPersonalizadaDetalle() {
     }).then(() => recargar()).catch(() => {});
     /* eslint-disable-next-line */
   }, [cot?._id]);
+
+  // ── Catálogos para edición ────────────────────────────────────────
+  useEffect(() => {
+    const tipos = ["sabores", "rellenos", "coberturas", "decoraciones", "postres"];
+    Promise.all(tipos.map((t) => fetch(`${API_BASE}/cotizacion-catalogos/${t}`).then((r) => r.json()).catch(() => ({}))))
+      .then((res) => {
+        const o = {};
+        tipos.forEach((t, i) => { o[t] = res[i]?.data || []; });
+        setCatalogos(o);
+      });
+  }, []);
+
+  const iniciarEdicion = () => {
+    setEdit({
+      tipoProducto: cot.tipoProducto || "pastel",
+      eventoTipo: cot.evento?.tipo || "",
+      eventoFecha: cot.evento?.fecha ? new Date(cot.evento.fecha).toISOString().slice(0, 10) : "",
+      invitados: cot.evento?.invitados || 0,
+      niveles: cot.niveles || 1,
+      saborSlug: cot.sabor?.slug || "",
+      rellenoSlug: cot.relleno?.slug || "",
+      coberturaSlug: cot.cobertura?.slug || "",
+      decoracionesSlugs: (cot.decoraciones || []).map((d) => d.slug),
+      colorPrincipal: cot.colorPrincipal || "",
+      estiloValue: cot.estilo?.value || "",
+      comentarios: cot.estilo?.comentarios || "",
+      postresPorPersona: cot.postresPorPersona || 1,
+      postresSlugs: (cot.postres || []).map((p) => p.slug),
+      entregaTipo: cot.entrega?.tipo || "",
+      entregaHora: cot.entrega?.hora || "",
+      entregaDireccion: cot.entrega?.direccion || "",
+      clienteNombre: cot.cliente?.nombre || "",
+      clienteTelefono: cot.cliente?.telefono || "",
+      clienteEmail: cot.cliente?.email || "",
+    });
+    setEditMode(true);
+  };
+
+  const guardarEdicion = async () => {
+    setGuardandoEdit(true);
+    try {
+      const esMesa = edit.tipoProducto === "mesa-postres";
+      const payload = {
+        tipoProducto: edit.tipoProducto,
+        evento: { tipo: edit.eventoTipo, fecha: edit.eventoFecha, invitados: Number(edit.invitados) || 1 },
+        niveles: esMesa ? 1 : (edit.tipoProducto === "cupcake" ? 1 : Number(edit.niveles) || 1),
+        colorPrincipal: edit.colorPrincipal,
+        estilo: { ...(cot.estilo || {}), value: edit.estiloValue, comentarios: edit.comentarios },
+        entrega: { tipo: edit.entregaTipo, fecha: edit.eventoFecha, hora: edit.entregaHora, direccion: ["domicilio", "evento"].includes(edit.entregaTipo) ? edit.entregaDireccion : "" },
+        cliente: { nombre: edit.clienteNombre, telefono: edit.clienteTelefono, email: edit.clienteEmail },
+      };
+      if (esMesa) {
+        payload.postresPorPersona = Number(edit.postresPorPersona) || 1;
+        payload.postresSlugs = edit.postresSlugs;
+      } else {
+        payload.saborSlug = edit.saborSlug;
+        payload.rellenoSlug = edit.rellenoSlug;
+        payload.coberturaSlug = edit.coberturaSlug;
+        payload.decoracionesSlugs = edit.decoracionesSlugs;
+      }
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error((await r.json()).message || "Error");
+      setEditMode(false);
+      await recargar();
+      Swal.fire({ icon: "success", title: "Cotización actualizada", timer: 1500, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, timer: 2400, showConfirmButton: false });
+    } finally {
+      setGuardandoEdit(false);
+    }
+  };
+
+  const toggleDecoEdit = (slug) => setEdit((e) => ({ ...e, decoracionesSlugs: e.decoracionesSlugs.includes(slug) ? e.decoracionesSlugs.filter((s) => s !== slug) : [...e.decoracionesSlugs, slug] }));
+  const togglePostreEdit = (slug) => setEdit((e) => ({ ...e, postresSlugs: e.postresSlugs.includes(slug) ? e.postresSlugs.filter((s) => s !== slug) : [...e.postresSlugs, slug] }));
 
   // ── Imagen de diseño (subir / quitar) ─────────────────────────────
   const guardarImagenes = async (imagenes) => {
@@ -390,9 +480,23 @@ export default function CotizacionPersonalizadaDetalle() {
           <div className="grid md:grid-cols-3 gap-4">
             {/* ── Columna izquierda: detalle de la solicitud ─── */}
             <section className="md:col-span-2 bg-white shadow rounded-lg p-5">
-              <h2 className="font-bold text-lg mb-3" style={{ color: "var(--burdeos)" }}>
-                Detalle de la solicitud
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-bold text-lg" style={{ color: "var(--burdeos)" }}>
+                  Detalle de la solicitud
+                </h2>
+                {!editMode && (
+                  <button onClick={iniciarEdicion} className="text-xs font-semibold px-3 py-1.5 rounded text-white" style={{ background: "var(--burdeos)" }}>
+                    ✎ Editar
+                  </button>
+                )}
+              </div>
+
+              {editMode && edit ? (
+                <EditForm edit={edit} setEdit={setEdit} catalogos={catalogos}
+                  toggleDecoEdit={toggleDecoEdit} togglePostreEdit={togglePostreEdit}
+                  onCancel={() => setEditMode(false)} onSave={guardarEdicion} guardando={guardandoEdit} />
+              ) : (
+              <>
               <Info label="Producto"   val={PRODUCTO_LABEL[cot.tipoProducto] || "Pastel"} />
               <Info label="Evento"     val={`${cot.evento?.tipo} · ${cot.evento?.invitados} ${cot.tipoProducto === "mesa-postres" ? "personas" : "invitados"}`} />
               <Info label="Fecha"      val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX") : "—"} />
@@ -468,6 +572,8 @@ export default function CotizacionPersonalizadaDetalle() {
                   ? `Eliminadas el ${new Date(cot.imagenesEliminadasAt).toLocaleDateString("es-MX")}`
                   : (cot.estilo?.imagenesInspiracion?.length || 0) + " adjunta(s)"}
               />
+              </>
+              )}
             </section>
 
             {/* ── Columna derecha: admin actions + costeo ─── */}
@@ -766,6 +872,152 @@ function Info({ label, val }) {
     <div className="flex justify-between text-sm py-1.5 border-b border-gray-100">
       <span className="text-gray-500">{label}</span>
       <span className="font-semibold text-right max-w-[60%]">{val ?? "—"}</span>
+    </div>
+  );
+}
+
+// Formulario de edición completa de la cotización (admin).
+function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, onCancel, onSave, guardando }) {
+  const set = (k, v) => setEdit((e) => ({ ...e, [k]: v }));
+  const esMesa = edit.tipoProducto === "mesa-postres";
+  const esCup = edit.tipoProducto === "cupcake";
+  const inp = "border rounded px-3 py-2 w-full text-sm";
+  const lbl = "block text-xs font-semibold mb-1 text-gray-600 mt-2";
+  return (
+    <div className="text-sm">
+      <label className={lbl}>Tipo de producto</label>
+      <select className={inp} value={edit.tipoProducto} onChange={(e) => set("tipoProducto", e.target.value)}>
+        <option value="pastel">Pastel</option>
+        <option value="cupcake">Cupcakes</option>
+        <option value="mesa-postres">Mesa de postres</option>
+      </select>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className={lbl}>Evento</label>
+          <select className={inp} value={edit.eventoTipo} onChange={(e) => set("eventoTipo", e.target.value)}>
+            <option value="">—</option>
+            {EVENTOS.map((x) => <option key={x} value={x}>{x}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className={lbl}>Fecha del evento</label>
+          <input type="date" className={inp} value={edit.eventoFecha} onChange={(e) => set("eventoFecha", e.target.value)} />
+        </div>
+        <div>
+          <label className={lbl}>{esMesa ? "Personas" : "Porciones"}</label>
+          <input type="number" min="1" className={inp} value={edit.invitados} onChange={(e) => set("invitados", e.target.value)} />
+        </div>
+        {!esMesa && !esCup && (
+          <div>
+            <label className={lbl}>Niveles</label>
+            <input type="number" min="1" max="6" className={inp} value={edit.niveles} onChange={(e) => set("niveles", e.target.value)} />
+          </div>
+        )}
+      </div>
+
+      {esMesa ? (
+        <>
+          <label className={lbl}>Postres por persona</label>
+          <input type="number" min="1" className={inp} value={edit.postresPorPersona} onChange={(e) => set("postresPorPersona", e.target.value)} />
+          <label className={lbl}>Postres</label>
+          <div className="flex flex-wrap gap-1.5">
+            {catalogos.postres.map((p) => {
+              const on = edit.postresSlugs.includes(p.slug);
+              return <button key={p.slug} type="button" onClick={() => togglePostreEdit(p.slug)} className={`text-xs px-2 py-1 rounded border ${on ? "text-white" : "text-gray-600"}`} style={on ? { background: "var(--burdeos)", borderColor: "var(--burdeos)" } : {}}>{p.emoji || "🍰"} {p.nombre}</button>;
+            })}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className={lbl}>{esCup ? "Sabor cupcake" : "Bizcocho"}</label>
+              <select className={inp} value={edit.saborSlug} onChange={(e) => set("saborSlug", e.target.value)}>
+                <option value="">—</option>
+                {catalogos.sabores.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Relleno</label>
+              <select className={inp} value={edit.rellenoSlug} onChange={(e) => set("rellenoSlug", e.target.value)}>
+                <option value="">Sin relleno</option>
+                {catalogos.rellenos.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Cobertura</label>
+              <select className={inp} value={edit.coberturaSlug} onChange={(e) => set("coberturaSlug", e.target.value)}>
+                <option value="">—</option>
+                {catalogos.coberturas.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Color principal</label>
+              <input type="color" className="border rounded w-full h-9" value={edit.colorPrincipal || "#ffffff"} onChange={(e) => set("colorPrincipal", e.target.value)} />
+            </div>
+          </div>
+          <label className={lbl}>Decoraciones</label>
+          <div className="flex flex-wrap gap-1.5">
+            {catalogos.decoraciones.map((d) => {
+              const on = edit.decoracionesSlugs.includes(d.slug);
+              return <button key={d.slug} type="button" onClick={() => toggleDecoEdit(d.slug)} className={`text-xs px-2 py-1 rounded border ${on ? "text-white" : "text-gray-600"}`} style={on ? { background: "var(--burdeos)", borderColor: "var(--burdeos)" } : {}}>{d.emoji || "🎀"} {d.nombre}</button>;
+            })}
+          </div>
+        </>
+      )}
+
+      <label className={lbl}>Estilo</label>
+      <select className={inp} value={edit.estiloValue} onChange={(e) => set("estiloValue", e.target.value)}>
+        <option value="">—</option>
+        {ESTILOS.map((x) => <option key={x} value={x}>{x}</option>)}
+      </select>
+
+      <label className={lbl}>Comentarios / mensaje</label>
+      <textarea rows={2} className={inp} value={edit.comentarios} onChange={(e) => set("comentarios", e.target.value)} />
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className={lbl}>Entrega</label>
+          <select className={inp} value={edit.entregaTipo} onChange={(e) => set("entregaTipo", e.target.value)}>
+            <option value="">—</option>
+            {ENTREGAS.map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className={lbl}>Hora de entrega</label>
+          <input type="time" className={inp} value={edit.entregaHora} onChange={(e) => set("entregaHora", e.target.value)} />
+        </div>
+      </div>
+      {["domicilio", "evento"].includes(edit.entregaTipo) && (
+        <>
+          <label className={lbl}>Dirección / zona</label>
+          <input className={inp} value={edit.entregaDireccion} onChange={(e) => set("entregaDireccion", e.target.value)} />
+        </>
+      )}
+
+      <h3 className="font-bold text-md mt-4 mb-1" style={{ color: "var(--burdeos)" }}>Cliente</h3>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className={lbl}>Nombre</label>
+          <input className={inp} value={edit.clienteNombre} onChange={(e) => set("clienteNombre", e.target.value)} />
+        </div>
+        <div>
+          <label className={lbl}>Teléfono</label>
+          <input className={inp} value={edit.clienteTelefono} onChange={(e) => set("clienteTelefono", e.target.value)} />
+        </div>
+        <div className="col-span-2">
+          <label className={lbl}>Email</label>
+          <input className={inp} value={edit.clienteEmail} onChange={(e) => set("clienteEmail", e.target.value)} />
+        </div>
+      </div>
+
+      <div className="flex gap-2 mt-4">
+        <button onClick={onSave} disabled={guardando} className="px-4 py-2 rounded text-sm font-semibold text-white w-full disabled:opacity-50" style={{ background: "var(--burdeos)" }}>
+          {guardando ? "Guardando…" : "Guardar cambios"}
+        </button>
+        <button onClick={onCancel} className="px-4 py-2 rounded text-sm font-semibold border text-gray-600">Cancelar</button>
+      </div>
     </div>
   );
 }
