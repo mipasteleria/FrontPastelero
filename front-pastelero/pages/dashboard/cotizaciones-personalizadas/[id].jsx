@@ -63,7 +63,7 @@ export default function CotizacionPersonalizadaDetalle() {
   const [calculando, setCalculando] = useState(false);
 
   // Form editable de admin (status/precio/anticipo).
-  const [editForm, setEditForm] = useState({ status: "", precio: "", anticipo: "" });
+  const [editForm, setEditForm] = useState({ status: "", precio: "", anticipo: "", anticipoMetodo: "", anticipoReferencia: "" });
 
   // Nota interna nueva
   const [notaTexto, setNotaTexto] = useState("");
@@ -96,6 +96,8 @@ export default function CotizacionPersonalizadaDetalle() {
       status: j.data?.status || "Pendiente",
       precio: precioPre,
       anticipo: anticipoPre,
+      anticipoMetodo: j.data?.anticipoMetodo || "",
+      anticipoReferencia: j.data?.anticipoReferencia || "",
     });
     setExtras(j.data?.costeoExtras || []);
     setMarkupPct(j.data?.costeoSnapshot?.markupPct != null ? String(j.data.costeoSnapshot.markupPct) : "");
@@ -272,6 +274,8 @@ export default function CotizacionPersonalizadaDetalle() {
           status: editForm.status,
           precio: editForm.precio === "" ? undefined : Number(editForm.precio),
           anticipo: editForm.anticipo === "" ? undefined : Number(editForm.anticipo),
+          anticipoMetodo: editForm.anticipoMetodo,
+          anticipoReferencia: editForm.anticipoReferencia,
         }),
       });
       const j = await r.json();
@@ -509,6 +513,7 @@ export default function CotizacionPersonalizadaDetalle() {
                   onCancel={() => setEditMode(false)} onSave={guardarEdicion} guardando={guardandoEdit} />
               ) : (
               <>
+              <Info label="Número de orden" val={cot.numeroOrden || "—"} />
               <Info label="Producto"   val={PRODUCTO_LABEL[cot.tipoProducto] || "Pastel"} />
               <Info label="Evento"     val={`${cot.evento?.tipo} · ${cot.evento?.invitados} ${cot.tipoProducto === "mesa-postres" ? "personas" : "invitados"}`} />
               <Info label="Fecha"      val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"} />
@@ -620,6 +625,42 @@ export default function CotizacionPersonalizadaDetalle() {
                   value={editForm.anticipo}
                   onChange={(e) => setEditForm({ ...editForm, anticipo: e.target.value })}
                 />
+
+                {editForm.status === "Agendado · producción" && (
+                  <div className="mb-3 p-3 rounded" style={{ background: "var(--rosa-4,#FFF3F5)", border: "1px solid var(--rosa)" }}>
+                    <p className="text-[11px] font-semibold mb-2" style={{ color: "var(--burdeos)" }}>
+                      Confirma el anticipo con el que apartaron:
+                    </p>
+                    <label className="block text-xs font-semibold mb-1">Monto del anticipo</label>
+                    <input
+                      type="number"
+                      className="border rounded px-3 py-2 w-full mb-2"
+                      value={editForm.anticipo}
+                      onChange={(e) => setEditForm({ ...editForm, anticipo: e.target.value })}
+                      placeholder="Monto real recibido"
+                    />
+                    <label className="block text-xs font-semibold mb-1">Método de pago</label>
+                    <select
+                      className="border rounded px-3 py-2 w-full mb-2"
+                      value={editForm.anticipoMetodo}
+                      onChange={(e) => setEditForm({ ...editForm, anticipoMetodo: e.target.value })}
+                    >
+                      <option value="">— Selecciona —</option>
+                      <option value="transferencia">Transferencia</option>
+                      <option value="efectivo">Efectivo</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                    <label className="block text-xs font-semibold mb-1">Referencia / nota</label>
+                    <input
+                      type="text"
+                      className="border rounded px-3 py-2 w-full"
+                      value={editForm.anticipoReferencia}
+                      onChange={(e) => setEditForm({ ...editForm, anticipoReferencia: e.target.value })}
+                      placeholder="Folio, banco, nota…"
+                    />
+                  </div>
+                )}
+
                 <p className="text-[11px] text-gray-500 mb-3">
                   Cuando el precio esté listo, pon el status en <strong>"Cotizada"</strong> y
                   guarda: así el cliente verá el precio en su enlace y podrá agendar.
