@@ -134,6 +134,9 @@ export default function CotizacionPersonalizadaDetalle() {
       invitados: cot.evento?.invitados || 0,
       niveles: cot.niveles || 1,
       saborSlug: cot.sabor?.slug || "",
+      saboresCupcake: (cot.saboresCupcake || []).length
+        ? cot.saboresCupcake.map((r) => ({ saborSlug: r.slug, docenas: r.docenas || 1 }))
+        : [{ saborSlug: cot.sabor?.slug || "", docenas: 1 }],
       rellenoSlug: cot.relleno?.slug || "",
       coberturaSlug: cot.cobertura?.slug || "",
       decoracionesSlugs: (cot.decoraciones || []).map((d) => d.slug),
@@ -173,7 +176,11 @@ export default function CotizacionPersonalizadaDetalle() {
         payload.postresPorPersona = Number(edit.postresPorPersona) || 1;
         payload.postresSlugs = edit.postresSlugs;
       } else {
-        payload.saborSlug = edit.saborSlug;
+        if (edit.tipoProducto === "cupcake") {
+          payload.saboresCupcakeData = (edit.saboresCupcake || []).filter((r) => r.saborSlug && Number(r.docenas) > 0);
+        } else {
+          payload.saborSlug = edit.saborSlug;
+        }
         payload.rellenoSlug = edit.rellenoSlug;
         payload.coberturaSlug = edit.coberturaSlug;
         payload.decoracionesSlugs = edit.decoracionesSlugs;
@@ -517,7 +524,11 @@ export default function CotizacionPersonalizadaDetalle() {
                   {cot.tipoProducto !== "cupcake" && (
                     <Info label="Niveles" val={`${cot.niveles} piso${cot.niveles > 1 ? "s" : ""}`} />
                   )}
-                  <Info label={cot.tipoProducto === "cupcake" ? "Cupcake" : "Bizcocho"} val={cot.sabor?.nombre || "—"} />
+                  {cot.tipoProducto === "cupcake" && (cot.saboresCupcake || []).length ? (
+                    <Info label="Sabores" val={cot.saboresCupcake.map((r) => `${r.docenas} doc ${r.nombre}`).join(", ")} />
+                  ) : (
+                    <Info label={cot.tipoProducto === "cupcake" ? "Cupcake" : "Bizcocho"} val={cot.sabor?.nombre || "—"} />
+                  )}
                   <Info label="Relleno"    val={cot.relleno?.nombre || "—"} />
                   <Info label="Cobertura"  val={cot.cobertura?.nombre || "—"} />
                   <Info label="Color principal" val={cot.colorPrincipal ? <span className="inline-block w-6 h-6 rounded-full align-middle" style={{ background: cot.colorPrincipal, border: "1px solid #eee" }} /> : "—"} />
@@ -912,10 +923,12 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
             set("eventoFecha", e.target.value);
           }} />
         </div>
-        <div>
-          <label className={lbl}>{esMesa ? "Personas" : "Porciones"}</label>
-          <input type="number" min="1" className={inp} value={edit.invitados} onChange={(e) => set("invitados", e.target.value)} />
-        </div>
+        {!esCup && (
+          <div>
+            <label className={lbl}>{esMesa ? "Personas" : "Porciones"}</label>
+            <input type="number" min="1" className={inp} value={edit.invitados} onChange={(e) => set("invitados", e.target.value)} />
+          </div>
+        )}
         {!esMesa && !esCup && (
           <div>
             <label className={lbl}>Niveles</label>
@@ -938,14 +951,37 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
         </>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-2">
+          {esCup ? (
             <div>
-              <label className={lbl}>{esCup ? "Sabor cupcake" : "Bizcocho"}</label>
+              <label className={lbl}>Sabores y docenas</label>
+              {(edit.saboresCupcake || []).map((row, i) => (
+                <div key={i} className="flex gap-2 mb-1.5 items-center">
+                  <select className={inp} value={row.saborSlug}
+                    onChange={(e) => set("saboresCupcake", edit.saboresCupcake.map((r, idx) => idx === i ? { ...r, saborSlug: e.target.value } : r))}>
+                    <option value="">Elige sabor</option>
+                    {catalogos.sabores.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
+                  </select>
+                  <input type="number" min="1" className="border rounded px-2 py-2 text-sm w-20" value={row.docenas}
+                    onChange={(e) => set("saboresCupcake", edit.saboresCupcake.map((r, idx) => idx === i ? { ...r, docenas: Math.max(1, Number(e.target.value) || 1) } : r))} />
+                  <button type="button" onClick={() => set("saboresCupcake", edit.saboresCupcake.length > 1 ? edit.saboresCupcake.filter((_, idx) => idx !== i) : edit.saboresCupcake)} className="text-red-400 px-1">✕</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => set("saboresCupcake", [...(edit.saboresCupcake || []), { saborSlug: "", docenas: 1 }])} className="text-xs font-semibold text-accent mt-1">+ Agregar sabor</button>
+              <p className="text-[11px] text-gray-500 mt-1">
+                Total: {(edit.saboresCupcake || []).reduce((a, r) => a + (Number(r.docenas) || 0), 0)} docenas.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <label className={lbl}>Bizcocho</label>
               <select className={inp} value={edit.saborSlug} onChange={(e) => set("saborSlug", e.target.value)}>
                 <option value="">—</option>
                 {catalogos.sabores.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
               </select>
             </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-2">
             <div>
               <label className={lbl}>Relleno</label>
               <select className={inp} value={edit.rellenoSlug} onChange={(e) => set("rellenoSlug", e.target.value)}>

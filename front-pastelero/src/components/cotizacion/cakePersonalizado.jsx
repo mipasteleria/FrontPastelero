@@ -64,6 +64,17 @@ function diasHabilesRequeridos(porciones) {
   return 3;
 }
 
+// Cupcakes — anticipación por docenas:
+//   < 6 docenas   → 5 días hábiles
+//   6 a 10        → 8 días hábiles
+//   > 10          → 12 días hábiles
+function diasHabilesCupcake(cupcakes) {
+  const docenas = Math.max(1, Math.round((Number(cupcakes) || 0) / 12));
+  if (docenas > 10) return 12;
+  if (docenas >= 6) return 8;
+  return 5;
+}
+
 // Suma `n` días hábiles (lunes–viernes) a partir de hoy y devuelve la
 // fecha resultante en formato YYYY-MM-DD para usar como `min` del <input>.
 function fechaMinimaHabil(diasHabiles) {
@@ -81,6 +92,7 @@ const DEFAULT_FORM = {
   evento:    { tipo: "", fecha: "", invitados: 20 },
   niveles:   1,
   saborSlug: "",
+  saboresCupcake: [{ saborSlug: "", docenas: 1 }], // solo cupcakes
   rellenoSlug: "",
   coberturaSlug: "",
   colorPrincipal: "",
@@ -123,15 +135,28 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
     }
   }, [userEmail, adminMode]);
 
-  // ── Normalizar porciones al múltiplo del producto (cupcake = 12) ──
+  // ── Normalizar porciones (solo pastel: de 10 en 10) ──────────────
   useEffect(() => {
+    if (esCupcake) return; // cupcakes: el total lo derivan las docenas
     setForm((f) => {
-      const n = Number(f.evento.invitados) || pasoPorciones;
-      const norm = Math.max(pasoPorciones, Math.round(n / pasoPorciones) * pasoPorciones);
+      const n = Number(f.evento.invitados) || 10;
+      const norm = Math.max(10, Math.round(n / 10) * 10);
       if (norm === f.evento.invitados) return f;
       return { ...f, evento: { ...f.evento, invitados: norm } };
     });
-  }, [pasoPorciones]);
+  }, [esCupcake]);
+
+  // ── Cupcakes: total de docenas/cupcakes desde los sabores ─────────
+  const totalDocenas = esCupcake
+    ? (form.saboresCupcake || []).reduce((acc, r) => acc + (Number(r.docenas) || 0), 0)
+    : 0;
+  const totalCupcakes = totalDocenas * 12;
+
+  // Mantener evento.invitados sincronizado con el total de cupcakes.
+  useEffect(() => {
+    if (!esCupcake) return;
+    setForm((f) => f.evento.invitados === totalCupcakes ? f : { ...f, evento: { ...f.evento, invitados: totalCupcakes } });
+  }, [esCupcake, totalCupcakes]);
 
   // ── Cargar catálogos ─────────────────────────────────────────────
   useEffect(() => {
@@ -168,11 +193,21 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
     return { sabor, relleno, cobertura, decosSel };
   }, [form, catalogos]);
 
-  // Anticipación mínima según porciones (días hábiles) → fecha `min`.
+  // Anticipación mínima → fecha `min`. Cupcakes por docenas; resto por porciones.
+  const diasAnticipacion = esCupcake
+    ? diasHabilesCupcake(form.evento.invitados)
+    : diasHabilesRequeridos(form.evento.invitados);
   const fechaMinEvento = useMemo(
-    () => fechaMinimaHabil(diasHabilesRequeridos(form.evento.invitados)),
-    [form.evento.invitados]
+    () => fechaMinimaHabil(diasAnticipacion),
+    [diasAnticipacion]
   );
+
+  // ── Cupcakes: manejar filas de sabor + docenas ───────────────────
+  const setSaborCupcakeRow = (i, patch) => setForm((f) => ({
+    ...f, saboresCupcake: f.saboresCupcake.map((r, idx) => idx === i ? { ...r, ...patch } : r),
+  }));
+  const addSaborCupcakeRow = () => setForm((f) => ({ ...f, saboresCupcake: [...f.saboresCupcake, { saborSlug: "", docenas: 1 }] }));
+  const removeSaborCupcakeRow = (i) => setForm((f) => ({ ...f, saboresCupcake: f.saboresCupcake.length > 1 ? f.saboresCupcake.filter((_, idx) => idx !== i) : f.saboresCupcake }));
 
   // ── Helpers para setear sub-estado ──────────────────────────────
   const setEvento = (patch)  => setForm((f) => ({ ...f, evento: { ...f.evento, ...patch } }));
@@ -234,8 +269,13 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
     if (!form.evento.tipo)     return alertarFalta("Selecciona el tipo de evento");
     if (!form.evento.fecha)    return alertarFalta("Selecciona la fecha del evento");
     if (esDiaNoDisponible(form.evento.fecha)) return alertarFalta(MENSAJE_DIA);
-    if (!form.evento.invitados)return alertarFalta("Indica cuántos invitados");
-    if (!form.saborSlug)       return alertarFalta("Elige un sabor de bizcocho");
+    if (esCupcake) {
+      const rowsValidas = (form.saboresCupcake || []).filter((r) => r.saborSlug && Number(r.docenas) > 0);
+      if (rowsValidas.length === 0) return alertarFalta("Elige al menos un sabor con sus docenas");
+    } else {
+      if (!form.evento.invitados) return alertarFalta("Indica cuántas porciones");
+      if (!form.saborSlug)        return alertarFalta("Elige un sabor de bizcocho");
+    }
     if (!form.cliente.nombre)  return alertarFalta("Necesitamos tu nombre");
     if (!form.cliente.telefono)return alertarFalta("Necesitamos un teléfono de contacto");
 
@@ -247,6 +287,11 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
         ...form,
         tipoProducto,
         niveles: esCupcake ? 1 : form.niveles,
+        // Cupcakes: enviar sabores por docena y el total como invitados.
+        saboresCupcakeData: esCupcake
+          ? form.saboresCupcake.filter((r) => r.saborSlug && Number(r.docenas) > 0)
+          : undefined,
+        evento: { ...form.evento, invitados: esCupcake ? totalCupcakes : form.evento.invitados },
         entrega: {
           ...form.entrega,
           fecha: form.evento.fecha,
@@ -567,28 +612,31 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
                     }}
                   />
                   <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
-                    Anticipación mínima: {diasHabilesRequeridos(form.evento.invitados)} días hábiles
-                    {" "}para {form.evento.invitados || 0} porciones.
+                    {esCupcake
+                      ? `Anticipación mínima: ${diasAnticipacion} días hábiles para ${totalDocenas} ${totalDocenas === 1 ? "docena" : "docenas"}.`
+                      : `Anticipación mínima: ${diasAnticipacion} días hábiles para ${form.evento.invitados || 0} porciones.`}
                   </p>
                 </div>
                 <div>
-                  <label className="fld">{esCupcake ? "Cupcakes" : "Porciones"}</label>
-                  <input
-                    type="number"
-                    min={pasoPorciones}
-                    step={pasoPorciones}
-                    value={form.evento.invitados}
-                    onChange={(e) => {
-                      // Redondeamos al múltiplo del producto (cupcake = docena).
-                      const n = Number(e.target.value) || 0;
-                      const redondeado = Math.max(pasoPorciones, Math.round(n / pasoPorciones) * pasoPorciones);
-                      setEvento({ invitados: redondeado });
-                    }}
-                  />
+                  <label className="fld">{esCupcake ? "Total" : "Porciones"}</label>
+                  {esCupcake ? (
+                    <div style={{ padding: ".55rem .75rem", border: "1.5px solid var(--border-color)", borderRadius: "var(--r-md)", background: "var(--rosa-4,#FFF3F5)", fontWeight: 700, color: "var(--burdeos)" }}>
+                      {totalDocenas} docenas · {totalCupcakes} cupcakes
+                    </div>
+                  ) : (
+                    <input
+                      type="number"
+                      min="10"
+                      step="10"
+                      value={form.evento.invitados}
+                      onChange={(e) => {
+                        const n = Number(e.target.value) || 0;
+                        setEvento({ invitados: Math.max(10, Math.round(n / 10) * 10) });
+                      }}
+                    />
+                  )}
                   <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
-                    {esCupcake
-                      ? `Por docena (${form.evento.invitados / 12 || 0} ${form.evento.invitados / 12 === 1 ? "docena" : "docenas"}).`
-                      : "En incrementos de 10 porciones."}
+                    {esCupcake ? "Define los sabores y docenas abajo." : "En incrementos de 10 porciones."}
                   </p>
                 </div>
               </div>
@@ -614,11 +662,39 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
               </fieldset>
             )}
 
-            {/* ── 3. Sabor del bizcocho ─────────────────────────── */}
+            {/* ── 3. Sabor (pastel: único · cupcake: por docena) ── */}
             <fieldset>
-              <legend>{esCupcake ? "2. Sabor del cupcake" : "3. Sabor del bizcocho"}</legend>
+              <legend>{esCupcake ? "2. Sabores y docenas" : "3. Sabor del bizcocho"}</legend>
               {catalogos.sabores.length === 0 ? (
                 <p style={{ fontSize: ".82rem", color: "var(--text-soft)" }}>Cargando opciones…</p>
+              ) : esCupcake ? (
+                <div>
+                  {form.saboresCupcake.map((row, i) => (
+                    <div key={i} className="row" style={{ gridTemplateColumns: "1fr 110px auto", alignItems: "end", marginTop: i === 0 ? 0 : ".5rem" }}>
+                      <div>
+                        <label className="fld">Sabor</label>
+                        <select value={row.saborSlug} onChange={(e) => setSaborCupcakeRow(i, { saborSlug: e.target.value })}>
+                          <option value="">Elige un sabor</option>
+                          {catalogos.sabores.map((s) => <option key={s.slug} value={s.slug}>{s.emoji ? `${s.emoji} ` : ""}{s.nombre}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="fld">Docenas</label>
+                        <input type="number" min="1" step="1" value={row.docenas}
+                          onChange={(e) => setSaborCupcakeRow(i, { docenas: Math.max(1, Number(e.target.value) || 1) })} />
+                      </div>
+                      <button type="button" onClick={() => removeSaborCupcakeRow(i)} title="Quitar"
+                        style={{ border: "1.5px solid var(--border-color)", background: "#fff", borderRadius: "var(--r-md)", padding: ".55rem .7rem", cursor: "pointer", color: "var(--burdeos)" }}>✕</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={addSaborCupcakeRow}
+                    style={{ marginTop: ".6rem", border: "1.5px dashed var(--border-strong)", background: "transparent", borderRadius: "var(--r-pill)", padding: ".5rem 1rem", cursor: "pointer", color: "var(--burdeos)", fontWeight: 700, fontSize: ".82rem" }}>
+                    + Agregar otro sabor
+                  </button>
+                  <p style={{ fontSize: ".75rem", color: "var(--text-soft)", marginTop: ".6rem" }}>
+                    Total: <strong>{totalDocenas} docenas</strong> ({totalCupcakes} cupcakes).
+                  </p>
+                </div>
               ) : (
                 <div className="opt-grid">
                   {catalogos.sabores.map((s) => (
@@ -867,11 +943,26 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
             </p>
 
             <SumRow label="Evento" val={EVENTOS.find((x) => x.value === form.evento.tipo)?.label || "—"} />
-            <SumRow label="Porciones" val={form.evento.invitados || "—"} />
+            {esCupcake ? (
+              <SumRow label="Cupcakes" val={totalDocenas ? `${totalDocenas} doc · ${totalCupcakes} pz` : "—"} />
+            ) : (
+              <SumRow label="Porciones" val={form.evento.invitados || "—"} />
+            )}
             {!esCupcake && (
               <SumRow label="Niveles" val={NIVELES.find((x) => x.value === form.niveles)?.label || "—"} />
             )}
-            <SumRow label={esCupcake ? "Cupcake" : "Bizcocho"} val={desglose.sabor?.nombre || "—"} />
+            {esCupcake ? (
+              <SumRow label="Sabores" val={
+                form.saboresCupcake.filter((r) => r.saborSlug).length
+                  ? form.saboresCupcake.filter((r) => r.saborSlug).map((r) => {
+                      const s = catalogos.sabores.find((x) => x.slug === r.saborSlug);
+                      return `${r.docenas} doc ${s?.nombre || r.saborSlug}`;
+                    }).join(", ")
+                  : "—"
+              } />
+            ) : (
+              <SumRow label="Bizcocho" val={desglose.sabor?.nombre || "—"} />
+            )}
             <SumRow label="Relleno" val={desglose.relleno?.nombre || "—"} />
             <SumRow label="Cobertura" val={desglose.cobertura?.nombre || "—"} />
             <SumRow label="Decoraciones" val={desglose.decosSel.length ? desglose.decosSel.map((d) => d.nombre).join(", ") : "—"} />

@@ -314,6 +314,28 @@ export default function VerCotizacion() {
                     <Spec k="Postres por persona" v={cot.postresPorPersona} dot="var(--mantequilla)" />
                     <Spec k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ")} wide dot="var(--lavanda)" />
                   </>
+                ) : cot.tipoProducto === "cupcake" ? (
+                  <>
+                    <Spec k="Cupcakes" v={`${cot.evento?.invitados} (${(cot.evento?.invitados || 0) / 12} doc)`} dot="var(--menta-deep)" />
+                    <Spec k="Sabores" dot="var(--mantequilla)" wide v={
+                      (cot.saboresCupcake || []).length
+                        ? <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            {cot.saboresCupcake.map((r, i) => (
+                              <span key={i} style={{ background: "var(--bg-sunken)", padding: "4px 10px", borderRadius: 999, fontSize: ".8rem", fontWeight: 700, color: "var(--burd2)" }}>{r.docenas} doc · {r.nombre}</span>
+                            ))}
+                          </div>
+                        : (cot.sabor?.nombre || "—")
+                    } />
+                    <Spec k="Relleno" v={cot.relleno?.nombre} dot="var(--durazno)" />
+                    <Spec k="Cobertura" v={cot.cobertura?.nombre} dot="var(--rosa2)" />
+                    <Spec k="Decoración" dot="var(--lavanda)" v={
+                      (cot.decoraciones || []).length
+                        ? <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>{cot.decoraciones.map((d) => <span key={d.slug} style={{ background: "var(--bg-sunken)", padding: "4px 10px", borderRadius: 999, fontSize: ".8rem", fontWeight: 700, color: "var(--burd2)" }}>{d.nombre}</span>)}</div>
+                        : "—"
+                    } />
+                    {cot.colorPrincipal && <Spec k="Color principal" dot="var(--rosa)" v={<span style={{ display: "inline-block", width: 18, height: 18, borderRadius: "50%", background: cot.colorPrincipal, border: "1.5px solid rgba(0,0,0,.15)" }} />} />}
+                    <Spec k="Estilo" v={cot.estilo?.value || "—"} cap dot="var(--menta-deep)" />
+                  </>
                 ) : (
                   <>
                     <Spec k="Porciones" v={`${cot.evento?.invitados}`} dot="var(--menta-deep)" />
