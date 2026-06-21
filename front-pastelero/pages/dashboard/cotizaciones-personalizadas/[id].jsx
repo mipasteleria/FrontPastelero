@@ -726,25 +726,31 @@ export default function CotizacionPersonalizadaDetalle() {
 
                 {cs && (
                   <div className="mt-3 text-xs">
+                    <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 text-[11px] font-bold text-gray-400 uppercase mb-1">
+                      <span>Concepto</span><span className="text-right">Costo</span><span className="text-right">Precio</span>
+                    </div>
                     {cs.tipoProducto === "mesa-postres" ? (
-                      <CostRow label="Postres" val={cs.costoPostres} sub={`${cs.postres?.length || 0} tipos · ${cs.piezasTotales} piezas`} />
+                      <CosteoRow label="Postres" sub={`${cs.postres?.length || 0} tipos · ${cs.piezasTotales} pz`} costo={cs.costoPostres} precio={cs.precioPostres} />
                     ) : (
                       <>
-                        <CostRow label="Bizcocho"    val={cs.costoBizcocho} sub={cs.bizcocho?.nombre} />
-                        <CostRow label="Relleno"     val={cs.costoRelleno} sub={cs.relleno?.nombre} />
-                        <CostRow label="Cobertura"   val={cs.costoCobertura} sub={cs.cobertura?.nombre} />
-                        <CostRow label="Decoraciones" val={cs.costoDecoraciones} sub={`${cs.decoraciones?.length || 0} elementos`} />
+                        <CosteoRow label="Bizcocho" sub={margenSub(cs.bizcocho)} costo={cs.costoBizcocho} precio={cs.precioBizcocho} />
+                        <CosteoRow label="Relleno" sub={margenSub(cs.relleno)} costo={cs.costoRelleno} precio={cs.precioRelleno} />
+                        <CosteoRow label="Cobertura" sub={margenSub(cs.cobertura)} costo={cs.costoCobertura} precio={cs.precioCobertura} />
+                        <CosteoRow label="Decoraciones" sub={`${cs.decoraciones?.length || 0} · ${cs.markupPct}%`} costo={cs.costoDecoraciones} precio={cs.precioDecoraciones} />
                       </>
                     )}
                     {cs.costoExtras > 0 && (
-                      <CostRow label="Extras" val={cs.costoExtras} sub={`${cs.extras?.length || 0} renglones`} />
+                      <CosteoRow label="Extras" sub={`${cs.extras?.length || 0} · ${cs.markupPct}%`} costo={cs.costoExtras} precio={cs.precioExtras} />
                     )}
                     <div className="border-t mt-2 pt-2">
                       <CostRow label="Costo total" val={cs.costoTotal} bold />
-                      <CostRow label={`Markup ${cs.markupPct}%`} val={cs.precioSugerido - cs.costoTotal} />
+                      <CostRow label="Ganancia" val={cs.gananciaNeta ?? (cs.precioSugerido - cs.costoTotal)} />
                       <CostRow label="Precio sugerido" val={cs.precioSugerido} highlight />
                     </div>
                     <p className="text-[10px] text-gray-400 mt-2">
+                      Cada elemento con receta usa su propio margen; el {cs.markupPct}% global aplica a lo que no tiene receta (técnicas, decoración manual, extras).
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-1">
                       Calculado: {new Date(cs.fechaCosteo).toLocaleString("es-MX")}
                       {cs.multiplicadorNiveles ? ` · Niveles x${cs.multiplicadorNiveles}` : ""}
                     </p>
@@ -1107,6 +1113,29 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
         </button>
         <button onClick={onCancel} className="px-4 py-2 rounded text-sm font-semibold border text-gray-600">Cancelar</button>
       </div>
+    </div>
+  );
+}
+
+// Subtexto con nombre de receta + margen aplicado.
+function margenSub(detalle) {
+  if (!detalle) return "—";
+  if (detalle.porSabor) {
+    return detalle.porSabor.map((s) => `${s.nombre}${s.margenPct != null ? ` ${s.margenPct}%` : ""}`).join(", ");
+  }
+  const m = detalle.margenPct != null ? ` · ${detalle.margenPct}%${detalle.fuente === "receta" ? " (receta)" : ""}` : "";
+  return `${detalle.nombre || "—"}${m}`;
+}
+
+function CosteoRow({ label, sub, costo, precio }) {
+  return (
+    <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 py-0.5 items-baseline">
+      <span>
+        {label}
+        {sub && <span className="block text-[10px] text-gray-400">{sub}</span>}
+      </span>
+      <span className="text-right text-gray-500">${Number(costo || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+      <span className="text-right font-semibold">${Number(precio || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
     </div>
   );
 }
