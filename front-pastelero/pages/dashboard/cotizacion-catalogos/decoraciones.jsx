@@ -102,7 +102,7 @@ export default function DecoracionesPage() {
           </div>
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold mb-1 text-gray-600">
-              Costo manual (si no hay técnica)
+              Costo manual
             </label>
             <input
               type="number"
@@ -111,10 +111,10 @@ export default function DecoracionesPage() {
               className="border rounded px-3 py-2 w-full"
               value={form.costoManual ?? 0}
               onChange={(e) => setForm({ ...form, costoManual: Number(e.target.value) })}
-              disabled={!!form.tecnicaCreativaId}
             />
             <div className="text-[10px] text-gray-400 mt-1">
-              Costo plano sumado al total. No escala con porciones.
+              Costo plano sumado al total (no escala con porciones). Si hay técnica vinculada,
+              el costeo usa la técnica; si no, usa este costo manual.
             </div>
           </div>
         </>
