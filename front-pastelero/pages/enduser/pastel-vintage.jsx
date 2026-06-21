@@ -68,8 +68,63 @@ export default function PastelVintage() {
     porcionSlug: "", pisosSlug: "", formaSlug: "", saborSlug: "", rellenoSlug: "",
     coberturaSlug: "", colorSlug: "", decoraciones: [], notas: "",
     fecha: "", entregaTipo: "recoger-local",
+    clienteNombre: "", clienteTelefono: "", clienteEmail: "",
+    colonia: "", municipio: "", direccion: "",
   });
   const upd = (patch) => setSel((s) => ({ ...s, ...patch }));
+
+  const [creando, setCreando] = useState(false);
+  const [pedido, setPedido] = useState(null); // { _id, total, anticipo, numeroOrden }
+  const [pagando, setPagando] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("pago") === "ok") {
+      // Confirmación tras Stripe.
+      setGeo("permitido");
+    }
+  }, []);
+
+  const finalizar = async () => {
+    if (!sel.clienteNombre || !sel.clienteTelefono) { alert("Necesitamos tu nombre y teléfono."); return; }
+    if (!sel.fecha) { alert("Elige la fecha de entrega."); return; }
+    if (sel.entregaTipo === "domicilio" && !sel.municipio) { alert("Indica tu municipio para el envío."); return; }
+    setCreando(true);
+    try {
+      const r = await fetch(`${API_BASE}/vintage-pedidos`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          porcionSlug: sel.porcionSlug, pisosSlug: sel.pisosSlug, formaSlug: sel.formaSlug,
+          saborSlug: sel.saborSlug, rellenoSlug: sel.rellenoSlug, coberturaSlug: sel.coberturaSlug,
+          colorSlug: sel.colorSlug, decoraciones: sel.decoraciones, notas: sel.notas, fecha: sel.fecha,
+          entrega: { tipo: sel.entregaTipo, colonia: sel.colonia, municipio: sel.municipio, direccion: sel.direccion },
+          cliente: { nombre: sel.clienteNombre, telefono: sel.clienteTelefono, email: sel.clienteEmail },
+        }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "Error");
+      setPedido(j.data);
+    } catch (e) {
+      alert("Error: " + e.message);
+    } finally {
+      setCreando(false);
+    }
+  };
+
+  const pagar = async (paymentOption) => {
+    setPagando(true);
+    try {
+      const r = await fetch(`${API_BASE}/checkout/vintage-checkout`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pedidoId: pedido._id, paymentOption }),
+      });
+      const j = await r.json();
+      if (!r.ok || !j.url) throw new Error(j.message || "No se pudo iniciar el pago");
+      window.location.href = j.url;
+    } catch (e) {
+      alert("Error: " + e.message);
+      setPagando(false);
+    }
+  };
 
   const porcion = cat.porciones.find((p) => p.slug === sel.porcionSlug);
   const color = cat.colores.find((c) => c.slug === sel.colorSlug);
@@ -206,11 +261,29 @@ export default function PastelVintage() {
           </div>
           <div>
             <p style={lbl}>Entrega</p>
-            <select value={sel.entregaTipo} onChange={(e) => upd({ entregaTipo: e.target.value })} style={{ width: "100%", border: "1.5px solid var(--border-color)", borderRadius: "var(--r-md)", padding: 10 }}>
+            <select value={sel.entregaTipo} onChange={(e) => upd({ entregaTipo: e.target.value })} style={inputStyle}>
               <option value="recoger-local">Recoger en local</option>
               <option value="domicilio">A domicilio (Jalisco)</option>
             </select>
-            <p style={{ fontSize: ".75rem", color: "var(--text-soft)", marginTop: 6 }}>El costo de envío se calcula en el siguiente paso (próximamente).</p>
+          </div>
+          {sel.entregaTipo === "domicilio" && (
+            <>
+              <div>
+                <p style={lbl}>Municipio</p>
+                <select value={sel.municipio} onChange={(e) => upd({ municipio: e.target.value })} style={inputStyle}>
+                  <option value="">Selecciona…</option>
+                  {MUNICIPIOS_JAL.filter((m) => m !== "Otro municipio de Jalisco").map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              <div><p style={lbl}>Colonia</p><input value={sel.colonia} onChange={(e) => upd({ colonia: e.target.value })} style={inputStyle} placeholder="Para calcular la zona de envío" /></div>
+              <div><p style={lbl}>Calle y número</p><input value={sel.direccion} onChange={(e) => upd({ direccion: e.target.value })} style={inputStyle} /></div>
+            </>
+          )}
+          <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: 12 }}>
+            <p style={lbl}>Tus datos</p>
+            <input value={sel.clienteNombre} onChange={(e) => upd({ clienteNombre: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} placeholder="Nombre completo" />
+            <input value={sel.clienteTelefono} onChange={(e) => upd({ clienteTelefono: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} placeholder="Teléfono" />
+            <input value={sel.clienteEmail} onChange={(e) => upd({ clienteEmail: e.target.value })} style={inputStyle} placeholder="Email (para tu confirmación)" />
           </div>
         </div>
       ),
@@ -248,7 +321,7 @@ export default function PastelVintage() {
                 style={{ padding: "10px 20px", borderRadius: "var(--r-pill)", border: "1.5px solid var(--border-strong)", background: "#fff", color: "var(--burdeos)", fontWeight: 700, cursor: step === 0 ? "not-allowed" : "pointer", opacity: step === 0 ? .5 : 1 }}>← Atrás</button>
               {step < pasos.length - 1
                 ? <button onClick={() => setStep((s) => s + 1)} style={{ padding: "10px 24px", borderRadius: "var(--r-pill)", border: "none", background: "var(--burdeos)", color: "#fff", fontWeight: 800, cursor: "pointer" }}>Siguiente →</button>
-                : <button disabled style={{ padding: "10px 24px", borderRadius: "var(--r-pill)", border: "none", background: "var(--rosa)", color: "#fff", fontWeight: 800, opacity: .7 }}>Continuar al pago (próximamente)</button>}
+                : <button onClick={finalizar} disabled={creando} style={{ padding: "10px 24px", borderRadius: "var(--r-pill)", border: "none", background: "var(--rosa)", color: "#fff", fontWeight: 800, cursor: "pointer", opacity: creando ? .6 : 1 }}>{creando ? "Creando…" : "Continuar al pago"}</button>}
             </div>
           </div>
 
@@ -281,12 +354,36 @@ export default function PastelVintage() {
           </aside>
         </div>
       </main>
+
+      {pedido && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(84,0,39,.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 16 }}>
+          <div style={{ background: "#fff", borderRadius: "var(--r-2xl)", maxWidth: 420, width: "100%", padding: "1.75rem", boxShadow: "var(--shadow-xl)" }}>
+            <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.6rem" }}>¡Casi listo! 🎂</h2>
+            <p style={{ color: "var(--text-soft)", fontSize: ".9rem", margin: "6px 0 14px" }}>
+              Pedido <strong>{pedido.numeroOrden}</strong>. Elige cómo pagar para apartar tu fecha.
+            </p>
+            <div style={{ background: "var(--rosa-4)", borderRadius: "var(--r-md)", padding: 12, marginBottom: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, color: "var(--burdeos)" }}><span>Total</span><span>${pedido.total.toLocaleString("es-MX")}</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: ".85rem", color: "var(--text-soft)" }}><span>Anticipo (50%)</span><span>${pedido.anticipo.toLocaleString("es-MX")}</span></div>
+            </div>
+            <button onClick={() => pagar("anticipo")} disabled={pagando} style={{ width: "100%", padding: 13, borderRadius: "var(--r-pill)", border: "none", background: "var(--burdeos)", color: "#fff", fontWeight: 800, cursor: "pointer", marginBottom: 8 }}>
+              {pagando ? "Redirigiendo…" : `Pagar anticipo $${pedido.anticipo.toLocaleString("es-MX")}`}
+            </button>
+            <button onClick={() => pagar("total")} disabled={pagando} style={{ width: "100%", padding: 13, borderRadius: "var(--r-pill)", border: "1.5px solid var(--burdeos)", background: "#fff", color: "var(--burdeos)", fontWeight: 800, cursor: "pointer" }}>
+              Pagar total ${pedido.total.toLocaleString("es-MX")}
+            </button>
+            <button onClick={() => setPedido(null)} style={{ width: "100%", marginTop: 10, background: "none", border: "none", color: "var(--text-soft)", fontSize: ".8rem", cursor: "pointer" }}>Cancelar</button>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`@media (max-width: 880px){ .vintage-grid { grid-template-columns: 1fr !important; } }`}</style>
     </div>
   );
 }
 
 const lbl = { fontSize: ".72rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: "var(--text-soft)", margin: "1rem 0 .4rem" };
+const inputStyle = { width: "100%", border: "1.5px solid var(--border-color)", borderRadius: "var(--r-md)", padding: 10, fontFamily: "var(--font-nunito)" };
 
 function Grid({ options, selected, onSelect, empty }) {
   if (!options || options.length === 0) return <p style={{ color: "var(--text-soft)", fontSize: ".85rem" }}>{empty || "Sin opciones disponibles."}</p>;
