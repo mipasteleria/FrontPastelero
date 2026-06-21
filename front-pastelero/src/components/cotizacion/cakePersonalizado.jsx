@@ -193,6 +193,9 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
     return { sabor, relleno, cobertura, decosSel };
   }, [form, catalogos]);
 
+  // Sabores disponibles según el producto (la receta de pastel y cupcake difiere).
+  const saboresProducto = catalogos.sabores.filter((s) => esCupcake ? s.paraCupcake : s.paraPastel);
+
   // Anticipación mínima → fecha `min`. Cupcakes por docenas; resto por porciones.
   const diasAnticipacion = esCupcake
     ? diasHabilesCupcake(form.evento.invitados)
@@ -667,6 +670,10 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
               <legend>{esCupcake ? "2. Sabores y docenas" : "3. Sabor del bizcocho"}</legend>
               {catalogos.sabores.length === 0 ? (
                 <p style={{ fontSize: ".82rem", color: "var(--text-soft)" }}>Cargando opciones…</p>
+              ) : saboresProducto.length === 0 ? (
+                <p style={{ fontSize: ".82rem", color: "var(--text-soft)" }}>
+                  Aún no hay sabores disponibles para {esCupcake ? "cupcakes" : "pastel"}.
+                </p>
               ) : esCupcake ? (
                 <div>
                   {form.saboresCupcake.map((row, i) => (
@@ -675,7 +682,7 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
                         <label className="fld">Sabor</label>
                         <select value={row.saborSlug} onChange={(e) => setSaborCupcakeRow(i, { saborSlug: e.target.value })}>
                           <option value="">Elige un sabor</option>
-                          {catalogos.sabores.map((s) => <option key={s.slug} value={s.slug}>{s.emoji ? `${s.emoji} ` : ""}{s.nombre}</option>)}
+                          {saboresProducto.map((s) => <option key={s.slug} value={s.slug}>{s.emoji ? `${s.emoji} ` : ""}{s.nombre}</option>)}
                         </select>
                       </div>
                       <div>
@@ -697,7 +704,7 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
                 </div>
               ) : (
                 <div className="opt-grid">
-                  {catalogos.sabores.map((s) => (
+                  {saboresProducto.map((s) => (
                     <button
                       type="button"
                       key={s.slug}

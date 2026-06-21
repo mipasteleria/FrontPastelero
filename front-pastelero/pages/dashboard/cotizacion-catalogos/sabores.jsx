@@ -13,6 +13,8 @@ const DEFAULT = {
   emoji: "",
   recetaId: "",
   costoManualPorPorcion: 0,
+  paraPastel: true,
+  paraCupcake: false,
   activo: true,
   orden: 0,
 };
@@ -92,6 +94,18 @@ export default function SaboresPage() {
           },
         },
         {
+          key: "aplica",
+          label: "Aplica a",
+          render: (d) => {
+            const tags = [];
+            if (d.paraPastel) tags.push("Pastel");
+            if (d.paraCupcake) tags.push("Cupcake");
+            return tags.length
+              ? <span className="text-xs">{tags.join(" · ")}</span>
+              : <span className="text-xs text-gray-300">—</span>;
+          },
+        },
+        {
           key: "recostear",
           label: "Recosteo",
           render: (d) => (
@@ -157,6 +171,23 @@ export default function SaboresPage() {
             />
             <div className="text-[10px] text-gray-400 mt-1">
               Solo se usa si no hay receta o si la receta aún no se ha recosteado.
+            </div>
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-xs font-semibold mb-1 text-gray-600">¿En qué productos aplica?</label>
+            <div className="flex gap-5">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={!!form.paraPastel} onChange={(e) => setForm({ ...form, paraPastel: e.target.checked })} />
+                Pastel
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={!!form.paraCupcake} onChange={(e) => setForm({ ...form, paraCupcake: e.target.checked })} />
+                Cupcake
+              </label>
+            </div>
+            <div className="text-[10px] text-gray-400 mt-1">
+              La receta del pastel y la del cupcake suelen ser distintas. Marca solo donde aplique
+              (puedes marcar ambos si el sabor sirve igual).
             </div>
           </div>
         </>

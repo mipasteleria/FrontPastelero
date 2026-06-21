@@ -938,6 +938,7 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
   const set = (k, v) => setEdit((e) => ({ ...e, [k]: v }));
   const esMesa = edit.tipoProducto === "mesa-postres";
   const esCup = edit.tipoProducto === "cupcake";
+  const saboresProd = (catalogos.sabores || []).filter((s) => esCup ? s.paraCupcake : s.paraPastel);
   const inp = "border rounded px-3 py-2 w-full text-sm";
   const lbl = "block text-xs font-semibold mb-1 text-gray-600 mt-2";
   return (
@@ -1000,7 +1001,7 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
                   <select className={inp} value={row.saborSlug}
                     onChange={(e) => set("saboresCupcake", edit.saboresCupcake.map((r, idx) => idx === i ? { ...r, saborSlug: e.target.value } : r))}>
                     <option value="">Elige sabor</option>
-                    {catalogos.sabores.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
+                    {saboresProd.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
                   </select>
                   <input type="number" min="1" className="border rounded px-2 py-2 text-sm w-20" value={row.docenas}
                     onChange={(e) => set("saboresCupcake", edit.saboresCupcake.map((r, idx) => idx === i ? { ...r, docenas: Math.max(1, Number(e.target.value) || 1) } : r))} />
@@ -1017,7 +1018,7 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
               <label className={lbl}>Bizcocho</label>
               <select className={inp} value={edit.saborSlug} onChange={(e) => set("saborSlug", e.target.value)}>
                 <option value="">—</option>
-                {catalogos.sabores.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
+                {saboresProd.map((s) => <option key={s.slug} value={s.slug}>{s.nombre}</option>)}
               </select>
             </div>
           )}
