@@ -74,6 +74,7 @@ export default function CotizacionPersonalizadaDetalle() {
   const [nuevoExtra, setNuevoExtra] = useState({ tipo: "manual", refId: "", concepto: "", costoUnitario: 0, cantidad: 1 });
   const [guardandoExtras, setGuardandoExtras] = useState(false);
   const [markupPct, setMarkupPct] = useState("");
+  const [coberturaGramos, setCoberturaGramos] = useState("");
   const [subiendoImg, setSubiendoImg] = useState(false);
   const [catalogos, setCatalogos] = useState({ sabores: [], rellenos: [], coberturas: [], decoraciones: [], postres: [] });
   const [editMode, setEditMode] = useState(false);
@@ -101,6 +102,11 @@ export default function CotizacionPersonalizadaDetalle() {
     });
     setExtras(j.data?.costeoExtras || []);
     setMarkupPct(j.data?.costeoSnapshot?.markupPct != null ? String(j.data.costeoSnapshot.markupPct) : "");
+    setCoberturaGramos(
+      j.data?.coberturaGramos != null
+        ? String(j.data.coberturaGramos)
+        : (j.data?.costeoSnapshot?.cobertura?.gramos != null ? String(j.data.costeoSnapshot.cobertura.gramos) : "")
+    );
     setCargando(false);
   };
 
@@ -291,6 +297,12 @@ export default function CotizacionPersonalizadaDetalle() {
   const calcularCosteo = async () => {
     setCalculando(true);
     try {
+      // Persistir los gramos de cobertura editados antes de recalcular.
+      await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify({ coberturaGramos: coberturaGramos === "" ? null : Number(coberturaGramos) }),
+      }).catch(() => {});
       const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}/calcular-costeo`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeader },
@@ -354,7 +366,8 @@ export default function CotizacionPersonalizadaDetalle() {
     const unit = Number(nuevoExtra.costoUnitario) || 0;
 
     if (tipo === "manual") {
-      if (!nuevoExtra.concepto.trim() || unit <= 0) return null;
+      // Se permite costo negativo para restar/descontar del total.
+      if (!nuevoExtra.concepto.trim() || !Number.isFinite(unit) || unit === 0) return null;
       return { tipo: "manual", refId: null, concepto: nuevoExtra.concepto.trim(), costoUnitario: round2(unit), cantidad, subtotal: round2(unit * cantidad) };
     }
     // receta / tecnica / insumo
@@ -396,7 +409,10 @@ export default function CotizacionPersonalizadaDetalle() {
       const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", ...authHeader },
-        body: JSON.stringify({ costeoExtras: extras }),
+        body: JSON.stringify({
+          costeoExtras: extras,
+          coberturaGramos: coberturaGramos === "" ? null : Number(coberturaGramos),
+        }),
       });
       if (!r.ok) throw new Error((await r.json()).message || "Error guardando extras");
       await calcularCosteo();
@@ -715,6 +731,22 @@ export default function CotizacionPersonalizadaDetalle() {
                   onChange={(e) => setMarkupPct(e.target.value)}
                   placeholder="Global por defecto (ej. 60)"
                 />
+                {cot.tipoProducto !== "mesa-postres" && (
+                  <div className="mb-3">
+                    <label className="block text-xs font-semibold mb-1">Gramos de cobertura</label>
+                    <input
+                      type="number" min="0" step="1"
+                      className="border rounded px-3 py-2 w-full"
+                      value={coberturaGramos}
+                      onChange={(e) => setCoberturaGramos(e.target.value)}
+                      placeholder={`Base: ${cs?.cobertura?.gramosBase ?? (cot.tipoProducto === "cupcake" ? Math.round((cot.evento?.invitados || 0) / 12 * 500) : Math.round((cot.evento?.invitados || 0) / 10 * 500))} g`}
+                    />
+                    <div className="text-[10px] text-gray-400 mt-1">
+                      Base: 500 g por docena de cupcakes / 500 g por 10 porciones. Edítalo si usas más o menos.
+                      Guarda con "Guardar extras y recalcular".
+                    </div>
+                  </div>
+                )}
                 <button
                   onClick={calcularCosteo}
                   disabled={calculando}
@@ -819,9 +851,9 @@ export default function CotizacionPersonalizadaDetalle() {
                       onChange={(e) => setNuevoExtra({ ...nuevoExtra, concepto: e.target.value })}
                     />
                     <input
-                      type="number" step="0.01" min="0"
+                      type="number" step="0.01"
                       className="border rounded px-2 py-1.5 w-full mb-2 text-sm"
-                      placeholder="Costo unitario"
+                      placeholder="Costo unitario (negativo para descontar)"
                       value={nuevoExtra.costoUnitario}
                       onChange={(e) => setNuevoExtra({ ...nuevoExtra, costoUnitario: e.target.value })}
                     />
@@ -1124,7 +1156,8 @@ function margenSub(detalle) {
     return detalle.porSabor.map((s) => `${s.nombre}${s.margenPct != null ? ` ${s.margenPct}%` : ""}`).join(", ");
   }
   const m = detalle.margenPct != null ? ` · ${detalle.margenPct}%${detalle.fuente === "receta" ? " (receta)" : ""}` : "";
-  return `${detalle.nombre || "—"}${m}`;
+  const g = detalle.gramos != null ? ` · ${detalle.gramos} g` : "";
+  return `${detalle.nombre || "—"}${g}${m}`;
 }
 
 function CosteoRow({ label, sub, costo, precio }) {
