@@ -529,55 +529,22 @@ export default function CotizacionPersonalizadaDetalle() {
                   onCancel={() => setEditMode(false)} onSave={guardarEdicion} guardando={guardandoEdit} />
               ) : (
               <>
-              <Info label="Número de orden" val={cot.numeroOrden || "—"} />
-              <Info label="Producto"   val={PRODUCTO_LABEL[cot.tipoProducto] || "Pastel"} />
-              <Info label="Evento"     val={`${cot.evento?.tipo} · ${cot.evento?.invitados} ${cot.tipoProducto === "mesa-postres" ? "personas" : "invitados"}`} />
-              <Info label="Fecha"      val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"} />
-
-              {cot.tipoProducto === "mesa-postres" ? (
-                <>
-                  <Info label="Postres / persona" val={cot.postresPorPersona || "—"} />
-                  <Info label="Total piezas" val={(cot.evento?.invitados || 0) * (cot.postresPorPersona || 0) || "—"} />
-                  <Info label="Postres" val={(cot.postres || []).map((p) => p.nombre).join(", ") || "—"} />
-                </>
-              ) : (
-                <>
-                  {cot.tipoProducto !== "cupcake" && (
-                    <Info label="Niveles" val={`${cot.niveles} piso${cot.niveles > 1 ? "s" : ""}`} />
-                  )}
-                  {cot.tipoProducto === "cupcake" && (cot.saboresCupcake || []).length ? (
-                    <Info label="Sabores" val={cot.saboresCupcake.map((r) => `${r.docenas} doc ${r.nombre}`).join(", ")} />
-                  ) : (
-                    <Info label={cot.tipoProducto === "cupcake" ? "Cupcake" : "Bizcocho"} val={cot.sabor?.nombre || "—"} />
-                  )}
-                  <Info label="Relleno"    val={cot.relleno?.nombre || "—"} />
-                  <Info label="Cobertura"  val={cot.cobertura?.nombre || "—"} />
-                  <Info label="Color principal" val={cot.colorPrincipal ? <span className="inline-block w-6 h-6 rounded-full align-middle" style={{ background: cot.colorPrincipal, border: "1px solid #eee" }} /> : "—"} />
-                  <Info label="Decoraciones" val={(cot.decoraciones || []).map((d) => d.nombre).join(", ") || "—"} />
-                </>
-              )}
-              <Info label="Estilo"     val={cot.estilo?.value || "—"} />
-              {cot.estilo?.comentarios && (
-                <div className="mt-2">
-                  <div className="text-xs font-bold uppercase text-gray-500">Comentarios</div>
-                  <p className="text-sm bg-gray-50 p-2 rounded">{cot.estilo.comentarios}</p>
+              {/* Diseño propuesto */}
+              <div className="mb-4">
+                <div className="text-[11px] font-bold uppercase tracking-wide text-gray-500 mb-1">Diseño propuesto</div>
+                <div className="rounded-xl overflow-hidden border border-rose-100 flex items-center justify-center" style={{ background: "var(--rosa-4,#FFF3F5)", minHeight: 200 }}>
+                  {cot.estilo?.imagenesInspiracion?.[0]
+                    ? <img src={cot.estilo.imagenesInspiracion[0]} alt="Diseño" style={{ width: "100%", maxHeight: 320, objectFit: "cover", display: "block" }} />
+                    : <span className="text-xs text-gray-400 p-4">Aún no hay imagen de diseño</span>}
                 </div>
-              )}
-              <div className="mt-3">
-                <div className="text-xs font-bold uppercase text-gray-500 mb-1">
-                  Imagen de diseño / inspiración
-                </div>
-                <div className="flex gap-2 flex-wrap items-center">
+                <div className="flex gap-2 flex-wrap items-center mt-2">
                   {(cot.estilo?.imagenesInspiracion || []).map((url) => (
                     <div key={url} className="relative">
                       <a href={url} target="_blank" rel="noopener noreferrer">
-                        <img src={url} alt="" style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 6, border: "1px solid #eee" }} />
+                        <img src={url} alt="" style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6, border: "1px solid #eee" }} />
                       </a>
-                      <button
-                        onClick={() => quitarImagenDiseno(url)}
-                        title="Quitar"
-                        className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full w-5 h-5 text-xs text-red-500 leading-none"
-                      >✕</button>
+                      <button onClick={() => quitarImagenDiseno(url)} title="Quitar"
+                        className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full w-5 h-5 text-xs text-red-500 leading-none">✕</button>
                     </div>
                   ))}
                   <label className="cursor-pointer text-xs px-3 py-2 rounded border border-dashed border-gray-400 text-gray-600 hover:bg-gray-50">
@@ -587,28 +554,68 @@ export default function CotizacionPersonalizadaDetalle() {
                 </div>
               </div>
 
-              <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Entrega</h3>
-              <Info label="Tipo"      val={cot.entrega?.tipo || "—"} />
-              <Info label="Fecha"     val={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"} />
-              <Info label="Hora"      val={cot.entrega?.hora || "—"} />
-              <Info label="Dirección" val={cot.entrega?.direccion || "—"} />
+              {/* Specs */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <DetSpec dot="#FF6F7D" k="Número de orden" v={cot.numeroOrden || "—"} />
+                <DetSpec dot="#6FC9A8" k="Producto" v={PRODUCTO_LABEL[cot.tipoProducto] || "Pastel"} />
+                <DetSpec dot="#FFC9A5" k="Ocasión" v={cot.evento?.tipo} cap />
+                <DetSpec dot="#D9C4E8" k="Fecha del evento" v={cot.evento?.fecha ? new Date(cot.evento.fecha).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"} />
 
+                {cot.tipoProducto === "mesa-postres" ? (
+                  <>
+                    <DetSpec dot="#6FC9A8" k="Personas" v={cot.evento?.invitados} />
+                    <DetSpec dot="#FFE99B" k="Postres por persona" v={cot.postresPorPersona} />
+                    <DetSpec dot="#FFC9A5" k="Total piezas" v={(cot.evento?.invitados || 0) * (cot.postresPorPersona || 0) || "—"} />
+                    <DetSpec dot="#D9C4E8" wide k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ") || "—"} />
+                  </>
+                ) : cot.tipoProducto === "cupcake" ? (
+                  <>
+                    <DetSpec dot="#6FC9A8" k="Cupcakes" v={`${cot.evento?.invitados || 0} (${(cot.evento?.invitados || 0) / 12} doc)`} />
+                    <DetSpec dot="#FFE99B" wide k="Sabores" v={
+                      (cot.saboresCupcake || []).length
+                        ? cot.saboresCupcake.map((r) => `${r.docenas} doc · ${r.nombre}`).join(", ")
+                        : (cot.sabor?.nombre || "—")
+                    } />
+                    <DetSpec dot="#FFC9A5" k="Relleno" v={cot.relleno?.nombre || "—"} />
+                    <DetSpec dot="#FFA1AA" k="Cobertura" v={cot.cobertura?.nombre || "—"} />
+                    <DetSpec dot="#9FB864" k="Decoración" v={(cot.decoraciones || []).map((d) => d.nombre).join(", ") || "—"} />
+                    <DetSpec dot="#FF6F7D" k="Color" v={cot.colorPrincipal ? <span className="inline-block w-5 h-5 rounded-full align-middle" style={{ background: cot.colorPrincipal, border: "1px solid #eee" }} /> : "—"} />
+                    <DetSpec dot="#6FC9A8" k="Estilo" v={cot.estilo?.value || "—"} cap />
+                  </>
+                ) : (
+                  <>
+                    <DetSpec dot="#6FC9A8" k="Porciones" v={cot.evento?.invitados} />
+                    <DetSpec dot="#FFE99B" k="Niveles" v={`${cot.niveles} piso${cot.niveles > 1 ? "s" : ""}`} />
+                    <DetSpec dot="#FFC9A5" k="Bizcocho" v={cot.sabor?.nombre || "—"} />
+                    <DetSpec dot="#FFA1AA" k="Relleno" v={cot.relleno?.nombre || "—"} />
+                    <DetSpec dot="#FFA1AA" k="Cobertura" v={cot.cobertura?.nombre || "—"} />
+                    <DetSpec dot="#D4E3A8" k="Forrado" v={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} />
+                    <DetSpec dot="#9FB864" wide k="Decoración" v={(cot.decoraciones || []).map((d) => d.nombre).join(", ") || "—"} />
+                    <DetSpec dot="#FF6F7D" k="Color" v={cot.colorPrincipal ? <span className="inline-block w-5 h-5 rounded-full align-middle" style={{ background: cot.colorPrincipal, border: "1px solid #eee" }} /> : "—"} />
+                    <DetSpec dot="#6FC9A8" k="Estilo" v={cot.estilo?.value || "—"} cap />
+                  </>
+                )}
+
+                {cot.estilo?.comentarios && <DetSpec dot="#9FB864" wide k="Mensaje / notas" v={cot.estilo.comentarios} />}
+                <DetSpec dot="#540027" wide k="Entrega" v={[cot.entrega?.tipo, cot.entrega?.hora, cot.entrega?.direccion].filter(Boolean).join(" · ") || "—"} />
+              </div>
+
+              {/* Cliente */}
               <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Cliente</h3>
-              <Info label="Nombre"   val={cot.cliente?.nombre} />
-              <Info label="Teléfono" val={cot.cliente?.telefono} />
-              <Info label="Email"    val={cot.cliente?.email || "—"} />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <DetSpec dot="#FF6F7D" k="Nombre" v={cot.cliente?.nombre} />
+                <DetSpec dot="#6FC9A8" k="Teléfono" v={cot.cliente?.telefono} />
+                <DetSpec dot="#D9C4E8" k="Email" v={cot.cliente?.email || "—"} />
+              </div>
 
+              {/* Validez */}
               <h3 className="font-bold text-md mt-5 mb-2" style={{ color: "var(--burdeos)" }}>Validez</h3>
-              <Info
-                label="Válida hasta"
-                val={cot.validUntil ? new Date(cot.validUntil).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"}
-              />
-              <Info
-                label="Imágenes"
-                val={cot.imagenesEliminadasAt
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <DetSpec dot="#FFC9A5" k="Válida hasta" v={cot.validUntil ? new Date(cot.validUntil).toLocaleDateString("es-MX", { timeZone: "UTC" }) : "—"} />
+                <DetSpec dot="#D4E3A8" k="Imágenes" v={cot.imagenesEliminadasAt
                   ? `Eliminadas el ${new Date(cot.imagenesEliminadasAt).toLocaleDateString("es-MX")}`
-                  : (cot.estilo?.imagenesInspiracion?.length || 0) + " adjunta(s)"}
-              />
+                  : (cot.estilo?.imagenesInspiracion?.length || 0) + " adjunta(s)"} />
+              </div>
               </>
               )}
             </section>
@@ -1145,6 +1152,19 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
         </button>
         <button onClick={onCancel} className="px-4 py-2 rounded text-sm font-semibold border text-gray-600">Cancelar</button>
       </div>
+    </div>
+  );
+}
+
+// Caja de detalle (etiqueta con punto de color + valor) estilo cliente.
+function DetSpec({ k, v, wide, cap, dot }) {
+  return (
+    <div className={`rounded-lg p-3 ${wide ? "sm:col-span-2" : ""}`} style={{ background: "var(--rosa-4,#FFF3F5)", border: "1px solid #F5D4DA" }}>
+      <div className="text-[11px] font-bold uppercase tracking-wide text-gray-500 flex items-center gap-1.5 mb-1">
+        <span className="inline-block rounded-full flex-shrink-0" style={{ width: 8, height: 8, background: dot || "#FF6F7D" }} />
+        {k}
+      </div>
+      <div className={`text-sm font-semibold ${cap ? "capitalize" : ""}`} style={{ color: "var(--burdeos)" }}>{v ?? "—"}</div>
     </div>
   );
 }
