@@ -151,6 +151,15 @@ const NAV_GROUPS = [
           </svg>
         ),
       },
+      {
+        href: "/dashboard/vintage-catalogos",
+        label: "Pastel Vintage",
+        icon: (
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3l2.5 5 5.5.5-4 4 1 5.5L12 20l-5 -2.5 1-5.5-4-4 5.5-.5z" />
+          </svg>
+        ),
+      },
     ],
   },
   {

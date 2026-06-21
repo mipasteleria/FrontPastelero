@@ -15,6 +15,7 @@ const DEFAULT = {
   costoManualPorPorcion: 0,
   paraPastel: true,
   paraCupcake: false,
+  paraVintage: false,
   activo: true,
   orden: 0,
 };
@@ -183,6 +184,10 @@ export default function SaboresPage() {
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={!!form.paraCupcake} onChange={(e) => setForm({ ...form, paraCupcake: e.target.checked })} />
                 Cupcake
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={!!form.paraVintage} onChange={(e) => setForm({ ...form, paraVintage: e.target.checked })} />
+                Vintage
               </label>
             </div>
             <div className="text-[10px] text-gray-400 mt-1">

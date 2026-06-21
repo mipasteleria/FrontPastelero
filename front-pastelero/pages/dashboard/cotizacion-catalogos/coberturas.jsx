@@ -11,6 +11,7 @@ const DEFAULT = {
   descripcion: "",
   recetaId: "",
   costoPorPorcion: 0,
+  paraVintage: false,
   esFondant: false,
   activo: true,
   orden: 0,
@@ -144,6 +145,12 @@ export default function CoberturasPage() {
               <span className="text-sm">
                 {form.esFondant ? "Sí — muestra toggle especial en /cotizacion" : "No"}
               </span>
+            </label>
+          </div>
+          <div className="md:col-span-2">
+            <label className="flex items-center gap-2 text-sm mt-1">
+              <input type="checkbox" checked={!!form.paraVintage} onChange={(e) => setForm({ ...form, paraVintage: e.target.checked })} />
+              Aplica al pastel vintage
             </label>
           </div>
         </>

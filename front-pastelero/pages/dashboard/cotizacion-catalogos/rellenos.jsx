@@ -11,6 +11,7 @@ const DEFAULT = {
   descripcion: "",
   recetaId: "",
   costoPorPorcion: 0,
+  paraVintage: false,
   activo: true,
   orden: 0,
 };
@@ -124,6 +125,12 @@ export default function RellenosPage() {
             <div className="text-[10px] text-gray-400 mt-1">
               Solo se usa si no hay receta o si la receta aún no se ha recosteado.
             </div>
+          </div>
+          <div className="md:col-span-2">
+            <label className="flex items-center gap-2 text-sm mt-1">
+              <input type="checkbox" checked={!!form.paraVintage} onChange={(e) => setForm({ ...form, paraVintage: e.target.checked })} />
+              Aplica al pastel vintage
+            </label>
           </div>
         </>
       )}

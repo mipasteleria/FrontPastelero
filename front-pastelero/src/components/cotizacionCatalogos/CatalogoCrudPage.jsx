@@ -41,6 +41,8 @@ export default function CatalogoCrudPage({
   renderRowExtra,
   // Hook opcional para post-procesar la lista (ej. ordenar visualmente).
   postProcesarLista,
+  // Base de la API (por defecto los catálogos de cotización).
+  basePath = "cotizacion-catalogos",
 }) {
   const { userToken } = useAuth();
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
@@ -50,7 +52,7 @@ export default function CatalogoCrudPage({
   const [editingId, setEditingId] = useState(null);
   const [cargando, setCargando] = useState(false);
 
-  const url = `${API_BASE}/cotizacion-catalogos/${tipo}`;
+  const url = `${API_BASE}/${basePath}/${tipo}`;
 
   // ── Cargar ───────────────────────────────────────────────────────
   const recargar = async () => {
