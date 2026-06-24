@@ -343,7 +343,9 @@ export default function CotizacionPersonalizadaDetalle() {
     }
     if (tipo === "insumo") {
       const i = fuentes.insumos.find((x) => String(x._id) === String(refId));
-      return i ? round2(i.cost || 0) : 0;
+      // El insumo guarda costo por paquete (cost) y unidades por paquete
+      // (quantity). El costo unitario real es cost / quantity.
+      return i ? round2((i.cost || 0) / (i.amount || 1)) : 0;
     }
     return 0;
   };
@@ -887,7 +889,7 @@ export default function CotizacionPersonalizadaDetalle() {
                         <option key={t._id} value={t._id}>{t.nombre}</option>
                       ))}
                       {nuevoExtra.tipo === "insumo" && fuentes.insumos.map((i) => (
-                        <option key={i._id} value={i._id}>{i.name} (${Number(i.cost).toFixed(2)}{i.unit ? `/${i.unit}` : ""})</option>
+                        <option key={i._id} value={i._id}>{i.name} (${Number((i.cost || 0) / (i.amount || 1)).toFixed(2)}{i.unit ? `/${i.unit}` : ""})</option>
                       ))}
                     </select>
                     <label className="block text-xs font-semibold mb-1">Costo unitario (editable)</label>
