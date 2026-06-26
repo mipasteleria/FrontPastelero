@@ -800,9 +800,6 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
                       >
                         <div className="deco-emoji">{d.emoji || "🎀"}</div>
                         <div className="deco-name">{d.nombre}</div>
-                        {d.costoManual > 0 && !d.tecnicaCreativaId && (
-                          <div className="deco-price">+${d.costoManual}</div>
-                        )}
                       </div>
                     );
                   })}
