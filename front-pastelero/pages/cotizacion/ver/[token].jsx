@@ -244,13 +244,13 @@ export default function VerCotizacion() {
       <div className="wrap">
         {/* Topbar */}
         <div className="topbar">
-          <div className="logo">
+          <Link href="/" className="logo" style={{ textDecoration: "none" }}>
             <div className="badge"><img src="/img/logo.JPG" alt="Pastelería el Ruiseñor" /></div>
             <div>
               <div className="eb">Pastelería</div>
               <div className="wm">El Ruiseñor</div>
             </div>
-          </div>
+          </Link>
           <div>
             <button className="ghost" onClick={copiarEnlace}>Compartir</button>
             <button className="ghost" onClick={() => window.print()}>Imprimir</button>
