@@ -80,6 +80,14 @@ export default function CotizacionesPersonalizadasList() {
 
   const inputCls = "border rounded px-3 py-2 text-sm";
 
+  // Entregas de hoy (agendadas) para impresión en lote.
+  const hoyISO = new Date().toISOString().slice(0, 10);
+  const entregasHoy = docs.filter((c) => (c.status || "").startsWith("Agendado") && aISO(c.evento?.fecha) === hoyISO);
+  const imprimirHoy = () => {
+    if (!entregasHoy.length) return;
+    window.open(`/dashboard/cotizaciones-personalizadas/imprimir?ids=${entregasHoy.map((c) => c._id).join(",")}`, "_blank");
+  };
+
   return (
     <div className={`text-text ${poppins.className}`}>
       <NavbarAdmin className="fixed top-0 w-full z-50" />
@@ -104,6 +112,15 @@ export default function CotizacionesPersonalizadasList() {
             {(q || fStatus || fFecha) && (
               <button onClick={() => { setQ(""); setFStatus(""); setFFecha(""); }} className="text-sm text-accent hover:underline px-2">Limpiar</button>
             )}
+            <button
+              onClick={imprimirHoy}
+              disabled={!entregasHoy.length}
+              className="px-4 py-2 rounded-full text-sm font-semibold text-white disabled:opacity-40"
+              style={{ background: "var(--rosa)" }}
+              title="Imprime los pedidos agendados con entrega hoy"
+            >
+              🖨️ Imprimir entregas de hoy ({entregasHoy.length})
+            </button>
           </div>
 
           {cargando ? (
@@ -147,6 +164,7 @@ export default function CotizacionesPersonalizadasList() {
                         <td className="px-4 py-3">
                           <div className="flex gap-3 items-center">
                             <Link href={`/dashboard/cotizaciones-personalizadas/${c._id}`} className="text-accent hover:underline text-xs font-semibold">Ver</Link>
+                            <a href={`/dashboard/cotizaciones-personalizadas/imprimir?ids=${c._id}`} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold hover:underline" style={{ color: "var(--burdeos)" }} title="Imprimir">🖨️</a>
                             <button onClick={() => eliminar(c)} className="text-red-500 hover:text-red-700 text-xs font-semibold">Eliminar</button>
                           </div>
                         </td>

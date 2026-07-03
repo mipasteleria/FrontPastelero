@@ -20,8 +20,12 @@ const formatDate = (dateString) => {
 export default function Costeorecetas() {
   const [recetas, setRecetas] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const [searchQuery, setSearchQuery] = useState("");
+  const itemsPerPage = 10;
   const { userToken } = useAuth();
+
+  // Reset a página 1 cuando cambia la búsqueda.
+  useEffect(() => { setCurrentPage(1); }, [searchQuery]);
 
   // Obtener recetas desde la API al montar el componente
   useEffect(() => {
@@ -96,11 +100,19 @@ export default function Costeorecetas() {
     }
   };
 
-  // Lógica de paginación
-  const totalPages = Math.ceil(recetas.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
+  // Filtro por nombre o id (insensible a acentos/mayúsculas).
+  const normaliza = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const queryNorm = normaliza(searchQuery);
+  const filteredRecetas = queryNorm
+    ? recetas.filter((r) => normaliza(r.nombre_receta).includes(queryNorm) || String(r._id).includes(queryNorm))
+    : recetas;
+
+  // Lógica de paginación (sobre filtradas).
+  const totalPages = Math.max(1, Math.ceil(filteredRecetas.length / itemsPerPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const indexOfLastItem = safeCurrentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentRecetas = recetas.slice(indexOfFirstItem, indexOfLastItem);
+  const currentRecetas = filteredRecetas.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -112,7 +124,31 @@ export default function Costeorecetas() {
       <div className="flex flex-row mt-16">
         <Asideadmin />
         <main className={`text-text ${poppins.className} flex-grow w-full px-4 md:px-8 max-w-screen-2xl mx-auto`}>
-          <h1 className={`text-4xl p-4 ${sofia.className}`}>Mis recetas</h1>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4">
+            <h1 className={`text-4xl ${sofia.className}`}>Mis recetas</h1>
+            <div className="relative w-full md:w-96">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar por nombre o id…"
+                className="bg-gray-50 border border-secondary text-sm rounded-full focus:ring-accent focus:border-accent block w-full pl-10 p-2.5"
+              />
+              <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m21 21-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" />
+              </svg>
+            </div>
+          </div>
+          {searchQuery && (
+            <p className="px-4 text-sm text-gray-600 -mt-2 mb-2">
+              {filteredRecetas.length} resultado{filteredRecetas.length === 1 ? "" : "s"} para <strong>&ldquo;{searchQuery}&rdquo;</strong>
+              {filteredRecetas.length === 0 && (
+                <button onClick={() => setSearchQuery("")} className="ml-3 underline" style={{ color: "var(--burdeos)" }}>
+                  Limpiar búsqueda
+                </button>
+              )}
+            </p>
+          )}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between overflow-x-auto shadow-md rounded-lg p-4 m-4">
             <div className="overflow-x-auto w-full">
               <table className="w-full text-sm text-left rtl:text-right text-text">

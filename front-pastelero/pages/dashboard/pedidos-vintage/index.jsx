@@ -36,6 +36,14 @@ export default function PedidosVintageList() {
     return true;
   }), [docs, q, fStatus]);
 
+  // Entregas de hoy (agendadas) para impresión en lote.
+  const hoyISO = new Date().toISOString().slice(0, 10);
+  const entregasHoy = docs.filter((c) => (c.status || "").startsWith("Agendado") && c.fecha && new Date(c.fecha).toISOString().slice(0, 10) === hoyISO);
+  const imprimirHoy = () => {
+    if (!entregasHoy.length) return;
+    window.open(`/dashboard/pedidos-vintage/imprimir?ids=${entregasHoy.map((c) => c._id).join(",")}`, "_blank");
+  };
+
   const eliminar = async (c) => {
     const ok = await Swal.fire({ title: "¿Eliminar pedido?", html: `${c.numeroOrden} — ${c.cliente?.nombre}`, icon: "warning", showCancelButton: true, confirmButtonColor: "#FF6F7D", confirmButtonText: "Sí, eliminar", cancelButtonText: "Cancelar", background: "#fff1f2", color: "#540027" });
     if (!ok.isConfirmed) return;
@@ -56,6 +64,15 @@ export default function PedidosVintageList() {
               <option value="">Todos los status</option>
               {["Pendiente", "Agendado con el 50%", "Agendado con el 100%", "Entregado", "Cancelado"].map((s) => <option key={s}>{s}</option>)}
             </select>
+            <button
+              onClick={imprimirHoy}
+              disabled={!entregasHoy.length}
+              className="px-4 py-2 rounded-full text-sm font-semibold text-white disabled:opacity-40"
+              style={{ background: "var(--rosa)" }}
+              title="Imprime los pedidos agendados con entrega hoy"
+            >
+              🖨️ Imprimir entregas de hoy ({entregasHoy.length})
+            </button>
           </div>
           {cargando ? <p className="text-gray-400">Cargando…</p> : filtrados.length === 0 ? (
             <div className="bg-white shadow rounded p-8 text-center text-gray-400">Sin pedidos.</div>
@@ -75,7 +92,7 @@ export default function PedidosVintageList() {
                         <td className="px-4 py-3">{fU(c.fecha)}</td>
                         <td className="px-4 py-3 font-semibold">${Number(c.total || 0).toLocaleString("es-MX")}</td>
                         <td className="px-4 py-3"><span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: (COLOR[key] || "#999") + "22", color: COLOR[key] || "#666" }}>{c.status}</span></td>
-                        <td className="px-4 py-3"><div className="flex gap-3"><Link href={`/dashboard/pedidos-vintage/${c._id}`} className="text-accent hover:underline text-xs font-semibold">Ver</Link><button onClick={() => eliminar(c)} className="text-red-500 text-xs font-semibold">Eliminar</button></div></td>
+                        <td className="px-4 py-3"><div className="flex gap-3"><Link href={`/dashboard/pedidos-vintage/${c._id}`} className="text-accent hover:underline text-xs font-semibold">Ver</Link><a href={`/dashboard/pedidos-vintage/imprimir?ids=${c._id}`} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold hover:underline" style={{ color: "var(--burdeos)" }} title="Imprimir">🖨️</a><button onClick={() => eliminar(c)} className="text-red-500 text-xs font-semibold">Eliminar</button></div></td>
                       </tr>
                     );
                   })}
