@@ -10,7 +10,7 @@ const DIAS = ["L", "M", "M", "J", "V", "S", "D"];
 // Página de impresión por tipo de pedido.
 const PRINT_PATH = {
   galletas: "/dashboard/pedidos-galletas/imprimir",
-  postres: null, // los postres no tienen página de impresión propia aún
+  postres: "/dashboard/postres/imprimir",
   vintage: "/dashboard/pedidos-vintage/imprimir",
   cotizacion: "/dashboard/cotizaciones-personalizadas/imprimir",
 };
