@@ -154,7 +154,12 @@ export default function PostresCheckout() {
       const res = await axios.post(`${API_BASE}/postrePedidos/checkout`, payload);
       setClientSecret(res.data.clientSecret);
       setOrderInfo({ numeroOrden: res.data.numeroOrden, total: res.data.total });
-      try { localStorage.setItem("lastPostreOrden", res.data.numeroOrden); } catch {}
+      try {
+        localStorage.setItem("lastPostreOrden", res.data.numeroOrden);
+        // Prueba de propiedad para consultar el pedido sin exponer datos a
+        // enumeración por número de orden.
+        localStorage.setItem("lastPostreEmail", cliente.email.trim().toLowerCase());
+      } catch {}
       setTimeout(() => {
         document.getElementById("stripe-embedded")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200);

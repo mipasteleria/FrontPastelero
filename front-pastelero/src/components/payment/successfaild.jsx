@@ -112,6 +112,7 @@ export default function SuccessFail() {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     email: customerEmail,
@@ -159,9 +160,10 @@ export default function SuccessFail() {
             router.push("/checkout");
         }
 
-        if (status === "complete") {
-            enviarNotificacion(); // Enviar la notificación siempre que el pago se complete
-        }
+        // La notificación de "pago realizado" se crea en el backend (webhook
+        // de Stripe), no desde el cliente: es más fiable (no depende de que
+        // el navegador llegue a esta pantalla) y evita exponer la creación
+        // de notificaciones a usuarios sin rol admin.
     }, [status, router]);
 
     if (status === "complete") {

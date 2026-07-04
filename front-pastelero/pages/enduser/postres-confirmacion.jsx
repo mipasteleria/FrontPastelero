@@ -36,7 +36,9 @@ export default function PostresConfirmacion() {
 
     async function fetchPedido(numeroOrden) {
       try {
-        const res = await axios.get(`${API_BASE}/postrePedidos/orden/${numeroOrden}`);
+        let email = "";
+        try { email = localStorage.getItem("lastPostreEmail") || ""; } catch {}
+        const res = await axios.get(`${API_BASE}/postrePedidos/orden/${numeroOrden}`, { params: { email } });
         if (!cancelled) {
           setPedido(res.data.data);
           setError("");

@@ -157,6 +157,7 @@ export default function GenerarCotizacion() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           mensaje: `${userName} tu cotización de ${priceType} ha sido aprobada`,

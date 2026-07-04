@@ -228,7 +228,12 @@ export default function GalletasCheckout() {
       setClientSecret(res.data.clientSecret);
       setOrderInfo({ numeroOrden: res.data.numeroOrden, total: res.data.total });
       // Persist for the confirmation page (it doesn't have direct access to session_id)
-      try { localStorage.setItem("lastGalletaOrden", res.data.numeroOrden); } catch {}
+      try {
+        localStorage.setItem("lastGalletaOrden", res.data.numeroOrden);
+        // El email se usa como prueba de propiedad al consultar el pedido
+        // (evita que se enumeren pedidos ajenos por número de orden).
+        localStorage.setItem("lastGalletaEmail", cliente.email.trim().toLowerCase());
+      } catch {}
       // Scroll to embedded checkout
       setTimeout(() => {
         document.getElementById("stripe-embedded")?.scrollIntoView({ behavior: "smooth", block: "start" });

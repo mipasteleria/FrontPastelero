@@ -39,7 +39,9 @@ export default function GalletasConfirmacion() {
 
     async function fetchPedido(numeroOrden) {
       try {
-        const res = await axios.get(`${API_BASE}/galletaPedidos/orden/${numeroOrden}`);
+        let email = "";
+        try { email = localStorage.getItem("lastGalletaEmail") || ""; } catch {}
+        const res = await axios.get(`${API_BASE}/galletaPedidos/orden/${numeroOrden}`, { params: { email } });
         if (!cancelled) {
           setPedido(res.data.data);
           setError("");

@@ -110,7 +110,7 @@ const NotificationDropdown = ({ notifications, onDelete, linkHref, innerRef }) =
 
 /* ─── Component ─────────────────────────────────────────────── */
 const NavbarAdmin = () => {
-  const { isAdmin, setIsAdmin, isLoggedIn, setIsLoggedIn, userEmail, logout, userId } = useAuth();
+  const { isAdmin, setIsAdmin, isLoggedIn, setIsLoggedIn, userEmail, logout, userId, userToken } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const router = useRouter();
   const { asPath } = router;
@@ -156,7 +156,7 @@ const NavbarAdmin = () => {
     if (markAsReadOnClose && !showNotificacionesUsuario) {
       const marcarNotificacionesComoLeidas = async () => {
         try {
-          await fetch(`${API_BASE}/notificaciones/marcarLeidas`, { method: "PATCH" });
+          await fetch(`${API_BASE}/notificaciones/marcarLeidas`, { method: "PATCH", headers: { Authorization: `Bearer ${userToken}` } });
           setNotificacionesUsuario((prev) => prev.map((n) => ({ ...n, leida: true })));
           setMarkAsReadOnClose(false);
         } catch (error) {
@@ -190,14 +190,13 @@ const NavbarAdmin = () => {
     if (isLoggedIn) {
       const obtenerNotificaciones = async () => {
         try {
-          const response = await fetch(`${API_BASE}/notificaciones`);
+          const response = await fetch(`${API_BASE}/notificaciones`, { headers: { Authorization: `Bearer ${userToken}` } });
+          if (!response.ok) return;
           let data = await response.json();
-          data = data.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-          if (isAdmin) {
-            setNotificaciones(data.filter((n) => !n.userId));
-          } else {
-            setNotificacionesUsuario(data.filter((n) => n.userId === userId));
-          }
+          // El servidor ya devuelve solo lo que corresponde al rol.
+          data = (Array.isArray(data) ? data : []).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+          if (isAdmin) setNotificaciones(data);
+          else setNotificacionesUsuario(data);
         } catch (error) {
           console.error("Error al obtener notificaciones:", error);
         }
@@ -208,7 +207,7 @@ const NavbarAdmin = () => {
 
   const handleDeleteNotificacion = async (id) => {
     try {
-      await fetch(`${API_BASE}/notificaciones/${id}`, { method: "DELETE" });
+      await fetch(`${API_BASE}/notificaciones/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${userToken}` } });
       setNotificaciones((prev) => prev.filter((n) => n._id !== id));
     } catch (error) {
       console.error("Error al borrar la notificación:", error);
@@ -217,7 +216,7 @@ const NavbarAdmin = () => {
 
   const handleDeleteNotificacionUsuario = async (id) => {
     try {
-      await fetch(`${API_BASE}/notificaciones/${id}`, { method: "DELETE" });
+      await fetch(`${API_BASE}/notificaciones/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${userToken}` } });
       setNotificacionesUsuario((prev) => prev.filter((n) => n._id !== id));
     } catch (error) {
       console.error("Error al borrar la notificación del usuario:", error);
