@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
-import { HORAS_DISPONIBLES, esDiaNoDisponible, MENSAJE_DIA } from "@/src/lib/disponibilidad";
+import { HORAS_DISPONIBLES, esDiaNoDisponible, MENSAJE_DIA, MENSAJE_BLOQUEADA, fetchFechasBloqueadas } from "@/src/lib/disponibilidad";
 import { Sofia as SofiaFont } from "next/font/google";
 
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -125,6 +125,8 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
   });
   const [enviando, setEnviando] = useState(false);
   const [subiendoImg, setSubiendoImg] = useState(false);
+  const [bloqueadas, setBloqueadas] = useState(new Set());
+  useEffect(() => { fetchFechasBloqueadas(API_BASE).then(setBloqueadas); }, []);
 
   // ── Pre-llenar email del usuario logeado ─────────────────────────
   useEffect(() => {
@@ -272,6 +274,7 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
     if (!form.evento.tipo)     return alertarFalta("Selecciona el tipo de evento");
     if (!form.evento.fecha)    return alertarFalta("Selecciona la fecha del evento");
     if (esDiaNoDisponible(form.evento.fecha)) return alertarFalta(MENSAJE_DIA);
+    if (bloqueadas.has(form.evento.fecha)) return alertarFalta(MENSAJE_BLOQUEADA);
     if (esCupcake) {
       const rowsValidas = (form.saboresCupcake || []).filter((r) => r.saborSlug && Number(r.docenas) > 0);
       if (rowsValidas.length === 0) return alertarFalta("Elige al menos un sabor con sus docenas");
@@ -611,6 +614,7 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
                     min={fechaMinEvento}
                     onChange={(e) => {
                       if (esDiaNoDisponible(e.target.value)) { alertarFalta(MENSAJE_DIA); return; }
+                      if (bloqueadas.has(e.target.value)) { alertarFalta(MENSAJE_BLOQUEADA); return; }
                       setEvento({ fecha: e.target.value });
                     }}
                   />

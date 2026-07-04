@@ -25,3 +25,16 @@ export function esDiaNoDisponible(yyyymmdd) {
 }
 
 export const MENSAJE_DIA = "Los domingos no hay servicio. Elige otro día (Lun–Sáb).";
+export const MENSAJE_BLOQUEADA = "Esa fecha no está disponible. Elige otro día, por favor.";
+
+// Fechas bloqueadas por el admin (dashboard → calendario). Devuelve un Set
+// de "YYYY-MM-DD". Falla silenciosamente a un Set vacío.
+export async function fetchFechasBloqueadas(apiBase) {
+  try {
+    const r = await fetch(`${apiBase}/fechas-bloqueadas`);
+    const j = await r.json();
+    return new Set((j.data || []).map((b) => b.fecha));
+  } catch {
+    return new Set();
+  }
+}

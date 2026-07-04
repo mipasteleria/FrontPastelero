@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
-import { esDiaNoDisponible, MENSAJE_DIA } from "@/src/lib/disponibilidad";
+import { esDiaNoDisponible, MENSAJE_DIA, MENSAJE_BLOQUEADA, fetchFechasBloqueadas } from "@/src/lib/disponibilidad";
 import { setVintage } from "@/src/lib/unifiedCart";
 
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -77,6 +77,8 @@ export default function PastelVintage() {
   const [creando, setCreando] = useState(false);
   const [pedido, setPedido] = useState(null); // { _id, total, anticipo, numeroOrden }
   const [pagando, setPagando] = useState(false);
+  const [bloqueadas, setBloqueadas] = useState(new Set());
+  useEffect(() => { fetchFechasBloqueadas(API_BASE).then(setBloqueadas); }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("pago") === "ok") {
@@ -272,7 +274,7 @@ export default function PastelVintage() {
           <div>
             <p style={lbl}>Fecha de entrega</p>
             <input type="date" min={fechaMin} value={sel.fecha}
-              onChange={(e) => { if (esDiaNoDisponible(e.target.value)) { alert(MENSAJE_DIA); return; } upd({ fecha: e.target.value }); }}
+              onChange={(e) => { if (esDiaNoDisponible(e.target.value)) { alert(MENSAJE_DIA); return; } if (bloqueadas.has(e.target.value)) { alert(MENSAJE_BLOQUEADA); return; } upd({ fecha: e.target.value }); }}
               style={{ width: "100%", border: "1.5px solid var(--border-color)", borderRadius: "var(--r-md)", padding: 10 }} />
           </div>
           <div>

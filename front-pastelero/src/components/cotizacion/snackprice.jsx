@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
-import { HORAS_DISPONIBLES, esDiaNoDisponible, MENSAJE_DIA } from "@/src/lib/disponibilidad";
+import { HORAS_DISPONIBLES, esDiaNoDisponible, MENSAJE_DIA, MENSAJE_BLOQUEADA, fetchFechasBloqueadas } from "@/src/lib/disponibilidad";
 import { Sofia as SofiaFont } from "next/font/google";
 
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -80,6 +80,8 @@ export default function Snackprice({ adminMode = false } = {}) {
   const [postres, setPostres] = useState([]);
   const [enviando, setEnviando] = useState(false);
   const [subiendoImg, setSubiendoImg] = useState(false);
+  const [bloqueadas, setBloqueadas] = useState(new Set());
+  useEffect(() => { fetchFechasBloqueadas(API_BASE).then(setBloqueadas); }, []);
 
   useEffect(() => {
     if (userEmail && !adminMode) setForm((f) => ({ ...f, cliente: { ...f.cliente, email: userEmail } }));
@@ -156,6 +158,7 @@ export default function Snackprice({ adminMode = false } = {}) {
     if (!form.evento.tipo)      return alertarFalta("Selecciona el tipo de evento");
     if (!form.evento.fecha)     return alertarFalta("Selecciona la fecha del evento");
     if (esDiaNoDisponible(form.evento.fecha)) return alertarFalta(MENSAJE_DIA);
+    if (bloqueadas.has(form.evento.fecha)) return alertarFalta(MENSAJE_BLOQUEADA);
     if (!form.evento.invitados) return alertarFalta("Indica cuántas personas");
     if (form.postresSlugs.length === 0) return alertarFalta("Elige al menos un postre");
     if (!form.cliente.nombre)   return alertarFalta("Necesitamos tu nombre");
@@ -319,6 +322,7 @@ export default function Snackprice({ adminMode = false } = {}) {
                     min={fechaMinEvento}
                     onChange={(e) => {
                       if (esDiaNoDisponible(e.target.value)) { alertarFalta(MENSAJE_DIA); return; }
+                      if (bloqueadas.has(e.target.value)) { alertarFalta(MENSAJE_BLOQUEADA); return; }
                       setEvento({ fecha: e.target.value });
                     }}
                   />
