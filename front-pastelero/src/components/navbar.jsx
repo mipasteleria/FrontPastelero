@@ -358,7 +358,7 @@ const NavbarAdmin = () => {
                 <button style={pillGhost} onClick={handleLogout}>Salir</button>
 
                 {/* Cart */}
-                <Link href="/enduser/carrito">
+                <Link href="/enduser/mi-carrito">
                   <button
                     className="flex items-center gap-1 rounded-xl px-2 py-1.5 transition-colors hover:bg-rosa-4"
                     style={{ color: "var(--burdeos)", fontFamily: "var(--font-nunito)", fontWeight: 700, fontSize: "0.8rem" }}
@@ -591,7 +591,7 @@ const NavbarAdmin = () => {
                     </div>
                     {/* Cart + Help row */}
                     <div className="flex items-center gap-3 mt-3 px-3">
-                      <Link href="/enduser/carrito" onClick={closeDropdown}>
+                      <Link href="/enduser/mi-carrito" onClick={closeDropdown}>
                         <button
                           className="flex items-center gap-1.5 rounded-xl px-3 py-2 font-bold text-sm transition-colors hover:bg-rosa-4"
                           style={{ color: "var(--burdeos)", fontFamily: "var(--font-nunito)", border: "1.5px solid var(--border-strong)" }}

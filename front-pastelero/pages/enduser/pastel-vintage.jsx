@@ -3,6 +3,7 @@ import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
 import { esDiaNoDisponible, MENSAJE_DIA } from "@/src/lib/disponibilidad";
+import { setVintage } from "@/src/lib/unifiedCart";
 
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "700", "800"] });
@@ -108,6 +109,21 @@ export default function PastelVintage() {
     } finally {
       setCreando(false);
     }
+  };
+
+  // Guarda la configuración en el carrito unificado (el pedido se crea al
+  // pagar el carrito; ahí el vintage se paga completo).
+  const agregarAlCarrito = () => {
+    if (!sel.porcionSlug) { alert("Elige el tamaño primero."); return; }
+    setVintage({
+      config: {
+        porcionSlug: sel.porcionSlug, pisosSlug: sel.pisosSlug, formaSlug: sel.formaSlug,
+        saborSlug: sel.saborSlug, rellenoSlug: sel.rellenoSlug, coberturaSlug: sel.coberturaSlug,
+        colorSlug: sel.colorSlug, decoraciones: sel.decoraciones, notas: sel.notas,
+      },
+      resumen: cotz,
+    });
+    window.location.href = "/enduser/mi-carrito";
   };
 
   const pagar = async (paymentOption) => {
@@ -321,7 +337,12 @@ export default function PastelVintage() {
                 style={{ padding: "10px 20px", borderRadius: "var(--r-pill)", border: "1.5px solid var(--border-strong)", background: "#fff", color: "var(--burdeos)", fontWeight: 700, cursor: step === 0 ? "not-allowed" : "pointer", opacity: step === 0 ? .5 : 1 }}>← Atrás</button>
               {step < pasos.length - 1
                 ? <button onClick={() => setStep((s) => s + 1)} style={{ padding: "10px 24px", borderRadius: "var(--r-pill)", border: "none", background: "var(--burdeos)", color: "#fff", fontWeight: 800, cursor: "pointer" }}>Siguiente →</button>
-                : <button onClick={finalizar} disabled={creando} style={{ padding: "10px 24px", borderRadius: "var(--r-pill)", border: "none", background: "var(--rosa)", color: "#fff", fontWeight: 800, cursor: "pointer", opacity: creando ? .6 : 1 }}>{creando ? "Creando…" : "Continuar al pago"}</button>}
+                : (
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button onClick={agregarAlCarrito} style={{ padding: "10px 20px", borderRadius: "var(--r-pill)", border: "1.5px solid var(--burdeos)", background: "#fff", color: "var(--burdeos)", fontWeight: 800, cursor: "pointer" }}>🛒 Agregar al carrito</button>
+                    <button onClick={finalizar} disabled={creando} style={{ padding: "10px 24px", borderRadius: "var(--r-pill)", border: "none", background: "var(--rosa)", color: "#fff", fontWeight: 800, cursor: "pointer", opacity: creando ? .6 : 1 }}>{creando ? "Creando…" : "Continuar al pago"}</button>
+                  </div>
+                )}
             </div>
           </div>
 
