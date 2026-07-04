@@ -177,6 +177,16 @@ const NAV_GROUPS = [
         ),
       },
       {
+        href: "/dashboard/cursos",
+        label: "Cursos",
+        icon: (
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="5" width="18" height="13" rx="2" />
+            <path d="m10 9 5 3-5 3V9ZM8 21h8" />
+          </svg>
+        ),
+      },
+      {
         href: "/dashboard/pedidos-vintage",
         label: "Pedidos Pastel Vintage",
         icon: (
