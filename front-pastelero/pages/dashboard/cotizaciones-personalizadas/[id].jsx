@@ -99,6 +99,7 @@ export default function CotizacionPersonalizadaDetalle() {
       anticipo: anticipoPre,
       anticipoMetodo: j.data?.anticipoMetodo || "",
       anticipoReferencia: j.data?.anticipoReferencia || "",
+      saldoPendiente: j.data?.saldoPendiente ?? "",
     });
     setExtras(j.data?.costeoExtras || []);
     setMarkupPct(j.data?.costeoSnapshot?.markupPct != null ? String(j.data.costeoSnapshot.markupPct) : "");
@@ -282,11 +283,49 @@ export default function CotizacionPersonalizadaDetalle() {
           anticipo: editForm.anticipo === "" ? undefined : Number(editForm.anticipo),
           anticipoMetodo: editForm.anticipoMetodo,
           anticipoReferencia: editForm.anticipoReferencia,
+          saldoPendiente: editForm.saldoPendiente === "" ? undefined : Number(editForm.saldoPendiente),
         }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || "Error");
       Swal.fire({ icon: "success", title: "Actualizado", timer: 1500, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
+      recargar();
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, timer: 2200, showConfirmButton: false });
+    }
+  };
+
+  // ── Marcar saldo liquidado (pago del pendiente recibido) ─────────
+  const marcarSaldoLiquidado = async () => {
+    const { value: vals, isDismissed } = await Swal.fire({
+      title: "Registrar pago del saldo",
+      html: `
+        <select id="sw-metodo" class="swal2-input" style="width:80%">
+          <option value="transferencia">Transferencia</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="otro">Otro</option>
+        </select>
+        <input id="sw-ref" class="swal2-input" style="width:80%" placeholder="Referencia / nota (opcional)">`,
+      showCancelButton: true, confirmButtonColor: "#540027", confirmButtonText: "Registrar",
+      preConfirm: () => ({
+        metodo: document.getElementById("sw-metodo").value,
+        ref: document.getElementById("sw-ref").value,
+      }),
+    });
+    if (isDismissed || !vals) return;
+    try {
+      const saldoAnterior = cot.saldoPendiente ?? "";
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/${id}`, {
+        method: "PUT", headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify({ saldoPendiente: 0 }),
+      });
+      if (!r.ok) throw new Error((await r.json()).message || "Error");
+      // Nota interna con el registro del pago.
+      await fetch(`${API_BASE}/cotizacion-personalizada/${id}/notas-internas`, {
+        method: "POST", headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify({ texto: `Saldo liquidado${saldoAnterior !== "" ? ` ($${saldoAnterior})` : ""} vía ${vals.metodo}${vals.ref ? ` · Ref: ${vals.ref}` : ""}.` }),
+      }).catch(() => {});
+      Swal.fire({ icon: "success", title: "Saldo liquidado ✓", timer: 1600, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
       recargar();
     } catch (e) {
       Swal.fire({ icon: "error", title: e.message, timer: 2200, showConfirmButton: false });
@@ -651,7 +690,31 @@ export default function CotizacionPersonalizadaDetalle() {
                   onChange={(e) => setEditForm({ ...editForm, anticipo: e.target.value })}
                 />
 
-                {editForm.status === "Agendado · producción" && (
+                <label className="block text-xs font-semibold mb-1">Saldo pendiente</label>
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="number"
+                    className="border rounded px-3 py-2 w-full"
+                    value={editForm.saldoPendiente}
+                    onChange={(e) => setEditForm({ ...editForm, saldoPendiente: e.target.value })}
+                    placeholder="MXN"
+                  />
+                  {Number(editForm.saldoPendiente) > 0 && (
+                    <button
+                      onClick={marcarSaldoLiquidado}
+                      className="px-3 py-2 rounded text-xs font-semibold text-white whitespace-nowrap"
+                      style={{ background: "var(--menta-deep, #6FC9A8)" }}
+                      title="Registrar que el cliente pagó el saldo (método y referencia)"
+                    >
+                      ✓ Liquidar
+                    </button>
+                  )}
+                </div>
+                {Number(cot.saldoPendiente) === 0 && cot.precio > 0 && (
+                  <p className="text-[11px] mb-3" style={{ color: "var(--menta-deep, #2e9e76)" }}>✓ Sin saldo pendiente — pedido pagado.</p>
+                )}
+
+                {(editForm.status || "").startsWith("Agendado") && (
                   <div className="mb-3 p-3 rounded" style={{ background: "var(--rosa-4,#FFF3F5)", border: "1px solid var(--rosa)" }}>
                     <p className="text-[11px] font-semibold mb-2" style={{ color: "var(--burdeos)" }}>
                       Confirma el anticipo con el que apartaron:
