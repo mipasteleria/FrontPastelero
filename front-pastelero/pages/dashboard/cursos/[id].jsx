@@ -244,9 +244,30 @@ const ESTADO_VIDEO = {
 };
 
 function Leccion({ lec, subiendoPct, onVideo, onThumb, onSave, onDelete }) {
+  const { userToken } = useAuth();
   const [titulo, setTitulo] = useState(lec.titulo);
   const [caps, setCaps] = useState(lec.video?.capitulos || []);
+  const [subiendoDoc, setSubiendoDoc] = useState(false);
   const est = ESTADO_VIDEO[lec.video?.estado || "sin_video"];
+
+  // Subir un descargable (PDF, etc.) vía el /upload existente.
+  const subirDescargable = async (file) => {
+    if (!file) return;
+    setSubiendoDoc(true);
+    try {
+      const fd = new FormData();
+      fd.append("files", file);
+      const r = await fetch(`${API_BASE}/upload`, { method: "POST", headers: { Authorization: `Bearer ${userToken}` }, body: fd });
+      const j = await r.json();
+      const up = Array.isArray(j) ? j[0] : j;
+      if (!up?.fileUrl) throw new Error("Subida incompleta");
+      onSave({ descargables: [...(lec.descargables || []), { nombre: file.name, url: up.fileUrl }] });
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message });
+    } finally {
+      setSubiendoDoc(false);
+    }
+  };
 
   return (
     <div className="bg-white shadow rounded-lg p-4">
@@ -281,6 +302,23 @@ function Leccion({ lec, subiendoPct, onVideo, onThumb, onSave, onDelete }) {
           </label>
         </div>
       </div>
+
+      {/* Descargables */}
+      <details className="mt-3">
+        <summary className="text-xs font-semibold text-gray-600 cursor-pointer">Descargables ({(lec.descargables || []).length})</summary>
+        <div className="mt-2 space-y-1.5">
+          {(lec.descargables || []).map((d, i) => (
+            <div key={i} className="flex items-center justify-between bg-gray-50 rounded px-2 py-1 text-xs">
+              <a href={d.url} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline truncate">📄 {d.nombre}</a>
+              <button onClick={() => onSave({ descargables: lec.descargables.filter((_, idx) => idx !== i) })} className="text-red-400">✕</button>
+            </div>
+          ))}
+          <label className="cursor-pointer text-xs px-3 py-2 rounded border border-dashed border-gray-400 text-gray-600 hover:bg-gray-50 inline-block">
+            {subiendoDoc ? "Subiendo…" : "+ Subir descargable (PDF, etc.)"}
+            <input type="file" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; subirDescargable(f); }} disabled={subiendoDoc} />
+          </label>
+        </div>
+      </details>
 
       {/* Capítulos (saltos del player) */}
       <details className="mt-3">
