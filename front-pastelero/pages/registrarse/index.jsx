@@ -251,14 +251,22 @@ export default function Login() {
             htmlFor="phone"
             className="block mb-2 text-sm font-medium text-gray-900"
           >
-            Número de teléfono (961-456-7890)
+            Número de celular (10 dígitos)
           </label>
           <input
             type="tel"
             id="phone"
-            pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+            inputMode="numeric"
+            autoComplete="tel"
+            maxLength={10}
             {...register("phone", {
-              required: "Número de teléfono es requerido",
+              required: "Número de celular es requerido",
+              // Deja solo dígitos mientras escribe (pega con guiones/espacios ok)
+              onChange: (e) => {
+                e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+              },
+              validate: (v) =>
+                /^\d{10}$/.test(v || "") || "Debe tener exactamente 10 dígitos",
             })}
             className="bg-gray-50 border border-secondary text-gray-900 text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5"
             placeholder=" "

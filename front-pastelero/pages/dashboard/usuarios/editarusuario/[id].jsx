@@ -336,9 +336,9 @@ export default function UsuarioForm() {
                 <InputField
                   id="phone"
                   type="tel"
-                  label="Número de teléfono (961-456-7890)"
-                  placeholder="961-456-7890"
-                  pattern={/^\d{3}-\d{3}-\d{4}$/}
+                  label="Número de celular (10 dígitos)"
+                  placeholder="3312345678"
+                  pattern={/^\d{10}$/}
                   register={register}
                   errors={errors.phone}
                 />

@@ -36,11 +36,9 @@ export default function Cakeprice() {
     if (h < 18) TIME_OPTIONS.push(`${String(h).padStart(2, "0")}:30`);
   }
 
+  // Solo dígitos, máx 10 (el back valida ^\d{10}$).
   function formatPhone(raw) {
-    const digits = raw.replace(/\D/g, "").slice(0, 10);
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    return raw.replace(/\D/g, "").slice(0, 10);
   }
 
   useEffect(() => {
@@ -587,7 +585,7 @@ export default function Cakeprice() {
               <input
                 className="inputContactPhoneCake bg-gray-50 border border-secondary text-sm rounded-lg focus:ring-accent focus:border-accent block w-full p-2.5 dark:placeholder-secondary dark:focus:border-accent"
                 type="text"
-                placeholder="000-000-0000"
+                placeholder="3312345678" inputMode="numeric" maxLength={10}
                 value={phoneValue}
                 onChange={(e) => setPhoneValue(formatPhone(e.target.value))}
               />

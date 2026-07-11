@@ -207,11 +207,15 @@ const onSubmit = async (data) => {
                 <InputField
                   id="phone"
                   type="tel"
-                  label="Número de teléfono (961-456-7890)"
+                  label="Número de celular (10 dígitos)"
                   placeholder=" "
-                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
                   register={register("phone", {
-                    required: "El número de teléfono es obligatorio",
+                    required: "El número de celular es obligatorio",
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                    },
+                    validate: (v) =>
+                      /^\d{10}$/.test(v || "") || "Debe tener exactamente 10 dígitos",
                   })}
                   errors={errors.phone}
                 />
