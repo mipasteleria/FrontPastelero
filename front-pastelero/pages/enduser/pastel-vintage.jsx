@@ -169,9 +169,15 @@ export default function PastelVintage() {
   }, [sel]);
 
   // Capas del visualizador (forma/base color + decoraciones por color).
+  // El PNG del color depende de la forma y el número de pisos elegidos:
+  // se busca la variante exacta y, si no existe, el PNG general.
+  const nivelesSel = cat.pisos.find((p) => p.slug === sel.pisosSlug)?.niveles || 1;
+  const imagenColor =
+    (color?.variantes || []).find((v) => v.formaSlug === sel.formaSlug && v.niveles === nivelesSel)?.imagenUrl ||
+    color?.imagenUrl;
   const capas = [
     cat.formas.find((f) => f.slug === sel.formaSlug)?.imagenUrl,
-    color?.imagenUrl,
+    imagenColor,
     ...sel.decoraciones.map((d) => d.imagenUrl).filter(Boolean),
   ].filter(Boolean);
 
