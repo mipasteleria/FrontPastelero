@@ -83,10 +83,112 @@ function CostoConcepto({ titulo, costoKey, margenKey, insumoKey, form, setForm, 
   );
 }
 
+/**
+ * Panel para editar el costo extra por número de pisos (2 y 3). Vive aquí
+ * porque el máximo de pisos se define por tamaño — así todo lo de pisos se
+ * gestiona en una sola pantalla (la tarjeta "Pisos" del menú se retiró).
+ * Usa el catálogo /vintage-catalogos/pisos existente.
+ */
+function PanelPisos({ userToken }) {
+  const [pisos, setPisos] = useState([]);
+  const [guardando, setGuardando] = useState(false);
+  const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
+
+  const recargar = () => {
+    fetch(`${API_BASE}/vintage-catalogos/pisos?incluyeInactivos=true`, { headers: authHeader })
+      .then((r) => r.json())
+      .then((j) => setPisos((j.data || []).sort((a, b) => a.niveles - b.niveles)))
+      .catch(() => {});
+  };
+  useEffect(recargar, [userToken]); // eslint-disable-line
+
+  const upd = (id, patch) => setPisos((ps) => ps.map((p) => (p._id === id ? { ...p, ...patch } : p)));
+
+  const guardar = async () => {
+    setGuardando(true);
+    try {
+      await Promise.all(pisos.map((p) =>
+        fetch(`${API_BASE}/vintage-catalogos/pisos/${p._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...authHeader },
+          body: JSON.stringify({ costo: Number(p.costo) || 0, margen: Number(p.margen) || 0, activo: p.activo }),
+        })
+      ));
+      recargar();
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  // Si el catálogo está vacío (instalación nueva), crear los 3 niveles
+  // estándar — antes se creaban desde la página "Pisos", ya retirada.
+  const crearEstandar = async () => {
+    setGuardando(true);
+    try {
+      const defs = [
+        { slug: "1-piso", nombre: "1 piso", niveles: 1, costo: 0, margen: 0, orden: 0 },
+        { slug: "2-pisos", nombre: "2 pisos", niveles: 2, costo: 0, margen: 0, orden: 1 },
+        { slug: "3-pisos", nombre: "3 pisos", niveles: 3, costo: 0, margen: 0, orden: 2 },
+      ];
+      await Promise.all(defs.map((d) =>
+        fetch(`${API_BASE}/vintage-catalogos/pisos`, {
+          method: "POST", headers: { "Content-Type": "application/json", ...authHeader },
+          body: JSON.stringify({ ...d, activo: true }),
+        })
+      ));
+      recargar();
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  if (pisos.length === 0) {
+    return (
+      <div className="shadow-md rounded-lg p-4 md:p-6 mb-6" style={{ background: "#fff", border: "1px solid var(--border-color)" }}>
+        <div className="text-sm font-bold mb-1" style={{ color: "var(--burdeos)" }}>Costo extra por pisos</div>
+        <p className="text-xs text-gray-500 mb-3">Aún no hay niveles de pisos configurados.</p>
+        <button onClick={crearEstandar} disabled={guardando} className="px-4 py-2 rounded text-sm font-semibold text-white disabled:opacity-50" style={{ background: "var(--burdeos)" }}>
+          {guardando ? "Creando…" : "Crear niveles estándar (1, 2 y 3 pisos)"}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="shadow-md rounded-lg p-4 md:p-6 mb-6" style={{ background: "#fff", border: "1px solid var(--border-color)" }}>
+      <div className="text-sm font-bold mb-1" style={{ color: "var(--burdeos)" }}>Costo extra por pisos</div>
+      <p className="text-xs text-gray-500 mb-3">
+        Se suma al total cuando el cliente elige 2 o 3 pisos (1 piso va incluido en la base).
+        El máximo de pisos disponible se define abajo, en cada tamaño.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {pisos.map((p) => (
+          <div key={p._id} className="border rounded-lg p-3">
+            <p className="text-xs font-bold text-gray-600 uppercase mb-2">{p.nombre}</p>
+            <label className="block text-xs font-semibold mb-1 text-gray-600">Costo extra</label>
+            <input type="number" step="0.01" min="0" className="border rounded px-3 py-2 w-full mb-2"
+              value={p.costo ?? 0} onChange={(e) => upd(p._id, { costo: e.target.value })} />
+            <label className="block text-xs font-semibold mb-1 text-gray-600">Margen (%)</label>
+            <input type="number" min="0" className="border rounded px-3 py-2 w-full"
+              value={p.margen ?? 0} onChange={(e) => upd(p._id, { margen: e.target.value })} />
+          </div>
+        ))}
+      </div>
+      <button onClick={guardar} disabled={guardando}
+        className="mt-3 px-4 py-2 rounded text-sm font-semibold text-white disabled:opacity-50"
+        style={{ background: "var(--burdeos)" }}>
+        {guardando ? "Guardando…" : "Guardar costos de pisos"}
+      </button>
+    </div>
+  );
+}
+
 export default function VintagePorcionesPage() {
   const [insumos, setInsumos] = useState([]);
+  const [userToken, setUserToken] = useState(null);
 
   useEffect(() => {
+    try { setUserToken(localStorage.getItem("token")); } catch {}
     fetch(`${API_BASE}/insumos`)
       .then((r) => r.json())
       .then((j) => {
@@ -107,6 +209,7 @@ export default function VintagePorcionesPage() {
       tipo="porciones"
       labelSingular="Tamaño"
       labelPlural="Porciones (vintage)"
+      headerExtra={<PanelPisos userToken={userToken} />}
       defaultDoc={DEFAULT}
       columnas={[
         { key: "porciones", label: "Porciones", render: (d) => d.porciones },

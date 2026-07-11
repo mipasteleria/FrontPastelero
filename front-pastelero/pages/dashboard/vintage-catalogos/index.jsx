@@ -8,8 +8,7 @@ const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const CARDS = [
-  { href: "/dashboard/vintage-catalogos/porciones", label: "Porciones", desc: "Tamaños, pisos máx, anticipación, base/domo/branding" },
-  { href: "/dashboard/vintage-catalogos/pisos", label: "Pisos", desc: "Costo+margen por nivel (2/3 pisos)" },
+  { href: "/dashboard/vintage-catalogos/porciones", label: "Porciones", desc: "Tamaños, pisos (máx y costo extra), anticipación, base/domo/branding" },
   { href: "/dashboard/vintage-catalogos/formas", label: "Formas", desc: "Corazón, círculo, cuadrado, hexágono" },
   { href: "/dashboard/vintage-catalogos/colores", label: "Colores base", desc: "Color + PNG sin fondo para el visualizador" },
   { href: "/dashboard/vintage-catalogos/decoraciones", label: "Decoraciones", desc: "Costo + variantes de color con PNG por capa" },

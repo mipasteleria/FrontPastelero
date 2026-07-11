@@ -43,6 +43,8 @@ export default function CatalogoCrudPage({
   postProcesarLista,
   // Base de la API (por defecto los catálogos de cotización).
   basePath = "cotizacion-catalogos",
+  // Opcional: contenido extra arriba del formulario (ej. panel relacionado).
+  headerExtra = null,
 }) {
   const { userToken } = useAuth();
   const authHeader = userToken ? { Authorization: `Bearer ${userToken}` } : {};
@@ -160,6 +162,8 @@ export default function CatalogoCrudPage({
             Catálogo de {labelPlural.toLowerCase()} para la cotización personalizada.
             El cliente lo ve en <code className="px-1 bg-gray-100 rounded">/cotizacion</code>.
           </p>
+
+          {headerExtra}
 
           {/* ── Form ───────────────────────────────────────────── */}
           <form
