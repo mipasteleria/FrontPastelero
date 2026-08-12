@@ -17,7 +17,7 @@ export default function PostresIndex() {
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch(`${API_BASE}/postres`);
+        const r = await fetch(`${API_BASE}/postres?categoria=postre`);
         const j = await r.json();
         if (!cancelled) setPostres(j?.data || []);
       } catch {

@@ -35,7 +35,7 @@ const PRODUCTO_LABEL = {
   pastel: "Pastel",
   cupcake: "Cupcakes",
   "mesa-postres": "Mesa de postres",
-  galleta: "Galletas personalizadas",
+  galleta: "Galletas decoradas",
 };
 
 const STATUSES = [
@@ -1059,7 +1059,7 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
         <option value="pastel">Pastel</option>
         <option value="cupcake">Cupcakes</option>
         <option value="mesa-postres">Mesa de postres</option>
-        <option value="galleta">Galletas personalizadas</option>
+        <option value="galleta">Galletas decoradas</option>
       </select>
 
       <div className="grid grid-cols-2 gap-2">

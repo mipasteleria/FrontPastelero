@@ -29,12 +29,14 @@ const ENTREGAS_CON_DIRECCION = ["domicilio", "evento"];
 
 const VALIDEZ_DIAS = 30;
 const MAX_IMAGENES = 2;
+// Las galletas decoradas se piden por pieza, con un mínimo por pedido.
+const MINIMO_PIEZAS = 6;
 
-// Anticipación mínima por volumen (días hábiles), igual criterio que cupcakes.
-function diasHabilesRequeridos(docenas) {
-  const d = Number(docenas) || 0;
-  if (d > 10) return 12;
-  if (d > 5) return 8;
+// Anticipación mínima por volumen (días hábiles).
+function diasHabilesRequeridos(piezas) {
+  const p = Number(piezas) || 0;
+  if (p > 120) return 12;
+  if (p > 60) return 8;
   return 5;
 }
 function fechaMinimaHabil(diasHabiles) {
@@ -49,8 +51,8 @@ function fechaMinimaHabil(diasHabiles) {
 }
 
 const DEFAULT_FORM = {
-  evento:  { tipo: "", fecha: "", invitados: 12 },
-  docenas: 2,
+  evento:  { tipo: "", fecha: "", invitados: MINIMO_PIEZAS },
+  piezas: MINIMO_PIEZAS,
   saborSlug: "",
   estilo:  { value: "", comentarios: "", imagenesInspiracion: [] },
   entrega: { tipo: "", hora: "", direccion: "" },
@@ -58,8 +60,9 @@ const DEFAULT_FORM = {
 };
 
 /**
- * Cotización de Galletas personalizadas — galletas decoradas por docena.
- * El cliente elige fecha, sabor, cantidad y sube hasta dos imágenes de
+ * Cotización de Galletas decoradas (personajes, diseño, logo). Se piden
+ * por pieza con un mínimo, y el precio depende de la dificultad del
+ * diseño. El cliente elige fecha, sabor, cantidad y sube dos imágenes de
  * referencia del diseño. El precio lo fija el admin (igual que pastel y
  * mesa de postres): aquí no se muestra monto.
  */
@@ -86,11 +89,11 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
       .catch((e) => console.error("Error cargando sabores:", e));
   }, []);
 
+  const piezasTotales = Number(form.piezas) || 0;
   const fechaMinEvento = useMemo(
-    () => fechaMinimaHabil(diasHabilesRequeridos(form.docenas)),
-    [form.docenas]
+    () => fechaMinimaHabil(diasHabilesRequeridos(piezasTotales)),
+    [piezasTotales]
   );
-  const piezasTotales = (Number(form.docenas) || 0) * 12;
   const saborSel = sabores.find((s) => s.slug === form.saborSlug);
 
   const setEvento  = (patch) => setForm((f) => ({ ...f, evento:  { ...f.evento,  ...patch } }));
@@ -141,7 +144,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
     if (esDiaNoDisponible(form.evento.fecha)) return alertarFalta(MENSAJE_DIA);
     if (bloqueadas.has(form.evento.fecha))    return alertarFalta(MENSAJE_BLOQUEADA);
     if (!form.saborSlug)    return alertarFalta("Elige el sabor de la galleta");
-    if (!form.docenas || form.docenas < 1) return alertarFalta("Indica cuántas docenas");
+    if (piezasTotales < MINIMO_PIEZAS) return alertarFalta(`El pedido mínimo es de ${MINIMO_PIEZAS} galletas`);
     if (!form.cliente.nombre)   return alertarFalta("Necesitamos tu nombre");
     if (!form.cliente.telefono) return alertarFalta("Necesitamos un teléfono de contacto");
 
@@ -150,7 +153,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
       const payload = {
         tipoProducto: "galleta",
         evento: { ...form.evento, invitados: piezasTotales },
-        docenas: Number(form.docenas),
+        piezas: piezasTotales,
         saborSlug: form.saborSlug,
         estilo: form.estilo,
         entrega: {
@@ -299,7 +302,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
                       setEvento({ fecha: e.target.value });
                     }} />
                   <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
-                    Anticipación mínima: {diasHabilesRequeridos(form.docenas)} días hábiles
+                    Anticipación mínima: {diasHabilesRequeridos(piezasTotales)} días hábiles
                   </p>
                 </div>
               </div>
@@ -326,11 +329,16 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
               )}
               <div className="row">
                 <div>
-                  <label className="fld">Docenas</label>
-                  <input type="number" min="1" value={form.docenas}
-                    onChange={(e) => setForm((f) => ({ ...f, docenas: Math.max(1, Number(e.target.value) || 1) }))} />
+                  <label className="fld">¿Cuántas galletas?</label>
+                  <input type="number" min={MINIMO_PIEZAS} step="1" value={form.piezas}
+                    onChange={(e) => setForm((f) => ({ ...f, piezas: Math.max(1, Number(e.target.value) || 1) }))}
+                    onBlur={(e) => {
+                      const n = Number(e.target.value) || 0;
+                      if (n < MINIMO_PIEZAS) setForm((f) => ({ ...f, piezas: MINIMO_PIEZAS }));
+                    }} />
                   <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".25rem" }}>
-                    Equivale a <strong>{piezasTotales} galletas</strong>. Pedido mínimo: 1 docena.
+                    Pedido mínimo: <strong>{MINIMO_PIEZAS} galletas</strong>. Se cotizan por pieza según la
+                    dificultad del diseño.
                   </p>
                 </div>
               </div>
@@ -437,8 +445,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
 
             <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Evento</span><strong style={{ color: "var(--burdeos)" }}>{EVENTOS.find((x) => x.value === form.evento.tipo)?.label || "—"}</strong></div>
             <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Sabor</span><strong style={{ color: "var(--burdeos)" }}>{saborSel?.nombre || "—"}</strong></div>
-            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Docenas</span><strong style={{ color: "var(--burdeos)" }}>{form.docenas}</strong></div>
-            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Total galletas</span><strong style={{ color: "var(--burdeos)" }}>{piezasTotales}</strong></div>
+            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Galletas</span><strong style={{ color: "var(--burdeos)" }}>{piezasTotales}</strong></div>
             <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Referencias</span><strong style={{ color: "var(--burdeos)" }}>{form.estilo.imagenesInspiracion.length}/{MAX_IMAGENES}</strong></div>
 
             <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: ".75rem", fontStyle: "italic" }}>

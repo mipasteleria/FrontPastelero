@@ -10,7 +10,7 @@ const fraunces = FrauncesFont({ subsets: ["latin"], weight: ["500", "600", "700"
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"], variable: "--font-script-q" });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const PRODUCTO_NOUN = { pastel: "Pastel", cupcake: "Cupcakes", "mesa-postres": "Mesa de postres", galleta: "Galletas personalizadas" };
+const PRODUCTO_NOUN = { pastel: "Pastel", cupcake: "Cupcakes", "mesa-postres": "Mesa de postres", galleta: "Galletas decoradas" };
 
 // Pasos del timeline y a qué índice corresponde cada status.
 const STEPS = ["Enviada", "En revisión", "Anticipo", "Horneando", "Entrega"];

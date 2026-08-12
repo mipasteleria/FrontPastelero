@@ -40,6 +40,10 @@ const FORM_VACIO = {
   recetaId: "",
   cantidadReceta: "1",
   costoEmpaque: "",
+  categoria: "postre",
+  unidad: "pieza",
+  minimo: "1",
+  paso: "1",
 };
 
 export default function DashboardPostres() {
@@ -102,6 +106,10 @@ export default function DashboardPostres() {
       recetaId: p.recetaId || "",
       cantidadReceta: p.cantidadReceta != null ? String(p.cantidadReceta) : "1",
       costoEmpaque: p.costoEmpaque ?? "",
+      categoria: p.categoria || "postre",
+      unidad: p.unidad || "pieza",
+      minimo: p.minimo != null ? String(p.minimo) : "1",
+      paso: p.paso != null ? String(p.paso) : "1",
     });
     setBreakdown(null); // limpiar desglose anterior al cargar otro postre
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
@@ -186,6 +194,10 @@ export default function DashboardPostres() {
         recetaId: form.recetaId || null,
         cantidadReceta: parseFloat(form.cantidadReceta || 1),
         costoEmpaque: parseFloat(form.costoEmpaque || 0),
+        categoria: form.categoria,
+        unidad: form.unidad,
+        minimo: parseFloat(form.minimo || 1),
+        paso: parseFloat(form.paso || 1),
       };
       const r = await fetch(url, {
         method,
@@ -309,6 +321,7 @@ export default function DashboardPostres() {
                       <th className="text-left p-3">Imagen</th>
                       <th className="text-left p-3">Nombre</th>
                       <th className="text-left p-3">Precio</th>
+                      <th className="text-left p-3">Venta</th>
                       <th className="text-center p-3">Activo</th>
                       <th className="text-center p-3">Destacado</th>
                       <th className="text-center p-3">Orden</th>
@@ -333,6 +346,14 @@ export default function DashboardPostres() {
                           <div className="text-xs text-gray-500">{p.slug}</div>
                         </td>
                         <td className="p-3 font-bold">${Number(p.precio).toFixed(2)}</td>
+                        <td className="p-3 text-xs" style={{ color: "var(--text-soft)" }}>
+                          <span style={{ fontWeight: 700, color: p.categoria === "galleta" ? "#6B4F1A" : "var(--burdeos)" }}>
+                            {p.categoria === "galleta" ? "🍪 Galleta" : "🍮 Postre"}
+                          </span>
+                          <br />
+                          por {p.unidad === "kg" ? "kilo" : (p.unidad || "pieza")}
+                          {Number(p.minimo) > 1 ? ` · mín ${p.minimo}` : ""}
+                        </td>
                         <td className="p-3 text-center">{p.activo ? "✓" : "—"}</td>
                         <td className="p-3 text-center">
                           <button
@@ -515,9 +536,73 @@ export default function DashboardPostres() {
                 )}
               </div>
 
+              {/* Categoría y forma de venta */}
+              <div className="grid md:grid-cols-4 gap-4 mb-4 p-3 rounded-lg" style={{ background: "var(--rosa-4, #FFF3F5)" }}>
+                <div>
+                  <label className="block mb-1 text-sm font-medium">Catálogo</label>
+                  <select
+                    value={form.categoria}
+                    onChange={(e) => setForm((p) => ({ ...p, categoria: e.target.value }))}
+                    className={inputStyle}
+                  >
+                    <option value="postre">Postres</option>
+                    <option value="galleta">Galletas artesanales</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">Define en qué página aparece.</p>
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium">Se vende por</label>
+                  <select
+                    value={form.unidad}
+                    onChange={(e) => {
+                      const unidad = e.target.value;
+                      // Al pasar a peso, sugiere medio kilo como mínimo/paso.
+                      setForm((p) => ({
+                        ...p,
+                        unidad,
+                        minimo: unidad === "kg" ? "0.5" : p.minimo,
+                        paso: unidad === "kg" ? "0.5" : p.paso,
+                      }));
+                    }}
+                    className={inputStyle}
+                  >
+                    <option value="pieza">Pieza</option>
+                    <option value="docena">Docena</option>
+                    <option value="kg">Kilo (peso)</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">El precio es por esta unidad.</p>
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium">Mínimo</label>
+                  <input
+                    type="number"
+                    step={form.unidad === "kg" ? "0.1" : "1"}
+                    min="0"
+                    value={form.minimo}
+                    onChange={(e) => setForm((p) => ({ ...p, minimo: e.target.value }))}
+                    className={inputStyle}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Ej. 6 piezas, 0.5 kg.</p>
+                </div>
+                <div>
+                  <label className="block mb-1 text-sm font-medium">Incremento</label>
+                  <input
+                    type="number"
+                    step={form.unidad === "kg" ? "0.1" : "1"}
+                    min="0"
+                    value={form.paso}
+                    onChange={(e) => setForm((p) => ({ ...p, paso: e.target.value }))}
+                    className={inputStyle}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">De cuánto en cuánto puede subir.</p>
+                </div>
+              </div>
+
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block mb-1 text-sm font-medium">Precio (MXN) *</label>
+                  <label className="block mb-1 text-sm font-medium">
+                    Precio (MXN) por {form.unidad === "kg" ? "kilo" : form.unidad} *
+                  </label>
                   <input
                     type="number"
                     step="0.01"

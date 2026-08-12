@@ -15,8 +15,8 @@ const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700"] })
 const PRODUCTS = [
   { value: "cake",    label: "Pastel",                 emoji: "🎂", desc: "Un pastel personalizado para tu celebración." },
   { value: "cupcake", label: "Cupcakes",               emoji: "🧁", desc: "Por docena, con sabor a elegir en cada una." },
-  { value: "galleta", label: "Galletas personalizadas", emoji: "🍪", desc: "Galletas decoradas con tu diseño o logo, por docena." },
-  { value: "snack",   label: "Mesa de postres",        emoji: "🍮", desc: "Variedad de postres para muchos invitados. Ideal para eventos corporativos." },
+  { value: "galleta", label: "Galletas decoradas",      emoji: "🍪", desc: "Personajes, diseño o logo. Se cotizan por pieza según la dificultad (mínimo 6)." },
+  { value: "snack",   label: "Mesa de postres",        emoji: "🍮", desc: "Variedad de postres montada para tu evento.", link: { href: "/enduser/galletas-artesanales", text: "¿Solo quieres surtido de galletas a precio fijo? Vela aquí →" } },
 ];
 
 /* ── Tips shown in the sidebar ─────────────────────────────── */
@@ -259,6 +259,15 @@ export default function Price() {
                   }}
                 >
                   {PRODUCTS.find((p) => p.value === selectedProduct)?.desc}
+                  {(() => {
+                    const l = PRODUCTS.find((p) => p.value === selectedProduct)?.link;
+                    return l ? (
+                      <>
+                        {" "}
+                        <Link href={l.href} style={{ color: "var(--rosa)", fontWeight: 700 }}>{l.text}</Link>
+                      </>
+                    ) : null;
+                  })()}
                 </p>
 
                 {/* Sub-component area */}

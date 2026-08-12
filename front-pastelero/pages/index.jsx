@@ -365,10 +365,15 @@ export default function Home() {
           ))}
         </div>
 
-        <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
+        <div style={{ textAlign: "center", marginTop: "2.5rem", display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/enduser/postres">
             <button className="link-btn" style={{ padding: "12px 36px", borderRadius: "var(--r-pill)", border: "1.5px solid var(--border-strong)", background: "transparent", color: "var(--burdeos)", cursor: "pointer", fontWeight: 700, fontFamily: "var(--font-nunito)", fontSize: "0.9rem", transition: "all 150ms" }}>
               Ver todo el catálogo
+            </button>
+          </Link>
+          <Link href="/enduser/galletas-artesanales">
+            <button className="link-btn" style={{ padding: "12px 36px", borderRadius: "var(--r-pill)", border: "1.5px solid var(--border-strong)", background: "transparent", color: "var(--burdeos)", cursor: "pointer", fontWeight: 700, fontFamily: "var(--font-nunito)", fontSize: "0.9rem", transition: "all 150ms" }}>
+              🍪 Galletas artesanales
             </button>
           </Link>
         </div>
