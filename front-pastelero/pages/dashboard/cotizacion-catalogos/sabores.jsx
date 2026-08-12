@@ -16,6 +16,7 @@ const DEFAULT = {
   paraPastel: true,
   paraCupcake: false,
   paraVintage: false,
+  paraGalleta: false,
   activo: true,
   orden: 0,
 };
@@ -101,6 +102,8 @@ export default function SaboresPage() {
             const tags = [];
             if (d.paraPastel) tags.push("Pastel");
             if (d.paraCupcake) tags.push("Cupcake");
+            if (d.paraVintage) tags.push("Vintage");
+            if (d.paraGalleta) tags.push("Galleta");
             return tags.length
               ? <span className="text-xs">{tags.join(" · ")}</span>
               : <span className="text-xs text-gray-300">—</span>;
@@ -188,6 +191,10 @@ export default function SaboresPage() {
               <label className="flex items-center gap-2 text-sm">
                 <input type="checkbox" checked={!!form.paraVintage} onChange={(e) => setForm({ ...form, paraVintage: e.target.checked })} />
                 Vintage
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={!!form.paraGalleta} onChange={(e) => setForm({ ...form, paraGalleta: e.target.checked })} />
+                Galleta
               </label>
             </div>
             <div className="text-[10px] text-gray-400 mt-1">

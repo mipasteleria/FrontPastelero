@@ -3,6 +3,7 @@ import { useAuth } from "@/src/context";
 import CakePersonalizado from "../../src/components/cotizacion/cakePersonalizado";
 import Snackprice from "@/src/components/cotizacion/snackprice";
 import Cupcakeprice from "@/src/components/cotizacion/cupcakeprice";
+import GalletaPersonalizada from "@/src/components/cotizacion/galletaPersonalizada";
 import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import Link from "next/link";
@@ -12,9 +13,10 @@ const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700"] });
 
 const PRODUCTS = [
-  { value: "cake",    label: "Pastel",           emoji: "🎂" },
-  { value: "snack",   label: "Mesa de postres",   emoji: "🍮" },
-  { value: "cupcake", label: "Cupcakes",           emoji: "🧁" },
+  { value: "cake",    label: "Pastel",                 emoji: "🎂", desc: "Un pastel personalizado para tu celebración." },
+  { value: "cupcake", label: "Cupcakes",               emoji: "🧁", desc: "Por docena, con sabor a elegir en cada una." },
+  { value: "galleta", label: "Galletas personalizadas", emoji: "🍪", desc: "Galletas decoradas con tu diseño o logo, por docena." },
+  { value: "snack",   label: "Mesa de postres",        emoji: "🍮", desc: "Variedad de postres para muchos invitados. Ideal para eventos corporativos." },
 ];
 
 /* ── Tips shown in the sidebar ─────────────────────────────── */
@@ -75,7 +77,7 @@ export default function Price() {
             className={sofia.className}
             style={{ color: "var(--burdeos)", fontSize: "clamp(2.5rem,6vw,4.5rem)", lineHeight: 1, marginBottom: 12 }}
           >
-            Cotiza tu evento
+            Cotización Personalizada
           </h1>
           <p style={{ color: "var(--text-soft)", fontSize: "0.95rem", maxWidth: "52ch", margin: "0 auto", lineHeight: 1.65 }}>
             Cuéntanos qué imaginas y te respondemos con propuesta y muestras en menos de 24h.
@@ -249,6 +251,16 @@ export default function Price() {
                   })}
                 </div>
 
+                {/* Qué es cada opción — evita que el cliente elija a ciegas */}
+                <p
+                  style={{
+                    marginTop: "-1.25rem", marginBottom: "1.75rem",
+                    fontSize: "0.83rem", color: "var(--text-soft)", lineHeight: 1.5,
+                  }}
+                >
+                  {PRODUCTS.find((p) => p.value === selectedProduct)?.desc}
+                </p>
+
                 {/* Sub-component area */}
                 <div
                   style={{
@@ -261,6 +273,7 @@ export default function Price() {
                   {selectedProduct === "cake"    && <CakePersonalizado adminMode={isAdmin} />}
                   {selectedProduct === "snack"   && <Snackprice adminMode={isAdmin} />}
                   {selectedProduct === "cupcake" && <Cupcakeprice adminMode={isAdmin} />}
+                  {selectedProduct === "galleta" && <GalletaPersonalizada adminMode={isAdmin} />}
                 </div>
               </>
             )}

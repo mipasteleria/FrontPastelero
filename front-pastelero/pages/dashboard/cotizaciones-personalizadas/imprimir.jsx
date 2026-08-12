@@ -9,7 +9,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const STORE_ADDRESS = "Calle Bogotá 2866a, Col. Providencia, Guadalajara, Jal.";
 const STORE_PHONE = "374 102 5036";
-const PRODUCTO = { pastel: "Pastel", cupcake: "Cupcakes", "mesa-postres": "Mesa de postres" };
+const PRODUCTO = { pastel: "Pastel", cupcake: "Cupcakes", "mesa-postres": "Mesa de postres", galleta: "Galletas personalizadas" };
 
 function fechaLarga(d) {
   if (!d) return "";
