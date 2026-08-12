@@ -1,9 +1,22 @@
+import { useEffect, useState } from "react";
 import CatalogoCrudPage from "@/src/components/cotizacionCatalogos/CatalogoCrudPage";
 import ImgUploadField from "@/src/components/vintage/ImgUploadField";
+import VariantesFormaPisos from "@/src/components/vintage/VariantesFormaPisos";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const DEFAULT = { slug: "", nombre: "", descripcion: "", costo: 0, margen: 0, colores: [], activo: true, orden: 0 };
 
 export default function VintageDecoracionesPage() {
+  const [formas, setFormas] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/vintage-catalogos/formas`)
+      .then((r) => r.json())
+      .then((j) => setFormas(j.data || []))
+      .catch(() => {});
+  }, []);
+
   return (
     <CatalogoCrudPage
       basePath="vintage-catalogos"
@@ -48,8 +61,12 @@ export default function VintageDecoracionesPage() {
                       <input type="color" className="border rounded h-8 w-12" value={c.hex || "#FFFFFF"} onChange={(e) => setColor(i, { hex: e.target.value })} />
                     </div>
                     <div className="md:col-span-2 flex items-start justify-between gap-3">
-                      <ImgUploadField value={c.imagenUrl} onChange={(url) => setColor(i, { imagenUrl: url })} label="PNG de esta variante" />
+                      <ImgUploadField value={c.imagenUrl} onChange={(url) => setColor(i, { imagenUrl: url })} label="PNG general (respaldo)" />
                       <button type="button" onClick={() => delColor(i)} className="text-red-500 text-xs">✕ Quitar</button>
+                    </div>
+                    <div className="md:col-span-3">
+                      <VariantesFormaPisos compacto titulo="PNG por forma × pisos (opcional)"
+                        value={c.variantes || []} onChange={(variantes) => setColor(i, { variantes })} formas={formas} />
                     </div>
                   </div>
                 ))}

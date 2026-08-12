@@ -172,13 +172,22 @@ export default function PastelVintage() {
   // El PNG del color depende de la forma y el número de pisos elegidos:
   // se busca la variante exacta y, si no existe, el PNG general.
   const nivelesSel = cat.pisos.find((p) => p.slug === sel.pisosSlug)?.niveles || 1;
-  const imagenColor =
-    (color?.variantes || []).find((v) => v.formaSlug === sel.formaSlug && v.niveles === nivelesSel)?.imagenUrl ||
-    color?.imagenUrl;
+  const conVariante = (obj) =>
+    (obj?.variantes || []).find((v) => v.formaSlug === sel.formaSlug && v.niveles === nivelesSel)?.imagenUrl ||
+    obj?.imagenUrl;
+  const imagenColor = conVariante(color);
+  // La capa de cada decoración también depende de forma × pisos: se
+  // resuelve aquí (no con el snapshot guardado al seleccionarla) para que
+  // cambie al cambiar forma o pisos.
+  const capasDeco = sel.decoraciones.map((d) => {
+    const deco = cat.decoraciones.find((x) => x.slug === d.slug);
+    const varianteColor = (deco?.colores || []).find((c) => c.nombre === d.colorNombre);
+    return conVariante(varianteColor) || d.imagenUrl;
+  });
   const capas = [
     cat.formas.find((f) => f.slug === sel.formaSlug)?.imagenUrl,
     imagenColor,
-    ...sel.decoraciones.map((d) => d.imagenUrl).filter(Boolean),
+    ...capasDeco,
   ].filter(Boolean);
 
   // ── Render: gate ─────────────────────────────────────────────────
