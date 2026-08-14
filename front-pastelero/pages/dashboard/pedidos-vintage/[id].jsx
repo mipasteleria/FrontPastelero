@@ -73,6 +73,56 @@ export default function PedidoVintageDetalle() {
     if (r.ok) { setNota(""); recargar(); }
   };
 
+  // ── Liquidar saldo (pago recibido fuera de línea) ──────────────
+  const liquidarSaldo = async () => {
+    const { value: vals, isDismissed } = await Swal.fire({
+      title: "Registrar pago del saldo",
+      html: `
+        <select id="sw-metodo" class="swal2-input" style="width:80%">
+          <option value="transferencia">Transferencia</option>
+          <option value="efectivo">Efectivo</option>
+          <option value="otro">Otro</option>
+        </select>
+        <input id="sw-ref" class="swal2-input" style="width:80%" placeholder="Referencia / nota (opcional)">`,
+      showCancelButton: true, confirmButtonColor: "#540027", confirmButtonText: "Registrar",
+      preConfirm: () => ({
+        metodo: document.getElementById("sw-metodo").value,
+        referencia: document.getElementById("sw-ref").value,
+      }),
+    });
+    if (isDismissed || !vals) return;
+    try {
+      const r = await fetch(`${API_BASE}/vintage-pedidos/${id}/liquidar-saldo`, {
+        method: "PUT", headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify(vals),
+      });
+      if (!r.ok) throw new Error((await r.json()).message || "Error");
+      Swal.fire({ icon: "success", title: "Saldo liquidado ✓", timer: 1600, showConfirmButton: false, background: "#fff1f2", color: "#540027" });
+      recargar();
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message });
+    }
+  };
+
+  // ── Enlace público para el cliente ─────────────────────────────
+  const copiarEnlace = async () => {
+    try {
+      const r = await fetch(`${API_BASE}/vintage-pedidos/${id}/enlace-publico`, { method: "POST", headers: authHeader });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "Error");
+      const url = `${window.location.origin}/vintage/ver/${j.data.publicToken}`;
+      try { await navigator.clipboard.writeText(url); } catch {}
+      Swal.fire({
+        icon: "success", title: "Enlace listo",
+        html: `Se copió al portapapeles:<br/><code style="font-size:.75rem;word-break:break-all">${url}</code>
+               <br/><br/><a href="https://wa.me/?text=${encodeURIComponent(`Hola ${cot.cliente?.nombre || ""}, aquí puedes ver tu pedido y pagar el saldo: ${url}`)}" target="_blank" style="color:#25D366;font-weight:700">Enviar por WhatsApp →</a>`,
+        confirmButtonColor: "#540027",
+      });
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message });
+    }
+  };
+
   // ── Edición de la configuración ────────────────────────────────
   const abrirEditor = () => {
     setEdit({
@@ -328,9 +378,26 @@ export default function PedidoVintageDetalle() {
                 <label className="block text-xs font-semibold mb-1">Referencia</label>
                 <input className="border rounded px-3 py-2 w-full mb-3" value={form.anticipoReferencia} onChange={(e) => setForm({ ...form, anticipoReferencia: e.target.value })} />
                 <button onClick={guardar} className="px-4 py-2 rounded text-sm font-semibold text-white w-full" style={{ background: "var(--burdeos)" }}>Guardar</button>
-                {cot.saldoPendiente > 0 && (
-                  <p className="text-[11px] mt-2" style={{ color: "#B23A48" }}>Saldo pendiente: <strong>{money(cot.saldoPendiente)}</strong></p>
+                {cot.saldoPendiente > 0 ? (
+                  <>
+                    <p className="text-[11px] mt-3 mb-1" style={{ color: "#B23A48" }}>
+                      Saldo pendiente: <strong>{money(cot.saldoPendiente)}</strong>
+                    </p>
+                    <button onClick={liquidarSaldo} className="px-3 py-2 rounded text-xs font-semibold text-white w-full"
+                      style={{ background: "var(--menta-deep, #2e9e76)" }}
+                      title="Registrar que el cliente ya pagó el saldo (transferencia o efectivo)">
+                      ✓ Liquidar saldo
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-[11px] mt-3" style={{ color: "#1D5A45" }}>✓ Sin saldo pendiente — pedido pagado.</p>
                 )}
+
+                <button onClick={copiarEnlace} className="mt-2 px-3 py-2 rounded text-xs font-semibold w-full border"
+                  style={{ borderColor: "var(--burdeos)", color: "var(--burdeos)" }}
+                  title="Enlace donde el cliente ve su pedido y puede pagar el saldo en línea">
+                  🔗 Enlace para el cliente
+                </button>
               </div>
 
               <div className="bg-white shadow rounded-lg p-5">
