@@ -4,6 +4,7 @@ import NavbarAdmin from "@/src/components/navbar";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
 import { esDiaNoDisponible, MENSAJE_DIA, MENSAJE_BLOQUEADA, fetchFechasBloqueadas } from "@/src/lib/disponibilidad";
 import { setVintage } from "@/src/lib/unifiedCart";
+import VintagePreview from "@/src/components/vintage/VintagePreview";
 
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "700", "800"] });
@@ -168,27 +169,8 @@ export default function PastelVintage() {
     }, 350);
   }, [sel]);
 
-  // Capas del visualizador (forma/base color + decoraciones por color).
-  // El PNG del color depende de la forma y el número de pisos elegidos:
-  // se busca la variante exacta y, si no existe, el PNG general.
-  const nivelesSel = cat.pisos.find((p) => p.slug === sel.pisosSlug)?.niveles || 1;
-  const conVariante = (obj) =>
-    (obj?.variantes || []).find((v) => v.formaSlug === sel.formaSlug && v.niveles === nivelesSel)?.imagenUrl ||
-    obj?.imagenUrl;
-  const imagenColor = conVariante(color);
-  // La capa de cada decoración también depende de forma × pisos: se
-  // resuelve aquí (no con el snapshot guardado al seleccionarla) para que
-  // cambie al cambiar forma o pisos.
-  const capasDeco = sel.decoraciones.map((d) => {
-    const deco = cat.decoraciones.find((x) => x.slug === d.slug);
-    const varianteColor = (deco?.colores || []).find((c) => c.nombre === d.colorNombre);
-    return conVariante(varianteColor) || d.imagenUrl;
-  });
-  const capas = [
-    cat.formas.find((f) => f.slug === sel.formaSlug)?.imagenUrl,
-    imagenColor,
-    ...capasDeco,
-  ].filter(Boolean);
+  // El visualizador (VintagePreview) es compartido con el dashboard y
+  // resuelve la variante PNG por forma × pisos.
 
   // ── Render: gate ─────────────────────────────────────────────────
   if (geo === "checando") return <Shell><p style={{ color: "var(--text-soft)" }}>Verificando tu ubicación…</p></Shell>;
@@ -365,10 +347,8 @@ export default function PastelVintage() {
 
           {/* Preview + total */}
           <aside style={{ position: "sticky", top: 84, display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ borderRadius: "var(--r-2xl)", overflow: "hidden", boxShadow: "var(--shadow-md)", background: color ? `${color.hex}33` : "var(--rosa-4)", aspectRatio: "1/1", position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {capas.length === 0
-                ? <span style={{ fontSize: "4rem" }}>🎂</span>
-                : capas.map((src, i) => <img key={i} src={src} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", padding: "8%" }} />)}
+            <div style={{ boxShadow: "var(--shadow-md)", borderRadius: "var(--r-2xl)", overflow: "hidden" }}>
+              <VintagePreview seleccion={sel} cat={cat} vacio="🎂" />
             </div>
             <div style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", boxShadow: "var(--shadow-sm)", padding: "1.25rem" }}>
               <h3 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.3rem", marginBottom: 8 }}>Tu pastel</h3>
