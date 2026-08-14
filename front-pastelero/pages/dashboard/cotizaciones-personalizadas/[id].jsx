@@ -610,6 +610,14 @@ export default function CotizacionPersonalizadaDetalle() {
                     <DetSpec dot="#FFC9A5" k="Total piezas" v={(cot.evento?.invitados || 0) * (cot.postresPorPersona || 0) || "—"} />
                     <DetSpec dot="#D9C4E8" wide k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ") || "—"} />
                   </>
+                ) : cot.tipoProducto === "galleta" ? (
+                  <>
+                    <DetSpec dot="#6FC9A8" k="Galletas" v={`${cot.piezasGalleta || cot.evento?.invitados || 0} piezas`} />
+                    <DetSpec dot="#FFE99B" k="Sabor" v={cot.sabor?.nombre || "—"} />
+                    {(cot.decoraciones || []).length > 0 && (
+                      <DetSpec dot="#9FB864" wide k="Decoración" v={cot.decoraciones.map((d) => d.nombre).join(", ")} />
+                    )}
+                  </>
                 ) : cot.tipoProducto === "cupcake" ? (
                   <>
                     <DetSpec dot="#6FC9A8" k="Cupcakes" v={`${cot.evento?.invitados || 0} (${(cot.evento?.invitados || 0) / 12} doc)`} />

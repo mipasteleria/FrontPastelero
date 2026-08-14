@@ -126,16 +126,26 @@ export default function VerCotizacion() {
   const pagado = (cot.status || "").startsWith("Agendado") || cot.status === "Entregado";
   const publicada = pagado || cot.status === "Cotizada";
   const esMesa = cot.tipoProducto === "mesa-postres";
+  const esGalleta = cot.tipoProducto === "galleta";
   const sidx = stepIndex(cot.status);
   const disenoImg = cot.estilo?.imagenesInspiracion?.[0];
   const referencias = (cot.estilo?.imagenesInspiracion || []).slice(1);
 
   const tituloPastel = esMesa
     ? "Mesa de postres"
+    : esGalleta
+    ? "Galletas decoradas"
     : `${PRODUCTO_NOUN[cot.tipoProducto] || "Pastel"}${cot.estilo?.value ? ` ${cot.estilo.value}` : ""}`;
+
+  // Rótulo de la sección según el producto (antes decía siempre "Tu Pastel").
+  const eyebrowProducto = esMesa ? "Tu mesa de postres" : esGalleta ? "Tus galletas" : "Tu Pastel";
+
+  const piezasGalleta = cot.piezasGalleta || cot.evento?.invitados || 0;
 
   const tags = esMesa
     ? [`${cot.evento?.invitados} personas`, `${cot.postresPorPersona}/persona`, cot.estilo?.value]
+    : esGalleta
+    ? [`${piezasGalleta} pieza${piezasGalleta === 1 ? "" : "s"}`, cot.sabor?.nombre]
     : [cot.niveles ? `${cot.niveles} nivel${cot.niveles > 1 ? "es" : ""}` : null, `${cot.evento?.invitados} porciones`, cot.estilo?.value];
 
   return (
@@ -295,7 +305,7 @@ export default function VerCotizacion() {
                 {disenoImg ? <img src={disenoImg} alt="Diseño propuesto" /> : <span style={{ color: "#b89", fontSize: ".8rem", padding: 12, textAlign: "center" }}>La propuesta de diseño se agregará pronto</span>}
               </div>
               <div className="pinfo">
-                <span className="eyebrow">Tu Pastel</span>
+                <span className="eyebrow">{eyebrowProducto}</span>
                 <h2 className="pname">{tituloPastel}</h2>
                 <div className="tags">
                   {tags.filter(Boolean).map((t, i) => <span key={i} className="tag" style={{ textTransform: "capitalize" }}>{t}</span>)}
@@ -313,6 +323,20 @@ export default function VerCotizacion() {
                     <Spec k="Personas" v={`${cot.evento?.invitados}`} dot="var(--menta-deep)" />
                     <Spec k="Postres por persona" v={cot.postresPorPersona} dot="var(--mantequilla)" />
                     <Spec k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ")} wide dot="var(--lavanda)" />
+                  </>
+                ) : esGalleta ? (
+                  <>
+                    <Spec k="Galletas" v={`${piezasGalleta} pieza${piezasGalleta === 1 ? "" : "s"}`} dot="var(--menta-deep)" />
+                    <Spec k="Sabor" v={cot.sabor?.nombre || "—"} dot="var(--mantequilla)" />
+                    {(cot.decoraciones || []).length > 0 && (
+                      <Spec k="Decoración" dot="var(--lavanda)" wide v={
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          {cot.decoraciones.map((d) => (
+                            <span key={d.slug} style={{ background: "var(--bg-sunken)", padding: "4px 10px", borderRadius: 999, fontSize: ".8rem", fontWeight: 700, color: "var(--burd2)" }}>{d.nombre}</span>
+                          ))}
+                        </div>
+                      } />
+                    )}
                   </>
                 ) : cot.tipoProducto === "cupcake" ? (
                   <>

@@ -91,6 +91,7 @@ function Row({ k, v }) {
 function Ticket({ p }) {
   const esMesa = p.tipoProducto === "mesa-postres";
   const esCup = p.tipoProducto === "cupcake";
+  const esGalleta = p.tipoProducto === "galleta";
   const esEnvio = ["domicilio", "evento"].includes(p.entrega?.tipo);
   return (
     <div className="ticket" style={{ maxWidth: 720, margin: "0 auto 1.5rem", background: "#fff", border: "1px solid #e5d6db", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 12px rgba(84,0,39,.06)" }}>
@@ -133,6 +134,12 @@ function Ticket({ p }) {
                 <Row k="Postres por persona" v={p.postresPorPersona} />
                 <Row k="Postres" v={(p.postres || []).map((x) => x.nombre).join(", ")} />
               </>
+            ) : esGalleta ? (
+              <>
+                <Row k="Galletas" v={`${p.piezasGalleta || p.evento?.invitados || 0} piezas`} />
+                <Row k="Sabor" v={p.sabor?.nombre} />
+                <Row k="Decoración" v={(p.decoraciones || []).map((d) => d.nombre).join(", ")} />
+              </>
             ) : (
               <>
                 <Row k={esCup ? "Cupcakes" : "Porciones"} v={esCup ? `${p.evento?.invitados} (${(p.evento?.invitados || 0) / 12} doc)` : p.evento?.invitados} />
@@ -146,7 +153,7 @@ function Ticket({ p }) {
                 <Row k="Decoración" v={(p.decoraciones || []).map((d) => d.nombre).join(", ")} />
               </>
             )}
-            <Row k="Estilo" v={p.estilo?.value} />
+            {!esGalleta && <Row k="Estilo" v={p.estilo?.value} />}
             <Row k="Notas" v={p.estilo?.comentarios} />
           </ul>
         </div>
