@@ -307,6 +307,15 @@ export default function PastelVintage() {
 
   const cur = pasos[step];
 
+  // El cliente ve SOLO el total, y únicamente cuando ya terminó de armar
+  // su pastel. El desglose por concepto (base, domo, branding, técnicas…)
+  // es vocabulario interno y le generaba confusión.
+  const pasoNotas = pasos.findIndex((p) => p.label === "Notas");
+  const pastelArmado =
+    !!sel.porcionSlug && !!sel.formaSlug && !!sel.saborSlug &&
+    !!sel.rellenoSlug && !!sel.coberturaSlug && !!sel.colorSlug &&
+    (pasoNotas === -1 || step >= pasoNotas);
+
   return (
     <div className={nunito.className} style={{ minHeight: "100vh", background: "var(--bg-sunken)" }}>
       <NavbarAdmin />
@@ -352,20 +361,21 @@ export default function PastelVintage() {
             </div>
             <div style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", boxShadow: "var(--shadow-sm)", padding: "1.25rem" }}>
               <h3 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.3rem", marginBottom: 8 }}>Tu pastel</h3>
-              {cotz.items.length === 0 ? (
-                <p style={{ color: "var(--text-soft)", fontSize: ".85rem" }}>Elige el tamaño para ver el precio.</p>
+              {!pastelArmado ? (
+                <p style={{ color: "var(--text-soft)", fontSize: ".85rem", lineHeight: 1.5 }}>
+                  Sigue armando tu pastel — aquí verás el precio cuando termines.
+                </p>
               ) : (
                 <>
-                  {cotz.items.map((it, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: ".82rem", padding: "3px 0", color: "var(--text-soft)" }}>
-                      <span style={{ maxWidth: "65%" }}>{it.concepto}</span>
-                      <strong style={{ color: "var(--burdeos)" }}>${it.precio.toLocaleString("es-MX")}</strong>
-                    </div>
-                  ))}
-                  <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid var(--border-color)", marginTop: 8, paddingTop: 8, fontSize: "1.1rem", fontWeight: 800, color: "var(--burdeos)" }}>
-                    <span>Total</span><span>${cotz.total.toLocaleString("es-MX")}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                    <span style={{ color: "var(--text-soft)", fontSize: ".9rem" }}>Total</span>
+                    <strong style={{ color: "var(--burdeos)", fontSize: "1.7rem", lineHeight: 1 }}>
+                      ${cotz.total.toLocaleString("es-MX")}
+                    </strong>
                   </div>
-                  <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: 6 }}>+ envío si aplica (se calcula al pagar).</p>
+                  <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: 8, lineHeight: 1.5 }}>
+                    Incluye todo lo que elegiste. El envío, si aplica, se calcula al pagar.
+                  </p>
                 </>
               )}
             </div>

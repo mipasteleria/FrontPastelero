@@ -176,13 +176,12 @@ export default function MiCarrito() {
               {vintage && (
                 <section style={{ background: "#fff", borderRadius: "var(--r-xl)", padding: "1.25rem", boxShadow: "var(--shadow-sm)" }}>
                   <h2 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.3rem", marginBottom: 8 }}>🎀 Pastel Vintage</h2>
-                  <div style={{ fontSize: ".85rem", color: "var(--text-soft)" }}>
-                    {(vintage.resumen?.items || []).map((it, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "2px 0" }}>
-                        <span>{it.concepto}</span><strong style={{ color: "var(--burdeos)" }}>${it.precio}</strong>
-                      </div>
-                    ))}
-                  </div>
+                  {/* Sin desglose por concepto: al cliente le mostramos el
+                      pastel que armó y su total, no el vocabulario interno. */}
+                  <p style={{ fontSize: ".85rem", color: "var(--text-soft)" }}>
+                    Pastel armado a tu medida
+                    {vintage.resumen?.porciones ? ` · ${vintage.resumen.porciones} porciones` : ""}
+                  </p>
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, fontWeight: 800, color: "var(--burdeos)" }}>
                     <span>Subtotal</span><span>${totalVintage.toLocaleString("es-MX")}</span>
                   </div>
