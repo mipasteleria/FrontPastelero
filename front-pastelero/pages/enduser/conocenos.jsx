@@ -362,7 +362,7 @@ export default function Conocenos() {
             Escríbenos por WhatsApp y te respondemos en menos de 30 minutos en horario de tienda.
           </p>
           <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap", position: "relative" }}>
-            <a href="https://wa.me/521XXXXXXXXXX" target="_blank" rel="noreferrer">
+            <a href="https://wa.me/523329295129" target="_blank" rel="noreferrer">
               <button
                 style={{
                   padding: "12px 28px",

@@ -517,12 +517,12 @@ export default function VerCotizacion() {
             {/* Contacto */}
             <section className="card cond" style={{ padding: 24 }}>
               <p style={{ color: "var(--soft)", fontSize: ".88rem", fontFamily: "var(--font-sans-q)" }}>¿Dudas con tu cotización? Escríbenos y te ayudamos.</p>
-              <a className="wa" href="https://wa.me/523741025036" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <a className="wa" href="https://wa.me/523329295129" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                 <svg width="20" height="20" viewBox="0 0 32 32" fill="#25D366" aria-hidden="true">
                   <path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 29l8.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3z" opacity=".15"/>
                   <path d="M16.1 5.5c-5.3 0-9.6 4.3-9.6 9.6 0 1.9.6 3.7 1.5 5.2l-1 3.6 3.7-1c1.4.8 3 1.2 4.4 1.2 5.3 0 9.6-4.3 9.6-9.6s-4.3-9.6-9.6-9.6zm5.6 13.6c-.2.7-1.4 1.3-1.9 1.3-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5.1-4.5-.1-.2-1.2-1.5-1.2-2.9s.7-2.1 1-2.4c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.5.8 1.9.8 2 .1.1.1.3 0 .5-.1.2-.2.3-.3.5-.2.2-.3.4-.5.5-.2.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.7-.1.3.1 1.7.8 2 1 .3.1.5.2.5.3.1.2.1.7-.1 1.4z"/>
                 </svg>
-                374 102 5036
+                332 929 5129
               </a>
             </section>
           </aside>

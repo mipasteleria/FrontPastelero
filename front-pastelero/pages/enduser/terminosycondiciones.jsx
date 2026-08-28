@@ -53,7 +53,7 @@ const TerminosCondiciones = () => {
 
             <h2 className="text-xl font-semibold mt-6 mb-2">8. Contacto</h2>
             <p className="mb-4">
-                Si tienes alguna pregunta o comentario sobre estos términos y condiciones, por favor contáctanos a través de <a href="mailto:correo@ejemplo.com" className="text-blue-600 hover:underline">pasteleria.ruisenor@gmail.com</a> o <a href="tel:+52XXXXXXXXXX" className="text-blue-600 hover:underline">3741025036</a>.
+                Si tienes alguna pregunta o comentario sobre estos términos y condiciones, por favor contáctanos a través de <a href="mailto:correo@ejemplo.com" className="text-blue-600 hover:underline">pasteleria.ruisenor@gmail.com</a> o <a href="tel:+523329295129" className="text-blue-600 hover:underline">3329295129</a>.
             </p>
 
             <p className="text-sm text-gray-600">Fecha de última actualización: 27 agosto 2024</p>

@@ -52,7 +52,7 @@ const AvisoPrivacidad = () => {
             </p>
             <ul className="list-disc list-inside mb-4">
                 <li>Correo electrónico: <a href="mailto:correo@ejemplo.com" className="text-blue-600 hover:underline">pasteleria.ruisenor@gmail.com</a></li>
-                <li>Teléfono: <a href="tel:+52XXXXXXXXXX" className="text-blue-600 hover:underline">3741025036</a></li>
+                <li>Teléfono: <a href="tel:+523329295129" className="text-blue-600 hover:underline">3329295129</a></li>
             </ul>
 
             <h2 className="text-xl font-semibold mt-6 mb-2">6. Cambios al Aviso de Privacidad</h2>

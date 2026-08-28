@@ -12,7 +12,7 @@ const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
 
 const API_BASE   = process.env.NEXT_PUBLIC_API_BASE_URL;
-const WA_NUMBER  = "523741025036"; // 52 (México) + número
+const WA_NUMBER  = "523329295129"; // 52 (México) + número
 const WA_LINK_CUSTOM = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
   "Hola, quisiera hacer un pedido especial de Galletas NY (sabor o cantidad personalizada)."
 )}`;

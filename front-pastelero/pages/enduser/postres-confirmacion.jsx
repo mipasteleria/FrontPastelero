@@ -11,7 +11,7 @@ const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
 
 const API_BASE      = process.env.NEXT_PUBLIC_API_BASE_URL;
-const WA_NUMBER     = "523741025036";
+const WA_NUMBER     = "523329295129";
 const STORE_ADDRESS = "Calle Bogotá 2866a, Col. Providencia, Guadalajara, Jal.";
 
 function formatearFechaLarga(d) {

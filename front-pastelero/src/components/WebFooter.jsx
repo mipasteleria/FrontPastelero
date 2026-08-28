@@ -25,7 +25,7 @@ const SOCIAL = [
     ),
   },
   {
-    href: "https://wa.me/523741025036",
+    href: "https://wa.me/523329295129",
     label: "WhatsApp",
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" aria-hidden="true">

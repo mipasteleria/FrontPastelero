@@ -8,7 +8,7 @@ const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "8
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const STORE_ADDRESS = "Calle Bogotá 2866a, Col. Providencia, Guadalajara, Jal.";
-const STORE_PHONE = "374 102 5036";
+const STORE_PHONE = "332 929 5129";
 const PRODUCTO = { pastel: "Pastel", cupcake: "Cupcakes", "mesa-postres": "Mesa de postres", galleta: "Galletas decoradas" };
 
 function fechaLarga(d) {
