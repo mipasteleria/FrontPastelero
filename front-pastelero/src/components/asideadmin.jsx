@@ -71,15 +71,6 @@ const NAV_GROUPS = [
         ),
       },
       {
-        href: "/dashboard/productos",
-        label: "Productos del Home",
-        icon: (
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 6h18M3 12h18M3 18h18" />
-          </svg>
-        ),
-      },
-      {
         href: "/dashboard/galletas-ny",
         label: "Galletas NY",
         icon: (

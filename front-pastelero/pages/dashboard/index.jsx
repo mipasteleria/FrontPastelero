@@ -11,7 +11,7 @@ const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "8
 /* ── Nav cards data ─────────────────────────────────────────── */
 const NAV_CARDS = [
   {
-    href: "/dashboard/cotizaciones",
+    href: "/dashboard/cotizaciones-personalizadas",
     label: "Solicitudes de cotización",
     description: "Revisa y gestiona los pedidos especiales recibidos",
     accent: "var(--rosa)",
@@ -119,18 +119,6 @@ const NAV_CARDS = [
     icon: (
       <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
-      </svg>
-    ),
-  },
-  {
-    href: "/dashboard/productos",
-    label: "Productos del Home",
-    description: "Gestiona los productos visibles en tu tienda",
-    accent: "var(--durazno)",
-    blob: "rgba(255,201,165,0.25)",
-    icon: (
-      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 6h18M3 12h18M3 18h18" />
       </svg>
     ),
   },
