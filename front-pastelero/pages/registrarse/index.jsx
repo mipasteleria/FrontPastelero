@@ -277,6 +277,29 @@ export default function Login() {
             <p className="text-red-600 mt-1">{errors.phone.message}</p>
           )}
         </div>
+        {/* Consentimiento: separado de los datos operativos. La cuenta se
+            crea con o sin él; solo habilita los correos promocionales. */}
+        <div className="mb-5">
+          <label className="flex items-start gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              className="mt-1"
+              {...register("aceptaContacto")}
+            />
+            <span>
+              Quiero recibir novedades, promociones y recordatorios de Pastelería El
+              Ruiseñor por correo o WhatsApp. <span className="text-gray-500">(Opcional — puedes darte de baja cuando quieras.)</span>
+            </span>
+          </label>
+          <p className="text-xs text-gray-500 mt-2">
+            Al registrarte aceptas nuestros{" "}
+            <Link href="/enduser/terminosycondiciones" className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">términos y condiciones</Link>{" "}
+            y nuestro{" "}
+            <Link href="/enduser/avisodeprivacidad" className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">aviso de privacidad</Link>.
+            Siempre te enviaremos los correos necesarios para tus pedidos.
+          </p>
+        </div>
+
         <button
           type="submit"
           className="text-white bg-secondary hover:bg-accent focus:ring-4 focus:outline-none focus:ring-accent font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"

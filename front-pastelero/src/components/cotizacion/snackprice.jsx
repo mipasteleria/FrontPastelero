@@ -178,6 +178,7 @@ export default function Snackprice({ adminMode = false } = {}) {
           direccion: ENTREGAS_CON_DIRECCION.includes(form.entrega.tipo) ? form.entrega.direccion : "",
         },
         cliente: form.cliente,
+        aceptaContacto: !!form.aceptaContacto,
       };
       const r = await fetch(`${API_BASE}/cotizacion-personalizada`, {
         method: "POST",
@@ -498,6 +499,24 @@ export default function Snackprice({ adminMode = false } = {}) {
                   <label className="fld">Email</label>
                   <input type="email" value={form.cliente.email} onChange={(e) => setCliente({ email: e.target.value })} />
                 </div>
+              </div>
+              <div style={{ marginTop: "0.9rem", paddingTop: "0.9rem", borderTop: "1px solid var(--border-color)" }}>
+                <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: ".82rem", color: "var(--text-soft)", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={!!form.aceptaContacto}
+                    onChange={(e) => setForm((f) => ({ ...f, aceptaContacto: e.target.checked }))}
+                    style={{ marginTop: 3 }}
+                  />
+                  <span>
+                    Quiero recibir novedades y recordatorios de Pastelería El Ruiseñor.
+                    <span style={{ color: "var(--text-muted)" }}> (Opcional — no afecta tu cotización.)</span>
+                  </span>
+                </label>
+                <p style={{ fontSize: ".7rem", color: "var(--text-muted)", marginTop: 6, lineHeight: 1.5 }}>
+                  Usamos tus datos para atender esta solicitud. Consulta el{" "}
+                  <a href="/enduser/avisodeprivacidad" target="_blank" rel="noreferrer" style={{ color: "var(--rosa)", fontWeight: 700 }}>aviso de privacidad</a>.
+                </p>
               </div>
             </fieldset>
           </div>
