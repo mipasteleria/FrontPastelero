@@ -29,6 +29,9 @@ const ENTREGAS_CON_DIRECCION = ["domicilio", "evento"];
 
 const VALIDEZ_DIAS = 30;
 const MAX_IMAGENES = 2;
+// Sin cuenta solo se adjunta una imagen: el endpoint de subida está
+// abierto a invitados y el tope bajo acota el abuso.
+const MAX_IMAGENES_INVITADO = 1;
 // Las galletas decoradas se piden por pieza, con un mínimo por pedido.
 const MINIMO_PIEZAS = 6;
 
@@ -68,7 +71,7 @@ const DEFAULT_FORM = {
  */
 export default function GalletaPersonalizada({ adminMode = false } = {}) {
   const router = useRouter();
-  const { userToken, userEmail, isLoggedIn } = useAuth();
+  const { userToken, userEmail, isLoggedIn, userId } = useAuth();
 
   const [form, setForm] = useState(DEFAULT_FORM);
   const [sabores, setSabores] = useState([]);
@@ -95,6 +98,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
     [piezasTotales]
   );
   const saborSel = sabores.find((s) => s.slug === form.saborSlug);
+  const topeImgs = isLoggedIn ? MAX_IMAGENES : MAX_IMAGENES_INVITADO;
 
   const setEvento  = (patch) => setForm((f) => ({ ...f, evento:  { ...f.evento,  ...patch } }));
   const setEstilo  = (patch) => setForm((f) => ({ ...f, estilo:  { ...f.estilo,  ...patch } }));
@@ -105,16 +109,13 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
     Swal.fire({ icon: "warning", title: "Falta info", text: msg, timer: 1800, showConfirmButton: false });
 
   const handleImgUpload = async (e) => {
-    if (!isLoggedIn || !userToken) {
-      Swal.fire({ icon: "info", title: "Inicia sesión para subir fotos", timer: 2500, showConfirmButton: false });
-      e.target.value = "";
-      return;
-    }
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
-    const espacio = MAX_IMAGENES - form.estilo.imagenesInspiracion.length;
+    const espacio = topeImgs - form.estilo.imagenesInspiracion.length;
     if (espacio <= 0) {
-      alertarFalta(`Puedes adjuntar máximo ${MAX_IMAGENES} imágenes de referencia.`);
+      alertarFalta(isLoggedIn
+        ? `Puedes adjuntar máximo ${topeImgs} imágenes de referencia.`
+        : "Sin cuenta puedes adjuntar 1 imagen. Inicia sesión para subir más.");
       e.target.value = "";
       return;
     }
@@ -162,6 +163,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
           direccion: ENTREGAS_CON_DIRECCION.includes(form.entrega.tipo) ? form.entrega.direccion : "",
         },
         cliente: form.cliente,
+        userId: userId || "",
         aceptaContacto: !!form.aceptaContacto,
       };
       const r = await fetch(`${API_BASE}/cotizacion-personalizada`, {
@@ -355,10 +357,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
                   placeholder="Tema, colores, logo de la empresa, texto en las galletas, alergias…" />
               </div>
               <div style={{ marginTop: "1rem" }}>
-                <label className="fld">Imágenes de referencia (hasta {MAX_IMAGENES})</label>
-                {!isLoggedIn ? (
-                  <p style={{ fontSize: ".78rem", color: "var(--text-soft)" }}>Inicia sesión para adjuntar fotos.</p>
-                ) : (
+                <label className="fld">Imágenes de referencia (hasta {topeImgs})</label>
                   <div className="ref-grid">
                     {form.estilo.imagenesInspiracion.map((url) => (
                       <div key={url} className="ref-card">
@@ -366,7 +365,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
                         <button type="button" onClick={() => quitarImagen(url)} aria-label="Quitar imagen">×</button>
                       </div>
                     ))}
-                    {form.estilo.imagenesInspiracion.length < MAX_IMAGENES && (
+                    {form.estilo.imagenesInspiracion.length < topeImgs && (
                       <label className="ref-empty">
                         <span style={{ fontSize: "1.4rem" }}>{subiendoImg ? "…" : "📷"}</span>
                         {subiendoImg ? "Subiendo…" : "Agregar referencia"}
@@ -375,7 +374,6 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
                       </label>
                     )}
                   </div>
-                )}
                 <p style={{ fontSize: ".7rem", color: "var(--text-soft)", marginTop: ".5rem" }}>
                   Una foto de referencia nos ayuda muchísimo a cotizar con precisión.
                 </p>
@@ -465,7 +463,7 @@ export default function GalletaPersonalizada({ adminMode = false } = {}) {
             <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Evento</span><strong style={{ color: "var(--burdeos)" }}>{EVENTOS.find((x) => x.value === form.evento.tipo)?.label || "—"}</strong></div>
             <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Sabor</span><strong style={{ color: "var(--burdeos)" }}>{saborSel?.nombre || "—"}</strong></div>
             <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Galletas</span><strong style={{ color: "var(--burdeos)" }}>{piezasTotales}</strong></div>
-            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Referencias</span><strong style={{ color: "var(--burdeos)" }}>{form.estilo.imagenesInspiracion.length}/{MAX_IMAGENES}</strong></div>
+            <div className="sum-row"><span style={{ color: "var(--text-soft)" }}>Referencias</span><strong style={{ color: "var(--burdeos)" }}>{form.estilo.imagenesInspiracion.length}/{topeImgs}</strong></div>
 
             <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: ".75rem", fontStyle: "italic" }}>
               El monto se calcula y autoriza manualmente. Te enviamos el precio

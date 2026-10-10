@@ -75,7 +75,7 @@ const DEFAULT_FORM = {
  */
 export default function Snackprice({ adminMode = false } = {}) {
   const router = useRouter();
-  const { userToken, userEmail, isLoggedIn } = useAuth();
+  const { userToken, userEmail, isLoggedIn, userId } = useAuth();
 
   const [form, setForm] = useState(DEFAULT_FORM);
   const [postres, setPostres] = useState([]);
@@ -123,13 +123,19 @@ export default function Snackprice({ adminMode = false } = {}) {
   };
 
   const handleImgUpload = async (e) => {
-    if (!isLoggedIn || !userToken) {
-      Swal.fire({ icon: "info", title: "Inicia sesión para subir fotos", timer: 2500, showConfirmButton: false });
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    // Sin cuenta: una sola imagen de referencia.
+    if (!isLoggedIn && (form.estilo.imagenesInspiracion.length >= 1 || files.length > 1)) {
+      Swal.fire({
+        icon: "info",
+        title: "Una imagen por ahora",
+        text: "Sin cuenta puedes adjuntar 1 imagen. Inicia sesión para subir más.",
+        timer: 2800, showConfirmButton: false,
+      });
       e.target.value = "";
       return;
     }
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
     setSubiendoImg(true);
     try {
       const urls = [];
@@ -179,6 +185,7 @@ export default function Snackprice({ adminMode = false } = {}) {
           direccion: ENTREGAS_CON_DIRECCION.includes(form.entrega.tipo) ? form.entrega.direccion : "",
         },
         cliente: form.cliente,
+        userId: userId || "",
         aceptaContacto: !!form.aceptaContacto,
       };
       const r = await fetch(`${API_BASE}/cotizacion-personalizada`, {
@@ -423,10 +430,12 @@ export default function Snackprice({ adminMode = false } = {}) {
               </div>
               <div style={{ marginTop: "1rem" }}>
                 <label className="fld">Imágenes de inspiración (opcional)</label>
-                {!isLoggedIn ? (
-                  <p style={{ fontSize: ".78rem", color: "var(--text-soft)" }}>Inicia sesión para adjuntar fotos.</p>
-                ) : (
-                  <input type="file" multiple accept="image/*" onChange={handleImgUpload} disabled={subiendoImg} />
+                <input type="file" multiple={isLoggedIn} accept="image/*" onChange={handleImgUpload}
+                  disabled={subiendoImg || (!isLoggedIn && form.estilo.imagenesInspiracion.length >= 1)} />
+                {!isLoggedIn && (
+                  <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: ".35rem" }}>
+                    Sin cuenta puedes adjuntar 1 imagen. Inicia sesión para subir más.
+                  </p>
                 )}
                 {subiendoImg && <p style={{ fontSize: ".78rem", color: "var(--rosa)" }}>Subiendo…</p>}
                 <div>

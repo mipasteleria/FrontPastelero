@@ -104,70 +104,27 @@ export default function Price() {
 
           {/* ── Main form area ───────────────────────────── */}
           <div>
-            {!isLoggedIn ? (
-              /* Not-logged-in card */
+            {!isLoggedIn && (
               <div
                 style={{
-                  background: "var(--bg-raised)",
-                  borderRadius: "var(--r-2xl)",
-                  boxShadow: "var(--shadow-md)",
-                  border: "1px solid var(--border-color)",
-                  padding: "2.5rem",
+                  background: "var(--rosa-4, #FFF3F5)",
+                  borderRadius: "var(--r-md)",
+                  padding: "0.9rem 1.25rem",
+                  fontSize: "0.85rem",
+                  color: "var(--text-soft)",
+                  borderLeft: "3px solid var(--rosa)",
+                  marginBottom: "1.25rem",
+                  lineHeight: 1.6,
                 }}
               >
-                <h2
-                  className={sofia.className}
-                  style={{ color: "var(--burdeos)", fontSize: "1.75rem", marginBottom: "0.75rem" }}
-                >
-                  Para solicitar una cotización necesitas iniciar sesión
-                </h2>
-                <p style={{ color: "var(--text-soft)", fontSize: "0.95rem", marginBottom: "1.75rem", lineHeight: 1.65 }}>
-                  Por favor, inicia sesión o regístrate para continuar con el proceso de cotización. También puedes volver al inicio.
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-                  <Link href="/registrarse">
-                    <button
-                      style={{
-                        background: "transparent", color: "var(--burdeos)",
-                        border: "1.5px solid var(--burdeos)", borderRadius: "var(--r-pill)",
-                        padding: "10px 24px", fontWeight: 700, fontSize: "0.9rem",
-                        cursor: "pointer", transition: "all 150ms", fontFamily: "var(--font-nunito)",
-                      }}
-                      onMouseEnter={e=>{e.currentTarget.style.background="var(--burdeos)";e.currentTarget.style.color="#fff"}}
-                      onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="var(--burdeos)"}}
-                    >
-                      Registrarse
-                    </button>
-                  </Link>
-                  <Link href="/login">
-                    <button
-                      style={{
-                        background: "var(--burdeos)", color: "#fff",
-                        border: "none", borderRadius: "var(--r-pill)",
-                        padding: "10px 24px", fontWeight: 700, fontSize: "0.9rem",
-                        cursor: "pointer", transition: "all 150ms", fontFamily: "var(--font-nunito)",
-                        boxShadow: "var(--shadow-sm)",
-                      }}
-                    >
-                      Iniciar sesión
-                    </button>
-                  </Link>
-                  <Link href="/">
-                    <button
-                      style={{
-                        background: "transparent", color: "var(--text-soft)",
-                        border: "1.5px solid var(--border-strong)", borderRadius: "var(--r-pill)",
-                        padding: "10px 24px", fontWeight: 700, fontSize: "0.9rem",
-                        cursor: "pointer", transition: "all 150ms", fontFamily: "var(--font-nunito)",
-                      }}
-                    >
-                      Volver al inicio
-                    </button>
-                  </Link>
-                </div>
+                Puedes cotizar sin crear cuenta — al enviar te damos un enlace para
+                seguir tu cotización.{" "}
+                <Link href="/login" style={{ color: "var(--rosa)", fontWeight: 700 }}>
+                  Inicia sesión
+                </Link>{" "}
+                si quieres guardarla en tu historial y adjuntar más fotos.
               </div>
-            ) : (
-              <>
+            )}
                 {/* Banner de captura admin */}
                 {isAdmin && (
                   <div
@@ -284,8 +241,6 @@ export default function Price() {
                   {selectedProduct === "cupcake" && <Cupcakeprice adminMode={isAdmin} />}
                   {selectedProduct === "galleta" && <GalletaPersonalizada adminMode={isAdmin} />}
                 </div>
-              </>
-            )}
           </div>
 
           {/* ── Sidebar ─────────────────────────────────── */}

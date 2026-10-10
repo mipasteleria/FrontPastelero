@@ -120,7 +120,7 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
   // Cupcakes se cotizan por docena (múltiplos de 12); pastel de 10 en 10.
   const pasoPorciones = esCupcake ? 12 : 10;
   const router = useRouter();
-  const { userToken, userEmail, isLoggedIn } = useAuth();
+  const { userToken, userEmail, isLoggedIn, userId } = useAuth();
 
   const [form, setForm] = useState(DEFAULT_FORM);
   const [catalogos, setCatalogos] = useState({
@@ -275,19 +275,19 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
 
   // ── Upload de imágenes de inspiración ────────────────────────────
   const handleImgUpload = async (e) => {
-    if (!isLoggedIn || !userToken) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    // Sin cuenta: una sola imagen de referencia.
+    if (!isLoggedIn && (form.estilo.imagenesInspiracion.length >= 1 || files.length > 1)) {
       Swal.fire({
         icon: "info",
-        title: "Inicia sesión para subir fotos",
-        text: "Las imágenes de inspiración requieren cuenta para evitar abuso.",
-        timer: 2500,
-        showConfirmButton: false,
+        title: "Una imagen por ahora",
+        text: "Sin cuenta puedes adjuntar 1 imagen. Inicia sesión para subir más.",
+        timer: 2800, showConfirmButton: false,
       });
       e.target.value = "";
       return;
     }
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
     setSubiendoImg(true);
     try {
       const urls = [];
@@ -333,6 +333,9 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
       const payload = {
         ...form,
         tipoProducto,
+        // Liga la cotización a la cuenta cuando hay sesión; los invitados
+        // la recuperan por su enlace público y por correo.
+        userId: userId || "",
         niveles: esCupcake ? 1 : form.niveles,
         // Cupcakes: enviar sabores por docena y el total como invitados.
         saboresCupcakeData: esCupcake
@@ -894,18 +897,17 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
               </div>
               <div style={{ marginTop: "1rem" }}>
                 <label className="fld">Imágenes de inspiración (opcional)</label>
-                {!isLoggedIn ? (
-                  <p style={{ fontSize: ".78rem", color: "var(--text-soft)" }}>
-                    Inicia sesión para adjuntar fotos.
+                <input
+                  type="file"
+                  multiple={isLoggedIn}
+                  accept="image/*"
+                  onChange={handleImgUpload}
+                  disabled={subiendoImg || (!isLoggedIn && form.estilo.imagenesInspiracion.length >= 1)}
+                />
+                {!isLoggedIn && (
+                  <p style={{ fontSize: ".72rem", color: "var(--text-soft)", marginTop: ".35rem" }}>
+                    Sin cuenta puedes adjuntar 1 imagen. Inicia sesión para subir más.
                   </p>
-                ) : (
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImgUpload}
-                    disabled={subiendoImg}
-                  />
                 )}
                 {subiendoImg && <p style={{ fontSize: ".78rem", color: "var(--rosa)" }}>Subiendo…</p>}
                 <div>
