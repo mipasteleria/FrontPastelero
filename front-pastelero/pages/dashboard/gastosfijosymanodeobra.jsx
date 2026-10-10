@@ -20,6 +20,13 @@ export default function Conocenuestrosproductos() {
     margenMinimoGalleta: 5,
     costoBrandingPorPostre: 0,
     markupPostresPct: 60,
+    pasarela: {
+      proveedor: "stripe",
+      comisionPct: 0,
+      comisionFija: 0,
+      ivaSobreComisionPct: 16,
+      incluirEnPrecio: false,
+    },
   });
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   const { userToken } = useAuth();
@@ -29,6 +36,7 @@ export default function Conocenuestrosproductos() {
   // u otro sin tener que llenar los dos cada vez.
   const galletasForm = useForm();
   const postresForm  = useForm();
+  const pasarelaForm = useForm();
 
   useEffect(() => {
     const fetchCostData = async () => {
@@ -177,6 +185,55 @@ export default function Conocenuestrosproductos() {
       Swal.fire({
         title: 'Error',
         text: 'No se pudo actualizar la configuración de postres.',
+        icon: 'error',
+        timer: 2000,
+        showConfirmButton: false,
+        background: '#fff1f2',
+        color: '#540027',
+      });
+    }
+  };
+
+  // Comisión de la pasarela de pago. Se guarda anidado en `pasarela` y el
+  // back lo actualiza campo por campo, así que mandar esta sección no pisa
+  // la config de galletas ni de postres.
+  const onSubmitPasarela = async (data) => {
+    try {
+      const response = await fetch(`${API_BASE}/costs`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: JSON.stringify({
+          fixedCosts: costData.fixedCosts,
+          laborCosts: costData.laborCosts,
+          pasarela: {
+            proveedor: data.proveedor || "stripe",
+            comisionPct: parseFloat(data.comisionPct) || 0,
+            comisionFija: parseFloat(data.comisionFija) || 0,
+            ivaSobreComisionPct: parseFloat(data.ivaSobreComisionPct) || 0,
+            incluirEnPrecio: Boolean(data.incluirEnPrecio),
+          },
+        }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const result = await response.json();
+      setCostData((prev) => ({ ...prev, ...result }));
+      Swal.fire({
+        title: 'Comisión de pasarela actualizada',
+        icon: 'success',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        background: '#fff1f2',
+        color: '#540027',
+      });
+    } catch (error) {
+      console.error('Error al actualizar pasarela:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo actualizar la comisión de pasarela.',
         icon: 'error',
         timer: 2000,
         showConfirmButton: false,
@@ -395,6 +452,118 @@ export default function Conocenuestrosproductos() {
               <p className="text-lg font-semibold" style={{ color: "#540027" }}>Config actual de postres:</p>
               <p className="text-md">Branding por postre: ${costData.costoBrandingPorPostre ?? 0} MXN</p>
               <p className="text-md">Markup sugerido: {costData.markupPostresPct ?? 60}%</p>
+            </div>
+          </div>
+
+          {/* ── Comisión de la pasarela de pago ──────────────────── */}
+          <div className="bg-white rounded-lg shadow-md m-4">
+            <h2 className={`text-3xl p-6 ${sofia.className}`} style={{ color: "#540027" }}>
+              💳 Comisión de la pasarela de pago
+            </h2>
+            <p className="text-sm px-6 mb-4" style={{ color: "#a78891" }}>
+              Si lo activas, el precio sugerido de todos tus productos ya viene con la
+              comisión incluida, así que el mismo precio aplica para quien paga en línea,
+              en efectivo o por transferencia.
+            </p>
+            <div className="mx-6 mb-4 p-3 rounded-lg text-sm" style={{ background: "#FFF8E5", border: "1px solid #F0DFA0", color: "#6B5410" }}>
+              <strong>Nota importante:</strong> el sistema no suma el porcentaje a secas,
+              porque eso no alcanza a cubrir la comisión — la pasarela cobra su porcentaje
+              sobre el total que le cobras, incluida la parte que agregaste para cubrirla.
+              Si quieres recibir $100 netos con 3.6%, cobrar $103.60 te deja en $99.87;
+              el sistema calcula $103.73 para que te queden los $100 exactos.
+            </div>
+
+            <form onSubmit={pasarelaForm.handleSubmit(onSubmitPasarela)}>
+              <div className="flex flex-col md:flex-row items-center">
+                <p className="font-bold m-4">Proveedor</p>
+                <div className="m-4 w-64">
+                  <select
+                    id="proveedor"
+                    defaultValue={costData.pasarela?.proveedor ?? "stripe"}
+                    key={`proveedor-${costData.pasarela?.proveedor ?? "stripe"}`}
+                    {...pasarelaForm.register("proveedor")}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                  >
+                    <option value="stripe">Stripe</option>
+                    <option value="mercadopago">Mercado Pago</option>
+                    <option value="otro">Otra</option>
+                  </select>
+                  <p className="text-xs mt-1" style={{ color: "#a78891" }}>
+                    Solo es una etiqueta para el desglose. Para migrar a Mercado Pago basta
+                    cambiarlo aquí y ajustar las tarifas.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row items-center">
+                <p className="font-bold m-4">Comisión por transacción</p>
+                <div className="m-4">
+                  <label htmlFor="comisionPct" className="block mb-2 text-sm font-medium">Porcentaje (%)</label>
+                  <input
+                    type="number" step="0.01" min="0"
+                    id="comisionPct"
+                    defaultValue={costData.pasarela?.comisionPct ?? 0}
+                    key={`comision-pct-${costData.pasarela?.comisionPct ?? 0}`}
+                    {...pasarelaForm.register("comisionPct")}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                    placeholder="3.6"
+                  />
+                </div>
+                <div className="m-4">
+                  <label htmlFor="comisionFija" className="block mb-2 text-sm font-medium">Cuota fija (MXN)</label>
+                  <input
+                    type="number" step="0.01" min="0"
+                    id="comisionFija"
+                    defaultValue={costData.pasarela?.comisionFija ?? 0}
+                    key={`comision-fija-${costData.pasarela?.comisionFija ?? 0}`}
+                    {...pasarelaForm.register("comisionFija")}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                    placeholder="3"
+                  />
+                </div>
+                <div className="m-4">
+                  <label htmlFor="ivaSobreComisionPct" className="block mb-2 text-sm font-medium">IVA sobre comisión (%)</label>
+                  <input
+                    type="number" step="1" min="0"
+                    id="ivaSobreComisionPct"
+                    defaultValue={costData.pasarela?.ivaSobreComisionPct ?? 16}
+                    key={`comision-iva-${costData.pasarela?.ivaSobreComisionPct ?? 16}`}
+                    {...pasarelaForm.register("ivaSobreComisionPct")}
+                    className="bg-gray-50 border border-secondary text-sm rounded-lg block w-full p-2.5"
+                    placeholder="16"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center m-4">
+                <input
+                  type="checkbox"
+                  id="incluirEnPrecio"
+                  defaultChecked={costData.pasarela?.incluirEnPrecio ?? false}
+                  key={`incluir-${String(costData.pasarela?.incluirEnPrecio ?? false)}`}
+                  {...pasarelaForm.register("incluirEnPrecio")}
+                  className="w-4 h-4 mr-3"
+                />
+                <label htmlFor="incluirEnPrecio" className="text-sm font-medium">
+                  Incluir la comisión en el precio de todos mis productos
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                className="shadow-md text-text bg-primary hover:bg-accent hover:text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm w-96 sm:w-96 px-16 py-2.5 text-center m-4"
+              >
+                Guardar comisión de pasarela
+              </button>
+            </form>
+
+            <div className="m-4 p-4 rounded-lg" style={{ background: "#fff1f2" }}>
+              <p className="text-lg font-semibold" style={{ color: "#540027" }}>Config actual de pasarela:</p>
+              <p className="text-md">
+                {costData.pasarela?.incluirEnPrecio
+                  ? `Activa — ${costData.pasarela?.comisionPct ?? 0}% + $${costData.pasarela?.comisionFija ?? 0} MXN (+${costData.pasarela?.ivaSobreComisionPct ?? 0}% IVA)`
+                  : "Apagada — los precios no incluyen comisión"}
+              </p>
             </div>
           </div>
         </main>

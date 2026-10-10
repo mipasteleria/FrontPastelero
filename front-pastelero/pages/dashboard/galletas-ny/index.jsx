@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import axios from "axios";
 import Swal from "sweetalert2";
 import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
+import EmpaqueEditor, { normalizarEmpaque } from "@/src/components/dashboard/EmpaqueEditor";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useAuth } from "@/src/context";
 import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
@@ -28,6 +30,7 @@ const NEW_FLAVOR = {
   activo: true,
   orden: 0,
   recetaId: "",
+  empaque: [],
 };
 
 /* Predefined gradient swatches for quick pick */
@@ -105,6 +108,7 @@ export default function GalletasAdminPage() {
 
   const [sabores, setSabores]       = useState([]);
   const [recetas, setRecetas]       = useState([]);  // catálogo de recetas para el dropdown
+  const [recetasError, setRecetasError] = useState(false); // true si el listado falló o vino vacío
   const [loading, setLoading]       = useState(true);
   const [showForm, setShowForm]     = useState(false);
   const [editing, setEditing]       = useState(null); // sabor being edited
@@ -137,14 +141,20 @@ export default function GalletasAdminPage() {
   /* ── Load recetas para el dropdown del form ── */
   const loadRecetas = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/recetas`, { headers: authHeader });
+      // El router de recetas se monta en /recetas y dentro vuelve a montar
+      // /recetas, así que el listado vive en /recetas/recetas. Pedir
+      // /recetas devuelve 404 y dejaba el dropdown permanentemente vacío.
+      const res = await axios.get(`${API_BASE}/recetas/recetas`, { headers: authHeader });
       // Solo necesitamos las que tienen porciones para poder costear
       const list = (res.data?.data || []).filter(r => r.portions > 0 && typeof r.total_cost === "number");
       setRecetas(list);
+      setRecetasError(list.length === 0);
     } catch (err) {
       console.error("No se pudieron cargar las recetas:", err);
-      // Silencioso — la feature de costeo desde receta es opcional, el admin
-      // puede seguir capturando precio manual.
+      // El costeo desde receta es opcional (se puede capturar precio
+      // manual), pero el admin necesita saber que falló: si no, solo ve el
+      // dropdown deshabilitado y supone que no tiene recetas dadas de alta.
+      setRecetasError(true);
     }
   };
 
@@ -160,13 +170,16 @@ export default function GalletasAdminPage() {
    * Llama al back con el recetaId; si responde con breakdown, lo
    * guardamos en state y autopoblamos `precio` con el sugerido (el
    * admin lo puede ajustar antes de guardar). */
-  const calcularPrecioDesdeReceta = async (recetaId) => {
+  const calcularPrecioDesdeReceta = async (recetaId, empaqueOverride) => {
     if (!recetaId) { setCosteoData(null); return; }
     setCosteoBusy(true);
     try {
+      // El empaque se manda explícito porque al cambiarlo se recalcula
+      // antes de que el state nuevo esté disponible en este closure.
+      const empaque = empaqueOverride !== undefined ? empaqueOverride : formData.empaque;
       const res = await axios.post(
         `${API_BASE}/galletaSabores/calcular-precio`,
-        { recetaId },
+        { recetaId, empaque },
         { headers: authHeader }
       );
       const data = res.data?.data;
@@ -214,6 +227,7 @@ export default function GalletasAdminPage() {
       activo:      s.activo !== false,
       orden:       s.orden || 0,
       recetaId:    s.recetaId || "",
+      empaque:     Array.isArray(s.empaque) ? s.empaque : [],
     });
     setCosteoData(null);
     setShowForm(true);
@@ -280,7 +294,11 @@ export default function GalletasAdminPage() {
     e?.preventDefault();
     try {
       // Normaliza recetaId: el back espera ObjectId o null (no string vacío)
-      const payload = { ...formData, recetaId: formData.recetaId || null };
+      const payload = {
+        ...formData,
+        recetaId: formData.recetaId || null,
+        empaque: normalizarEmpaque(formData.empaque),
+      };
       if (editing) {
         await axios.put(`${API_BASE}/galletaSabores/${editing._id}`, payload, { headers: authHeader });
       } else {
@@ -615,9 +633,31 @@ export default function GalletasAdminPage() {
                     </option>
                   ))}
                 </select>
-                {recetas.length === 0 && <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 4 }}>No hay recetas con porciones válidas. Crea una en /dashboard/costeorecetas.</p>}
+                {recetasError && (
+                  <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 4 }}>
+                    No se pudieron cargar las recetas. Revisa tu conexión y recarga; si
+                    aún no tienes ninguna con rendimiento capturado, créala en{" "}
+                    <Link href="/dashboard/costeorecetas" style={{ textDecoration: "underline" }}>
+                      Costeo de recetas
+                    </Link>.
+                  </p>
+                )}
                 {costeoBusy && <p style={{ fontSize: "0.75rem", color: "var(--rosa)", marginTop: 4 }}>Calculando…</p>}
               </label>
+
+              {/* Empaque por sabor — renglones ligados a materia prima */}
+              <div style={{ gridColumn: "1 / -1" }}>
+                <EmpaqueEditor
+                  value={formData.empaque}
+                  onChange={(empaque) => {
+                    setFormData((prev) => ({ ...prev, empaque }));
+                    // Recalcular con el empaque nuevo si ya hay receta elegida.
+                    if (formData.recetaId) calcularPrecioDesdeReceta(formData.recetaId, empaque);
+                  }}
+                  apiBase={API_BASE}
+                  authHeader={authHeader}
+                />
+              </div>
 
               {/* Breakdown del cálculo (si hay) */}
               {costeoData && (
@@ -626,9 +666,20 @@ export default function GalletasAdminPage() {
                   <table style={{ width: "100%", fontSize: "0.85rem", lineHeight: 1.7 }}>
                     <tbody>
                       <tr><td style={{ color: "var(--text-soft)" }}>Materia prima por galleta:</td><td style={{ textAlign: "right", fontWeight: 700, color: "var(--burdeos)" }}>${costeoData.costoMateriaPrima}</td></tr>
-                      <tr><td style={{ color: "var(--text-soft)" }}>+ Branding / empaque:</td><td style={{ textAlign: "right", fontWeight: 700, color: "var(--burdeos)" }}>${costeoData.costoBranding}</td></tr>
+                      <tr><td style={{ color: "var(--text-soft)" }}>+ Branding:</td><td style={{ textAlign: "right", fontWeight: 700, color: "var(--burdeos)" }}>${costeoData.costoBranding}</td></tr>
+                      {costeoData.costoEmpaque > 0 && (
+                        <tr><td style={{ color: "var(--text-soft)" }}>+ Empaque:</td><td style={{ textAlign: "right", fontWeight: 700, color: "var(--burdeos)" }}>${costeoData.costoEmpaque}</td></tr>
+                      )}
                       <tr><td style={{ color: "var(--text-soft)", borderTop: "1px solid var(--border-color)", paddingTop: 4 }}>Costo total:</td><td style={{ textAlign: "right", fontWeight: 800, color: "var(--burdeos)", borderTop: "1px solid var(--border-color)", paddingTop: 4 }}>${costeoData.costoTotal}</td></tr>
-                      <tr><td style={{ color: "var(--text-soft)" }}>+ Markup {costeoData.markupPct}%:</td><td style={{ textAlign: "right", fontWeight: 700, color: "#1D5A45" }}>${(costeoData.precioSugerido - costeoData.costoTotal).toFixed(2)}</td></tr>
+                      <tr><td style={{ color: "var(--text-soft)" }}>+ Markup {costeoData.markupPct}%:</td><td style={{ textAlign: "right", fontWeight: 700, color: "#1D5A45" }}>${((costeoData.precioAntesDeComision ?? costeoData.precioSugerido) - costeoData.costoTotal).toFixed(2)}</td></tr>
+                      {costeoData.comisionAplicada && (
+                        <tr>
+                          <td style={{ color: "var(--text-soft)" }}>
+                            + Comisión {costeoData.comisionDetalle?.proveedorNombre || "pasarela"}:
+                          </td>
+                          <td style={{ textAlign: "right", fontWeight: 700, color: "var(--burdeos)" }}>${costeoData.comisionPasarela}</td>
+                        </tr>
+                      )}
                       <tr><td style={{ color: "var(--burdeos)", fontWeight: 800, borderTop: "2px solid var(--rosa)", paddingTop: 6 }}>Precio sugerido:</td><td style={{ textAlign: "right", fontWeight: 900, color: "var(--burdeos)", fontSize: "1.1rem", borderTop: "2px solid var(--rosa)", paddingTop: 6 }}>${costeoData.precioSugerido}</td></tr>
                     </tbody>
                   </table>

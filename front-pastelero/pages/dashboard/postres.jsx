@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import { subirImagen } from "@/src/lib/imageUpload";
+import EmpaqueEditor, { normalizarEmpaque } from "@/src/components/dashboard/EmpaqueEditor";
 
 const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -40,6 +41,7 @@ const FORM_VACIO = {
   recetaId: "",
   cantidadReceta: "1",
   costoEmpaque: "",
+  empaque: [],
   categoria: "postre",
   unidad: "pieza",
   minimo: "1",
@@ -106,6 +108,7 @@ export default function DashboardPostres() {
       recetaId: p.recetaId || "",
       cantidadReceta: p.cantidadReceta != null ? String(p.cantidadReceta) : "1",
       costoEmpaque: p.costoEmpaque ?? "",
+      empaque: Array.isArray(p.empaque) ? p.empaque : [],
       categoria: p.categoria || "postre",
       unidad: p.unidad || "pieza",
       minimo: p.minimo != null ? String(p.minimo) : "1",
@@ -134,6 +137,7 @@ export default function DashboardPostres() {
           recetaId: form.recetaId,
           cantidadReceta: parseFloat(form.cantidadReceta || 1),
           costoEmpaque: parseFloat(form.costoEmpaque || 0),
+          empaque: normalizarEmpaque(form.empaque),
         }),
       });
       const j = await r.json();
@@ -194,6 +198,7 @@ export default function DashboardPostres() {
         recetaId: form.recetaId || null,
         cantidadReceta: parseFloat(form.cantidadReceta || 1),
         costoEmpaque: parseFloat(form.costoEmpaque || 0),
+        empaque: normalizarEmpaque(form.empaque),
         categoria: form.categoria,
         unidad: form.unidad,
         minimo: parseFloat(form.minimo || 1),
@@ -484,18 +489,34 @@ export default function DashboardPostres() {
                       placeholder="1"
                     />
                   </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">Costo de empaque (MXN)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={form.costoEmpaque}
-                      onChange={(e) => setForm((p) => ({ ...p, costoEmpaque: e.target.value }))}
-                      className={inputStyle}
-                      placeholder="ej. 15 (domo, caja, etc.)"
-                    />
-                  </div>
+                </div>
+
+                {/* Empaque: renglones ligados a materia prima. El campo
+                    numérico viejo (`costoEmpaque`) se sigue usando como
+                    fallback cuando no hay renglones capturados. */}
+                <div className="mt-3">
+                  <EmpaqueEditor
+                    value={form.empaque}
+                    onChange={(empaque) => setForm((p) => ({ ...p, empaque }))}
+                    apiBase={API_BASE}
+                    authHeader={userToken ? { Authorization: `Bearer ${userToken}` } : {}}
+                  />
+                  {(!form.empaque || form.empaque.length === 0) && (
+                    <div className="mt-2">
+                      <label className="block mb-1 text-sm font-medium">
+                        …o un costo de empaque único (MXN)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={form.costoEmpaque}
+                        onChange={(e) => setForm((p) => ({ ...p, costoEmpaque: e.target.value }))}
+                        className={inputStyle}
+                        placeholder="ej. 15 (domo, caja, etc.)"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-4">
@@ -518,9 +539,27 @@ export default function DashboardPostres() {
                         <tr><td className="py-1 pl-4">Rendimiento: {breakdown.receta.portions} {breakdown.receta.unidadRendimiento || "porcion"}, total ${breakdown.receta.total_cost.toFixed(2)}</td><td className="py-1 text-right">${breakdown.costoUnitarioReceta.toFixed(2)}/{breakdown.receta.unidadRendimiento || "porcion"}</td></tr>
                         <tr><td className="py-1 pl-4">Cantidad usada por postre: {breakdown.cantidadReceta} {breakdown.receta.unidadRendimiento || "porcion"}</td><td className="py-1 text-right font-semibold">${breakdown.costoMateriaPrima.toFixed(2)}</td></tr>
                         <tr><td className="py-1">+ Branding (global)</td><td className="py-1 text-right">${breakdown.costoBranding.toFixed(2)}</td></tr>
-                        <tr><td className="py-1">+ Empaque (este postre)</td><td className="py-1 text-right">${breakdown.costoEmpaque.toFixed(2)}</td></tr>
+                        <tr><td className="py-1">+ Empaque ({breakdown.empaqueFuente === "renglones" ? "desglosado" : "monto único"})</td><td className="py-1 text-right">${breakdown.costoEmpaque.toFixed(2)}</td></tr>
+                        {(breakdown.empaqueDetalle || []).map((d, i) => (
+                          <tr key={i} className="text-gray-500">
+                            <td className="py-0.5 pl-8 text-xs">
+                              {d.concepto} {d.cantidad !== 1 && `×${d.cantidad}`}
+                              {d.fuente === "insumo" && " (materia prima)"}
+                              {d.fuente === "insumo-faltante" && " ⚠️ insumo borrado"}
+                            </td>
+                            <td className="py-0.5 text-right text-xs">${d.subtotal.toFixed(2)}</td>
+                          </tr>
+                        ))}
                         <tr className="border-t border-secondary"><td className="py-2 font-bold">Costo total</td><td className="py-2 text-right font-bold">${breakdown.costoTotal.toFixed(2)}</td></tr>
-                        <tr><td className="py-1 text-gray-600">+ Markup ({breakdown.markupPct}%)</td><td className="py-1 text-right text-gray-600">${(breakdown.precioSugerido - breakdown.costoTotal).toFixed(2)}</td></tr>
+                        <tr><td className="py-1 text-gray-600">+ Markup ({breakdown.markupPct}%)</td><td className="py-1 text-right text-gray-600">${((breakdown.precioAntesDeComision ?? breakdown.precioSugerido) - breakdown.costoTotal).toFixed(2)}</td></tr>
+                        {breakdown.comisionAplicada && (
+                          <tr>
+                            <td className="py-1 text-gray-600">
+                              + Comisión {breakdown.comisionDetalle?.proveedorNombre || "pasarela"} ({breakdown.comisionDetalle?.comisionPct}% + ${breakdown.comisionDetalle?.comisionFija})
+                            </td>
+                            <td className="py-1 text-right text-gray-600">${breakdown.comisionPasarela.toFixed(2)}</td>
+                          </tr>
+                        )}
                         <tr className="border-t border-secondary"><td className="py-2 font-bold" style={{ color: "var(--burdeos)" }}>Precio sugerido</td><td className="py-2 text-right font-bold text-xl" style={{ color: "var(--burdeos)" }}>${breakdown.precioSugerido.toFixed(2)}</td></tr>
                       </tbody>
                     </table>
