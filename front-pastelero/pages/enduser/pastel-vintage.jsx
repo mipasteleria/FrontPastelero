@@ -70,7 +70,7 @@ export default function PastelVintage() {
     porcionSlug: "", pisosSlug: "", formaSlug: "", saborSlug: "", rellenoSlug: "",
     coberturaSlug: "", colorSlug: "", decoraciones: [], notas: "",
     fecha: "", entregaTipo: "recoger-local",
-    clienteNombre: "", clienteTelefono: "", clienteEmail: "",
+    clienteNombre: "", clienteTelefono: "", clienteEmail: "", aceptaContacto: false,
     colonia: "", municipio: "", direccion: "",
   });
   const upd = (patch) => setSel((s) => ({ ...s, ...patch }));
@@ -102,6 +102,7 @@ export default function PastelVintage() {
           colorSlug: sel.colorSlug, decoraciones: sel.decoraciones, notas: sel.notas, fecha: sel.fecha,
           entrega: { tipo: sel.entregaTipo, colonia: sel.colonia, municipio: sel.municipio, direccion: sel.direccion },
           cliente: { nombre: sel.clienteNombre, telefono: sel.clienteTelefono, email: sel.clienteEmail },
+          aceptaContacto: !!sel.aceptaContacto,
         }),
       });
       const j = await r.json();
@@ -299,6 +300,15 @@ export default function PastelVintage() {
             <input value={sel.clienteNombre} onChange={(e) => upd({ clienteNombre: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} placeholder="Nombre completo" />
             <input value={sel.clienteTelefono} onChange={(e) => upd({ clienteTelefono: e.target.value })} style={{ ...inputStyle, marginBottom: 8 }} placeholder="Teléfono" />
             <input value={sel.clienteEmail} onChange={(e) => upd({ clienteEmail: e.target.value })} style={inputStyle} placeholder="Email (para tu confirmación)" />
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 8, marginTop: 10, fontSize: ".82rem", color: "var(--text-soft)", cursor: "pointer" }}>
+              <input type="checkbox" checked={!!sel.aceptaContacto}
+                onChange={(e) => upd({ aceptaContacto: e.target.checked })} style={{ marginTop: 3 }} />
+              <span>
+                Quiero recibir novedades de Pastelería El Ruiseñor y que me inviten a
+                dejar mi reseña.{" "}
+                <span style={{ color: "var(--text-muted)" }}>(Opcional — no afecta tu pedido.)</span>
+              </span>
+            </label>
           </div>
         </div>
       ),

@@ -35,6 +35,12 @@ export default function VerPedidoVintage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [pagando, setPagando] = useState(false);
+  // Reseña: solo disponible cuando el pedido ya se entregó.
+  const [resena, setResena] = useState(null);
+  const [estrellas, setEstrellas] = useState(0);
+  const [comentario, setComentario] = useState("");
+  const [enviandoResena, setEnviandoResena] = useState(false);
+  const [resenaGuardada, setResenaGuardada] = useState(false);
 
   useEffect(() => {
     if (router.query.pago === "ok") {
@@ -48,7 +54,11 @@ export default function VerPedidoVintage() {
     if (!token) return;
     fetch(`${API_BASE}/vintage-pedidos/publico/${token}`)
       .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
-      .then(({ ok, j }) => { if (!ok) throw new Error(j.message || "No encontrado"); setPedido(j.data); })
+      .then(({ ok, j }) => {
+        if (!ok) throw new Error(j.message || "No encontrado");
+        setPedido(j.data);
+        if (j.resena) { setResena(j.resena); setEstrellas(j.resena.rating); setComentario(j.resena.texto || ""); }
+      })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false));
   }, [token, router.query.pago]);
@@ -76,6 +86,33 @@ export default function VerPedidoVintage() {
     } catch (e) {
       Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" });
       setPagando(false);
+    }
+  };
+
+  const enviarResena = async () => {
+    if (!estrellas) {
+      Swal.fire({ icon: "info", title: "Elige cuántas estrellas", timer: 1800, showConfirmButton: false });
+      return;
+    }
+    setEnviandoResena(true);
+    try {
+      const r = await fetch(`${API_BASE}/vintage-pedidos/publico/${token}/resena`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: estrellas, texto: comentario }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "No se pudo guardar tu reseña");
+      setResena({ rating: estrellas, texto: comentario });
+      setResenaGuardada(true);
+      Swal.fire({
+        icon: "success", title: "¡Gracias por tu reseña!",
+        text: "Nos ayuda muchísimo a seguir mejorando.",
+        confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027",
+      });
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" });
+    } finally {
+      setEnviandoResena(false);
     }
   };
 
@@ -121,6 +158,57 @@ export default function VerPedidoVintage() {
             <Dato k="Fecha" v={fechaLarga(pedido.fecha)} />
             <Dato k="Hora" v={pedido.envio?.hora || "Por confirmar"} />
             {pedido.notas && <Dato k="Tus notas" v={pedido.notas} />}
+
+            {/* Reseña: solo cuando el pastel ya se entregó. */}
+            {pedido.status === "Entregado" && (
+              <div style={{ marginTop: "1.5rem", paddingTop: "1.25rem", borderTop: "1px solid var(--border-color)" }}>
+                <h3 className={sofia.className} style={{ color: "var(--burdeos)", fontSize: "1.4rem", marginBottom: 4 }}>
+                  {resena ? "Tu reseña" : "¿Cómo te fue?"}
+                </h3>
+                <p style={{ fontSize: ".85rem", color: "var(--text-soft)", marginBottom: 12, lineHeight: 1.5 }}>
+                  {resena
+                    ? "Puedes cambiarla cuando quieras."
+                    : "Tu opinión nos ayuda a mejorar y orienta a otros clientes."}
+                </p>
+
+                <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button key={n} type="button" onClick={() => setEstrellas(n)}
+                      aria-label={`${n} estrella${n > 1 ? "s" : ""}`}
+                      style={{
+                        background: "none", border: "none", cursor: "pointer", padding: 0,
+                        fontSize: "1.9rem", lineHeight: 1,
+                        filter: n <= estrellas ? "none" : "grayscale(1)",
+                        opacity: n <= estrellas ? 1 : 0.35, transition: "all 140ms",
+                      }}>⭐</button>
+                  ))}
+                </div>
+
+                <textarea rows={4} value={comentario} maxLength={1000}
+                  onChange={(e) => setComentario(e.target.value)}
+                  placeholder="Cuéntanos qué te pareció (opcional)"
+                  style={{
+                    width: "100%", padding: "0.7rem 0.9rem", borderRadius: "var(--r-md)",
+                    border: "1.5px solid var(--border-color)", fontFamily: "inherit",
+                    fontSize: "0.9rem", resize: "vertical", background: "#fff",
+                  }} />
+
+                <button onClick={enviarResena} disabled={enviandoResena}
+                  style={{
+                    marginTop: 12, padding: "11px 28px", borderRadius: 999, border: "none",
+                    background: "var(--burdeos)", color: "#fff", fontWeight: 800, fontSize: ".9rem",
+                    cursor: enviandoResena ? "wait" : "pointer", opacity: enviandoResena ? 0.6 : 1,
+                  }}>
+                  {enviandoResena ? "Enviando…" : resena ? "Actualizar reseña" : "Enviar reseña"}
+                </button>
+
+                {resenaGuardada && (
+                  <p style={{ marginTop: 10, fontSize: ".82rem", color: "#1D5A45", fontWeight: 700 }}>
+                    ✓ Guardada. ¡Gracias!
+                  </p>
+                )}
+              </div>
+            )}
           </section>
 
           {/* Pago */}
