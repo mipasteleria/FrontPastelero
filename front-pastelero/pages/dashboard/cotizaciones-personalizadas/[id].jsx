@@ -17,7 +17,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
 
 const EVENTOS = ["boda", "xv", "cumple", "corporativo", "baby", "graduacion", "bautizo", "otro"];
-const ESTILOS = ["minimalista", "elegante", "tropical", "rustico", "acuarela", "lujoso", "vintage"];
+const ESTILOS = ["minimalista", "elegante", "tropical", "rustico", "acuarela", "lujoso", "divertido", "vintage"];
 const ENTREGAS = [
   { value: "recoger-local", label: "Recoger en local" },
   { value: "domicilio", label: "A domicilio (GDL)" },
@@ -636,7 +636,7 @@ export default function CotizacionPersonalizadaDetalle() {
                   <>
                     <DetSpec dot="#6FC9A8" k="Porciones" v={cot.evento?.invitados} />
                     <DetSpec dot="#FFE99B" k="Niveles" v={`${cot.niveles} piso${cot.niveles > 1 ? "s" : ""}`} />
-                    <DetSpec dot="#FFC9A5" k="Bizcocho" v={cot.sabor?.nombre || "—"} />
+                    <DetSpec dot="#FFC9A5" k={(cot.sabores || []).length > 1 ? "Bizcocho (combinado)" : "Bizcocho"} v={(cot.sabores || []).length > 1 ? cot.sabores.map((x) => x.nombre).join(" + ") : (cot.sabor?.nombre || "—")} />
                     <DetSpec dot="#FFA1AA" k="Relleno" v={cot.relleno?.nombre || "—"} />
                     <DetSpec dot="#FFA1AA" k="Cobertura" v={cot.cobertura?.nombre || "—"} />
                     <DetSpec dot="#D4E3A8" k="Forrado" v={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} />

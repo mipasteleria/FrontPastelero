@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
 import { HORAS_DISPONIBLES, esDiaNoDisponible, MENSAJE_DIA, MENSAJE_BLOQUEADA, fetchFechasBloqueadas } from "@/src/lib/disponibilidad";
+import { maxSabores, ayudaSabores } from "@/src/lib/saboresPorPorciones";
 import { Sofia as SofiaFont } from "next/font/google";
 
 const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
@@ -40,6 +41,7 @@ const ESTILOS = [
   { value: "rustico",     label: "Rústico",     emoji: "🌾" },
   { value: "acuarela",    label: "Acuarela",    emoji: "🎨" },
   { value: "lujoso",      label: "Lujoso",      emoji: "✨" },
+  { value: "divertido",   label: "Divertido",   emoji: "🎉" },
 ];
 
 const ENTREGAS = [
@@ -92,6 +94,7 @@ const DEFAULT_FORM = {
   evento:    { tipo: "", fecha: "", invitados: 20 },
   niveles:   1,
   saborSlug: "",
+  saboresSlugs: [],
   saboresCupcake: [{ saborSlug: "", docenas: 1 }], // solo cupcakes
   rellenoSlug: "",
   coberturaSlug: "",
@@ -197,6 +200,44 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
 
   // Sabores disponibles según el producto (la receta de pastel y cupcake difiere).
   const saboresProducto = catalogos.sabores.filter((s) => esCupcake ? s.paraCupcake : s.paraPastel);
+
+  // Sabores combinables según el tamaño del pastel (la regla vive en una
+  // lib compartida y el servidor la revalida).
+  const topeSabores = maxSabores(form.evento.invitados);
+  const saboresElegidos = form.saboresSlugs?.length
+    ? form.saboresSlugs
+    : (form.saborSlug ? [form.saborSlug] : []);
+
+  // Si el cliente reduce las porciones, la selección se recorta al nuevo
+  // tope para que la UI no muestre más sabores de los permitidos.
+  useEffect(() => {
+    if (esCupcake || topeSabores === Infinity) return;
+    setForm((f) => {
+      const actuales = f.saboresSlugs || [];
+      if (actuales.length <= topeSabores) return f;
+      const recortada = actuales.slice(0, topeSabores);
+      return { ...f, saboresSlugs: recortada, saborSlug: recortada[0] || "" };
+    });
+  }, [topeSabores, esCupcake]);
+
+  const toggleSabor = (slug) => {
+    setForm((f) => {
+      const actuales = f.saboresSlugs?.length ? [...f.saboresSlugs] : (f.saborSlug ? [f.saborSlug] : []);
+      const i = actuales.indexOf(slug);
+      let siguiente;
+      if (i >= 0) {
+        siguiente = actuales.filter((x) => x !== slug);
+      } else if (topeSabores === 1) {
+        siguiente = [slug];                       // tamaño chico: reemplaza
+      } else if (actuales.length >= topeSabores) {
+        // Ya llegó al tope: el nuevo sustituye al más antiguo.
+        siguiente = [...actuales.slice(1), slug];
+      } else {
+        siguiente = [...actuales, slug];
+      }
+      return { ...f, saboresSlugs: siguiente, saborSlug: siguiente[0] || "" };
+    });
+  };
 
   // Anticipación mínima → fecha `min`. Cupcakes por docenas; resto por porciones.
   const diasAnticipacion = esCupcake
@@ -707,18 +748,34 @@ export default function CakePersonalizado({ tipoProducto = "pastel", adminMode =
                   </p>
                 </div>
               ) : (
-                <div className="opt-grid">
-                  {saboresProducto.map((s) => (
-                    <button
-                      type="button"
-                      key={s.slug}
-                      className={`opt ${form.saborSlug === s.slug ? "sel" : ""}`}
-                      onClick={() => setForm({ ...form, saborSlug: s.slug })}
-                    >
-                      <span className="csw" style={{ background: s.swatch || "var(--rosa-3)" }} />
-                      <span>{s.emoji ? `${s.emoji} ` : ""}{s.nombre}</span>
-                    </button>
-                  ))}
+                <div>
+                  <div className="opt-grid">
+                    {saboresProducto.map((s) => {
+                      const elegido = saboresElegidos.includes(s.slug);
+                      const orden = saboresElegidos.indexOf(s.slug) + 1;
+                      return (
+                        <button
+                          type="button"
+                          key={s.slug}
+                          className={`opt ${elegido ? "sel" : ""}`}
+                          onClick={() => toggleSabor(s.slug)}
+                        >
+                          <span className="csw" style={{ background: s.swatch || "var(--rosa-3)" }} />
+                          <span>{s.emoji ? `${s.emoji} ` : ""}{s.nombre}</span>
+                          {elegido && topeSabores !== 1 && (
+                            <span style={{ marginLeft: "auto", fontSize: ".7rem", fontWeight: 800, opacity: .85 }}>{orden}</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p style={{ fontSize: ".75rem", color: "var(--text-soft)", marginTop: ".6rem", lineHeight: 1.5 }}>
+                    {ayudaSabores(form.evento.invitados)}
+                    {saboresElegidos.length > 1 && (
+                      <> Tu pastel se dividirá en partes iguales entre los{" "}
+                        <strong>{saboresElegidos.length} sabores</strong> que elegiste.</>
+                    )}
+                  </p>
                 </div>
               )}
             </fieldset>

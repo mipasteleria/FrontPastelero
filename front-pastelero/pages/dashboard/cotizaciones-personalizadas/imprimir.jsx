@@ -146,7 +146,7 @@ function Ticket({ p }) {
                 {!esCup && <Row k="Niveles" v={p.niveles} />}
                 {esCup && (p.saboresCupcake || []).length
                   ? <Row k="Sabores" v={p.saboresCupcake.map((r) => `${r.docenas} doc ${r.nombre}`).join(", ")} />
-                  : <Row k="Bizcocho" v={p.sabor?.nombre} />}
+                  : <Row k="Bizcocho" v={(p.sabores || []).length > 1 ? p.sabores.map((x) => x.nombre).join(" + ") : p.sabor?.nombre} />}
                 <Row k="Relleno" v={p.relleno?.nombre} />
                 <Row k="Cobertura" v={p.cobertura?.nombre} />
                 <Row k="Color" v={p.colorPrincipal} />

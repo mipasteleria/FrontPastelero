@@ -28,6 +28,7 @@ const ESTILOS = [
   { value: "rustico",     label: "Rústico",     emoji: "🌾" },
   { value: "acuarela",    label: "Acuarela",    emoji: "🎨" },
   { value: "lujoso",      label: "Lujoso",      emoji: "✨" },
+  { value: "divertido",   label: "Divertido",   emoji: "🎉" },
 ];
 
 const ENTREGAS = [

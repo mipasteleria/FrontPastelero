@@ -363,7 +363,7 @@ export default function VerCotizacion() {
                 ) : (
                   <>
                     <Spec k="Porciones" v={`${cot.evento?.invitados}`} dot="var(--menta-deep)" />
-                    <Spec k="Bizcocho" v={cot.sabor?.nombre} dot="var(--mantequilla)" />
+                    <Spec k={(cot.sabores || []).length > 1 ? "Bizcocho (combinado)" : "Bizcocho"} dot="var(--mantequilla)" v={(cot.sabores || []).length > 1 ? cot.sabores.map((x) => x.nombre).join(" + ") : cot.sabor?.nombre} />
                     <Spec k="Relleno" v={cot.relleno?.nombre} dot="var(--durazno)" />
                     <Spec k="Cobertura" v={cot.cobertura?.nombre} dot="var(--rosa2)" />
                     <Spec k="Forrado" v={cot.cobertura?.esFondant ? "Sí (fondant)" : "No aplica"} dot="var(--pistache)" />
