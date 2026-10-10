@@ -38,6 +38,12 @@ export default function VerCotizacion() {
   const [ajusteOpen, setAjusteOpen] = useState(false);
   const [ajusteTexto, setAjusteTexto] = useState("");
   const [enviandoAjuste, setEnviandoAjuste] = useState(false);
+  // Reseña del cliente (solo disponible cuando el pedido fue entregado).
+  const [resena, setResena] = useState(null);          // la ya guardada
+  const [estrellas, setEstrellas] = useState(0);
+  const [comentario, setComentario] = useState("");
+  const [enviandoResena, setEnviandoResena] = useState(false);
+  const [resenaGuardada, setResenaGuardada] = useState(false);
 
   useEffect(() => {
     if (router.query.pago === "ok") Swal.fire({ icon: "success", title: "¡Pago recibido!", text: "Tu anticipo fue procesado. ¡Gracias!", confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027" });
@@ -48,7 +54,11 @@ export default function VerCotizacion() {
     if (!token) return;
     fetch(`${API_BASE}/cotizacion-personalizada/public/${token}`)
       .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
-      .then(({ ok, j }) => { if (!ok) throw new Error(j.message || "No encontrada"); setCot(j.data); })
+      .then(({ ok, j }) => {
+        if (!ok) throw new Error(j.message || "No encontrada");
+        setCot(j.data);
+        if (j.resena) { setResena(j.resena); setEstrellas(j.resena.rating); setComentario(j.resena.texto || ""); }
+      })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false));
   }, [token]);
@@ -101,6 +111,33 @@ export default function VerCotizacion() {
   };
 
   const fontVars = `${nunito.variable} ${fraunces.variable} ${sofia.variable}`;
+
+  const enviarResena = async () => {
+    if (!estrellas) {
+      Swal.fire({ icon: "info", title: "Elige cuántas estrellas", timer: 1800, showConfirmButton: false });
+      return;
+    }
+    setEnviandoResena(true);
+    try {
+      const r = await fetch(`${API_BASE}/cotizacion-personalizada/public/${token}/resena`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: estrellas, texto: comentario }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.message || "No se pudo guardar tu reseña");
+      setResena({ rating: estrellas, texto: comentario });
+      setResenaGuardada(true);
+      Swal.fire({
+        icon: "success", title: "¡Gracias por tu reseña!",
+        text: "Nos ayuda muchísimo a seguir mejorando.",
+        confirmButtonColor: "#FF6F7D", background: "#fff1f2", color: "#540027",
+      });
+    } catch (e) {
+      Swal.fire({ icon: "error", title: e.message, confirmButtonColor: "#FF6F7D" });
+    } finally {
+      setEnviandoResena(false);
+    }
+  };
 
   if (cargando) return <Shell fontVars={fontVars}><p style={{ color: "var(--text-soft)" }}>Cargando tu cotización…</p></Shell>;
   if (error || !cot) {
@@ -393,6 +430,73 @@ export default function VerCotizacion() {
                 )}
               </div>
             </section>
+            {/* ── Reseña: solo cuando el pedido ya se entregó ── */}
+            {cot.status === "Entregado" && (
+              <section className="card" style={{ padding: 28, marginTop: 20 }}>
+                <h3 style={{ fontFamily: "var(--font-display-q)", fontWeight: 600, fontSize: "1.6rem", color: "var(--burd)", marginBottom: 6 }}>
+                  {resena ? "Tu reseña" : "¿Cómo te fue?"}
+                </h3>
+                <p className="lead" style={{ marginBottom: 14 }}>
+                  {resena
+                    ? "Puedes cambiarla cuando quieras."
+                    : "Tu opinión nos ayuda a mejorar y orienta a otros clientes. Solo toma un momento."}
+                </p>
+
+                {/* Estrellas */}
+                <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setEstrellas(n)}
+                      aria-label={`${n} estrella${n > 1 ? "s" : ""}`}
+                      style={{
+                        background: "none", border: "none", cursor: "pointer", padding: 0,
+                        fontSize: "2rem", lineHeight: 1,
+                        filter: n <= estrellas ? "none" : "grayscale(1)",
+                        opacity: n <= estrellas ? 1 : 0.35,
+                        transition: "all 140ms",
+                      }}
+                    >
+                      ⭐
+                    </button>
+                  ))}
+                </div>
+
+                <textarea
+                  rows={4}
+                  value={comentario}
+                  onChange={(e) => setComentario(e.target.value)}
+                  maxLength={1000}
+                  placeholder="Cuéntanos qué te pareció (opcional)"
+                  style={{
+                    width: "100%", padding: "0.7rem 0.9rem", borderRadius: "var(--r-md)",
+                    border: "1.5px solid var(--border)", fontFamily: "var(--font-sans-q)",
+                    fontSize: "0.9rem", resize: "vertical", background: "#fff", color: "var(--text)",
+                  }}
+                />
+
+                <button
+                  onClick={enviarResena}
+                  disabled={enviandoResena}
+                  style={{
+                    marginTop: 12, padding: "11px 28px", borderRadius: "var(--r-pill)", border: "none",
+                    background: "var(--burd)", color: "#fff", fontWeight: 800, fontSize: "0.9rem",
+                    cursor: enviandoResena ? "wait" : "pointer", opacity: enviandoResena ? 0.6 : 1,
+                    fontFamily: "var(--font-sans-q)",
+                  }}
+                >
+                  {enviandoResena ? "Enviando…" : resena ? "Actualizar reseña" : "Enviar reseña"}
+                </button>
+
+                {resenaGuardada && (
+                  <p style={{ marginTop: 10, fontSize: "0.82rem", color: "var(--menta-deep)", fontWeight: 700 }}>
+                    ✓ Guardada. ¡Gracias!
+                  </p>
+                )}
+              </section>
+            )}
+
           </div>
 
           {/* Derecha */}
