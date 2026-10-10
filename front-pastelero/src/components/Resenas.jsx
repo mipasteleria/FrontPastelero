@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import CompraVerificada from "@/src/components/CompraVerificada";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
@@ -328,9 +329,12 @@ export default function Resenas({ tipo, productoId, productoSlug, productoNombre
                   <Stars rating={r.rating} size={16} />
                   <p style={{ fontWeight: 700, color: "var(--color-text)", margin: "4px 0 0" }}>{r.usuario?.nombre || "Cliente"}</p>
                 </div>
-                <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
-                  ✓ Compra verificada · {formatearFechaCorta(r.createdAt)}
-                </span>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                  <CompraVerificada />
+                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+                    {formatearFechaCorta(r.createdAt)}
+                  </span>
+                </div>
               </div>
               {r.texto && (
                 <p style={{ fontSize: "0.9rem", color: "var(--text-soft)", lineHeight: 1.6, margin: "6px 0 0", whiteSpace: "pre-line" }}>{r.texto}</p>

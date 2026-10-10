@@ -1,4 +1,5 @@
 import Image from "next/image";
+import CompraVerificada from "@/src/components/CompraVerificada";
 import WebFooter from "@/src/components/WebFooter";
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
@@ -103,7 +104,8 @@ export default function Home() {
         stars: "★★★★★".slice(0, r.rating) + "☆☆☆☆☆".slice(0, 5 - r.rating),
         text:  r.texto || `Excelente experiencia con ${r.producto?.nombre || "este producto"}.`,
         name:  r.usuario?.nombre || "Cliente",
-        meta:  r.producto?.nombre ? `${r.producto.nombre}${r.producto.tipo === "galleta" ? " · Galletas NY" : ""}` : "Compra verificada",
+        meta:  r.producto?.nombre ? `${r.producto.nombre}${r.producto.tipo === "galleta" ? " · Galletas NY" : ""}` : "Pedido personalizado",
+        verificada: true,
         av:    (r.usuario?.nombre || "C").charAt(0).toUpperCase(),
         avBg:  AVATAR_BGS[i % AVATAR_BGS.length],
       }))
@@ -449,6 +451,9 @@ export default function Home() {
                   <div>
                     <div style={{ fontWeight: 700, fontSize: "0.85rem" }}>{t.name}</div>
                     <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>{t.meta}</div>
+                    {t.verificada && (
+                      <div style={{ marginTop: 5 }}><CompraVerificada /></div>
+                    )}
                   </div>
                 </div>
               </div>
