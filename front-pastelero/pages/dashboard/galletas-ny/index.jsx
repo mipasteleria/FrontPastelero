@@ -734,6 +734,30 @@ export default function GalletasAdminPage() {
                     </tbody>
                   </table>
                   <p style={{ margin: "6px 0 0", fontSize: "0.7rem", color: "var(--text-muted)" }}>El precio abajo se autopobló con el sugerido. Puedes ajustarlo libremente.</p>
+
+                  {/* Reconciliación con la pantalla de Costeo de recetas.
+                      Esa pantalla muestra un "precio sugerido por porción"
+                      que YA trae el margen de la receta, y al no explicar la
+                      relación parecía que aquí el margen se sumaba otra vez.
+                      No se suma dos veces: la diferencia es el branding y el
+                      empaque, que allá no existen. */}
+                  {costeoData.markupReceta != null && costeoData.markupFuente === "receta" && (() => {
+                    const precioReceta = costeoData.costoMateriaPrima * (1 + costeoData.markupReceta / 100);
+                    const extras = (costeoData.costoBranding || 0) + (costeoData.costoEmpaque || 0);
+                    const extrasConMargen = extras * (1 + costeoData.markupPct / 100);
+                    if (extras <= 0) return null;
+                    return (
+                      <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed var(--rosa)", fontSize: "0.7rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                        <strong style={{ color: "var(--text-soft)" }}>¿Por qué no coincide con Costeo de recetas?</strong><br />
+                        Allá esta receta muestra <strong>${precioReceta.toFixed(2)}</strong> por porción — es el mismo
+                        cálculo, pero sin branding ni empaque, que solo existen aquí.<br />
+                        ${precioReceta.toFixed(2)} + ${extrasConMargen.toFixed(2)} (branding y empaque, con su margen)
+                        = <strong>${(precioReceta + extrasConMargen).toFixed(2)}</strong>.<br />
+                        El {costeoData.markupPct}% se aplica <strong>una sola vez</strong>: el costo guardado en la
+                        receta es costo puro, no trae margen incluido.
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 

@@ -761,7 +761,7 @@ const handleEditIngredient = (index) => {
                 </tbody>
               </table>
               <p className="text-xs text-gray-500 mt-4">
-                El <strong>Costo total</strong> es lo que se guarda. El <strong>precio sugerido</strong> es informativo — el margen final se aplica al cotizar.
+                En la receta se guarda <strong>solo el costo total</strong>, sin margen. El <strong>precio sugerido</strong> de aquí es informativo: el margen se aplica al cotizar, y ahí puede dar un número distinto porque se le suman conceptos que no existen en la receta (branding, empaque, envío) y porque el margen se puede ajustar por producto.
               </p>
             </div>
             <div className="flex flex-col md:flex-row gap-10 justify-center">
