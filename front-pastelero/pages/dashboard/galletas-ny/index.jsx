@@ -109,6 +109,10 @@ export default function GalletasAdminPage() {
   const [sabores, setSabores]       = useState([]);
   const [recetas, setRecetas]       = useState([]);  // catálogo de recetas para el dropdown
   const [recetasError, setRecetasError] = useState(false); // true si el listado falló o vino vacío
+  // Margen editable del form. null = usar el de la receta (o el global si
+  // la receta no trae). Se llena con el de la receta al elegirla, para que
+  // el admin vea de dónde sale el número antes de cambiarlo.
+  const [markupEditable, setMarkupEditable] = useState(null);
   const [loading, setLoading]       = useState(true);
   const [showForm, setShowForm]     = useState(false);
   const [editing, setEditing]       = useState(null); // sabor being edited
@@ -170,21 +174,31 @@ export default function GalletasAdminPage() {
    * Llama al back con el recetaId; si responde con breakdown, lo
    * guardamos en state y autopoblamos `precio` con el sugerido (el
    * admin lo puede ajustar antes de guardar). */
-  const calcularPrecioDesdeReceta = async (recetaId, empaqueOverride) => {
+  const calcularPrecioDesdeReceta = async (recetaId, empaqueOverride, markupOverride) => {
     if (!recetaId) { setCosteoData(null); return; }
     setCosteoBusy(true);
     try {
-      // El empaque se manda explícito porque al cambiarlo se recalcula
-      // antes de que el state nuevo esté disponible en este closure.
+      // Empaque y margen se mandan explícitos porque al cambiarlos se
+      // recalcula antes de que el state nuevo exista en este closure.
       const empaque = empaqueOverride !== undefined ? empaqueOverride : formData.empaque;
+      const markup = markupOverride !== undefined ? markupOverride : markupEditable;
+      const body = { recetaId, empaque };
+      // Solo se manda si el admin lo fijó; si no, el back usa el margen
+      // de la receta.
+      if (markup !== null && markup !== "" && !Number.isNaN(Number(markup))) {
+        body.markupPct = Number(markup);
+      }
       const res = await axios.post(
         `${API_BASE}/galletaSabores/calcular-precio`,
-        { recetaId, empaque },
+        body,
         { headers: authHeader }
       );
       const data = res.data?.data;
       if (data) {
         setCosteoData(data);
+        // Reflejar en el input el margen que realmente se usó, para que
+        // el admin lo vea y pueda ajustarlo desde ahí.
+        setMarkupEditable((prev) => (prev === null ? data.markupPct : prev));
         // Autopoblar precio solo si está en el default (35) o vacío —
         // si el admin ya editó manualmente, no lo pisamos.
         setFormData((prev) => ({
@@ -205,6 +219,7 @@ export default function GalletasAdminPage() {
     setEditing(null);
     setFormData(NEW_FLAVOR);
     setCosteoData(null);
+    setMarkupEditable(null);
     setShowForm(true);
   };
 
@@ -230,6 +245,7 @@ export default function GalletasAdminPage() {
       empaque:     Array.isArray(s.empaque) ? s.empaque : [],
     });
     setCosteoData(null);
+    setMarkupEditable(null);
     setShowForm(true);
   };
 
@@ -621,7 +637,9 @@ export default function GalletasAdminPage() {
                   onChange={(e) => {
                     const recetaId = e.target.value;
                     setFormData((prev) => ({ ...prev, recetaId }));
-                    calcularPrecioDesdeReceta(recetaId);
+                    // Olvidar el margen manual: cada receta trae el suyo.
+                    setMarkupEditable(null);
+                    calcularPrecioDesdeReceta(recetaId, undefined, null);
                   }}
                   style={inputStyle}
                   disabled={recetas.length === 0}
@@ -645,6 +663,38 @@ export default function GalletasAdminPage() {
                 {costeoBusy && <p style={{ fontSize: "0.75rem", color: "var(--rosa)", marginTop: 4 }}>Calculando…</p>}
               </label>
 
+              {/* Margen editable — default: el de la receta */}
+              {formData.recetaId && (
+                <label style={{ gridColumn: "1 / -1" }}>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-soft)", display: "block", marginBottom: 4 }}>
+                    Margen de ganancia (%)
+                    {costeoData?.markupFuente === "receta" && (
+                      <em style={{ fontWeight: 400, color: "var(--text-muted)" }}> — tomado de la receta</em>
+                    )}
+                    {costeoData?.markupFuente === "global" && (
+                      <em style={{ fontWeight: 400, color: "var(--text-muted)" }}> — default global (la receta no tiene margen)</em>
+                    )}
+                    {costeoData?.markupFuente === "manual" && (
+                      <em style={{ fontWeight: 400, color: "var(--text-muted)" }}> — ajustado por ti</em>
+                    )}
+                  </span>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={markupEditable ?? ""}
+                    onChange={(e) => setMarkupEditable(e.target.value)}
+                    onBlur={() => calcularPrecioDesdeReceta(formData.recetaId, undefined, markupEditable)}
+                    style={{ ...inputStyle, maxWidth: 180 }}
+                    placeholder="60"
+                  />
+                  <p style={{ fontSize: "0.7rem", color: "var(--text-muted)", marginTop: 4 }}>
+                    Se aplica sobre materia prima + branding + empaque. El costo de la
+                    receta es costo puro, sin margen — el margen se agrega aquí.
+                  </p>
+                </label>
+              )}
+
               {/* Empaque por sabor — renglones ligados a materia prima */}
               <div style={{ gridColumn: "1 / -1" }}>
                 <EmpaqueEditor
@@ -652,7 +702,7 @@ export default function GalletasAdminPage() {
                   onChange={(empaque) => {
                     setFormData((prev) => ({ ...prev, empaque }));
                     // Recalcular con el empaque nuevo si ya hay receta elegida.
-                    if (formData.recetaId) calcularPrecioDesdeReceta(formData.recetaId, empaque);
+                    if (formData.recetaId) calcularPrecioDesdeReceta(formData.recetaId, empaque, markupEditable);
                   }}
                   apiBase={API_BASE}
                   authHeader={authHeader}
