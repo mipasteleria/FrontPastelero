@@ -4,11 +4,9 @@ import { useRouter } from "next/router";
 import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { poppins, sofia } from "@/src/lib/fonts";
 import Swal from "sweetalert2";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 export default function Conocenuestrosproductos() {
   const {

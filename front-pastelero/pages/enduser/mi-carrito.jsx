@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
-import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+import { sofia, nunito } from "@/src/lib/fonts";
 import { useAuth } from "@/src/context";
 import { getGalletas, setGalletas, getPostres, setPostres, getVintage, setVintage } from "@/src/lib/unifiedCart";
 
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "700", "800"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const MUNICIPIOS = ["Guadalajara", "Zapopan", "San Pedro Tlaquepaque", "Tonalá", "Tlajomulco de Zúñiga", "El Salto", "Juanacatlán", "Ixtlahuacán de los Membrillos", "Acatlán de Juárez"];

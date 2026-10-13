@@ -7,11 +7,9 @@ import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import VintagePreview from "@/src/components/vintage/VintagePreview";
 import { HORAS_DISPONIBLES } from "@/src/lib/disponibilidad";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { poppins, sofia } from "@/src/lib/fonts";
 import { useAuth } from "@/src/context";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const STATUSES = ["Pendiente", "Agendado con el 50%", "Agendado con el 100%", "Entregado", "Cancelado"];

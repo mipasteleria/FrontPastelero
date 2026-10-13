@@ -1,14 +1,12 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { useAuth } from "../context";
 import { CartContext } from "./enuser/carritocontext";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { poppins, sofia } from "@/src/lib/fonts";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 /* ─── Icon helpers ──────────────────────────────────────────── */

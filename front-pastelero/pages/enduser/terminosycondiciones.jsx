@@ -1,11 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import WebFooter from '@/src/components/WebFooter';
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from 'next/font/google';
+import { poppins, sofia } from "@/src/lib/fonts";
 import NavbarAdmin from '@/src/components/navbar';
 
-const poppins = PoppinsFont({ subsets: ['latin'], weight: ['400', '700'] });
-const sofia = SofiaFont({ subsets: ['latin'], weight: ['400'] });
 
 const TerminosCondiciones = () => {
   return (

@@ -1,0 +1,20 @@
+Fuentes de este directorio
+==========================
+
+Descargadas de Google Fonts y auto-hospedadas para que el build no dependa
+de la red (ver src/lib/fonts.js para el porqué). Solo se incluye el
+subconjunto `latin`.
+
+  Sofia             — SIL Open Font License 1.1
+  Poppins           — SIL Open Font License 1.1
+  Nunito            — SIL Open Font License 1.1   (variable, 400–800)
+  Fraunces          — SIL Open Font License 1.1   (variable, 500–700)
+  Playfair Display  — SIL Open Font License 1.1   (itálica 400)
+
+La OFL permite el uso, la redistribución y el empotrado en productos,
+incluido el alojamiento propio como se hace aquí. Texto completo:
+https://openfontlicense.org
+
+Para actualizar o agregar pesos, bájalos de https://fonts.google.com
+tomando los bloques `/* latin */` del CSS y declara el archivo en
+src/lib/fonts.js.

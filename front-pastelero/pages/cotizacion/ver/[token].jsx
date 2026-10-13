@@ -2,12 +2,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { Nunito as NunitoFont, Fraunces as FrauncesFont, Sofia as SofiaFont } from "next/font/google";
+import { nunito, fraunces, sofia } from "@/src/lib/fonts";
 import { useAuth } from "@/src/context";
 
-const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "700", "800"], variable: "--font-sans-q" });
-const fraunces = FrauncesFont({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-display-q" });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"], variable: "--font-script-q" });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const PRODUCTO_NOUN = { pastel: "Pastel", cupcake: "Cupcakes", "mesa-postres": "Mesa de postres", galleta: "Galletas decoradas" };

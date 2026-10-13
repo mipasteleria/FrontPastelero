@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import NavbarAdmin from "@/src/components/navbar";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { poppins, sofia } from "@/src/lib/fonts";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import Swal from "sweetalert2";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function AdministradorUsuarios() {

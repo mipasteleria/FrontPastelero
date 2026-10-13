@@ -1,12 +1,10 @@
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
-import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+import { sofia, nunito } from "@/src/lib/fonts";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import AgendaMes from "@/src/components/dashboard/AgendaMes";
 
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
 
 /* ── Nav cards data ─────────────────────────────────────────── */
 const NAV_CARDS = [

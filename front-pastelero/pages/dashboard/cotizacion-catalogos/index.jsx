@@ -2,10 +2,8 @@ import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { poppins, sofia } from "@/src/lib/fonts";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 // Hub mini de los 4 catálogos. El cliente final usa /cotizacion.
 // El aside también tiene los 4 enlaces sueltos — esta página es un atajo

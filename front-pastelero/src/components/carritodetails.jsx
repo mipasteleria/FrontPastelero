@@ -1,6 +1,5 @@
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { sofia } from "@/src/lib/fonts";
 
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const Importante = () => {
     return (
         <div>

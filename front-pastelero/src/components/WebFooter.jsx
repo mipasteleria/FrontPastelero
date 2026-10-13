@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { Poppins as PoppinsFont, Playfair_Display as PlayfairFont } from "next/font/google";
+import { poppins, playfair } from "@/src/lib/fonts";
 import { IoLogoTiktok } from "react-icons/io5";
 
-const poppins  = PoppinsFont({ subsets: ["latin"], weight: ["400", "600"] });
-const playfair = PlayfairFont({ subsets: ["latin"], weight: ["400"], style: ["italic"] });
 
 const SOCIAL = [
   {

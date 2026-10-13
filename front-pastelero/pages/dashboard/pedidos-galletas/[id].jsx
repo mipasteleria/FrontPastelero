@@ -8,10 +8,8 @@ import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
 import { useAuth } from "@/src/context";
 import NotasInternas from "@/src/components/NotasInternas";
-import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+import { sofia, nunito } from "@/src/lib/fonts";
 
-const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const STORE_ADDRESS = "Calle Bogotá 2866a, Col. Providencia, Guadalajara, Jal.";

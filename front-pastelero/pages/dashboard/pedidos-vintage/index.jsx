@@ -4,11 +4,9 @@ import Swal from "sweetalert2";
 import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { poppins, sofia } from "@/src/lib/fonts";
 import { useAuth } from "@/src/context";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const COLOR = { "Pendiente": "#E8B43A", "Agendado": "#6FC9A8", "Entregado": "#6FA8C9", "Cancelado": "#FF6F7D" };

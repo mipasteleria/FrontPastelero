@@ -4,9 +4,8 @@ import Swal from "sweetalert2";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
 import { HORAS_DISPONIBLES, esDiaNoDisponible, MENSAJE_DIA, MENSAJE_BLOQUEADA, fetchFechasBloqueadas } from "@/src/lib/disponibilidad";
-import { Sofia as SofiaFont } from "next/font/google";
+import { sofia } from "@/src/lib/fonts";
 
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const EVENTOS = [

@@ -3,10 +3,8 @@ import NavbarAdmin from "@/src/components/navbar";
 import WebFooter from "@/src/components/WebFooter";
 import Link from "next/link";
 import { useState } from "react";
-import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+import { sofia, nunito } from "@/src/lib/fonts";
 
-const sofia  = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "600", "700", "800"] });
 
 /* ── FAQ data — preserving real answers from the project ─────── */
 const FAQS = [

@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
-import { Sofia as SofiaFont, Nunito as NunitoFont } from "next/font/google";
+import { sofia, nunito } from "@/src/lib/fonts";
 import { esDiaNoDisponible, MENSAJE_DIA, MENSAJE_BLOQUEADA, fetchFechasBloqueadas } from "@/src/lib/disponibilidad";
 import { setVintage } from "@/src/lib/unifiedCart";
 import VintagePreview from "@/src/components/vintage/VintagePreview";
 
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
-const nunito = NunitoFont({ subsets: ["latin"], weight: ["400", "700", "800"] });
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Caja geográfica aproximada de Jalisco (sin API).

@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuth } from "../context";
-import { Sofia as SofiaFont } from "next/font/google";
+import { sofia } from "@/src/lib/fonts";
 
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const NAV_GROUPS = [
   {

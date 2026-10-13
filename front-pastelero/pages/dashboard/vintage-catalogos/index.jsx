@@ -2,10 +2,8 @@ import Link from "next/link";
 import NavbarAdmin from "@/src/components/navbar";
 import Asideadmin from "@/src/components/asideadmin";
 import FooterDashboard from "@/src/components/footeradmin";
-import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
+import { poppins, sofia } from "@/src/lib/fonts";
 
-const poppins = PoppinsFont({ subsets: ["latin"], weight: ["400", "700"] });
-const sofia = SofiaFont({ subsets: ["latin"], weight: ["400"] });
 
 const CARDS = [
   { href: "/dashboard/vintage-catalogos/porciones", label: "Porciones", desc: "Tamaños, pisos (máx y costo extra), anticipación, base/domo/branding" },
