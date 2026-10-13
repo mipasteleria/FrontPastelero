@@ -1,4 +1,12 @@
 {
   "extends": "next/core-web-vitals",
-  "rules": { "react/no-unescaped-entities": 0 }
+  "rules": {
+    "react/no-unescaped-entities": 0,
+    "no-undef": "error"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true
+  }
 }
