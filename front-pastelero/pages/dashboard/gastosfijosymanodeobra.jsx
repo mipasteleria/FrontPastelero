@@ -105,9 +105,9 @@ export default function Conocenuestrosproductos() {
     }
   };
 
-  // Guarda los 3 campos de galletas. fixedCosts/laborCosts se envían con
-  // su valor actual (no se quieren tocar pero el back los requiere para
-  // mantener compat con el form anterior).
+  // Guarda solo los campos de galletas. Las tarifas por hora NO se
+  // mandan: el back actualiza únicamente lo que recibe, y reenviarlas
+  // desde el estado de la página era lo que las dejaba en 0.
   const onSubmitGalletas = async (data) => {
     try {
       const response = await fetch(`${API_BASE}/costs`, {
@@ -117,8 +117,6 @@ export default function Conocenuestrosproductos() {
           Authorization: `Bearer ${userToken}`,
         },
         body: JSON.stringify({
-          fixedCosts: costData.fixedCosts,
-          laborCosts: costData.laborCosts,
           costoBrandingPorGalleta: parseFloat(data.costoBrandingPorGalleta) || 0,
           markupGalletasPct: parseFloat(data.markupGalletasPct) || 0,
           margenMinimoGalleta: parseFloat(data.margenMinimoGalleta) || 0,
@@ -162,8 +160,6 @@ export default function Conocenuestrosproductos() {
           Authorization: `Bearer ${userToken}`,
         },
         body: JSON.stringify({
-          fixedCosts: costData.fixedCosts,
-          laborCosts: costData.laborCosts,
           costoBrandingPorPostre: parseFloat(data.costoBrandingPorPostre) || 0,
           markupPostresPct: parseFloat(data.markupPostresPct) || 0,
         }),
@@ -206,8 +202,6 @@ export default function Conocenuestrosproductos() {
           Authorization: `Bearer ${userToken}`,
         },
         body: JSON.stringify({
-          fixedCosts: costData.fixedCosts,
-          laborCosts: costData.laborCosts,
           pasarela: {
             proveedor: data.proveedor || "stripe",
             comisionPct: parseFloat(data.comisionPct) || 0,

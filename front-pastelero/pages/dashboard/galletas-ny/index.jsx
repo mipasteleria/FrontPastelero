@@ -731,8 +731,30 @@ export default function GalletasAdminPage() {
                         </tr>
                       )}
                       <tr><td style={{ color: "var(--burdeos)", fontWeight: 800, borderTop: "2px solid var(--rosa)", paddingTop: 6 }}>Precio sugerido:</td><td style={{ textAlign: "right", fontWeight: 900, color: "var(--burdeos)", fontSize: "1.1rem", borderTop: "2px solid var(--rosa)", paddingTop: 6 }}>${costeoData.precioSugerido}</td></tr>
+                      {/* La ganancia se dice aparte porque con la comisión
+                          de pasarela en el desglose, la resta
+                          (precio − costo) deja de ser la ganancia: parte de
+                          esa diferencia es dinero que pasa de largo a la
+                          pasarela. */}
+                      <tr>
+                        <td style={{ color: "#1D5A45", fontWeight: 800, paddingTop: 4 }}>
+                          Tu ganancia por galleta:
+                        </td>
+                        <td style={{ textAlign: "right", fontWeight: 900, color: "#1D5A45", paddingTop: 4 }}>
+                          ${((costeoData.precioAntesDeComision ?? costeoData.precioSugerido) - costeoData.costoTotal).toFixed(2)}
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
+
+                  {costeoData.comisionAplicada && (
+                    <p style={{ margin: "6px 0 0", fontSize: "0.7rem", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                      Cuidado al leer el desglose: precio − costo da $
+                      {(costeoData.precioSugerido - costeoData.costoTotal).toFixed(2)}, pero eso
+                      no es tu ganancia. ${costeoData.comisionPasarela} de ahí se los queda{" "}
+                      {costeoData.comisionDetalle?.proveedorNombre || "la pasarela"}.
+                    </p>
+                  )}
                   <p style={{ margin: "6px 0 0", fontSize: "0.7rem", color: "var(--text-muted)" }}>El precio abajo se autopobló con el sugerido. Puedes ajustarlo libremente.</p>
 
                   {/* Reconciliación con la pantalla de Costeo de recetas.
