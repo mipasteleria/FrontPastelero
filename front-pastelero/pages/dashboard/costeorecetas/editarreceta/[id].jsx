@@ -33,8 +33,15 @@ export default function EditarReceta() {
   const [subRecetaInfo, setSubRecetaInfo] = useState(null);
   const [unidadRendimiento, setUnidadRendimiento] = useState("porcion");
   // Tarifas horarias globales (settings).
-  const [tarifaFijaHora, setTarifaFijaHora] = useState(0);
-  const [tarifaLaborHora, setTarifaLaborHora] = useState(0);
+  // Tarifas vía hook: distingue "cargando" de "vale 0" y reintenta el
+  // cold start del back. Ver src/lib/useTarifas.js.
+  const { tarifaFijaHora: tarifaFijaRaw, tarifaLaborHora: tarifaLaborRaw,
+          estado: estadoTarifas, error: errorTarifas, recargar: recargarTarifas,
+          tarifasListas } = useTarifas();
+  // Para los cálculos y el render se usa 0 cuando aún no hay dato, pero el
+  // guardado queda bloqueado mientras `tarifasListas` sea false.
+  const tarifaFijaHora = tarifaFijaRaw ?? 0;
+  const tarifaLaborHora = tarifaLaborRaw ?? 0;
   const [esRecetaLegacy, setEsRecetaLegacy] = useState(false);
   const [breakdown, setBreakdown] = useState({
     materiales: 0, additional: 0, ieps: 0,
@@ -62,16 +69,6 @@ export default function EditarReceta() {
       }
     };
 
-    const fetchCosts = async () => {
-      try {
-        const response = await axios.get(`${API_BASE}/costs`);
-        const data = response.data;
-        setTarifaFijaHora(data.fixedCosts);
-        setTarifaLaborHora(data.laborCosts);
-      } catch (error) {
-        console.error("Error fetching costs:", error);
-      }
-    };
 
     const fetchRecetas = async () => {
       try {
@@ -83,7 +80,6 @@ export default function EditarReceta() {
     };
 
     fetchIngredients();
-    fetchCosts();
     fetchRecetas();
   }, [API_BASE]);
 
@@ -280,6 +276,38 @@ const handleEditIngredient = (index) => {
   const onInputChange = () => calculateTotal();
 
   const onSubmit = async (data) => {
+    // Sin tarifas confiables no se guarda: `total_cost` se calcula con
+    // ellas, así que guardar aquí congelaría una receta sin mano de obra
+    // ni gastos fijos — el ~70% de su costo — y nada lo delataría después.
+    if (!tarifasListas) {
+      Swal.fire({
+        icon: "error",
+        title: "No se puede guardar todavía",
+        text: "No se pudieron cargar las tarifas de mano de obra y gastos fijos. Si guardas ahora, la receta quedaría costeada sin ellas. Reintenta la carga y vuelve a intentar.",
+        background: "#fff1f2",
+        color: "#540027",
+      });
+      return;
+    }
+
+    // Red de seguridad final: aunque las tarifas hayan cargado bien, que
+    // ambas valgan $0 casi siempre significa configuración perdida, no una
+    // decisión. Se pregunta antes de congelar un costo sin mano de obra ni
+    // taller, que es lo que haría pasar desapercibido el problema.
+    const horas = (parseFloat(data.hours_labor) || 0) + (parseFloat(data.hours_fixed) || 0);
+    if (tarifaLaborHora === 0 && tarifaFijaHora === 0 && horas > 0) {
+      const ok = await Swal.fire({
+        icon: "warning",
+        title: "Las tarifas por hora están en $0",
+        html: "Esta receta declara horas de trabajo, pero mano de obra y gastos fijos están configurados en <strong>$0/hora</strong>, así que su costo saldría sin ellos.<br><br>Revísalo en <strong>Gastos Fijos y Mano de Obra</strong> antes de guardar.",
+        showCancelButton: true,
+        confirmButtonText: "Guardar de todos modos",
+        cancelButtonText: "Cancelar",
+        background: "#fff1f2",
+        color: "#540027",
+      });
+      if (!ok.isConfirmed) return;
+    }
     data.ingredientes = ingredientsList;
     data.subRecetas = subRecetasList.map((s) => ({
       recetaId: s.recetaId,
@@ -666,6 +694,32 @@ const handleEditIngredient = (index) => {
               </div>
             )}
             <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* Aviso cuando las tarifas no cargaron. Sin esto, un 503
+                  transitorio del back se veía como "$0.00/hora" y el
+                  costeo salía mal sin que nada lo dijera. */}
+              {estadoTarifas !== "listo" && (
+                <div className="md:col-span-2 mb-4 p-3 rounded-lg" style={{
+                  background: estadoTarifas === "error" ? "#FDECEC" : "#FFF8E5",
+                  border: estadoTarifas === "error" ? "1px solid #F0B4B4" : "1px solid #F0DFA0",
+                  color: estadoTarifas === "error" ? "#8A2B2B" : "#6B5410",
+                  fontSize: "0.85rem",
+                }}>
+                  {estadoTarifas === "cargando" ? (
+                    <>Cargando las tarifas de mano de obra y gastos fijos…</>
+                  ) : (
+                    <>
+                      <strong>No se pudieron cargar las tarifas por hora.</strong>{" "}
+                      {errorTarifas}. Los montos de mano de obra y gastos fijos se están
+                      mostrando en $0 y el guardado está bloqueado, para no congelar una
+                      receta sin esos costos.{" "}
+                      <button type="button" onClick={recargarTarifas}
+                        style={{ textDecoration: "underline", fontWeight: 700 }}>
+                        Reintentar
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
                 <div className="w-full">
                   <label className="block text-sm font-medium dark:text-white">Mano de obra</label>
                   <p className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5 text-gray-600">
