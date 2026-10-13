@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import useTarifas from "@/src/lib/useTarifas";
 import NavbarAdmin from "@/src/components/navbar";
 import { Poppins as PoppinsFont, Sofia as SofiaFont } from "next/font/google";
 import Asideadmin from "@/src/components/asideadmin";
