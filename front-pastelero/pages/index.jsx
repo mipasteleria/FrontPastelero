@@ -25,12 +25,11 @@ const CATS = [
 ];
 
 /* ─── Bestsellers ─────────────────────────────────────────────────── */
-const BEST = [
-  { tag: null,       label: "Vintage Rosa",    sub: "Vainilla · Mascarpone",    price: "$680", bg: "linear-gradient(135deg,#FFE2E7,#FFC3C9)", emoji: "🎂", href: "/enduser/pastel-vintage" },
-  { tag: "Nuevo",    label: "Cookie Nutella",  sub: "NY style · Media docena",  price: "$180", bg: "linear-gradient(135deg,#FFE99B,#FFC9A5)", emoji: "🍪", href: "/enduser/galletas-ny" },
-  { tag: null,       label: "Pay de Pistache", sub: "Masa de mantequilla",      price: "$450", bg: "linear-gradient(135deg,#B8E6D3,#D4E3A8)", emoji: "🥧", href: "/enduser/conocenuestrosproductos" },
-  { tag: "Favorito", label: "Vintage Lavanda", sub: "Limón · Merengue",         price: "$720", bg: "linear-gradient(135deg,#D9C4E8,#FFC3C9)", emoji: "🎂", href: "/enduser/pastel-vintage" },
-];
+// Antes había aquí una lista de productos de ejemplo (Vintage Rosa,
+// Cookie Nutella…) que servía de respaldo cuando la API no respondía.
+// Se quitó: son productos y precios que no existen, y el cliente no tiene
+// forma de saber que no son reales. Si no hay destacados, es preferible
+// no mostrar la sección a mostrar un catálogo inventado.
 
 /* ─── Testimonials ───────────────────────────────────────────────── */
 const TESTS = [
@@ -43,8 +42,8 @@ export default function Home() {
   // Carga la config editable desde el back. Si falla, dejamos defaults
   // (galletas NY) — el home nunca debe romper por una llamada al back.
   const [homeCfg, setHomeCfg] = useState(HOME_CFG_DEFAULTS);
-  // Postres destacados marcados por el admin. Si el admin aún no marcó
-  // ninguno (o la API falla), caemos al BEST hardcoded como fallback.
+  // Postres destacados marcados por el admin. Si no hay ninguno (o la API
+  // falla), la sección simplemente no se muestra.
   const [destacados, setDestacados] = useState(null); // null = cargando
   // Reseñas reales rating-5 destacadas. Si vacío o falla, fallback a TESTS.
   const [resenasDestacadas, setResenasDestacadas] = useState(null);
@@ -109,22 +108,20 @@ export default function Home() {
       }))
     : TESTS;
 
-  // Mapear destacados al shape del BEST hardcoded para que el render sea uno solo.
-  // Si no hay destacados o la API aún no respondió, usar el BEST como fallback.
-  const mostrarItems = (destacados && destacados.length > 0)
-    ? destacados.map((p) => ({
-        label: p.nombre,
-        sub: p.descripcion
-          ? (p.descripcion.length > 40 ? p.descripcion.slice(0, 40) + "…" : p.descripcion)
-          : "",
-        price: `$${Number(p.precio).toFixed(0)}`,
-        href: `/enduser/postres/${p.slug}`,
-        imagenUrl: p.imagenUrl || "",
-        bg: "linear-gradient(135deg,#FFE2E7,#FFC3C9)",
-        emoji: "🎂",
-        tag: null,
-      }))
-    : BEST;
+  // Solo postres reales marcados como destacados por el admin. Mientras la
+  // API responde, `destacados` es null y la sección no se pinta.
+  const mostrarItems = (destacados || []).map((p) => ({
+    label: p.nombre,
+    sub: p.descripcion
+      ? (p.descripcion.length > 40 ? p.descripcion.slice(0, 40) + "…" : p.descripcion)
+      : "",
+    price: `$${Number(p.precio).toFixed(0)}`,
+    href: `/enduser/postres/${p.slug}`,
+    imagenUrl: p.imagenUrl || "",
+    bg: "linear-gradient(135deg,#FFE2E7,#FFC3C9)",
+    emoji: "🎂",
+    tag: null,
+  }));
 
   return (
     <div className={nunito.className} style={{ minHeight: "100vh", background: "var(--bg-sunken)" }}>
@@ -312,6 +309,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════
           BESTSELLERS
       ══════════════════════════════════════════ */}
+      {mostrarItems.length > 0 && (
       <section style={{ background: "rgba(250,237,227,.85)", padding: "4.5rem 1.5rem", position: "relative" }}>
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
           <p style={{ fontSize: "0.7rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--rosa)", marginBottom: 8 }}>Top de la pastelería</p>
@@ -319,8 +317,12 @@ export default function Home() {
         </div>
 
         <div className="best-grid" style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1rem" }}>
+          {/* La llave lleva el índice a propósito: antes era solo `p.href` y
+              dos productos de ejemplo compartían el mismo enlace, así que
+              React no podía reconciliar la lista al llegar los destacados
+              reales y dejaba una tarjeta vieja colgada entre las nuevas. */}
           {mostrarItems.map((p, idx) => (
-            <Link key={p.href || idx} href={p.href} style={{ textDecoration: "none" }}>
+            <Link key={`${p.href}-${idx}`} href={p.href} style={{ textDecoration: "none" }}>
               <div className="prod-card" style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", overflow: "hidden", boxShadow: "var(--shadow-sm)", transition: "all 280ms cubic-bezier(.2,.8,.2,1)", position: "relative", cursor: "pointer" }}>
                 {/* Badge */}
                 {p.tag && (
@@ -378,6 +380,7 @@ export default function Home() {
           </Link>
         </div>
       </section>
+      )}
 
       {/* ══════════════════════════════════════════
           VINTAGE CTA (burdeos)
