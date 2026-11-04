@@ -1,0 +1,44 @@
+# Dependabot — actualizaciones de dependencias del frontend.
+#
+# Dos cosas distintas corren en paralelo:
+#
+#   1. Parches de SEGURIDAD: se activan en la configuración del repo (no
+#      aquí) y abren un PR en cuanto se publica un aviso que te afecta,
+#      sin esperar al calendario de abajo.
+#   2. Actualizaciones de VERSIÓN: las de este archivo, en su día fijo.
+#
+# Ojo con la ruta: la app de Next no está en la raíz del repo sino en
+# front-pastelero/, que es donde vive el package.json.
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/front-pastelero"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Mexico_City"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencias"
+    commit-message:
+      prefix: "deps"
+    groups:
+      # Las herramientas de build y lint nunca llegan al navegador del
+      # cliente, así que sus actualizaciones van todas juntas y se pueden
+      # revisar rápido: si el build pasa, están bien.
+      herramientas-de-desarrollo:
+        dependency-type: "development"
+        patterns:
+          - "*"
+      # Lo que sí se envía al navegador, solo parches y menores en grupo.
+      # Las versiones mayores llegan sueltas: pasar de Next 15 a 16 o de
+      # React 18 a 19 merece su propia revisión, no colarse en un lote.
+      produccion-menores-y-parches:
+        dependency-type: "production"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
