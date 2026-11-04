@@ -32,11 +32,11 @@ const CATS = [
 // no mostrar la sección a mostrar un catálogo inventado.
 
 /* ─── Testimonials ───────────────────────────────────────────────── */
-const TESTS = [
-  { stars: "★★★★★", text: "El pastel de XV años fue absolutamente perfecto. Todos quedaron impresionados con el diseño y el sabor.", name: "Daniela M.", meta: "XV Años · Burdeos", av: "D", avBg: "linear-gradient(135deg,#FFC3C9,#FF6F7D)" },
-  { stars: "★★★★★", text: "Las galletas NY llegaron calientitas el mismo día. El pistache crunch es el mejor que he probado en mi vida.", name: "Rodrigo P.", meta: "Entrega a domicilio", av: "R", avBg: "linear-gradient(135deg,#B8E6D3,#6FC9A8)" },
-  { stars: "★★★★★", text: "Tomé el curso de pastel vintage y fue increíble. Me llevé mi pieza a casa y recibí muchos elogios.", name: "Camila L.", meta: "Curso · Nivel básico", av: "C", avBg: "linear-gradient(135deg,#D9C4E8,#A87BC8)" },
-];
+// Antes vivía aquí un arreglo de testimonios de ejemplo (Daniela M.,
+// Rodrigo P., Camila L.) que se mostraba cuando no había reseñas reales.
+// Se quitó por lo mismo que los productos de ejemplo: son personas y
+// opiniones inventadas presentadas como si fueran de clientes. Si no hay
+// reseñas reales, la sección no aparece.
 
 export default function Home() {
   // Carga la config editable desde el back. Si falla, dejamos defaults
@@ -45,7 +45,7 @@ export default function Home() {
   // Postres destacados marcados por el admin. Si no hay ninguno (o la API
   // falla), la sección simplemente no se muestra.
   const [destacados, setDestacados] = useState(null); // null = cargando
-  // Reseñas reales rating-5 destacadas. Si vacío o falla, fallback a TESTS.
+  // Reseñas reales con 5 estrellas. Si no hay, la sección no se muestra.
   const [resenasDestacadas, setResenasDestacadas] = useState(null);
   useEffect(() => {
     if (!API_BASE) return;
@@ -89,24 +89,29 @@ export default function Home() {
     return () => { cancelled = true; };
   }, []);
 
-  // Mapear reseñas reales al shape de TESTS para reusar el render.
   const AVATAR_BGS = [
     "linear-gradient(135deg,#FFC3C9,#FF6F7D)",
     "linear-gradient(135deg,#B8E6D3,#6FC9A8)",
     "linear-gradient(135deg,#D9C4E8,#A87BC8)",
     "linear-gradient(135deg,#FFE99B,#FFC9A5)",
   ];
-  const mostrarTests = (resenasDestacadas && resenasDestacadas.length > 0)
-    ? resenasDestacadas.map((r, i) => ({
-        stars: "★★★★★".slice(0, r.rating) + "☆☆☆☆☆".slice(0, 5 - r.rating),
-        text:  r.texto || `Excelente experiencia con ${r.producto?.nombre || "este producto"}.`,
-        name:  r.usuario?.nombre || "Cliente",
-        meta:  r.producto?.nombre ? `${r.producto.nombre}${r.producto.tipo === "galleta" ? " · Galletas NY" : ""}` : "Pedido personalizado",
-        verificada: true,
-        av:    (r.usuario?.nombre || "C").charAt(0).toUpperCase(),
-        avBg:  AVATAR_BGS[i % AVATAR_BGS.length],
-      }))
-    : TESTS;
+  // Solo reseñas reales de la base. Antes había un arreglo de testimonios
+  // de ejemplo como respaldo; se quitó por lo mismo que los productos de
+  // ejemplo: son personas y opiniones que no existen.
+  //
+  // `texto` va tal cual, sin relleno: antes, a una reseña sin texto se le
+  // ponía "Excelente experiencia con …", o sea palabras que la clienta
+  // nunca escribió, firmadas con su nombre y con el sello de compra
+  // verificada encima. Si no hay texto, se muestran solo las estrellas.
+  const mostrarTests = (resenasDestacadas || []).map((r, i) => ({
+    stars: "★★★★★".slice(0, r.rating) + "☆☆☆☆☆".slice(0, 5 - r.rating),
+    text:  (r.texto || "").trim(),
+    name:  r.usuario?.nombre || "Cliente",
+    meta:  r.producto?.nombre ? `${r.producto.nombre}${r.producto.tipo === "galleta" ? " · Galletas NY" : ""}` : "Pedido personalizado",
+    verificada: true,
+    av:    (r.usuario?.nombre || "C").charAt(0).toUpperCase(),
+    avBg:  AVATAR_BGS[i % AVATAR_BGS.length],
+  }));
 
   // Solo postres reales marcados como destacados por el admin. Mientras la
   // API responde, `destacados` es null y la sección no se pinta.
@@ -432,6 +437,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════
           TESTIMONIALS
       ══════════════════════════════════════════ */}
+      {mostrarTests.length > 0 && (
       <section style={{ padding: "4.5rem 1.5rem", background: "rgba(255,243,245,.6)" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
@@ -442,9 +448,14 @@ export default function Home() {
           <div className="test-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.25rem" }}>
             {mostrarTests.map((t) => (
               <div key={t.name} style={{ background: "var(--bg-raised)", borderRadius: "var(--r-xl)", padding: "1.75rem", boxShadow: "var(--shadow-sm)", position: "relative" }}>
-                <span className={sofia.className} style={{ fontSize: "4rem", color: "var(--rosa-3)", lineHeight: 0.5, position: "absolute", top: 16, right: 20 }}>"</span>
+                {/* Las comillas solo si de verdad hay una cita que entrecomillar. */}
+                {t.text && (
+                  <span className={sofia.className} style={{ fontSize: "4rem", color: "var(--rosa-3)", lineHeight: 0.5, position: "absolute", top: 16, right: 20 }}>&quot;</span>
+                )}
                 <div style={{ color: "#E8B43A", fontSize: "1rem", letterSpacing: 2, marginBottom: "0.75rem" }}>{t.stars}</div>
-                <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "var(--text-soft)", fontStyle: "italic", marginBottom: "1rem" }}>{t.text}</p>
+                {t.text && (
+                  <p style={{ fontSize: "0.9rem", lineHeight: 1.7, color: "var(--text-soft)", fontStyle: "italic", marginBottom: "1rem" }}>{t.text}</p>
+                )}
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ width: 44, height: 44, borderRadius: "50%", background: t.avBg, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <span className={sofia.className} style={{ fontSize: "1.5rem" }}>{t.av}</span>
@@ -462,6 +473,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ══════════════════════════════════════════
           NEWSLETTER / CTA FINAL
