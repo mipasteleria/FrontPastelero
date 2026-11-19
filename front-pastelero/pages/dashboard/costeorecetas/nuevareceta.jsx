@@ -696,7 +696,7 @@ export default function NuevaReceta() {
               <div className="w-full">
                 <label className="block text-sm font-medium dark:text-white">Mano de obra</label>
                 <p className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5 text-gray-600">
-                  Tarifa: <strong>${(tarifaLaborHora || 0).toFixed(2)}/hora</strong>
+                  Tarifa: <strong>{tarifasListas ? `$${tarifaLaborHora.toFixed(2)}/hora` : "— cargando…"}</strong>
                   <span className="text-xs text-gray-400 ml-2">(configurable en Gastos fijos y mano de obra)</span>
                 </p>
               </div>
@@ -712,7 +712,7 @@ export default function NuevaReceta() {
               <div className="w-full">
                 <label className="block text-sm font-medium dark:text-white">Gastos fijos</label>
                 <p className="bg-gray-50 border border-secondary text-sm rounded-lg p-2.5 text-gray-600">
-                  Tarifa: <strong>${(tarifaFijaHora || 0).toFixed(2)}/hora</strong>
+                  Tarifa: <strong>{tarifasListas ? `$${tarifaFijaHora.toFixed(2)}/hora` : "— cargando…"}</strong>
                   <span className="text-xs text-gray-400 ml-2">(configurable en Gastos fijos y mano de obra)</span>
                 </p>
               </div>
