@@ -762,6 +762,8 @@ export default function CotizacionPersonalizadaDetalle() {
                       <option value="">— Selecciona —</option>
                       <option value="transferencia">Transferencia</option>
                       <option value="efectivo">Efectivo</option>
+                      <option value="terminal">Terminal (tarjeta)</option>
+                      <option value="stripe">Pago en línea (Stripe)</option>
                       <option value="otro">Otro</option>
                     </select>
                     <label className="block text-xs font-semibold mb-1">Referencia / nota</label>

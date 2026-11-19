@@ -110,8 +110,23 @@ export default function AgendaMes() {
         <Kpi label="Ganancia neta*" val={a ? money(a.gananciaNeta) : "—"} emoji="📈" />
       </div>
       <p style={{ fontSize: ".7rem", color: "var(--text-muted)", marginTop: "-0.8rem" }}>
-        * Neta calculada sobre pedidos con costo registrado (pasteles cotizados y vintage). Galletas/postres aún no registran costo.
+        * Neta = ventas con costo registrado − costos − comisión de pasarela.
+        {a?.comisionPagada > 0 && (
+          <> Este mes la comisión fue <strong>{money(a.comisionPagada)}</strong>, solo
+          sobre lo cobrado con tarjeta ({a.comisionPct}%); en efectivo y transferencia
+          no se paga nada.</>
+        )}
+        {a?.comisionPagada === 0 && a?.ingresos > 0 && (
+          <> Este mes no se pagó comisión: nada se cobró con tarjeta.</>
+        )}
+        {" "}Galletas/postres aún no registran costo.
       </p>
+      {a?.ventasSinRegistrar > 0 && (
+        <p style={{ fontSize: ".7rem", color: "#8A6D1F", marginTop: "-0.6rem" }}>
+          ⚠️ {money(a.ventasSinRegistrar)} en ventas sin método de pago capturado. No se
+          les descontó comisión; si alguna se cobró con tarjeta, la ganancia real es menor.
+        </p>
+      )}
 
       {/* ── En qué se va el costo ──
           El KPI de arriba daba un solo número sin decir su composición.

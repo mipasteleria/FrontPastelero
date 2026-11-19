@@ -371,7 +371,7 @@ export default function PedidoVintageDetalle() {
                 <input type="number" className="border rounded px-3 py-2 w-full mb-2" value={form.anticipo} onChange={(e) => setForm({ ...form, anticipo: e.target.value })} />
                 <label className="block text-xs font-semibold mb-1">Método</label>
                 <select className="border rounded px-3 py-2 w-full mb-2" value={form.anticipoMetodo} onChange={(e) => setForm({ ...form, anticipoMetodo: e.target.value })}>
-                  <option value="">—</option><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option><option value="stripe">Pago en línea</option><option value="otro">Otro</option>
+                  <option value="">—</option><option value="transferencia">Transferencia</option><option value="efectivo">Efectivo</option><option value="terminal">Terminal (tarjeta)</option><option value="stripe">Pago en línea</option><option value="otro">Otro</option>
                 </select>
                 <label className="block text-xs font-semibold mb-1">Referencia</label>
                 <input className="border rounded px-3 py-2 w-full mb-3" value={form.anticipoReferencia} onChange={(e) => setForm({ ...form, anticipoReferencia: e.target.value })} />

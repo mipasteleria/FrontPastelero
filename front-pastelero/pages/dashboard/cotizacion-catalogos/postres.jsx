@@ -176,10 +176,24 @@ export default function PostresPage() {
                     </>
                   )}
                 </div>
+                {c.comisionActiva && c.comisionUnitaria > 0 && (
+                  <div className="text-gray-500">
+                    − {c.comisionProveedor} {c.comisionPctUnitaria}%:{" "}
+                    <strong>{money(c.comisionUnitaria)}</strong>
+                  </div>
+                )}
                 <div style={{ color: c.gananciaUnitaria < 0 ? "#B4484B" : "#1D5A45" }}>
                   Ganancia: <strong>{money(c.gananciaUnitaria)}</strong>
+                  {c.comisionActiva && c.comisionUnitaria > 0 && (
+                    <span className="text-[10px]"> con tarjeta</span>
+                  )}
                   {c.gananciaUnitaria < 0 && <span className="text-[10px]"> ⚠️ bajo costo</span>}
                 </div>
+                {c.comisionActiva && c.comisionUnitaria > 0 && (
+                  <div style={{ color: "#1D5A45" }} className="text-[11px]">
+                    {money(c.gananciaEfectivo)} en efectivo o transferencia
+                  </div>
+                )}
                 <div
                   style={{ color: "var(--burdeos)", borderTop: "1px solid #eee", marginTop: 2, paddingTop: 2 }}
                 >
@@ -188,12 +202,7 @@ export default function PostresPage() {
                     <span className="text-[10px] text-gray-400"> (precio fijado)</span>
                   )}
                 </div>
-                {c.comisionActiva && (
-                  <div className="text-gray-500 text-[11px] mt-1">
-                    {c.comisionProveedor} {c.comisionPctUnitaria}%: <strong>{money(c.comisionUnitaria)}</strong>
-                    {" · "}el cliente paga <strong>{money(c.precioConComision)}</strong>
-                  </div>
-                )}
+
               </div>
             );
           },
