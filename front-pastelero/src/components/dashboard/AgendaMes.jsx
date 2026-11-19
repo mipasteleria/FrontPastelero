@@ -4,6 +4,8 @@ import { useAuth } from "@/src/context";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+const money = (n) => `$${Number(n || 0).toLocaleString("es-MX")}`;
+
 const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 const DIAS = ["L", "M", "M", "J", "V", "S", "D"];
 
@@ -96,7 +98,6 @@ export default function AgendaMes() {
   };
 
   const a = data?.analytics;
-  const money = (n) => `$${Number(n || 0).toLocaleString("es-MX")}`;
   const [yy, mm] = mes.split("-").map(Number);
 
   return (
@@ -111,6 +112,12 @@ export default function AgendaMes() {
       <p style={{ fontSize: ".7rem", color: "var(--text-muted)", marginTop: "-0.8rem" }}>
         * Neta calculada sobre pedidos con costo registrado (pasteles cotizados y vintage). Galletas/postres aún no registran costo.
       </p>
+
+      {/* ── En qué se va el costo ──
+          El KPI de arriba daba un solo número sin decir su composición.
+          Aquí se abre en materia prima / mano de obra / taller, rastreando
+          cada renglón hasta la receta o técnica de la que salió. */}
+      {a?.desgloseCostos?.total > 0 && <DesgloseCostos d={a.desgloseCostos} />}
 
       <div className="agenda-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: "1.25rem", alignItems: "start" }}>
         {/* ── Calendario ── */}
@@ -222,5 +229,66 @@ function Kpi({ label, val, emoji }) {
       <div style={{ fontSize: ".68rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: ".05em", color: "var(--text-muted)" }}>{emoji} {label}</div>
       <div style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--burdeos)", marginTop: 2 }}>{val}</div>
     </div>
+  );
+}
+
+/**
+ * Reparto del costo del mes. Las barras son proporcionales al total para
+ * que la composición se lea de un vistazo sin tener que dividir mentalmente.
+ *
+ * "Sin clasificar" se muestra siempre que exista: es costo real que no se
+ * pudo atribuir (pedidos vintage, que no guardan el origen de cada
+ * concepto, y renglones capturados a mano). Ocultarlo haría parecer que
+ * los porcentajes de arriba son del total cuando son de una parte.
+ */
+function DesgloseCostos({ d }) {
+  const filas = [
+    { k: "materiaPrima",  label: "Materia prima", sub: "ingredientes e insumos", color: "#C86B7F" },
+    { k: "manoObra",      label: "Mano de obra",  sub: "horas de trabajo",       color: "#7B9A6D" },
+    { k: "gastosFijos",   label: "Gastos fijos",  sub: "uso del taller",         color: "#D4A24C" },
+    { k: "otros",         label: "Otros",         sub: "IEPS y adicionales",     color: "#9A8AA8" },
+    { k: "sinClasificar", label: "Sin clasificar", sub: "vintage y capturas manuales", color: "#BFB4B8" },
+  ].filter((f) => Number(d[f.k]) > 0);
+
+  const total = Number(d.total) || 1;
+
+  return (
+    <section style={{ background: "#fff", borderRadius: "var(--r-xl)", padding: "1.25rem", boxShadow: "var(--shadow-sm)", border: "1px solid var(--border-color)" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+        <h3 style={{ fontWeight: 800, color: "var(--burdeos)" }}>¿En qué se va el costo?</h3>
+        <span style={{ fontSize: ".72rem", color: "var(--text-muted)" }}>
+          {d.coberturaPct}% del costo rastreado hasta su receta o técnica
+        </span>
+      </div>
+
+      {filas.map((f) => {
+        const v = Number(d[f.k]);
+        const pct = (v / total) * 100;
+        return (
+          <div key={f.k} style={{ marginBottom: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: ".82rem", marginBottom: 3 }}>
+              <span style={{ fontWeight: 700, color: "var(--color-text)" }}>
+                {f.label}{" "}
+                <span style={{ fontWeight: 400, fontSize: ".72rem", color: "var(--text-muted)" }}>· {f.sub}</span>
+              </span>
+              <span style={{ color: "var(--text-soft)" }}>
+                <strong>{money(v)}</strong>{" "}
+                <span style={{ fontSize: ".74rem", color: "var(--text-muted)" }}>{pct.toFixed(0)}%</span>
+              </span>
+            </div>
+            <div style={{ height: 8, background: "var(--bg-sunken)", borderRadius: 999, overflow: "hidden" }}>
+              <div style={{ width: `${pct}%`, height: "100%", background: f.color, borderRadius: 999 }} />
+            </div>
+          </div>
+        );
+      })}
+
+      {d.sinClasificar > 0 && (
+        <p style={{ fontSize: ".7rem", color: "var(--text-muted)", marginTop: 10 }}>
+          Lo &quot;sin clasificar&quot; son pedidos vintage —que guardan el costo por concepto
+          pero no de dónde sale cada uno— y renglones que capturaste a mano.
+        </p>
+      )}
+    </section>
   );
 }
