@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import CatalogoCrudPage from "@/src/components/cotizacionCatalogos/CatalogoCrudPage";
 import { useAuth } from "@/src/context";
 import { subirImagen } from "@/src/lib/imageUpload";
+import EmpaqueEditor from "@/src/components/dashboard/EmpaqueEditor";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -16,6 +17,7 @@ const DEFAULT = {
   recetaId: "",
   costoManual: 0,
   precioManual: "",
+  empaque: [],
   activo: true,
   orden: 0,
 };
@@ -154,7 +156,13 @@ export default function PostresPage() {
             return (
               <div className="text-xs leading-5">
                 <div>
-                  Costo: <strong>{money(c.costoUnitario)}</strong>
+                  Costo receta: <strong>{money(c.costoReceta)}</strong>
+                </div>
+                {c.costoEmpaque > 0 && (
+                  <div>+ empaque: <strong>{money(c.costoEmpaque)}</strong></div>
+                )}
+                <div style={{ borderTop: "1px solid #eee", marginTop: 2, paddingTop: 2 }}>
+                  Costo total: <strong>{money(c.costoUnitario)}</strong>
                 </div>
                 <div className="text-gray-500">
                   {c.precioFuente === "manual" ? (
@@ -180,6 +188,12 @@ export default function PostresPage() {
                     <span className="text-[10px] text-gray-400"> (precio fijado)</span>
                   )}
                 </div>
+                {c.comisionActiva && (
+                  <div className="text-gray-500 text-[11px] mt-1">
+                    {c.comisionProveedor} {c.comisionPctUnitaria}%: <strong>{money(c.comisionUnitaria)}</strong>
+                    {" · "}el cliente paga <strong>{money(c.precioConComision)}</strong>
+                  </div>
+                )}
               </div>
             );
           },
@@ -259,6 +273,18 @@ export default function PostresPage() {
               El costo de la receta es costo puro. El margen se aplica al cotizar: se usa el de la
               receta, y si no tiene, el global
               {markupGlobal != null ? ` (${markupGlobal}%)` : ""}.
+            </div>
+          </div>
+
+          <div>
+            <EmpaqueEditor
+              value={form.empaque}
+              onChange={(empaque) => setForm({ ...form, empaque })}
+              apiBase={API_BASE}
+              authHeader={userToken ? { Authorization: `Bearer ${userToken}` } : {}}
+            />
+            <div className="text-[10px] text-gray-400 mt-1">
+              Contenedor, capacillo, etiqueta… Se suma al costo del postre, antes del margen.
             </div>
           </div>
 
