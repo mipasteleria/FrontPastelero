@@ -15,6 +15,7 @@ const DEFAULT = {
   imagenFileName: "",
   recetaId: "",
   costoManual: 0,
+  precioManual: "",
   activo: true,
   orden: 0,
 };
@@ -156,18 +157,28 @@ export default function PostresPage() {
                   Costo: <strong>{money(c.costoUnitario)}</strong>
                 </div>
                 <div className="text-gray-500">
-                  + margen {c.margenPct}%{" "}
-                  <span className="text-[10px]">
-                    ({c.margenFuente === "receta" ? "de la receta" : "global"})
-                  </span>
+                  {c.precioFuente === "manual" ? (
+                    <>margen resultante <strong>{c.margenPct}%</strong></>
+                  ) : (
+                    <>
+                      + margen {c.margenPct}%{" "}
+                      <span className="text-[10px]">
+                        ({c.margenFuente === "receta" ? "de la receta" : "global"})
+                      </span>
+                    </>
+                  )}
                 </div>
-                <div style={{ color: "#1D5A45" }}>
+                <div style={{ color: c.gananciaUnitaria < 0 ? "#B4484B" : "#1D5A45" }}>
                   Ganancia: <strong>{money(c.gananciaUnitaria)}</strong>
+                  {c.gananciaUnitaria < 0 && <span className="text-[10px]"> ⚠️ bajo costo</span>}
                 </div>
                 <div
                   style={{ color: "var(--burdeos)", borderTop: "1px solid #eee", marginTop: 2, paddingTop: 2 }}
                 >
                   Se cobra: <strong>{money(c.precioUnitario)}</strong>
+                  {c.precioFuente === "manual" && (
+                    <span className="text-[10px] text-gray-400"> (precio fijado)</span>
+                  )}
                 </div>
               </div>
             );
@@ -253,7 +264,27 @@ export default function PostresPage() {
 
           <div>
             <label className="block text-xs font-semibold mb-1 text-gray-600">
-              Costo manual / porción (fallback)
+              Precio de venta / porción <span className="font-normal text-gray-400">(opcional)</span>
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              className="border rounded px-3 py-2 w-full"
+              placeholder="automático según el margen"
+              value={form.precioManual ?? ""}
+              onChange={(e) => setForm({ ...form, precioManual: e.target.value === "" ? "" : Number(e.target.value) })}
+            />
+            <div className="text-[10px] text-gray-400 mt-1">
+              El costo lo sigue tomando de la receta. Si fijas un precio aquí, se
+              cobra ese y la tabla te muestra la ganancia real. Si lo dejas vacío,
+              el precio se calcula con el margen.
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold mb-1 text-gray-600">
+              Costo manual / porción <span className="font-normal text-gray-400">(solo sin receta)</span>
             </label>
             <input
               type="number"
@@ -264,7 +295,8 @@ export default function PostresPage() {
               onChange={(e) => setForm({ ...form, costoManual: Number(e.target.value) })}
             />
             <div className="text-[10px] text-gray-400 mt-1">
-              Solo se usa si no hay receta o si la receta aún no se ha recosteado.
+              Si el postre tiene receta vinculada, este campo se ignora: el costo
+              sale de la receta.
             </div>
           </div>
         </>
