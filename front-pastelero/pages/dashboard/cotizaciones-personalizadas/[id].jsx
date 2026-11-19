@@ -876,9 +876,19 @@ export default function CotizacionPersonalizadaDetalle() {
                     )}
                     <div className="border-t mt-2 pt-2">
                       <CostRow label="Costo total" val={cs.costoTotal} bold />
+                      {cs.comisionDescontada > 0 && (
+                        <CostRow label="− Comisión de pasarela" val={cs.comisionDescontada} />
+                      )}
                       <CostRow label="Ganancia" val={cs.gananciaNeta ?? (cs.precioSugerido - cs.costoTotal)} />
                       <CostRow label="Precio sugerido" val={cs.precioSugerido} highlight />
                     </div>
+                    {cs.comisionDescontada > 0 && (
+                      <p className="text-[10px] text-gray-400 mt-1">
+                        La comisión se descuenta de la ganancia, no se suma al precio. Solo
+                        se paga si el cliente liquida con tarjeta; en efectivo o
+                        transferencia la ganancia es ${(cs.gananciaNeta + cs.comisionDescontada).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.
+                      </p>
+                    )}
                     <p className="text-[10px] text-gray-400 mt-2">
                       Cada elemento con receta usa su propio margen; el {cs.markupPct}% global aplica a lo que no tiene receta (técnicas, decoración manual, extras).
                     </p>
