@@ -61,6 +61,8 @@ const DEFAULT_FORM = {
   evento:   { tipo: "", fecha: "", invitados: 30 },
   postresPorPersona: 1,
   postresSlugs: [],
+  // Cantidad por postre, { slug: piezas }. Vacío = reparto equitativo.
+  postresCantidades: {},
   estilo:   { value: "", comentarios: "", imagenesInspiracion: [] },
   entrega:  { tipo: "", fecha: "", hora: "", direccion: "" },
   cliente:  { nombre: "", telefono: "", email: "" },
@@ -104,7 +106,15 @@ export default function Snackprice({ adminMode = false } = {}) {
     [form.evento.invitados]
   );
 
-  const piezasTotales = (Number(form.evento.invitados) || 0) * (Number(form.postresPorPersona) || 0);
+  // Si el cliente capturó cantidades por postre, el total es su suma;
+  // si no, se estima con personas × postres por persona.
+  const cantidadesCapturadas = form.postresSlugs
+    .map((sl) => Number(form.postresCantidades[sl]) || 0)
+    .filter((n) => n > 0);
+  const hayCantidades = cantidadesCapturadas.length > 0;
+  const piezasTotales = hayCantidades
+    ? cantidadesCapturadas.reduce((a, n) => a + n, 0)
+    : (Number(form.evento.invitados) || 0) * (Number(form.postresPorPersona) || 0);
 
   const setEvento = (patch)  => setForm((f) => ({ ...f, evento: { ...f.evento, ...patch } }));
   const setEstilo = (patch)  => setForm((f) => ({ ...f, estilo: { ...f.estilo, ...patch } }));
@@ -114,11 +124,21 @@ export default function Snackprice({ adminMode = false } = {}) {
   const togglePostre = (slug) => {
     setForm((f) => {
       const has = f.postresSlugs.includes(slug);
+      const cantidades = { ...f.postresCantidades };
+      if (has) delete cantidades[slug]; // al deseleccionar, se olvida su cantidad
       return {
         ...f,
         postresSlugs: has ? f.postresSlugs.filter((s) => s !== slug) : [...f.postresSlugs, slug],
+        postresCantidades: cantidades,
       };
     });
+  };
+
+  const setCantidadPostre = (slug, valor) => {
+    setForm((f) => ({
+      ...f,
+      postresCantidades: { ...f.postresCantidades, [slug]: valor },
+    }));
   };
 
   const handleImgUpload = async (e) => {
@@ -176,7 +196,12 @@ export default function Snackprice({ adminMode = false } = {}) {
         tipoProducto: "mesa-postres",
         evento: form.evento,
         postresPorPersona: Number(form.postresPorPersona) || 1,
-        postresSlugs: form.postresSlugs,
+        // Se manda slug + cantidad. El back acepta también la forma vieja
+        // (solo slugs) y en ese caso reparte el total en partes iguales.
+        postresSlugs: form.postresSlugs.map((sl) => ({
+          slug: sl,
+          cantidad: Number(form.postresCantidades[sl]) || null,
+        })),
         estilo: form.estilo,
         entrega: {
           ...form.entrega,
@@ -265,6 +290,7 @@ export default function Snackprice({ adminMode = false } = {}) {
         .deco:hover { background: var(--rosa-4, #FFF3F5); }
         .deco.sel { background: var(--rosa-4, #FFF3F5); border-color: var(--burdeos); }
         .deco-emoji { font-size: 1.5rem; }
+        .deco-img { width: 54px; height: 54px; object-fit: cover; border-radius: 10px; margin: 0 auto 2px; display: block; }
         .deco-name { font-weight: 700; font-size: 0.82rem; color: var(--burdeos); }
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
         @media (max-width: 500px) { .row { grid-template-columns: 1fr; } }
@@ -394,12 +420,47 @@ export default function Snackprice({ adminMode = false } = {}) {
                         className={`deco ${sel ? "sel" : ""}`}
                         onClick={() => togglePostre(p.slug)}
                       >
-                        <div className="deco-emoji">{p.emoji || "🍰"}</div>
+                        {p.imagenUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.imagenUrl} alt={p.nombre} className="deco-img" />
+                        ) : (
+                          <div className="deco-emoji">{p.emoji || "🍰"}</div>
+                        )}
                         <div className="deco-name">{p.nombre}</div>
+                        {sel && (
+                          /* El clic en la cantidad no debe deseleccionar el postre. */
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 4, justifyContent: "center" }}
+                          >
+                            <input
+                              type="number"
+                              min="0"
+                              step="1"
+                              inputMode="numeric"
+                              placeholder="cant."
+                              value={form.postresCantidades[p.slug] ?? ""}
+                              onChange={(e) => setCantidadPostre(p.slug, e.target.value)}
+                              style={{
+                                width: 64, padding: "3px 6px", borderRadius: 8,
+                                border: "1px solid var(--border-color)", fontSize: ".8rem",
+                                textAlign: "center",
+                              }}
+                            />
+                            <span style={{ fontSize: ".7rem", color: "var(--text-muted)" }}>pz</span>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
                 </div>
+              )}
+              {form.postresSlugs.length > 0 && (
+                <p style={{ fontSize: ".78rem", color: "var(--text-soft)", marginTop: 10 }}>
+                  ¿Necesitas cantidades distintas de cada postre? Escríbelas arriba
+                  (ej. 45 de uno y 50 de otro). Si las dejas vacías, repartimos
+                  las <strong>{piezasTotales}</strong> piezas en partes iguales.
+                </p>
               )}
             </fieldset>
 

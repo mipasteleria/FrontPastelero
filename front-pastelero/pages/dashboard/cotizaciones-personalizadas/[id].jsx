@@ -153,6 +153,9 @@ export default function CotizacionPersonalizadaDetalle() {
       comentarios: cot.estilo?.comentarios || "",
       postresPorPersona: cot.postresPorPersona || 1,
       postresSlugs: (cot.postres || []).map((p) => p.slug),
+      postresCantidades: Object.fromEntries(
+        (cot.postres || []).filter((p) => p.cantidad > 0).map((p) => [p.slug, p.cantidad])
+      ),
       entregaTipo: cot.entrega?.tipo || "",
       entregaHora: cot.entrega?.hora || "",
       entregaDireccion: cot.entrega?.direccion || "",
@@ -182,7 +185,10 @@ export default function CotizacionPersonalizadaDetalle() {
       };
       if (esMesa) {
         payload.postresPorPersona = Number(edit.postresPorPersona) || 1;
-        payload.postresSlugs = edit.postresSlugs;
+        payload.postresSlugs = edit.postresSlugs.map((sl) => ({
+          slug: sl,
+          cantidad: Number(edit.postresCantidades?.[sl]) || null,
+        }));
       } else {
         if (edit.tipoProducto === "cupcake") {
           payload.saboresCupcakeData = (edit.saboresCupcake || []).filter((r) => r.saborSlug && Number(r.docenas) > 0);
@@ -210,7 +216,16 @@ export default function CotizacionPersonalizadaDetalle() {
   };
 
   const toggleDecoEdit = (slug) => setEdit((e) => ({ ...e, decoracionesSlugs: e.decoracionesSlugs.includes(slug) ? e.decoracionesSlugs.filter((s) => s !== slug) : [...e.decoracionesSlugs, slug] }));
-  const togglePostreEdit = (slug) => setEdit((e) => ({ ...e, postresSlugs: e.postresSlugs.includes(slug) ? e.postresSlugs.filter((s) => s !== slug) : [...e.postresSlugs, slug] }));
+  const togglePostreEdit = (slug) => setEdit((e) => {
+    const quitando = e.postresSlugs.includes(slug);
+    const cantidades = { ...(e.postresCantidades || {}) };
+    if (quitando) delete cantidades[slug];
+    return {
+      ...e,
+      postresSlugs: quitando ? e.postresSlugs.filter((s) => s !== slug) : [...e.postresSlugs, slug],
+      postresCantidades: cantidades,
+    };
+  });
 
   // ── Imagen de diseño (subir / quitar) ─────────────────────────────
   const guardarImagenes = async (imagenes) => {
@@ -605,8 +620,12 @@ export default function CotizacionPersonalizadaDetalle() {
                   <>
                     <DetSpec dot="#6FC9A8" k="Personas" v={cot.evento?.invitados} />
                     <DetSpec dot="#FFE99B" k="Postres por persona" v={cot.postresPorPersona} />
-                    <DetSpec dot="#FFC9A5" k="Total piezas" v={(cot.evento?.invitados || 0) * (cot.postresPorPersona || 0) || "—"} />
-                    <DetSpec dot="#D9C4E8" wide k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ") || "—"} />
+                    <DetSpec dot="#FFC9A5" k="Total piezas" v={
+                      (cot.postres || []).some((p) => p.cantidad > 0)
+                        ? (cot.postres || []).reduce((a, p) => a + (Number(p.cantidad) || 0), 0)
+                        : ((cot.evento?.invitados || 0) * (cot.postresPorPersona || 0) || "—")
+                    } />
+                    <DetSpec dot="#D9C4E8" wide k="Postres" v={(cot.postres || []).map((p) => p.cantidad > 0 ? `${p.nombre} (${p.cantidad} pz)` : p.nombre).join(", ") || "—"} />
                   </>
                 ) : cot.tipoProducto === "galleta" ? (
                   <>
@@ -1052,6 +1071,9 @@ function Info({ label, val }) {
 
 // Formulario de edición completa de la cotización (admin).
 function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, onCancel, onSave, guardando }) {
+  const setCantidadPostreEdit = (slug, v) => setEdit((e) => ({
+    ...e, postresCantidades: { ...(e.postresCantidades || {}), [slug]: v },
+  }));
   const set = (k, v) => setEdit((e) => ({ ...e, [k]: v }));
   const esMesa = edit.tipoProducto === "mesa-postres";
   const esCup = edit.tipoProducto === "cupcake";
@@ -1108,6 +1130,34 @@ function EditForm({ edit, setEdit, catalogos, toggleDecoEdit, togglePostreEdit, 
               return <button key={p.slug} type="button" onClick={() => togglePostreEdit(p.slug)} className={`text-xs px-2 py-1 rounded border ${on ? "text-white" : "text-gray-600"}`} style={on ? { background: "var(--burdeos)", borderColor: "var(--burdeos)" } : {}}>{p.emoji || "🍰"} {p.nombre}</button>;
             })}
           </div>
+
+          {/* Cantidad por postre. Si se dejan vacías, el costeo reparte el
+              total (personas × postres por persona) en partes iguales,
+              como se hacía antes. */}
+          {edit.postresSlugs.length > 0 && (
+            <div className="mt-2">
+              <label className={lbl}>Piezas de cada postre <span className="font-normal text-gray-400">(opcional)</span></label>
+              {edit.postresSlugs.map((sl) => {
+                const p = catalogos.postres.find((x) => x.slug === sl);
+                return (
+                  <div key={sl} className="flex items-center gap-2 mb-1">
+                    <span className="text-xs flex-1 truncate">{p?.emoji || "🍰"} {p?.nombre || sl}</span>
+                    <input
+                      type="number" min="0" step="1"
+                      className={`${inp} w-24`}
+                      placeholder="auto"
+                      value={edit.postresCantidades?.[sl] ?? ""}
+                      onChange={(e) => setCantidadPostreEdit(sl, e.target.value)}
+                    />
+                    <span className="text-[10px] text-gray-400">pz</span>
+                  </div>
+                );
+              })}
+              <p className="text-[10px] text-gray-400 mt-1">
+                Déjalas vacías para repartir el total en partes iguales.
+              </p>
+            </div>
+          )}
         </>
       ) : (
         <>
