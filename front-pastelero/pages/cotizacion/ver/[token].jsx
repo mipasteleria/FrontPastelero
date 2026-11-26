@@ -36,6 +36,7 @@ export default function VerCotizacion() {
   const [ajusteTexto, setAjusteTexto] = useState("");
   const [enviandoAjuste, setEnviandoAjuste] = useState(false);
   // Reseña del cliente (solo disponible cuando el pedido fue entregado).
+  const [desglosePostres, setDesglosePostres] = useState(null); // mesa: qué, cuántos y a cuánto
   const [resena, setResena] = useState(null);          // la ya guardada
   const [estrellas, setEstrellas] = useState(0);
   const [comentario, setComentario] = useState("");
@@ -54,6 +55,7 @@ export default function VerCotizacion() {
       .then(({ ok, j }) => {
         if (!ok) throw new Error(j.message || "No encontrada");
         setCot(j.data);
+        setDesglosePostres(j.postresDesglose || null);
         if (j.resena) { setResena(j.resena); setEstrellas(j.resena.rating); setComentario(j.resena.texto || ""); }
       })
       .catch((e) => setError(e.message))
@@ -259,6 +261,8 @@ export default function VerCotizacion() {
         .ptop { display:flex; align-items:baseline; justify-content:space-between; }
         .price h3 { font-family:var(--font-display-q); font-weight:600; font-size:1.375rem; color:var(--burd); }
         .est { font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.05em; font-family:var(--font-sans-q); }
+        .desglose-mesa { border-bottom: 1px solid rgba(0,0,0,.07); margin-bottom: .75rem; padding-bottom: .5rem; }
+        .desglose-mesa .pz { display: block; font-size: .7rem; color: var(--soft); font-weight: 400; }
         .total-line { display:flex; align-items:flex-end; gap:6px; margin:6px 0 4px; }
         .num { font-family:var(--font-display-q); font-weight:700; font-size:2.5rem; color:var(--burd); line-height:1; }
         .cur { font-size:.8rem; color:var(--muted); font-weight:700; font-family:var(--font-sans-q); }
@@ -356,7 +360,14 @@ export default function VerCotizacion() {
                   <>
                     <Spec k="Personas" v={`${cot.evento?.invitados}`} dot="var(--menta-deep)" />
                     <Spec k="Postres por persona" v={cot.postresPorPersona} dot="var(--mantequilla)" />
-                    <Spec k="Postres" v={(cot.postres || []).map((p) => p.nombre).join(", ")} wide dot="var(--lavanda)" />
+                    <Spec
+                      k="Postres"
+                      wide
+                      dot="var(--lavanda)"
+                      v={(cot.postres || [])
+                        .map((p) => (p.cantidad > 0 ? `${p.nombre} (${p.cantidad} pz)` : p.nombre))
+                        .join(", ")}
+                    />
                   </>
                 ) : esGalleta ? (
                   <>
@@ -506,6 +517,24 @@ export default function VerCotizacion() {
 
               {publicada && precio > 0 ? (
                 <>
+                  {/* Desglose de la mesa: qué postre, cuántas piezas y a
+                      cuánto sale cada uno. Solo precios — el costeo nunca
+                      sale del lado del admin. */}
+                  {desglosePostres?.length > 0 && (
+                    <div className="desglose-mesa">
+                      {desglosePostres.map((d, i) => (
+                        <div className="dl" key={i}>
+                          <span>
+                            {d.nombre}
+                            <span className="pz">
+                              {d.piezas} pz × ${Number(d.precioUnitario || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </span>
+                          <strong>${Number(d.precio || 0).toLocaleString("es-MX")}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="total-line">
                     <span className="num">${precio.toLocaleString("es-MX")}</span><span className="cur">MXN</span>
                   </div>

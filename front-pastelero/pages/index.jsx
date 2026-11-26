@@ -47,6 +47,10 @@ export default function Home() {
   const [destacados, setDestacados] = useState(null); // null = cargando
   // Reseñas reales con 5 estrellas. Si no hay, la sección no se muestra.
   const [resenasDestacadas, setResenasDestacadas] = useState(null);
+  // Resumen real (total y promedio). El dato del hero estaba escrito a
+  // mano — "4.9★ · 458 reseñas" cuando había 2 — así que ahora sale de la
+  // base y, si no hay ninguna, el dato simplemente no se muestra.
+  const [resumenResenas, setResumenResenas] = useState(null);
   useEffect(() => {
     if (!API_BASE) return;
     let cancelled = false;
@@ -64,6 +68,16 @@ export default function Home() {
         }
       } catch {
         /* silencioso — usamos defaults */
+      }
+    })();
+    (async () => {
+      try {
+        const r = await fetch(`${API_BASE}/resenas/resumen`);
+        if (!r.ok) return;
+        const j = await r.json();
+        if (!cancelled) setResumenResenas(j?.data || null);
+      } catch {
+        /* silencioso: si falla, el dato no se muestra */
       }
     })();
     (async () => {
@@ -201,7 +215,17 @@ export default function Home() {
 
             {/* Stats */}
             <div style={{ display: "flex", gap: "2.5rem" }}>
-              {[["12+","sabores"],["4.9★","458 reseñas"],["72h","entrega GDL"]].map(([n,l])=>(
+              {[
+                ["12+", "sabores"],
+                // Solo si hay reseñas reales. Nunca un número inventado.
+                ...(resumenResenas?.total > 0
+                  ? [[
+                      `${resumenResenas.promedio.toFixed(1)}★`,
+                      `${resumenResenas.total} ${resumenResenas.total === 1 ? "reseña" : "reseñas"}`,
+                    ]]
+                  : []),
+                ["72h", "entrega GDL"],
+              ].map(([n,l])=>(
                 <div key={l}>
                   <div className={sofia.className} style={{ fontSize: "2.5rem", color: "var(--rosa)", lineHeight: 1 }}>{n}</div>
                   <div style={{ fontSize: "0.8rem", color: "var(--text-soft)", fontWeight: 600 }}>{l}</div>

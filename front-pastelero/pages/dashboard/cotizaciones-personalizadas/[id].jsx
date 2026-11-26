@@ -862,7 +862,27 @@ export default function CotizacionPersonalizadaDetalle() {
                       <span>Concepto</span><span className="text-right">Costo</span><span className="text-right">Precio</span>
                     </div>
                     {cs.tipoProducto === "mesa-postres" ? (
-                      <CosteoRow label="Postres" sub={`${cs.postres?.length || 0} tipos · ${cs.piezasTotales} pz`} costo={cs.costoPostres} precio={cs.precioPostres} />
+                      <>
+                        <CosteoRow label="Postres" sub={`${cs.postres?.length || 0} tipos · ${cs.piezasTotales} pz`} costo={cs.costoPostres} precio={cs.precioPostres} />
+                        {/* Desglose por postre: cuántas piezas de cada uno y
+                            a cuánto sale. Sin esto la mesa era una caja
+                            negra — un solo total sin decir de dónde sale. */}
+                        {(cs.postres || []).map((d, i) => (
+                          <CosteoRow
+                            key={d.slug || i}
+                            label={<span className="pl-3 text-gray-600">{d.nombre}</span>}
+                            sub={
+                              <span className="pl-3">
+                                {d.piezas} pz × ${Number(d.precio / (d.piezas || 1)).toFixed(2)}
+                                {d.recetaNombre ? ` · ${d.recetaNombre}` : ""}
+                                {d.margenPct != null ? ` · ${d.margenPct}%` : ""}
+                              </span>
+                            }
+                            costo={d.costo}
+                            precio={d.precio}
+                          />
+                        ))}
+                      </>
                     ) : (
                       <>
                         <CosteoRow label="Bizcocho" sub={margenSub(cs.bizcocho)} costo={cs.costoBizcocho} precio={cs.precioBizcocho} />
