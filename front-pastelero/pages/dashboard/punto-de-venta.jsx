@@ -29,7 +29,7 @@ export default function PuntoDeVenta() {
     [userToken]
   );
 
-  const [catalogo, setCatalogo] = useState({ galletas: [], postres: [] });
+  const [catalogo, setCatalogo] = useState({ galletas: [], postres: [], postresMesa: [] });
   const [cargando, setCargando] = useState(true);
   const [carrito, setCarrito] = useState([]);
   const [carritoCargado, setCarritoCargado] = useState(false);
@@ -51,7 +51,7 @@ export default function PuntoDeVenta() {
       const r = await fetch(`${API_BASE}/ventas-mostrador/catalogo`, { headers: authHeader });
       if (!r.ok) throw new Error("No se pudo cargar el catálogo");
       const j = await r.json();
-      setCatalogo(j.data || { galletas: [], postres: [] });
+      setCatalogo(j.data || { galletas: [], postres: [], postresMesa: [] });
     } catch (e) {
       console.error(e);
     } finally {
@@ -183,7 +183,7 @@ export default function PuntoDeVenta() {
   if (loading) return null;
   if (!isLoggedIn) return null;
 
-  const productos = [...catalogo.galletas, ...catalogo.postres];
+  const productos = [...catalogo.galletas, ...(catalogo.postresMesa || []), ...catalogo.postres];
 
   return (
     <div className={poppins.className}>

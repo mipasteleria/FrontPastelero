@@ -40,6 +40,7 @@ const FORM_VACIO = {
   cantidadReceta: "1",
   costoEmpaque: "",
   empaque: [],
+  enPuntoDeVenta: true,
   categoria: "postre",
   unidad: "pieza",
   minimo: "1",
@@ -107,6 +108,7 @@ export default function DashboardPostres() {
       cantidadReceta: p.cantidadReceta != null ? String(p.cantidadReceta) : "1",
       costoEmpaque: p.costoEmpaque ?? "",
       empaque: Array.isArray(p.empaque) ? p.empaque : [],
+      enPuntoDeVenta: p.enPuntoDeVenta !== false,
       categoria: p.categoria || "postre",
       unidad: p.unidad || "pieza",
       minimo: p.minimo != null ? String(p.minimo) : "1",
@@ -191,6 +193,7 @@ export default function DashboardPostres() {
         imagenUrl: form.imagenUrl,
         imagenFileName: form.imagenFileName,
         activo: form.activo,
+        enPuntoDeVenta: form.enPuntoDeVenta !== false,
         destacado: form.destacado,
         orden: Number(form.orden) || 0,
         recetaId: form.recetaId || null,
@@ -660,6 +663,11 @@ export default function DashboardPostres() {
                   <p className="text-xs text-gray-500 mt-1">Menor = aparece antes.</p>
                 </div>
                 <div className="flex flex-col gap-2 pt-6">
+                  <label className="inline-flex items-center gap-2">
+                    {/* Permite venderlo en línea sin ofrecerlo en mostrador. */}
+                    <input type="checkbox" checked={form.enPuntoDeVenta !== false} onChange={(e) => setForm((p) => ({ ...p, enPuntoDeVenta: e.target.checked }))} />
+                    <span className="text-sm">En punto de venta</span>
+                  </label>
                   <label className="inline-flex items-center gap-2">
                     <input type="checkbox" checked={form.activo} onChange={(e) => setForm((p) => ({ ...p, activo: e.target.checked }))} />
                     <span className="text-sm">Activo (visible en el catálogo)</span>

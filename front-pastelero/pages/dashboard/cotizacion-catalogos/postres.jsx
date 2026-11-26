@@ -18,6 +18,7 @@ const DEFAULT = {
   costoManual: 0,
   precioManual: "",
   empaque: [],
+  enPuntoDeVenta: true,
   activo: true,
   orden: 0,
 };
@@ -250,6 +251,20 @@ export default function PostresPage() {
             />
             <div className="text-[10px] text-gray-400 mt-1">
               {subiendo ? "Subiendo…" : "Opcional. Si no subes foto se usa el emoji."}
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.enPuntoDeVenta !== false}
+                onChange={(e) => setForm({ ...form, enPuntoDeVenta: e.target.checked })}
+              />
+              Disponible en el punto de venta
+            </label>
+            <div className="text-[10px] text-gray-400 mt-1">
+              Desmárcalo si este postre solo se cotiza para mesas y no se vende suelto en mostrador.
             </div>
           </div>
 

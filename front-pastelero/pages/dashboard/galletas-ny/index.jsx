@@ -25,6 +25,7 @@ const NEW_FLAVOR = {
   tagColor: "",
   tagText: "",
   esTemporada: false,
+  enPuntoDeVenta: true,
   activo: true,
   orden: 0,
   recetaId: "",
@@ -237,6 +238,7 @@ export default function GalletasAdminPage() {
       tagColor:    s.tagColor || "",
       tagText:     s.tagText || "",
       esTemporada: !!s.esTemporada,
+      enPuntoDeVenta: s.enPuntoDeVenta !== false,
       activo:      s.activo !== false,
       orden:       s.orden || 0,
       recetaId:    s.recetaId || "",
@@ -869,6 +871,11 @@ export default function GalletasAdminPage() {
               {/* Toggles */}
               <label style={{ display: "flex", alignItems: "center", gap: 8, gridColumn: "1 / -1", cursor: "pointer" }}>
                 <input type="checkbox" checked={formData.esTemporada} onChange={(e) => setFormData((p) => ({ ...p, esTemporada: e.target.checked }))} />
+              </label>
+              {/* Permite tener un sabor en la tienda en línea sin ofrecerlo en mostrador. */}
+              <label style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 8, fontSize: ".8rem" }}>
+                <input type="checkbox" checked={formData.enPuntoDeVenta !== false} onChange={(e) => setFormData((p) => ({ ...p, enPuntoDeVenta: e.target.checked }))} />
+                Disponible en el punto de venta
                 <span style={{ fontSize: "0.85rem", color: "var(--text-soft)" }}>Sabor de temporada / Edición limitada</span>
               </label>
               <label style={{ display: "flex", alignItems: "center", gap: 8, gridColumn: "1 / -1", cursor: "pointer" }}>
