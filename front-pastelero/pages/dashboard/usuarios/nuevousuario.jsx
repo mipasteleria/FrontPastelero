@@ -224,7 +224,7 @@ const onSubmit = async (data) => {
                     required: "El Rol es obligatorio",
                   })}
                   errors={errors.permissions}
-                  options={["user", "admin"]}
+                  options={["user", "empleado", "admin"]}
                 />
               </form>
             </div>

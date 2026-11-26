@@ -9,6 +9,16 @@ const NAV_GROUPS = [
     label: "Operación",
     items: [
       {
+        href: "/dashboard/punto-de-venta",
+        label: "Punto de venta",
+        icon: (
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3h2l.4 2M7 13h10l3-8H5.4M7 13 5.4 5M7 13l-2 5h14" />
+            <circle cx="9" cy="20" r="1" /><circle cx="17" cy="20" r="1" />
+          </svg>
+        ),
+      },
+      {
         href: "/dashboard",
         label: "Dashboard",
         exact: true,
@@ -223,7 +233,14 @@ const NAV_GROUPS = [
 
 const Asideadmin = () => {
   const router = useRouter();
-  const { userEmail } = useAuth();
+  const { userEmail, userRole } = useAuth();
+
+  // El personal de mostrador solo tiene acceso al punto de venta, así que
+  // el menú no debe ofrecerle nada más: enseñar enlaces que llevan a un
+  // redirect es ruido, y los nombres de las secciones ya dicen de más.
+  const grupos = userRole === "empleado"
+    ? [{ label: "Operación", items: NAV_GROUPS[0].items.filter((i) => i.href === "/dashboard/punto-de-venta") }]
+    : NAV_GROUPS;
 
   const isActive = (href, exact = false) =>
     exact ? router.pathname === href : router.pathname.startsWith(href);
@@ -282,7 +299,7 @@ const Asideadmin = () => {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {NAV_GROUPS.map((group) => (
+          {grupos.map((group) => (
             <div key={group.label} className="mb-4">
               {/* Grupo label */}
               <div

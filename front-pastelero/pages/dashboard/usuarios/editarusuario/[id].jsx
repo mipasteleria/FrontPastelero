@@ -345,7 +345,7 @@ export default function UsuarioForm() {
                   label="Rol"
                   register={register}
                   errors={errors.role}
-                  options={["user", "admin"]}
+                  options={["user", "empleado", "admin"]}
                 />
                 <div className="flex justify-star">
                   <button

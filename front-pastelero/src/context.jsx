@@ -16,6 +16,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const [userToken, setUserToken] = useState(null);
@@ -28,6 +29,7 @@ export function AuthProvider({ children }) {
   const clearAuth = useCallback(() => {
     setIsLoggedIn(false);
     setIsAdmin(false);
+    setUserRole(null);
     setUserId(null);
     setUserEmail(null);
     setUserName(null);
@@ -54,6 +56,7 @@ export function AuthProvider({ children }) {
       const { data } = await res.json();
       setIsLoggedIn(true);
       setIsAdmin(data.role === "admin");
+      setUserRole(data.role || null);
       setUserId(data._id);
       setUserEmail(data.email);
       setUserName(data.name);
@@ -90,6 +93,7 @@ export function AuthProvider({ children }) {
       value={{
         isLoggedIn,
         isAdmin,
+        userRole,
         userId,
         userEmail,
         userName,
