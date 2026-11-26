@@ -32,6 +32,7 @@ export default function PuntoDeVenta() {
   const [catalogo, setCatalogo] = useState({ galletas: [], postres: [] });
   const [cargando, setCargando] = useState(true);
   const [carrito, setCarrito] = useState([]);
+  const [carritoCargado, setCarritoCargado] = useState(false);
   const [metodoPago, setMetodoPago] = useState("efectivo");
   const [efectivoRecibido, setEfectivoRecibido] = useState("");
   const [referencia, setReferencia] = useState("");
@@ -69,6 +70,31 @@ export default function PuntoDeVenta() {
   }, [userToken, authHeader]);
 
   useEffect(() => { cargarCatalogo(); cargarCorte(); }, [cargarCatalogo, cargarCorte]);
+
+  // ── La venta en curso sobrevive a recargas ──
+  //
+  // En el mostrador una recarga, un cierre de sesión o un navegador que
+  // se cierra solo no deben obligar a recapturar lo que el cliente ya
+  // puso en el mostrador. Se guarda en el navegador y se limpia al
+  // cobrar.
+  useEffect(() => {
+    try {
+      const guardado = localStorage.getItem("pos:venta");
+      if (guardado) {
+        const items = JSON.parse(guardado);
+        if (Array.isArray(items) && items.length > 0) setCarrito(items);
+      }
+    } catch { /* si está corrupto, se empieza en blanco */ }
+    setCarritoCargado(true);
+  }, []);
+
+  useEffect(() => {
+    if (!carritoCargado) return; // no pisar lo guardado antes de leerlo
+    try {
+      if (carrito.length > 0) localStorage.setItem("pos:venta", JSON.stringify(carrito));
+      else localStorage.removeItem("pos:venta");
+    } catch { /* sin almacenamiento, el POS sigue funcionando */ }
+  }, [carrito, carritoCargado]);
 
   const agregar = (p) => {
     setCarrito((c) => {

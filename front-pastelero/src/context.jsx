@@ -77,6 +77,37 @@ export function AuthProvider({ children }) {
     fetchMe(token);
   }, [fetchMe]);
 
+  // ── Renovación deslizante de sesión ──
+  //
+  // El back devuelve un token fresco en la cabecera `X-Token-Renovado`
+  // cuando al actual ya le pasó la mitad de su vida. Se intercepta
+  // `fetch` una sola vez, aquí, en lugar de tocar las decenas de
+  // llamadas repartidas por la app: cualquiera de ellas sirve para
+  // mantener viva la sesión de quien está trabajando.
+  //
+  // Antes el token duraba 1 h sin forma de renovarse, así que sacaba al
+  // usuario a mitad del trabajo — en el mostrador, a mitad de un cobro.
+  useEffect(() => {
+    if (typeof window === "undefined" || window.__fetchRenovacion) return;
+    const original = window.fetch.bind(window);
+
+    window.fetch = async (...args) => {
+      const res = await original(...args);
+      try {
+        const nuevo = res.headers?.get?.("X-Token-Renovado");
+        if (nuevo && nuevo !== localStorage.getItem("token")) {
+          localStorage.setItem("token", nuevo);
+          setUserToken(nuevo);
+        }
+      } catch {
+        /* una cabecera ilegible nunca debe romper la petición */
+      }
+      return res;
+    };
+
+    window.__fetchRenovacion = true;
+  }, []);
+
   const login = async (token) => {
     localStorage.setItem("token", token);
     setLoading(true);
