@@ -253,6 +253,19 @@ export default function VerCotizacion() {
         .spec.wide { grid-column:1 / -1; }
         .spec .k { font-size:.72rem; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; font-family:var(--font-sans-q); }
         .spec .v { font-size:1rem; color:var(--text); line-height:1.45; font-family:var(--font-sans-q); font-weight:700; }
+        .postres-lista { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+        .postres-lista li {
+          display:flex; align-items:center; justify-content:space-between; gap:12px;
+          padding:9px 0; border-bottom:1px solid var(--border);
+        }
+        .postres-lista li:last-child { border-bottom:none; padding-bottom:0; }
+        .postres-lista li:first-child { padding-top:0; }
+        .postres-lista .nom { font-size:.95rem; font-weight:700; color:var(--text); line-height:1.3; }
+        .postres-lista .pz-badge {
+          flex-shrink:0; font-size:.72rem; font-weight:800; color:var(--burd);
+          background:#fff; border:1px solid var(--border); border-radius:999px;
+          padding:3px 10px; white-space:nowrap;
+        }
         .refs { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
         .refs img { width:64px; height:64px; object-fit:cover; border-radius:10px; border:1px solid var(--border); }
 
@@ -360,13 +373,25 @@ export default function VerCotizacion() {
                   <>
                     <Spec k="Personas" v={`${cot.evento?.invitados}`} dot="var(--menta-deep)" />
                     <Spec k="Postres por persona" v={cot.postresPorPersona} dot="var(--mantequilla)" />
+                    {/* Un renglón por postre en vez de un párrafo corrido:
+                        con cuatro o más la lista separada por comas se
+                        volvía ilegible. */}
                     <Spec
                       k="Postres"
                       wide
                       dot="var(--lavanda)"
-                      v={(cot.postres || [])
-                        .map((p) => (p.cantidad > 0 ? `${p.nombre} (${p.cantidad} pz)` : p.nombre))
-                        .join(", ")}
+                      v={
+                        (cot.postres || []).length === 0 ? "—" : (
+                          <ul className="postres-lista">
+                            {(cot.postres || []).map((p, i) => (
+                              <li key={p.slug || i}>
+                                <span className="nom">{p.nombre}</span>
+                                {p.cantidad > 0 && <span className="pz-badge">{p.cantidad} pz</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        )
+                      }
                     />
                   </>
                 ) : esGalleta ? (
