@@ -310,6 +310,35 @@ export default function PostresPage() {
               value={form.precioManual ?? ""}
               onChange={(e) => setForm({ ...form, precioManual: e.target.value === "" ? "" : Number(e.target.value) })}
             />
+            {/* Sugerencia + botón para adoptarla, igual que en el catálogo
+                de postres del home: el precio es siempre tuyo, el sistema
+                solo propone uno. Solo aparece al editar, cuando ya existe
+                el costeo del postre. */}
+            {(() => {
+              const c = costeo[String(form._id)];
+              if (!c?.precioSugerido) return null;
+              const yaEsEse = Number(form.precioManual) === c.precioSugerido;
+              return (
+                <div className="mt-2 text-[11px] text-gray-600 flex items-center gap-2 flex-wrap">
+                  <span>
+                    Sugerido: <strong>{money(c.precioSugerido)}</strong>{" "}
+                    <span className="text-gray-400">
+                      (costo {money(c.costoUnitario)} + {c.margenSugerido}%)
+                    </span>
+                  </span>
+                  {!yaEsEse && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, precioManual: c.precioSugerido })}
+                      className="px-2 py-0.5 rounded-full border border-secondary hover:bg-rosa-4 font-bold"
+                      style={{ color: "var(--burdeos)" }}
+                    >
+                      Usar este precio →
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
             <div className="text-[10px] text-gray-400 mt-1">
               El costo lo sigue tomando de la receta. Si fijas un precio aquí, se
               cobra ese y la tabla te muestra la ganancia real. Si lo dejas vacío,
